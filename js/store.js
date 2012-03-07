@@ -256,7 +256,12 @@ function _Store(name) {
         $.each(outbox, function(i, item) {
             if (!item || item.saved)
                 return;
-            $.ajax(self.service, {
+            var url = self.service;
+            if (item.data.url) {
+                url = url + '/' + item.data.url;
+                delete item.data.url;
+            }
+            $.ajax(url, {
                 data: item.data,
                 type: "POST",
                 dataType: "json",
