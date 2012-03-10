@@ -17,7 +17,7 @@ def build(version=None, buildconfig="app.build.json", acconfig="app.cache.json")
     
     # Update version.js
     vjs = open('%s/version.js' % bconf['baseUrl'], 'w')
-    vjs.write('define(%s)' % version)
+    vjs.write(VERSIONJS_TMPL % version);
 
     # Build Javascript (using r.js)
     call(["r.js", "-o", buildconfig])
@@ -46,21 +46,25 @@ def generate_appcache(version, bconf, acconf):
     
     b_css = [acconf['css']]
 
-    # Collect filenames and create appcaches
-    source_files = s_js + s_css + images
-    built_files  = b_js + b_css + images
+    # Collect path names and create appcaches
+    cache        = list(acconf['cache'])
+    source_cache = cache + s_js + s_css + images
+    built_cache  = cache + b_js + b_css + images
+
+    network      = list(acconf['network'])
+    fallback     = list(acconf['fallback'])
 
     s_ac.write(APPCACHE_TMPL % {
         'version': version + '_dev',
-        'cache':   '\n'.join(source_files),
-        'fallback': acconf['fallback'],
-        'network':  acconf['network']
+        'cache':    '\n'.join(source_cache),
+        'network':  '\n'.join(network),
+        'fallback': '\n'.join(fallback)
     })
     b_ac.write(APPCACHE_TMPL % {
-        'version': version,
-        'cache':   '\n'.join(built_files),
-        'fallback': acconf['fallback'],
-        'network':  acconf['network']
+        'version':  version,
+        'cache':    '\n'.join(built_cache),
+        'network':  '\n'.join(network),
+        'fallback': '\n'.join(fallback)
     })
 
 def parse_js_buildfile(filename):
@@ -98,6 +102,8 @@ NETWORK:
 FALLBACK:
 %(fallback)s
 """
+
+VERSIONJS_TMPL = """define(function(){return "%s";});"""
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
