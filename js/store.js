@@ -153,12 +153,12 @@ function _Store(name) {
     }
 
     // Find an object by id 
-    self.find = function(query, value, attr) {
+    self.find = function(query, value, attr, usesvc) {
         if (!attr) attr = 'id';
         console.log('finding item in ' + self.toKey(query) + ' where ' + attr + '=' + value);
         filter = {};
         filter[attr] = value;
-        var result = self.filter(query, filter);
+        var result = self.filter(query, filter, usesvc);
         if (result && result.length > 0)
             return result[0];
         else
@@ -257,12 +257,13 @@ function _Store(name) {
             if (!item || item.saved)
                 return;
             var url = self.service;
-            if (item.data.url) {
-                url = url + '/' + item.data.url;
-                delete item.data.url;
+            var data = $.extend({}, self.defaults, item.data);
+            if (data.url) {
+                url = url + '/' + data.url;
+                delete data.url;
             }
             $.ajax(url, {
-                data: item.data,
+                data: data,
                 type: "POST",
                 dataType: "json",
                 async: false,

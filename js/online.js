@@ -37,8 +37,8 @@ function _update(evt) {
 };
 
 // Initialization
-document.body.addEventListener('offline', _update, false);
-document.body.addEventListener('online',  _update, false);
+document.addEventListener('offline', _update, false);
+document.addEventListener('online',  _update, false);
 window.setInterval(_update, 1000 * 10);
 
 return ol;
