@@ -66,14 +66,20 @@ pages.inject = function(path, template, context) {
         throw "No content found in template!";
     var $page = $(body);
     var url   = _base + '/' + path;
-    $page.attr("data-" + jqm.ns + "url", url);
-    $page.attr("data-" + jqm.ns + "title", title);
-    $oldpage = $(":jqmData(url='" + url + "')");
-    if ($oldpage.length)
-        $oldpage.replaceWith($page);
-    else
+    var $oldpage = $(":jqmData(url='" + url + "')");
+    if ($oldpage.length) {
+        $oldpage.jqmData('title', title);
+        var $content    = $(":jqmData(role='content')", $page);
+        var $oldcontent = $(":jqmData(role='content')", $oldpage);
+        $oldcontent.html($content.html());
+        $oldpage.trigger('create');
+        $page = $oldpage;
+    } else {
+        $page.attr("data-" + jqm.ns + "url", url);
+        $page.attr("data-" + jqm.ns + "title", title);
         $page.appendTo(jqm.pageContainer);
-    $page.page();
+        $page.page();
+    }
     return $page;
 };
 

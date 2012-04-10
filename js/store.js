@@ -218,7 +218,7 @@ function _Store(name) {
     };
 
     // Queue data for server use; use outbox to cache unsaved items
-    self.save = function(data, id) {
+    self.save = function(data, id, nospin) {
         var outbox = self.get('outbox');
         if (!outbox)
             outbox = [];
@@ -240,18 +240,18 @@ function _Store(name) {
             outbox.push(item);
         }
         self.set('outbox', outbox);
-        self.send();
+        self.send(nospin);
         // Reload item from outbox since it may have been altered by send()
         return self.find('outbox', item.id);
     };
 
     // Attempt to post queued data to server
-    self.send = function() {
+    self.send = function(nospin) {
         var outbox = self.get('outbox');
         if (!outbox || outbox.length == 0 || !ol.online)
             return;
         
-        spin.start();
+        if (!nospin) spin.start();
         var success = true;
         $.each(outbox, function(i, item) {
             if (!item || item.saved)
@@ -273,13 +273,13 @@ function _Store(name) {
                         success = false;
                 },
                 error: function() {
-                    spin.stop();
+                    if (!nospin) spin.stop();
                     throw "Unknown AJAX error!";
                 }
             });
         });
         self.set('outbox', outbox);
-        spin.stop();
+        if (!nospin) spin.stop();
         return success;
     };
     
