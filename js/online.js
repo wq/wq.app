@@ -27,10 +27,7 @@ function _callback(type, msg) {
 };
 
 function _update(evt) {
-    var online = navigator.onLine;
-    if (online == ol.online)
-      return;
-    ol.online = online;
+    ol.online = navigator.onLine;
     var type = ol.online ? "online"          : "offline";
     var msg  = ol.online ? "&#10003; Online" : "&#10005; Offline";
     _callback(type, msg);
