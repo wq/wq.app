@@ -11,13 +11,17 @@ def build(version=None, buildconfig="app.build.json", acconfig="app.cache.json")
     if (version is None):
         version = open('version.txt').read().strip()
     else:
-        open('version.txt', 'w').write(version)
+        vtxt = open('version.txt', 'w')
+        vtxt.write(version)
+        vtxt.close()
+
     bconf  = json.load(open(buildconfig))
     acconf = json.load(open(acconfig))
     
     # Update version.js
     vjs = open('%s/version.js' % bconf['baseUrl'], 'w')
-    vjs.write(VERSIONJS_TMPL % version);
+    vjs.write(VERSIONJS_TMPL % version)
+    vjs.close()
 
     # Build Javascript (using r.js)
     call(["r.js", "-o", buildconfig])
@@ -66,6 +70,8 @@ def generate_appcache(version, bconf, acconf):
         'network':  '\n'.join(network),
         'fallback': '\n'.join(fallback)
     })
+    s_ac.close()
+    b_ac.close()
 
 def parse_js_buildfile(filename):
     text = open(filename).read()
