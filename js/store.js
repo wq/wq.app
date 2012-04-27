@@ -38,6 +38,8 @@ function _Store(name) {
 
     var _lsp     = name + '_'; // Used to prefix localstorage keys
     var _cache = {};           // Cache for JSON results
+    var _index_cache = {};     // Cache for lists indexed by e.g. primary key
+    var _group_cache = {};     // Cache for lists grouped by e.g. foreign key
     
     self.init = function(svc, defaults, parseData, applyResult) {
          if (svc)         self.service = svc;
@@ -98,6 +100,69 @@ function _Store(name) {
         return null;
     };
 
+    // Get list from datastore, indexed by a unique attribute (e.g. primary key)
+    self.getIndex = function(query, attr, usesvc) {
+        var key = self.toKey(query);
+
+        if (!_index_cache[key] || usesvc) {
+           var list = self.get(query, usesvc);
+           if (!list || !$.isArray(list))
+              return null;
+           _index_cache[key] = {};
+           $.each(list, function(i, obj) {
+               _index_cache[key][obj[attr]] = obj;
+           });
+        }
+        return _index_cache[key];
+    };
+
+    // Get list from datastore, grouped by an attribute (e.g. foreign key)
+    self.getGroups = function(query, attr, usesvc) {
+        var key = self.toKey(query);
+
+        if (!_group_cache[key] || !_group_cache[key][attr] || usesvc) {
+            var list = self.get(query, usesvc);
+            if (!list || !$.isArray(list))
+                return null;
+            
+            if (!_group_cache[key])
+                _group_cache[key] = {};
+            
+            if (!_group_cache[key][attr]) {
+                _group_cache[key][attr] = {};
+                $.each(list, function (i, obj) {
+                    if ($.isArray(obj[attr]))
+                        // Assume multivalued attribute (e.g. an M2M relationship)
+                        $.each(obj[attr], function(i, val) {
+                           _addToCache(key, attr, val, obj);
+                        });
+                    else
+                        _addToCache(key, attr, obj[attr], obj);
+
+                });
+            }
+
+        }
+
+        return _group_cache[key][attr];
+
+        // Internal function 
+        function _addToCache(key, attr, val, obj) {
+            if (!_group_cache[key][attr][val])
+                _group_cache[key][attr][val] = [];
+             _group_cache[key][attr][val].push(obj);
+        }
+    };
+
+    // Get individual subset from grouped list
+    self.getGroup = function(query, attr, value, usesvc) {
+        var groups = self.getGroups(query, attr, usesvc);
+        if (groups && groups[value] && groups[value].length > 0)
+            return groups[value];
+        else
+            return [];
+    };
+
     // Set value (locally)
     self.set = function(query, value) {
         key = self.toKey(query);
@@ -113,6 +178,9 @@ function _Store(name) {
             if (_ls)
                 _ls.removeItem(_lsp + key);
         }
+        // Force caches to be rebuilt on next use
+        delete _index_cache[key];
+        delete _group_cache[key];
     };
 
     // Helper to allow simple objects to be used as keys
@@ -127,40 +195,60 @@ function _Store(name) {
     
     // Filter an array of objects by one or more attributes
     self.filter = function(query, filter, any, usesvc) {
-        var list = self.get(query, usesvc);
-        if (!list || !$.isArray(list))
-            return null;
+        if (!filter) {
+            // No filter: return unmodified list directly
+            return self.get(query, usesvc);
 
-        var all = !any;
-        var result = [];
-        $.each(list, function (i, obj) {
-            // If any is true, assume no match until one is found
-            // otherwise assume all match until a mismatch is found
-            var match = any ? false : true;
-            for (key in filter) {
-                if (obj[key] == filter[key] && any) {
-                    match = true;
-                    break;
-                } else if (obj[key] != filter[key] && all) {
-                    match = false;
-                    break;
-                }
+        } else if (any) {
+            // any=true: Match on any of the provided filter attributes
+
+            var result = [];
+            for (attr in filter) {
+                var group = self.getGroup(query, attr, filter[attr], usesvc);
+                // Note: objects matching more than one attribute will be duplicated
+                result = result.concat(group);
             }
-            if (match)
-                result.push(obj);
-        });
-        return result;
+            return result;
+
+        } else {
+            // Default: require match on all filter attributes
+
+            // Convert to array for convenience
+            var afilter = [];
+            for (attr in filter)
+                afilter.push({'name': attr, 'value': filter[attr]});
+
+            // Use getGroup to filter list on first given attribute
+            var f = afilter.shift();
+            var group = self.getGroup(query, f.name, f.value, usesvc);
+
+            // If only one filter attribute was given return the group as is
+            if (afilter.length == 0)
+                return group;
+
+            // Otherwise continue to filter using the remaining attributes
+            var result = [];
+            $.each(group, function(i, obj) {
+                var match = true;
+                $.each(afilter, function(i, f) {
+                    if (f.value != obj[f.name])
+                        match = false;
+                });
+                if (match)
+                    result.push(obj);
+            });
+            return result;
+        }
     }
 
     // Find an object by id 
     self.find = function(query, value, attr, usesvc) {
         if (!attr) attr = 'id';
-        console.log('finding item in ' + self.toKey(query) + ' where ' + attr + '=' + value);
-        filter = {};
-        filter[attr] = value;
-        var result = self.filter(query, filter, usesvc);
-        if (result && result.length > 0)
-            return result[0];
+        var ilist = self.getIndex(query, attr, usesvc);
+        var key = self.toKey(query);
+        console.log('finding item in ' + key + ' where ' + attr + '=' + value);
+        if (ilist && ilist[value])
+            return ilist[value];
         else
             return null;
     }
