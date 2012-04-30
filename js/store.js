@@ -297,6 +297,58 @@ function _Store(name) {
         console.log("prefetching " + self.toKey(query));
         self.fetch(query, true, callback);
     };
+    
+    // Helper for partial list updates (useful for large lists)
+    // Note: params should contain correct arguments to fetch only "recent"
+    // items from server; idcol should be a unique identifier for the list
+    self.fetchListUpdate = function(query, params, idcol, opts) {
+        if (!query || !params || !idcol)
+            throw "Missing required arguments!";
+        // Retrieve current list
+        var list = self.get(query, false);
+        if (!list) {
+            // No list locally, just do a full fetch
+            self.fetch(query, opts ? opts.async : true,
+                              opts ? opts.callback : null);
+            return;
+        }
+
+        // Update local list with recent items from server
+        var q = $.extend({}, query, params);
+        self.fetch(q, opts ? opts.async : true, function(data) {
+            self.updateList(query, data, idcol, opts);
+            if (opts && opts.callback)
+                opts.callback(data);
+        }, true);
+    };
+
+    // Merge new/updated items into list
+    self.updateList = function(query, data, idcol, opts) {
+        var list = self.get(query);
+        if (!$.isArray(list))
+           throw "List is not an array";
+        if (!$.isArray(data))
+            throw "Data is not an array!";
+        if (data.length == 0)
+            return;
+        if (opts && opts.prepend)
+            data = data.reverse();
+
+        $.each(data, function(i, obj) {
+            var curobj = self.find(query, obj[idcol], idcol);
+            if (curobj) {
+                // Object exists in list already; update with new attrs
+                $.extend(curobj, obj);
+            } else {
+                // Object does not exist in list; add to beginning/end
+                if (opts && opts.prepend)
+                    list.unshift(obj);
+                else
+                    list.push(obj);
+            }
+        });
+        self.set(query, list);
+    };
 
     // Process service fetch() results
     // (override if response data is in a child node)
