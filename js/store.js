@@ -403,6 +403,9 @@ function _Store(name) {
         if (!item || item.saved) {
             if (callback) callback(null);
             return;
+        } else if (!ol.online) {
+            if (callback) callback(item);
+            return;
         }
 
         var url = self.service;
@@ -438,6 +441,10 @@ function _Store(name) {
         var items = self.filter('outbox', {'saved': false});
         if (items.length == 0) {
             callback(true);
+            return;
+        }
+        if (!ol.online) {
+            callback(false);
             return;
         }
 
