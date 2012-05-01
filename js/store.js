@@ -41,11 +41,21 @@ function _Store(name) {
     var _index_cache = {};     // Cache for lists indexed by e.g. primary key
     var _group_cache = {};     // Cache for lists grouped by e.g. foreign key
     
-    self.init = function(svc, defaults, parseData, applyResult) {
-         if (svc)         self.service = svc;
-         if (defaults)    self.defaults = defaults;
-         if (parseData)   self.parseData = parseData;
-         if (applyResult) self.applyResult = applyResult;
+    self.init = function(svc, defaults, opts) {
+         if (svc)              self.service = svc;
+         if (defaults)         self.defaults = defaults;
+         if (!opts) return;
+
+         if (opts.parseData)   self.parseData = opts.parseData;
+         if (opts.applyResult) self.applyResult = opts.applyResult;
+
+         if (opts.batchService) {
+             self.batchService = opts.batchService;
+             if (opts.parseBatchResult)
+                 self.parseBatchResult = opts.parseBatchResult;
+             else
+                 self.parseBatchResult = self.parseData;
+         }
     };
 
     // Get value from datastore
@@ -358,7 +368,7 @@ function _Store(name) {
     };
 
     // Queue data for server use; use outbox to cache unsaved items
-    self.save = function(data, id, nospin) {
+    self.save = function(data, id, callback) {
         var outbox = self.get('outbox');
         if (!outbox)
             outbox = [];
@@ -380,47 +390,138 @@ function _Store(name) {
             outbox.push(item);
         }
         self.set('outbox', outbox);
-        self.send(nospin);
-        // Reload item from outbox since it may have been altered by send()
-        return self.find('outbox', item.id);
+
+        if (callback)
+            self.sendItem(item.id, callback);
+        else
+            return item.id;
     };
 
-    // Attempt to post queued data to server
-    self.send = function(nospin) {
-        var outbox = self.get('outbox');
-        if (!outbox || outbox.length == 0 || !ol.online)
+    // Send a single item from the outbox to the server
+    self.sendItem = function(id, callback, nospin) {
+        var item = self.find('outbox', id);
+        if (!item || item.saved) {
+            if (callback) callback(null);
             return;
-        
+        }
+
+        var url = self.service;
+        var data = $.extend({}, self.defaults, item.data);
+        if (data.url) {
+            url = url + '/' + data.url;
+            delete data.url;
+        }
+
         if (!nospin) spin.start();
-        var success = true;
-        $.each(outbox, function(i, item) {
-            if (!item || item.saved)
-                return;
-            var url = self.service;
-            var data = $.extend({}, self.defaults, item.data);
-            if (data.url) {
-                url = url + '/' + data.url;
-                delete data.url;
+        $.ajax(url, {
+            data: data,
+            type: "POST",
+            dataType: "json",
+            async: true,
+            success: function(result) {
+                self.applyResult(item, result);
+                // Re-save outbox to update caches
+                self.set('outbox', self.get('outbox'));
+
+                if (!nospin)  spin.stop();
+                if (callback) callback(item);
+            },
+            error: function() {
+                if (!nospin)  spin.stop();
+                if (callback) callback(null);
             }
-            $.ajax(url, {
-                data: data,
-                type: "POST",
-                dataType: "json",
-                async: false,
-                success: function(result) {
-                    self.applyResult(item, result);
-                    if (!item.saved)
-                        success = false;
-                },
-                error: function() {
-                    if (!nospin) spin.stop();
-                    throw "Unknown AJAX error!";
-                }
-            });
         });
-        self.set('outbox', outbox);
-        if (!nospin) spin.stop();
-        return success;
+    };
+
+    // Send all unsaved items to a batch service on the server
+    self.sendBatch = function(callback) {
+        var items = self.filter('outbox', {'saved': false});
+        if (items.length == 0) {
+            callback(true);
+            return;
+        }
+
+        var data   = [];
+        $.each(items, function(i, item) {
+            data.push(item.data);
+        });
+
+        var success = true;
+        spin.start();
+        $.ajax(self.batchService, {
+            data: JSON.stringify(data),
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            async: true,
+            success: function(r) {
+                var results = self.parseBatchResult(r);
+                if (!results || results.length != items.length) {
+                    spin.stop();
+                    if (callback) callback(null);
+                    return;
+                }
+
+                // Apply save results to individual items
+                $.each(results, function(i) {
+                    self.applyResult(items[i], results[i]);
+                    if (!items[i].saved)
+                        success = false;
+                });
+                // Re-save outbox to update caches
+                self.set('outbox', self.get('outbox'));
+
+                spin.stop();
+                if (callback) callback(success);
+            },
+            error: function() {
+                spin.stop();
+                if (callback) callback(null);
+            }
+        });
+    };
+    
+    // Send all unsaved items, using batch service if available
+    self.sendAll = function(callback) {
+        var outbox = self.get('outbox');
+        if (!outbox || !ol.online) {
+            if (callback) callback(false);
+            return;
+        }
+        
+        // Utilize batch service if it exists
+        if (self.batchService) {
+            self.sendBatch(callback);
+            return;
+        }
+
+        // No batch service; emulate batch mode by sending each item to
+        // the server and summarizing the result
+        var items = self.filter('outbox', {'saved': false});
+        var remain = items.length;
+        if (remain == 0) {
+            callback(true);
+            return;
+        }
+
+        var success = true;
+        spin.start();
+        $.each(items, function(i, item) {
+            self.sendItem(item.id, function(item) {
+                if (!item)
+                    success = null; // sendItem failed
+                else if (success && !item.saved)
+                    success = false; // sendItem did not result in save
+                remain--;
+                if (remain == 0) {
+                    // After last sendItem is complete, wrap up
+                    // (this should always execute, since sendItem calls back
+                    //  even after an error)
+                    spin.stop();
+                    callback(success);
+                }
+            }, true);
+        });
     };
     
     // Process service send() results
@@ -434,19 +535,14 @@ function _Store(name) {
     
     // Count of pending outbox items (never saved, or save was unsuccessful)
     self.unsaved = function() {
-        var outbox = self.get('outbox');
-        var count = 0;
-        if (outbox)
-            $.each(outbox, function (i, item) {
-                if (!item.saved)
-                    count++;
-            });
-        return count;
+        return self.filter('outbox', {'saved': false}).length;
     }
     
-    // Clear local cache
+    // Clear local caches
     self.reset = function() {
         _cache = {};
+        _index_cache = {};
+        _group_cache = {};
         if (_ls)
             _ls.clear(); // FIXME: what about other stores?!
     };
