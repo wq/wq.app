@@ -2396,4 +2396,6 @@ function(jQuery, jqm) {
 	
 })( jQuery );
 
+return jQuery.mobile.datebox;
+
 });
