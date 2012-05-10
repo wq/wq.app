@@ -40,6 +40,8 @@ function _Store(name) {
     var _cache = {};           // Cache for JSON results
     var _index_cache = {};     // Cache for lists indexed by e.g. primary key
     var _group_cache = {};     // Cache for lists grouped by e.g. foreign key
+
+    var _functions = {};       // Configurable functions to e.g. filter data by
     
     self.init = function(svc, defaults, opts) {
          if (svc)              self.service = svc;
@@ -56,6 +58,8 @@ function _Store(name) {
              else
                  self.parseBatchResult = self.parseData;
          }
+         if (opts.functions)
+             _functions = opts.functions;
     };
 
     // Get value from datastore
@@ -120,7 +124,11 @@ function _Store(name) {
               return null;
            _index_cache[key] = {};
            $.each(list, function(i, obj) {
-               _index_cache[key][obj[attr]] = obj;
+               var id = obj[attr];
+               if (id === undefined && _functions[attr])
+                   id = self.compute(attr, obj);
+               if (id !== undefined)
+                   _index_cache[key][id] = obj;
            });
         }
         return _index_cache[key];
@@ -141,13 +149,17 @@ function _Store(name) {
             if (!_group_cache[key][attr]) {
                 _group_cache[key][attr] = {};
                 $.each(list, function (i, obj) {
-                    if ($.isArray(obj[attr]))
+                    var value = obj[attr];
+                    if (value === undefined && _functions[attr])
+                        value = self.compute(attr, obj);
+
+                    if ($.isArray(value))
                         // Assume multivalued attribute (e.g. an M2M relationship)
-                        $.each(obj[attr], function(i, val) {
-                           _addToCache(key, attr, val, obj);
+                        $.each(value, function(i, v) {
+                           _addToCache(key, attr, v, obj);
                         });
-                    else
-                        _addToCache(key, attr, obj[attr], obj);
+                    else 
+                        _addToCache(key, attr, value, obj);
 
                 });
             }
@@ -166,6 +178,15 @@ function _Store(name) {
 
     // Get individual subset from grouped list
     self.getGroup = function(query, attr, value, usesvc) {
+        if ($.isArray(value)) {
+            // Assume multivalued query, return all matching groups
+            var result = [];
+            $.each(value, function(i, v) {
+                var group = self.getGroup(query, attr, v, usesvc);
+                result = result.concat(group);
+            });
+            return result;
+        }
         var groups = self.getGroups(query, attr, usesvc);
         if (groups && groups[value] && groups[value].length > 0)
             return groups[value];
@@ -228,6 +249,10 @@ function _Store(name) {
             for (attr in filter)
                 afilter.push({'name': attr, 'value': filter[attr]});
 
+            // Empty filter: return unmodified list directly
+            if (afilter.length == 0)
+                return self.get(query, usesvc);
+
             // Use getGroup to filter list on first given attribute
             var f = afilter.shift();
             var group = self.getGroup(query, f.name, f.value, usesvc);
@@ -259,6 +284,14 @@ function _Store(name) {
         console.log('finding item in ' + key + ' where ' + attr + '=' + value);
         if (ilist && ilist[value])
             return ilist[value];
+        else
+            return null;
+    }
+
+    // Apply a predefined function to a retreived item
+    self.compute = function(fn, item) {
+        if (_functions[fn])
+            return _functions[fn](item);
         else
             return null;
     }
