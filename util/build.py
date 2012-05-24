@@ -76,11 +76,12 @@ def _collectjson(conf, indir, noremap):
     obj = {}
     cur = os.getcwd()
     os.chdir(indir)
-    for path, dirs, files in os.walk(conf['directory']):
+    for d in conf['paths']:
+      for path, dirs, files in os.walk(d):
         if '.svn' in dirs:
             dirs.remove('.svn')
         o = obj
-        if path == conf['directory']:
+        if path == d:
             path = ""
         else:
             apath = path.split('/')[1:]
@@ -98,7 +99,7 @@ def _collectjson(conf, indir, noremap):
                         fpath = None
 
                 if fpath is not None:
-                    data = open(conf['directory'] + '/' + fpath + '.' + conf['type'])
+                    data = open(d + '/' + fpath + '.' + conf['type'])
                     if conf['type'] == "json":
                         o[name] = json.load(data)
                     else:

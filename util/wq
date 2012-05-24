@@ -1,0 +1,14 @@
+#!/usr/bin/python
+import sys
+from wq.app.util.build import build
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else ""
+    if len(sys.argv) > 2:
+        args = sys.argv[2:]
+    else:
+        args = []
+    if cmd == "build":
+        build(*args)
+    else:
+        print "Usage: wq build [version] [configfile]"
