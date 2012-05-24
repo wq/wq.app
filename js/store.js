@@ -31,7 +31,8 @@ function _Store(name) {
     var self = _stores[name] = this;
 
     // Base URL of web service
-    self.service     = '/';
+    self.service     = undefined;
+    self.saveMethod  = 'POST';
     
     // Default parameters (e.g f=json)
     self.defaults    = {}; 
@@ -44,10 +45,11 @@ function _Store(name) {
     var _functions = {};       // Configurable functions to e.g. filter data by
     
     self.init = function(svc, defaults, opts) {
-         if (svc)              self.service = svc;
-         if (defaults)         self.defaults = defaults;
+         if (svc !== undefined) self.service = svc;
+         if (defaults)          self.defaults = defaults;
          if (!opts) return;
 
+         if (opts.saveMethod)  self.saveMethod = opts.saveMethod;
          if (opts.parseData)   self.parseData = opts.parseData;
          if (opts.applyResult) self.applyResult = opts.applyResult;
 
@@ -103,7 +105,7 @@ function _Store(name) {
         }
             
         // More complex queries are assumed to be server requests
-        if (self.service && usesvc != 'never') {
+        if (self.service !== undefined && usesvc != 'never') {
             console.log('on server');
             self.fetch(query);
             // console.log(_cache[key]);
@@ -442,16 +444,23 @@ function _Store(name) {
         }
 
         var url = self.service;
-        var data = $.extend({}, self.defaults, item.data);
+        var method = self.saveMethod;
+        var data = $.extend({}, item.data);
         if (data.url) {
             url = url + '/' + data.url;
             delete data.url;
         }
+        if (data.method) {
+            method = data.method;
+            delete data.method;
+        }
+        if ($.param(self.defaults))
+            url += '?' + $.param(self.defaults);
 
         if (!nospin) spin.start();
         $.ajax(url, {
             data: data,
-            type: "POST",
+            type: method,
             dataType: "json",
             async: true,
             success: function(result) {
@@ -462,9 +471,19 @@ function _Store(name) {
                 if (!nospin)  spin.stop();
                 if (callback) callback(item);
             },
-            error: function() {
-                if (!nospin)  spin.stop();
-                if (callback) callback(null);
+            error: function(jqxhr, status) {
+                if (!nospin) spin.stop();
+                if (jqxhr.responseText) {
+                    try {
+                        item.error = JSON.parse(jqxhr.responseText);
+                    } catch (e) {
+                        item.error = jqxhr.responseText
+                    }
+                } else {
+                    item.error = status;
+                }
+                self.set('outbox', self.get('outbox'));
+                if (callback) callback(item);
             }
         });
     };

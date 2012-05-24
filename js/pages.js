@@ -69,6 +69,9 @@ pages.inject = function(path, template, context) {
     var $oldpage = $(":jqmData(url='" + url + "')");
     if ($oldpage.length) {
         $oldpage.jqmData('title', title);
+        var $header     = $(":jqmData(role='header')",  $page).find("h1,h2,h3");
+        var $oldheader  = $(":jqmData(role='header')",  $oldpage).find("h1,h2,h3");
+        $oldheader.html($header.html());
         var $content    = $(":jqmData(role='content')", $page);
         var $oldcontent = $(":jqmData(role='content')", $oldpage);
         $oldcontent.html($content.html());
