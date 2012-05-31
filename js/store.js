@@ -543,7 +543,12 @@ function _Store(name) {
     // Send all unsaved items, using batch service if available
     self.sendAll = function(callback) {
         var outbox = self.get('outbox');
-        if (!outbox || !ol.online) {
+        if (!outbox) {
+            if (callback) callback(true);
+            return;
+        }
+          
+        if (!ol.online) {
             if (callback) callback(false);
             return;
         }
