@@ -9,9 +9,11 @@ function($, jqm, ds, pages, tmpl) {
 
 var app = {};
 
-app.init = function(config, templates) {
+app.init = function(config, templates, svc) {
+    if (svc === undefined)
+       svc = '';
     app.config = config;
-    ds.init('', {'format':'json'}, {'applyResult': _applyResult});
+    ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
     pages.init();
     tmpl.init(templates, templates.partials, config.defaults);
 
