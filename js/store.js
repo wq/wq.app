@@ -463,38 +463,62 @@ function _Store(name) {
             data = data.data;
             contenttype = processdata = false;
         }
-
+	
         if (!nospin) spin.start();
-        $.ajax(url, {
-            data: data,
-            type: method,
-            dataType: "json",
-            contentType: contenttype,
-            processData: processdata,
-            async: true,
-            success: function(result) {
-                self.applyResult(item, result);
-                // Re-save outbox to update caches
-                self.set('outbox', self.get('outbox'));
+	
+	if (data.fileupload) {
+	    var opts = new FileUploadOptions();
+	    opts.fileKey  = data.fileupload;
+	    opts.fileName = data[data.fileupload];
+	    delete data[data.fileupload];
+	    delete data.fileupload;
+            opts.params = data; 
+	    var ft = new FileTransfer();
+            ft.upload(opts.fileName, url,
+		function(res) {
+		    var response = JSON.parse(decodeURIComponent(res.response));
+		    success(response);
+		},
+		function(res) {
+		    error({responseText: 'Error uploading file: ' + res.code});
+		}, opts
+	    );
+	} else {
+            $.ajax(url, {
+                data: data,
+                type: method,
+                dataType: "json",
+                contentType: contenttype,
+                processData: processdata,
+                async: true,
+	        success: success,
+	        error: error
+            });
+        }
 
-                if (!nospin)  spin.stop();
-                if (callback) callback(item);
-            },
-            error: function(jqxhr, status) {
-                if (!nospin) spin.stop();
-                if (jqxhr.responseText) {
-                    try {
-                        item.error = JSON.parse(jqxhr.responseText);
-                    } catch (e) {
-                        item.error = jqxhr.responseText
-                    }
-                } else {
-                    item.error = status;
+        function success(result) {
+            self.applyResult(item, result);
+            // Re-save outbox to update caches
+            self.set('outbox', self.get('outbox'));
+
+            if (!nospin)  spin.stop();
+            if (callback) callback(item);
+        }
+
+	function error(jqxhr, status) {
+            if (!nospin) spin.stop();
+            if (jqxhr.responseText) {
+                try {
+                    item.error = JSON.parse(jqxhr.responseText);
+                } catch (e) {
+                    item.error = jqxhr.responseText
                 }
-                self.set('outbox', self.get('outbox'));
-                if (callback) callback(item);
+            } else {
+                item.error = status;
             }
-        });
+            self.set('outbox', self.get('outbox'));
+            if (callback) callback(item);
+        }
     };
 
     // Send all unsaved items to a batch service on the server

@@ -119,7 +119,14 @@ function _handleForm(evt) {
     var conf = _getConfByUrl(url);
 
     var vals = {};
-    vals.data = new FormData(this);
+    if (app.config.defaults.native) {	
+	$.each($form.serializeArray(), function(i, v) {
+	    vals[v.name] = v.value;
+	});
+    } else {
+        vals.data = new FormData(this);
+    }
+    
     vals.url = url;
     if (url == conf.url + "/")
         vals.method = "POST"; // REST API uses POST for new records
