@@ -446,6 +446,8 @@ function _Store(name) {
         var url = self.service;
         var method = self.saveMethod;
         var data = $.extend({}, item.data);
+        var contenttype;
+        var processdata;
         if (data.url) {
             url = url + '/' + data.url;
             delete data.url;
@@ -457,11 +459,18 @@ function _Store(name) {
         if ($.param(self.defaults))
             url += '?' + $.param(self.defaults);
 
+        if (data.data) {
+            data = data.data;
+            contenttype = processdata = false;
+        }
+
         if (!nospin) spin.start();
         $.ajax(url, {
             data: data,
             type: method,
             dataType: "json",
+            contentType: contenttype,
+            processData: processdata,
             async: true,
             success: function(result) {
                 self.applyResult(item, result);

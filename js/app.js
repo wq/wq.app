@@ -119,9 +119,7 @@ function _handleForm(evt) {
     var conf = _getConfByUrl(url);
 
     var vals = {};
-    $.each($form.serializeArray(), function(i, v) {
-        vals[v.name] = v.value;
-    });
+    vals.data = new FormData(this);
     vals.url = url;
     if (url == conf.url + "/")
         vals.method = "POST"; // REST API uses POST for new records
