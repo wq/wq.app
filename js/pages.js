@@ -104,6 +104,7 @@ pages.injectOnce = function(path, template, context) {
         // Template was already rendered; ignore context but update URL
         // - it is up to the caller to update the DOM
         $page.attr("data-" + jqm.ns + "url", _base + '/' + path);
+        $page.jqmData("url", _base + '/' + path);
     }
     return $page;
 }
