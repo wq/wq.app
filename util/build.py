@@ -101,7 +101,11 @@ def _collectjson(conf, indir, noremap):
                 if fpath is not None:
                     data = open(d + '/' + fpath + '.' + conf['type'])
                     if conf['type'] == "json":
-                        o[name] = json.load(data)
+                        try:
+                            o[name] = json.load(data)
+                        except ValueError:
+                            print "Could not parse %s!" % name
+                            raise
                     else:
                         o[name] = data.read()
 
@@ -111,7 +115,7 @@ def _collectjson(conf, indir, noremap):
     outfile = open(conf['output'], 'w')
     if 'jsonp' in conf:
         txt = json.dumps(obj, **(conf.get('json', {})))
-        txt = '%s(%s)' % (conf['jsonp'], txt)
+        txt = '%s(%s);' % (conf['jsonp'], txt)
         outfile.write(txt)
     else:
         json.dump(obj, outfile, **(conf.get('json', {})))
