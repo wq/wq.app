@@ -34,9 +34,9 @@ pages.init = function(baseurl, opts) {
 pages.register = function(path, fn, obj) {
     var events = "bC";
     if (!fn) {
-        fn = function() {
+        fn = function(match, ui, params) {
             // Assume there is a template with the same name
-            pages.go(path, path);
+            pages.go(path, path, params, ui);
         }
     }
     var callback = function(etype, match, ui, page, evt) {

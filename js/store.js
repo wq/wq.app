@@ -626,7 +626,7 @@ function _Store(name) {
     // Process service send() results
     // (override to apply additional result attributes to item,
     //  but be sure to set item.saved)
-    self.applyResult = function(result, item) {
+    self.applyResult = function(item, result) {
         // Default: assume non-empty result means the save was successful
         if (result)
             item.saved = true;
