@@ -1,6 +1,8 @@
-/* store
+/*!
+ * wq.app - store.js
  * Locally-persistent, optionally server-populated JSON datastore(s)
  * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
  */
 
 define(['./lib/jquery', './online', './spinner', './console'], 

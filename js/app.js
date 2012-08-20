@@ -1,8 +1,11 @@
-/* app
+/*!
+ * wq.app - app.js
  * Utilizes store and pages to dynamically load and render
  * content from a wq.db-compatible REST service
  * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
  */
+
 define(['./lib/jquery', './lib/jquery.mobile',
         './store', './pages', './template'],
 function($, jqm, ds, pages, tmpl) {

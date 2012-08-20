@@ -1,6 +1,8 @@
-/* appcache
+/*
+ * wq.app - appcache.js
  * Monitor HTML5 appcache events and trigger callback
  * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
  */
 
 define(['./online', './console'],

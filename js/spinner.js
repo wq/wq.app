@@ -1,6 +1,8 @@
-/* spinner
+/*
+ * wq.app - spinner.js
  * Wrapper for jQuery Mobile's spinner
  * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
  */
 
 define(['./lib/jquery.mobile'], 

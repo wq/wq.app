@@ -1,3 +1,10 @@
+/*
+ * wq.app - photos.js
+ * Helpers for working with Cordova photo library
+ * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
+ */
+
 define(['./lib/jquery'], function($) {
 
 var photos = {};

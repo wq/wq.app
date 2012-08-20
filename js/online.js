@@ -1,6 +1,8 @@
-/* online.js
+/*
+ * wq.app - online.js
  * Monitor network state.
  * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
  */
 
 define(function() {
