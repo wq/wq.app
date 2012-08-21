@@ -131,7 +131,7 @@ def optimize(conf):
      bjs.close()
 
      # Defer to r.js for actual processing
-     call(["r.js", "-o", bfile])
+     call(["node", os.path.dirname(__file__) + "/r.js", "-o", bfile])
      os.remove(bfile)
 
 def appcache(conf, indir, outdir):
