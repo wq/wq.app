@@ -42,6 +42,8 @@ pages.register = function(path, fn, obj) {
     var callback = function(etype, match, ui, page, evt) {
         if (typeof ui.toPage !== "string")
             return; // Capture URLs only, not completed pages
+        if (jqm.activePage && ui.toPage == jqm.activePage.jqmData('url'))
+            return; // Avoid interfering with hash updates when popups close
 
         // Prevent default changePage behavior
         evt.preventDefault();
@@ -69,11 +71,11 @@ pages.addRoute = function(path, events, callback, obj) {
 // Render page and inject it into DOM (replace existing page if it exists)
 pages.inject = function(path, template, context) {
     var html  = tmpl.render(template, context);
+    if (!html.match(/<div/))
+        throw "No content found in template!";
     var title = html.split(/<\/?title>/)[1];
     var body  = html.split(/<\/?body>/)[1];
-    if (!body)
-        throw "No content found in template!";
-    var $page = $(body);
+    var $page = $(body ? body : html);
     var url   = _base + '/' + path;
     var $oldpage = $(":jqmData(url='" + url + "')");
     if ($oldpage.length) {
@@ -89,19 +91,26 @@ pages.inject = function(path, template, context) {
     } else {
         $page.attr("data-" + jqm.ns + "url", url);
         $page.attr("data-" + jqm.ns + "title", title);
-        $page.appendTo(jqm.pageContainer);
-        $page.page();
+        var role = $page.jqmData('role');
+        if (role == 'page') {
+          $page.appendTo(jqm.pageContainer);
+          $page.page();
+        } else if (role == 'popup') {
+          $page.appendTo(jqm.activePage);
+          $page.popup();
+        }
     }
     return $page;
 };
 
 // Render template only once
 pages.injectOnce = function(path, template, context) {
-    var $page = $('#' + template);
+    var id = template + "-page";
+    var $page = $('#' + id);
     if ($page.length == 0) {
         // Initial render, use context if available
         $page = pages.inject(path, template, context);
-        $page.attr("id", template);
+        $page.attr("id", id);
     } else {
         // Template was already rendered; ignore context but update URL
         // - it is up to the caller to update the DOM
@@ -112,18 +121,41 @@ pages.injectOnce = function(path, template, context) {
 }
 
 // Inject and display page
-pages.go = function(path, template, context, ui) {
+pages.go = function(path, template, context, ui, once) {
     var $page;
-    var options = ui && ui.options || {};
-    if (_injectOnce) {
+    once = once || _injectOnce;
+    if (once)
         // Only render the template once
         $page = pages.injectOnce(path, template, context);
-        options.allowSamePageTransition = true;
-    } else {
+    else
         // Default: render the template every time the page is loaded
         $page = pages.inject(path, template, context);
+
+    var role = $page.jqmData('role');
+    if (role == 'page') {
+        var options = ui && ui.options || {};
+        if (once || _injectOnce)
+            options.allowSamePageTransition = true;
+        jqm.changePage($page, options);
+    } else if (role == 'popup') {
+        var options = {};
+        if (ui && ui.options) {
+            options.transition = ui.options.transition;
+            if (ui.options.link && ui.options.link.jqmData('position-to'))
+                options.positionTo = ui.options.link.jqmData('position-to');
+            else
+                options.positionTo = $page.jqmData('position-to');
+            // Default of 'origin' won't work since we are opening the popup manually
+            if (!options.positionTo || options.positionTo == 'origin')
+                options.positionTo = ui.options.link[0];
+            // Remove link highlight *after* popup is closed
+            $page.bind('popupafterclose.resetlink', function() {
+                ui.options.link.removeClass('ui-btn-active');
+                $(this).unbind('popupafterclose.resetlink');
+            });
+        }
+        $page.popup('open', options);
     }
-    jqm.changePage($page, options);
     return $page;
 };
 
