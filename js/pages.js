@@ -31,12 +31,18 @@ pages.init = function(baseurl, opts) {
 
 // Register URL patterns to override default JQM behavior and inject pages
 // Callback fn should call pages.go() with desired template
-pages.register = function(path, fn, obj) {
+pages.register = function(path, fn, obj, prevent) {
     var events = "bC";
     if (!fn) {
         fn = function(match, ui, params) {
             // Assume there is a template with the same name
             pages.go(path, path, params, ui);
+        }
+    }
+    if (!prevent) {
+        prevent = function(match, ui, params) {
+            // By default, always prevent default changePage behavior
+            return true;
         }
     }
     var callback = function(etype, match, ui, page, evt) {
@@ -46,7 +52,8 @@ pages.register = function(path, fn, obj) {
             return; // Avoid interfering with hash updates when popups close
 
         // Prevent default changePage behavior
-        evt.preventDefault();
+        if (prevent(match, ui, params))
+            evt.preventDefault();
 
         var params = router.getParams(match[match.length-1]);
         if (typeof fn === "string")

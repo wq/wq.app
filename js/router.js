@@ -12,6 +12,15 @@ function($) {
 // (acts as a singleton Router object)
 var router = {};
 
+// Mimics new Router()
+router.init = function(routedefs, handlers, opts) {
+   if (_router)
+      _router.conf = $.extend(_router.conf, opts);
+   else
+      _conf = $.extend(_conf, opts);
+   router.add(routedefs, handlers);
+}
+
 // Mimics Router.add()
 router.add = function(routedefs, handlers) {
    if (_router)
@@ -32,12 +41,13 @@ router.getParams = function(search) {
 // Internal variables
 var _router;       // Actual Router object 
 var _pending = []; // queue of pending add() requests
+var _conf = {'ajaxApp': true};
 
 // Initialization
 // Need to wait until mobileinit before initializing
 // (since that's what jquery.mobile.router does)
 $(document).live('mobileinit', function() {
-    _router = new $.mobile.Router(undefined, undefined, {'ajaxApp': true});
+    _router = new $.mobile.Router(undefined, undefined, _conf);
     $.each(_pending, function(i, p) {
         _router.add(p.r, p.h);
     });
