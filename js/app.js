@@ -15,10 +15,21 @@ var app = {};
 app.init = function(config, templates, svc) {
     if (svc === undefined)
        svc = '';
-    app.config = config;
+    app.config = app.default_config = config;
+    app.native = !!window.cordova;
     ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
     pages.init();
     tmpl.init(templates, templates.partials, config.defaults);
+    tmpl.setDefault('native', app.native);
+
+    var user = ds.get('user');
+    if (user) {
+        app.user = user;
+        tmpl.setDefault('user', user);
+        app.config = ds.get({'url': 'config'});
+    } else if (document.cookie) {
+        app.check_login();
+    }
 
     if (config.transitions) {
         if (config.transitions.default)
@@ -29,6 +40,7 @@ app.init = function(config, templates, svc) {
             _saveTransition = config.transitions.save;
     }
     
+    pages.register('logout\/?', app.logout);
     for (var page in config.pages) {
         var conf = config.pages[page];
         if (conf.list) {
@@ -42,6 +54,30 @@ app.init = function(config, templates, svc) {
 
     $('form').live("submit", _handleForm);
 }
+
+app.logout = function() {
+    delete app.user;
+    ds.set('user', null);
+    tmpl.setDefault('user', null);
+    app.config = app.default_config;
+    ds.fetch({'url': 'logout'}, true, undefined, true);
+};
+
+app.save_login = function(user, config) {
+    app.config = config;
+    ds.set({'url': 'config'}, config);
+    app.user = user;
+    tmpl.setDefault('user', user);
+    ds.set('user', user);
+};
+
+app.check_login = function() {
+    ds.fetch({'url': 'login'}, false, function(result) {
+        if (result && result.user && result.config) {
+            app.save_login(result.user, result.config);
+        }
+    }, true);
+};
 
 // Internal variables and functions
 var _saveTransition = "none";
@@ -122,7 +158,7 @@ function _handleForm(evt) {
     var conf = _getConfByUrl(url);
 
     var vals = {};
-    if (app.config.defaults.native) {	
+    if (app.native) {	
 	$.each($form.serializeArray(), function(i, v) {
 	    vals[v.name] = v.value;
 	});
@@ -131,7 +167,7 @@ function _handleForm(evt) {
     }
     
     vals.url = url;
-    if (url == conf.url + "/")
+    if (url == conf.url + "/" || !conf.list)
         vals.method = "POST"; // REST API uses POST for new records
     else
         vals.method = "PUT";  // .. but PUT to update existing records
@@ -170,6 +206,9 @@ function _applyResult(item, result) {
                 ds.updateList({'url': pconf.url}, result.updates[page], 'id');
             }
         }
+    } else if (result && result.user && result.config) {
+        app.save_login(result.user, result.config);
+        pages.go("login", "login");
     }
 }
 

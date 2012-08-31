@@ -305,8 +305,6 @@ function _Store(name) {
         if (!ol.online)
              throw "This function requires an Internet connection.";
 
-        if (!async) spin.start();
-
         var data = $.extend({}, self.defaults, query);
         var url = self.service;
         if (data.url) {
@@ -320,7 +318,6 @@ function _Store(name) {
             'cache': false,
             'async': async ? true : false,
             'success': function(result) {
-                if (!async) spin.stop();
                 var data = self.parseData(result);
                 if (data) {
                     if (async)
@@ -333,7 +330,6 @@ function _Store(name) {
                     throw "Error parsing data!";
             },
             'error': function() {
-                if (!async) spin.stop();
                 throw "Unknown AJAX error!";
             }
         });
