@@ -42,12 +42,17 @@ def collectjson(conf, directory, remap):
             o[name] = {}
 
     outfile = open(conf['output'], 'w')
+    opts = dict([
+        (str(key), value)
+        for key, value in conf.get('json', {'indent': 4}).items()
+    ])
+    
     if 'jsonp' in conf:
-        txt = json.dumps(obj, **(conf.get('json', {})))
+        txt = json.dumps(obj, **opts)
         txt = '%s(%s);' % (conf['jsonp'], txt)
         outfile.write(txt)
     else:
-        json.dump(obj, outfile, **(conf.get('json', {})))
+        json.dump(obj, outfile, **opts)
 
     print '%s: %s objects collected from %s' % (conf['output'], len(obj), ', '.join(conf['paths']))
 
