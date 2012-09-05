@@ -1,6 +1,17 @@
 #!/usr/bin/python
 import sys
-from wq.app.util.build import build
+from wq.app.util.build import Builder
+
+def usage():
+    print """Usage: wq [command] [version] [configfile]"
+ 
+Valid commands:
+   appcache
+   build
+   collectjson
+   optimize
+   setversion
+"""
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -8,7 +19,13 @@ if __name__ == "__main__":
         args = sys.argv[2:]
     else:
         args = []
-    if cmd == "build":
-        build(*args)
+    if cmd == "":
+        usage()
+        exit()
+
+    builder = Builder(*args)
+    fn = getattr(builder, cmd, None)
+    if fn is not None:
+        fn()
     else:
-        print "Usage: wq build [version] [configfile]"
+        usage()
