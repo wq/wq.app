@@ -7,9 +7,9 @@ import sys
 import re
 import random
 
-from .collect    import collectjson
-from .setversion import setversion
-from .appcache   import appcache
+from collect    import collectjson
+from setversion import setversion
+from appcache   import appcache
 
 class Builder(object):
     conf = None
