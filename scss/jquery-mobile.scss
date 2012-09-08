@@ -1,0 +1,566 @@
+/*
+ * wq.app - jquery-mobile.scss
+ * SASS/SCSS mixins for building custom jQuery Mobile themes
+ * (c) 2012 S. Andrew Sheppard
+ * http://wq.io/license
+ */
+
+/* Styles adapted from jquery.mobile.theme.css.
+ *
+ * jQuery Mobile Framework 1.2.0
+ * http://jquerymobile.com
+ *
+ * Copyright 2012 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ */
+
+@import "compass/css3";
+
+@mixin jquery-mobile-block(
+  $border: #aaa,
+  $bg:     #f9f9f9,
+  $bg1:    false,
+  $bg2:    #eee,
+  $text:   #333,
+  $weight: normal,
+  $shadow: #fff
+){
+  @if not $bg1 {
+    $bg1: $bg;
+  }
+  @if $border {
+    border: 1px solid $border;
+  } @else {
+    border: none; 
+  }
+  background: $bg;
+  font-weight: $weight;
+  color: $text;
+  @if $shadow {
+    text-shadow: 0 1px 1px $shadow;
+  } @else {
+    text-shadow: none;
+  }
+  @include background-image(linear-gradient($bg1, $bg2));
+}
+
+@mixin jquery-mobile-theme(
+  $theme:        "a",
+  $font:         false, 
+
+  $bar-border:   #b3b3b3,
+  $bar-bg:       #eee,
+  $bar-bg1:      #f0f0f0,
+  $bar-bg2:      #ddd,
+  $bar-text:     #3e3e3e,
+  $bar-shadow:   #fff,
+  $bar-link:     #7cc4e7,
+  $bar-link-alt: #2489ce,
+
+  $body-border:  #aaa,
+  $body-bg:      #f9f9f9,
+  $body-bg1:     false,
+  $body-bg2:     #eee,
+  $body-text:    #333,
+  $body-shadow:  #fff,
+  $body-link:    #2489ce,
+
+  $up-border:    #ccc,
+  $up-bg:        #eee,
+  $up-bg1:       #fff,
+  $up-bg2:       #f1f1f1,
+  $up-text:      #2f3e46,
+  $up-shadow:    #fff,
+  
+  $down-border:  #bbb,
+  $down-bg:      #d6d6d6,
+  $down-bg1:     #d0d0d0,
+  $down-bg2:     #dfdfdf,
+  $down-text:    #2f3e46,
+  $down-shadow:  #fff,
+
+  $hover-border: #bbb,
+  $hover-bg:     #dfdfdf,
+  $hover-bg1:    #f6f6f6,
+  $hover-bg2:    #e0e0e0,
+  $hover-text:   #2f3e46,
+  $hover-shadow: #fff
+
+) {
+
+@if not $font {
+   $font: Helvetica, Arial, sans-serif;
+}
+@if not $bar-link-alt {
+   $bar-link-alt: $bar-link; 
+}
+
+/* Header bars */
+.ui-bar-$theme {
+  @include jquery-mobile-block(
+    $border: $bar-border,
+    $bg:     $bar-bg,
+    $bg1:    $bar-bg1,
+    $bg2:    $bar-bg2,
+    $text:   $bar-text,
+    $weight: bold,
+    $shadow: $bar-shadow
+  );
+
+  font-family: $font;
+
+  input, select, textarea, button {
+    font-family: $font;
+  }
+
+  .ui-link-inherit {
+    color: $bar-text;
+  }
+
+  a.ui-link {
+    color: $bar-link;
+    font-weight: bold;
+  }
+
+  a.ui-link:visited {
+    color: $bar-link-alt;
+  }
+
+  a.ui-link:hover {
+    color: $bar-link-alt;
+  }
+
+  a.ui-link:active {
+    color: $bar-link-alt;
+  }
+}
+
+/* Content */
+.ui-body-$theme,
+.ui-overlay-$theme {
+  @include jquery-mobile-block(
+    $border: $body-border,
+    $bg:     $body-bg,
+    $bg1:    $body-bg1,
+    $bg2:    $body-bg2,
+    $text:   $body-text,
+    $weight: normal,
+    $shadow: $body-shadow
+  );
+}
+
+.ui-overlay-$theme {
+   background-image: none;
+   border-width: 0;
+}
+
+.ui-body-$theme {
+  font-family: $font;
+
+  input, select, textarea, button {
+    font-family: $font;
+  }
+
+  .ui-link-inherit {
+    color: $body-text;
+  }
+
+  .ui-link {
+    color: $body-link;
+    font-weight: bold;
+  }
+
+  .ui-link:visited {
+    color: $body-link;
+  }
+
+  .ui-link:hover {
+    color: $body-link;
+  }
+
+  .ui-body-$theme .ui-link:active {
+    color: $body-link;
+  }
+}
+
+/* Buttons */
+
+.ui-btn-up-$theme {
+  @include jquery-mobile-block(
+    $border: $up-border,
+    $bg:     $up-bg,
+    $bg1:    $up-bg1,
+    $bg2:    $up-bg2,
+    $text:   $up-text,
+    $weight: bold,
+    $shadow: $up-shadow
+  );
+}
+
+.ui-btn-up-$theme:visited,
+.ui-btn-up-$theme a.ui-link-inherit {
+  color: $up-text;
+}
+
+.ui-btn-hover-$theme {
+  @include jquery-mobile-block(
+    $border: $hover-border,
+    $bg:     $hover-bg,
+    $bg1:    $hover-bg1,
+    $bg2:    $hover-bg2,
+    $text:   $hover-text,
+    $weight: bold,
+    $shadow: $hover-shadow
+  );
+}
+.ui-btn-hover-$theme:visited,
+.ui-btn-hover-$theme:hover,
+.ui-btn-hover-$theme a.ui-link-inherit {
+  color: $hover-text;
+}
+
+.ui-btn-down-$theme {
+  @include jquery-mobile-block(
+    $border: $down-border,
+    $bg:     $down-bg,
+    $bg1:    $down-bg1,
+    $bg2:    $down-bg2,
+    $text:   $down-text,
+    $weight: bold,
+    $shadow: $down-shadow
+  );
+}
+
+.ui-btn-down-$theme:visited,
+.ui-btn-down-$theme:hover,
+.ui-btn-down-$theme a.ui-link-inherit {
+  color: $down-text;
+}
+
+.ui-btn-up-$theme,
+.ui-btn-hover-$theme,
+.ui-btn-down-$theme {
+  font-family: $font;
+  text-decoration: none;
+}
+
+}
+
+@mixin jquery-mobile-global(
+  $font:      false,
+  $round:     .6em,
+  $btn-round: 1em,
+  $inner:     #fff,
+
+  $active-border: #2373a5,
+  $active-bg:     #387bbe,
+  $active-bg1:    #5393c5,
+  $active-bg2:    #6facd5,
+  $active-text:   #fff,
+  $active-shadow: #3373a5
+)
+{
+
+@if not $font {
+   $font: Helvetica, Arial, sans-serif;
+}
+
+a.ui-link-inherit {
+  text-decoration: none !important;
+}
+
+/* Active buttons */
+
+.ui-btn-active {
+  @include jquery-mobile-block(
+    $border: $active-border,
+    $bg:     $active-bg,
+    $bg1:    $active-bg1,
+    $bg2:    $active-bg2,
+    $text:   $active-text,
+    $weight: bold,
+    $shadow: $active-shadow
+  );
+  cursor: pointer;
+  text-decoration: none;
+  font-family: $font;
+}
+
+.ui-btn-active:visited,
+.ui-btn-active:hover,
+.ui-btn-active a.ui-link-inherit {
+  color: $active-text;
+}
+
+/* Button inner highlight */
+.ui-btn-inner {
+  @if ($inner) {
+    border-top: 1px solid $inner;
+    border-color: rgba($inner, .3);
+  }
+}
+
+/* Corners */
+@if $round {
+.ui-corner-tl, .ui-corner-top, .ui-corner-left {
+  @include border-top-left-radius($round);
+}
+.ui-corner-tr, .ui-corner-top, .ui-corner-right {
+  @include border-top-right-radius($round);
+}
+.ui-corner-bl, .ui-corner-bottom, .ui-corner-left {
+  @include border-bottom-left-radius($round);
+}
+.ui-corner-br, .ui-corner-bottom, .ui-corner-right {
+  @include border-bottom-right-radius($round);
+}
+.ui-corner-all {
+  @include border-radius($round);
+}
+}
+.ui-corner-none {
+  @include border-radius(0);
+}
+
+/* Form styles */
+.ui-br {
+  border-bottom: rgb(130,130,130);
+  border-bottom: rgba(130,130,130,.3);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+
+.ui-disabled {
+  @include opacity(.3);
+  zoom: 1;
+}
+.ui-disabled,
+.ui-disabled a {
+  cursor: default !important;
+  pointer-events: none;
+}
+
+.ui-checkbox .ui-icon,
+.ui-selectmenu-list .ui-icon {
+  @include border-radius(3px);
+}
+.ui-icon-checkbox-off,
+.ui-icon-radio-off {
+  background-color: transparent;  
+}
+.ui-checkbox-on .ui-icon,
+.ui-radio-on .ui-icon {
+  background-color: $active-bg;
+}
+
+/* Button corners */
+@if $btn-round {
+
+.ui-btn-corner-tl, .ui-btn-corner-top, .ui-btn-corner-left {
+  @include border-top-left-radius($btn-round);
+}
+.ui-btn-corner-tr, .ui-btn-corner-top, .ui-btn-corner-right {
+  @include border-top-right-radius($btn-round);
+}
+.ui-btn-corner-bl, .ui-btn-corner-bottom, .ui-btn-corner-left {
+  @include border-bottom-left-radius($btn-round);
+}
+.ui-btn-corner-br, .ui-btn-corner-bottom, .ui-btn-corner-right {
+  @include border-bottom-right-radius($btn-round);
+}
+.ui-btn-corner-all {
+  @include border-radius($btn-round);
+}
+
+}
+
+/* Radius clip */
+.ui-corner-tl,
+.ui-corner-tr,
+.ui-corner-bl,
+.ui-corner-br,
+.ui-corner-top,
+.ui-corner-bottom,
+.ui-corner-right,
+.ui-corner-left,
+.ui-corner-all,
+.ui-btn-corner-tl,
+.ui-btn-corner-tr,
+.ui-btn-corner-bl,
+.ui-btn-corner-br,
+.ui-btn-corner-top,
+.ui-btn-corner-bottom,
+.ui-btn-corner-right,
+.ui-btn-corner-left,
+.ui-btn-corner-all {
+  @include background-clip();
+}
+
+/* Shadows */
+.ui-overlay {
+  background: #666;
+  @include opacity(0.5);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.ui-overlay-shadow {
+  @include box-shadow(0px 0px 12px rgba(0,0,0,.6));
+}
+.ui-shadow {
+  @include box-shadow(0px 1px 4px rgba(0,0,0,.3));
+}
+.ui-bar-a .ui-shadow,
+.ui-bar-b .ui-shadow ,
+.ui-bar-c .ui-shadow  {
+  @include box-shadow(0px 1px 0 rgba(255,255,255,.3));
+}
+.ui-shadow-inset {
+  @include box-shadow(inset 0px 1px 4px rgba(0,0,0,.2));
+}
+.ui-icon-shadow {
+  @include box-shadow(0px 1px 0 rgba(255,255,255,.4));
+}
+
+/* Focus */
+.ui-btn:focus, .ui-link-inherit:focus {
+  outline: 0;
+}
+.ui-btn.ui-focus {
+  z-index: 1;
+}
+.ui-focus,
+.ui-btn:focus {
+  @include box-shadow(inset 0px 0px 3px $active-bg 0px 0px 9px $active-bg);
+}
+.ui-input-text.ui-focus,
+.ui-input-search.ui-focus {
+  @include box-shadow(0px 0px 12px $active-bg);
+}
+
+.ui-mobile-nosupport-boxshadow * {
+  @include box-shadow(none !important);
+
+  .ui-focus,
+  .ui-btn:focus,
+  .ui-link-inherit:focus {
+    outline-width: 1px;
+    outline-style: auto;
+  }
+}
+
+}
+
+/* Default Icon set */
+@mixin jquery-mobile-icons(
+  $url: 'images/'
+){
+
+.ui-icon-loading {
+  background: url(#{$url + "/ajax-loader.gif"});
+  background-size: 46px 46px;
+}
+
+.ui-icon,
+.ui-icon-searchfield:after {
+  background: #666;
+  background: rgba(0,0,0,.4);
+  background-image: url(#{$url + "/icons-18-white.png"});
+  background-repeat: no-repeat;
+  @include border-radius(9px);
+}
+
+.ui-icon-alt {
+  background: #fff;
+  background: rgba(255,255,255,.3);
+  background-image: url(#{$url + "/icons-18-black.png"});
+  background-repeat: no-repeat;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+       only screen and (min--moz-device-pixel-ratio: 1.5),
+       only screen and (min-resolution: 240dpi) {
+  
+  .ui-icon-plus, .ui-icon-minus, .ui-icon-delete, .ui-icon-arrow-r,
+  .ui-icon-arrow-l, .ui-icon-arrow-u, .ui-icon-arrow-d, .ui-icon-check,
+  .ui-icon-gear, .ui-icon-refresh, .ui-icon-forward, .ui-icon-back,
+  .ui-icon-grid, .ui-icon-star, .ui-icon-alert, .ui-icon-info, .ui-icon-home, .ui-icon-search, .ui-icon-searchfield:after, 
+  .ui-icon-checkbox-off, .ui-icon-checkbox-on, .ui-icon-radio-off, .ui-icon-radio-on {
+    background-image: url(#{$url + "/icons-36-white.png"});
+    @include background-size(776px, 18px);
+  }
+  .ui-icon-alt {
+    background-image: url(#{$url + "/icons-36-black.png"});
+  }
+}
+
+.ui-icon-plus {
+  background-position: -0 50%;
+}
+.ui-icon-minus {
+  background-position: -36px 50%;
+}
+.ui-icon-delete {
+  background-position: -72px 50%;
+}
+.ui-icon-arrow-r {
+  background-position: -108px 50%;
+}
+.ui-icon-arrow-l {
+  background-position: -144px 50%;
+}
+.ui-icon-arrow-u {
+  background-position: -180px 50%;
+}
+.ui-icon-arrow-d {
+  background-position: -216px 50%;
+}
+.ui-icon-check {
+  background-position: -252px 50%;
+}
+.ui-icon-gear {
+  background-position: -288px 50%;
+}
+.ui-icon-refresh {
+  background-position: -324px 50%;
+}
+.ui-icon-forward {
+  background-position: -360px 50%;
+}
+.ui-icon-back {
+  background-position: -396px 50%;
+}
+.ui-icon-grid {
+  background-position: -432px 50%;
+}
+.ui-icon-star {
+  background-position: -468px 50%;
+}
+.ui-icon-alert {
+  background-position: -504px 50%;
+}
+.ui-icon-info {
+  background-position: -540px 50%;
+}
+.ui-icon-home {
+  background-position: -576px 50%;
+}
+.ui-icon-search,
+.ui-icon-searchfield:after {
+  background-position: -612px 50%;
+}
+.ui-icon-checkbox-off {
+  background-position: -684px 50%;
+}
+.ui-icon-checkbox-on {
+  background-position: -648px 50%;
+}
+.ui-icon-radio-off {
+  background-position: -756px 50%;
+}
+.ui-icon-radio-on {
+  background-position: -720px 50%;
+}
+
+}
