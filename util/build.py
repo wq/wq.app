@@ -1,15 +1,11 @@
 #!/usr/bin/python
 
-import subprocess 
 import json
-import os
-import sys
-import re
-import random
 
 from collect    import collectjson
 from setversion import setversion
 from appcache   import appcache
+from compilers  import optimize, scss
 
 class Builder(object):
     conf = None
@@ -38,13 +34,12 @@ class Builder(object):
         if 'collectjson' in self.conf:
             self.collectjson()
 
+        if 'scss' in self.conf:
+            self.scss()
+
         # Compile Javascript / CSS (using r.js)
         self.optimize()
     
-        # Collect files into JSON objects again (turn off remapping)
-        if 'collectjson' in self.conf:
-           self.collectjson(remap=False)
-
         # Generate HTML5 Cache manifests
         if 'appcache' in self.conf:
            self.appcache()
@@ -58,7 +53,7 @@ class Builder(object):
             conf['version'] = self.version
         setversion(conf, directory)
 
-    def collectjson(self, remap=True, directory=None, conf=None):
+    def collectjson(self, directory=None, conf=None):
         """Collect files into JSON dictionaries"""
         if directory is None:
             directory = self.indir
@@ -66,31 +61,27 @@ class Builder(object):
             conf = self.conf.get('collectjson', {})
 
         if isinstance(conf, dict):
-            collectjson(conf, directory, remap)
+            collectjson(conf, directory)
         else:
             # Assume multiple collectjson configurations
             for c in conf:
-                collectjson(c, directory, remap)
+                collectjson(c, directory)
+
+    def scss(self, conf=None):
+        if conf is None:
+            conf = self.conf.get('scss', {})
+        if isinstance(conf, dict):
+            scss(conf)
+        else:
+            for c in conf:
+                scss(cs)
 
     def optimize(self, conf=None):
         "Combine and optimize Javascript and CSS files"
         if conf is None:
             conf = self.conf.get('optimize', {})
 
-        bfile = "rjsconf%s" % (random.random() * 10000)
-        bjs = open(bfile, 'w')
-        json.dump(conf, bjs)
-        bjs.close()
-
-        # Defer to r.js for actual processing
-        print '#' * 20
-        print "Optimizing with r.js"
-        rjs = os.path.dirname(__file__) + "/r.js"
-        subprocess.call(["node", rjs, "-o", bfile])
-        os.remove(bfile)
-        os.remove(self.outdir + '/' + bfile)
-        print "Optimization complete"
-        print '#' * 20
+        optimize(conf, self.indir, self.outdir)
 
     def appcache(self, conf=None):
         if conf is None:
