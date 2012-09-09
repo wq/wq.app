@@ -454,7 +454,8 @@ a.ui-link-inherit {
 
 /* Default Icon set */
 @mixin jquery-mobile-icons(
-  $url: 'images/'
+  $url: 'images/',
+  $disc: rgba(0,0,0,.4)
 ){
 
 .ui-icon-loading {
@@ -464,11 +465,12 @@ a.ui-link-inherit {
 
 .ui-icon,
 .ui-icon-searchfield:after {
-  background: #666;
-  background: rgba(0,0,0,.4);
+  @if $disc {
+    background: $disc;
+  }
+  @include border-radius(9px);
   background-image: url(#{$url + "/icons-18-white.png"});
   background-repeat: no-repeat;
-  @include border-radius(9px);
 }
 
 .ui-icon-alt {
