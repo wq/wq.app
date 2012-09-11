@@ -11,10 +11,10 @@ def readfiles(basedir, ftype=None):
         if path == basedir:
             path = ""
         else:
-            apath = path.split('/')[1:]
+            apath = path.split(os.sep)[1:]
             for subdir in apath:
                 o = o[subdir]
-            path = '/'.join(apath) + '/'
+            path = os.sep.join(apath) + os.sep
 
         for filename in files:
             name, ext = os.path.splitext(filename)
@@ -22,7 +22,7 @@ def readfiles(basedir, ftype=None):
                 continue
 
             fpath = path + name
-            data = open(basedir + '/' + fpath + ext)
+            data = open(basedir + os.sep + fpath + ext)
             if ftype == "json":
                 try:
                     o[name] = json.load(data)
