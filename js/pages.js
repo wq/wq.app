@@ -83,9 +83,14 @@ pages.inject = function(path, template, context) {
     var title = html.split(/<\/?title>/)[1];
     var body  = html.split(/<\/?body>/)[1];
     var $page = $(body ? body : html);
+    var role = $page.jqmData('role');
     var url   = _base + '/' + path;
     var $oldpage = $(":jqmData(url='" + url + "')");
-    if ($oldpage.length) {
+    if (role == 'popup') {
+        $page.appendTo(jqm.activePage);
+        $page.popup();
+        $page.trigger('create');
+    } else if ($oldpage.length) {
         $oldpage.jqmData('title', title);
         var $header     = $(":jqmData(role='header')",  $page).find("h1,h2,h3");
         var $oldheader  = $(":jqmData(role='header')",  $oldpage).find("h1,h2,h3");
@@ -98,14 +103,8 @@ pages.inject = function(path, template, context) {
     } else {
         $page.attr("data-" + jqm.ns + "url", url);
         $page.attr("data-" + jqm.ns + "title", title);
-        var role = $page.jqmData('role');
-        if (role == 'page') {
-          $page.appendTo(jqm.pageContainer);
-          $page.page();
-        } else if (role == 'popup') {
-          $page.appendTo(jqm.activePage);
-          $page.popup();
-        }
+        $page.appendTo(jqm.pageContainer);
+        $page.page();
     }
     return $page;
 };
