@@ -45,6 +45,7 @@ function _Store(name) {
     var _group_cache = {};     // Cache for lists grouped by e.g. foreign key
 
     var _functions = {};       // Configurable functions to e.g. filter data by
+    var _callback_queue = {};  // Queue callbacks to prevent redundant fetches
     
     self.init = function(svc, defaults, opts) {
          if (svc !== undefined) self.service = svc;
@@ -229,6 +230,16 @@ function _Store(name) {
             return $.param(query);
     };
     
+    // Helper to check existence of a key without loading the object
+    self.exists = function(query) {
+        var key = self.toKey(query);
+        if (_cache[key])
+            return true;
+        if (_ls &&  _ls.getItem(_lsp + key))
+            return true;
+        return false;
+    };
+    
     // Filter an array of objects by one or more attributes
     self.filter = function(query, filter, any, usesvc) {
         if (!filter) {
@@ -308,12 +319,27 @@ function _Store(name) {
         if (self.jsonp && !async)
             throw "Cannot fetch jsonp asyncronously";
 
+        var key = self.toKey(query);
         var data = $.extend({}, self.defaults, query);
         var url = self.service;
         if (data.url) {
             url = url + '/' + data.url;
             delete data.url;
         }
+
+        var queued;
+        if (async) {
+            if (_callback_queue[key])
+                queued = true;
+            else
+                _callback_queue[key] = [];
+            if (callback)
+                _callback_queue[key].push(callback);
+        }
+
+        // If existing queue, no need for another Ajax call
+        if (queued)
+            return;
 
         $.ajax(url, {
             'data': data,
@@ -327,12 +353,23 @@ function _Store(name) {
                         console.log("received async result");
                     if (!nocache)
                         self.set(query, data);
-                    if (callback)
+                    if (_callback_queue[key]) {
+                        // async callback(s)
+                        _callback_queue[key].forEach(function(fn) {
+                            fn(data);
+                        });
+                        delete _callback_queue[key];
+                    } else if (callback) {
+                        // sync callback
                         callback(data);
-                } else
+                    }
+                } else {
+                    delete _callback_queue[key];
                     throw "Error parsing data!";
+                }
             },
             'error': function() {
+                delete _callback_queue[key];
                 throw "Unknown AJAX error!";
             }
         });
