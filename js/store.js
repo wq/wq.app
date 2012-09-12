@@ -51,9 +51,10 @@ function _Store(name) {
          if (defaults)          self.defaults = defaults;
          if (!opts) return;
 
-         if (opts.saveMethod)  self.saveMethod = opts.saveMethod;
-         if (opts.parseData)   self.parseData = opts.parseData;
+         if (opts.saveMethod)  self.saveMethod  = opts.saveMethod;
+         if (opts.parseData)   self.parseData   = opts.parseData;
          if (opts.applyResult) self.applyResult = opts.applyResult;
+         if (opts.jsonp)       self.jsonp       = opts.jsonp;
 
          if (opts.batchService) {
              self.batchService = opts.batchService;
@@ -303,7 +304,9 @@ function _Store(name) {
     // Fetch data from server
     self.fetch = function(query, async, callback, nocache) {
         if (!ol.online)
-             throw "This function requires an Internet connection.";
+            throw "This function requires an Internet connection.";
+        if (self.jsonp && !async)
+            throw "Cannot fetch jsonp asyncronously";
 
         var data = $.extend({}, self.defaults, query);
         var url = self.service;
@@ -314,7 +317,7 @@ function _Store(name) {
 
         $.ajax(url, {
             'data': data,
-            'dataType': "json",
+            'dataType': self.jsonp ? "jsonp" : "json",
             'cache': false,
             'async': async ? true : false,
             'success': function(result) {
