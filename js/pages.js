@@ -15,7 +15,7 @@ var pages = {};
 pages.init = function(baseurl, opts) {
     // Define baseurl (without trailing slash) if it is not /
     if (baseurl)
-        _base = baseurl;
+        pages.info.base_url = baseurl;
 
     if (!opts)
         return;
@@ -67,7 +67,7 @@ pages.register = function(path, fn, obj, prevent) {
 // Wrapper for router.add - adds URL base and parameter regex to path
 pages.addRoute = function(path, events, callback, obj) {
     var rt = {};
-    var url = '^' +  _base + '/' + path + '(?:[?](.*))?$';
+    var url = '^' +  pages.info.base_url + '/' + path + '(?:[?](.*))?$';
     rt[url] = {
         'events': events,
         'handler': typeof callback == "string" ? obj[callback] : callback
@@ -77,6 +77,7 @@ pages.addRoute = function(path, events, callback, obj) {
 
 // Render page and inject it into DOM (replace existing page if it exists)
 pages.inject = function(path, template, context) {
+    _updateInfo(path);
     var html  = tmpl.render(template, context);
     if (!html.match(/<div/))
         throw "No content found in template!";
@@ -84,7 +85,7 @@ pages.inject = function(path, template, context) {
     var body  = html.split(/<\/?body>/)[1];
     var $page = $(body ? body : html);
     var role = $page.jqmData('role');
-    var url   = _base + '/' + path;
+    var url   = pages.info.full_path;
     var $oldpage = $(":jqmData(url='" + url + "')");
     if (role == 'popup') {
         $page.appendTo(jqm.activePage);
@@ -120,8 +121,9 @@ pages.injectOnce = function(path, template, context) {
     } else {
         // Template was already rendered; ignore context but update URL
         // - it is up to the caller to update the DOM
-        $page.attr("data-" + jqm.ns + "url", _base + '/' + path);
-        $page.jqmData("url", _base + '/' + path);
+        _updateInfo(path);
+        $page.attr("data-" + jqm.ns + "url", pages.info.full_path);
+        $page.jqmData("url", pages.info.full_path);
     }
     return $page;
 }
@@ -171,7 +173,17 @@ pages.notFound = function(url, ui) {
     pages.go(url, _404, context, ui);
 };
 
-var _base = "";
+// Context variable (accessible in templates via pages_info)
+pages.info = {
+    'base_url': ""
+};
+
+function _updateInfo(path) {
+    pages.info.path = path;
+    pages.info.full_path = pages.info.base_url + "/" + path;
+    tmpl.setDefault('pages_info', pages.info);
+}
+
 var _404  = "404";
 var _injectOnce = false;
 
