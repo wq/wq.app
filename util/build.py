@@ -51,7 +51,7 @@ class Builder(object):
             conf = self.conf.get('setversion', {})
         if self.version != '':
             conf['version'] = self.version
-        setversion(conf, directory)
+        self.version = setversion(conf, directory)
 
     def collectjson(self, directory=None, conf=None):
         """Collect files into JSON dictionaries"""

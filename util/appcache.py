@@ -53,6 +53,8 @@ def _parse_js_buildfile(filename):
     for group in text[1:].split('\n\n'):
         files = group.split('\n')
         
+        if files[0][-2:] != 'js':
+            continue
         sources.extend(files[2:])
         built.append(files[0])
 
@@ -67,7 +69,7 @@ def _parse_css_urls(path, filename):
     for line in text.split('\n'):
         m = re.search(r"url\(['\" ]*(.+?)['\" ]*\)", line)
         if m:
-            urls.append(base + '/' + m.group(1))
+            urls.append(os.path.normpath(base + '/' + m.group(1)))
     os.chdir(cur)
     return urls
 
