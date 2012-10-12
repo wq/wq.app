@@ -92,27 +92,56 @@ function _registerList(page) {
     pages.register(conf.url + '/', go);
     function go(match, ui, params) {
         if (ui && ui.options && ui.options.data) return; // Ignore form actions
-        var context = {'list': ds.get({'url': conf.url})};
-        _addLookups(page, context, false);
-        pages.go(conf.url + '/', page + '_list', context, ui);
-    };
+        ds.getList({'url': conf.url}, function(list) {
+            var pnum = 1, next = null, prev = null;
+            if (params && params['page'])
+                pnum = params['page'];
+            
+            if (pnum > 1) {
+                var prevp = {'page': parseInt(pnum) - 1};
+                prev = conf.url + '/?' + $.param(prevp);
+            }
+
+            if (pnum < list.info.pages) {
+                var nextp = {'page': parseInt(pnum) + 1};
+                next = conf.url + '/?' + $.param(nextp);
+            }
+
+            var context = {
+                'list':     list.page(pnum),
+                'page':     pnum,
+                'pages':    list.info.pages,
+                'per_page': list.info.per_page,
+                'total':    list.info.total,
+                'previous': prev ? '/' + prev : null,
+                'next':     next ? '/' + next : null
+            };
+            _addLookups(page, context, false);
+            var url = conf.url + '/';
+            if (params)
+                url += "?" + $.param(params);
+            pages.go(url, page + '_list', context, ui);
+        });
+    }
 }
 
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
 function _registerDetail(page) {
     var conf = app.config.pages[page];
-    pages.register(conf.url + '/([^/]+)', function(match, ui, params) {
+    pages.register(conf.url + '/([^/\?]+)', function(match, ui, params) {
         if (ui && ui.options && ui.options.data) return; // Ignore form actions
         if (match[1] == "new") return;
-        var url = conf.url + '/' + match[1];
-        var context = ds.find({'url': conf.url}, match[1]);
-        if (!context) {
-           pages.notFound(url)
-           return;
-        }
-        _addLookups(page, context, false);
-        pages.go(url, page + '_detail', context, ui);
+        ds.getList({'url': conf.url}, function(list) {
+            var url = conf.url + '/' + match[1];
+            var context = list.find(match[1]);
+            if (!context) {
+                pages.notFound(url)
+                return;
+            }
+            _addLookups(page, context, false);
+            pages.go(url, page + '_detail', context, ui);
+        });
     });
 }
 
@@ -193,7 +222,7 @@ function _handleForm(evt) {
     });
 }
 
-// Sucessful results from REST API contain the newly saved object
+// Successful results from REST API contain the newly saved object
 function _applyResult(item, result) {
     if (result && result.id) {
         var conf = _getConfByUrl(item.data.url);

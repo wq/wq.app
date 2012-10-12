@@ -120,6 +120,101 @@ function _Store(name) {
         return null;
     };
 
+    // Retrieve a stored list as an object with helper functions
+    //  - especially useful for paginated lists
+    //  - must be called asynchronously
+    self.getList = function(basequery, callback) {
+        var pageinfo = self.getPageInfo(basequery);
+
+        if (!pageinfo && !self.exists(basequery)) {
+            // Initialize first page before continuing
+            self.prefetch(basequery, function() {
+                self.getList(basequery, callback);
+            });
+            return;
+        }
+
+        var list = {};
+        if (pageinfo) {
+            // List has pagination info; create helper functions that
+            // automatically generate as many page queries as needed.
+            list.info = pageinfo;
+
+            // Get full query for a given page number
+            list.getQuery = function(page_num) {
+                var query = {};
+                for (key in basequery)
+                    query[key] = basequery[key];
+                query['page'] = page_num;
+                return query;
+            };
+
+            // Load data for the given page number
+            list.page = function(page_num) {
+                if (page_num < 1 || page_num > pageinfo.pages)
+                    return [];
+                var query = list.getQuery(page_num);
+                return self.get(query);
+            }
+
+            // Find object in any page
+            list.find = function(value, attr, usesvc) {
+                for (var p = 1; p <= pageinfo.pages; p++) {
+                    var query = list.getQuery(p);
+                    var obj = self.find(query, value, attr, usesvc);
+                    if (obj)
+                        return obj;
+                }
+                return null;
+            };
+
+            // Filter across all pages
+            list.filter = function(filter, any, usesvc) {
+                var result = [];
+                for (var p = 1; p <= pageinfo.pages; p++) {
+                    var query = list.getQuery(p);
+                    result = result.concat(self.filter(query, filter, any, usesvc));
+                }
+                return result;
+            };
+
+            // Iterate across all pages
+            list.forEach = function(cb) {
+                for (var p = 1; p <= pageinfo.pages; p++) {
+                    var query = list.getQuery(p);
+                    var data = self.get(query);
+                    data.forEach(cb);
+                }
+            }
+
+        } else {
+            // List does not have pagination info, 
+            // create a compatible wrapper around query result
+            var actual_list = self.get(basequery);
+            list.info = {
+                'pages':    1,
+                'per_page': actual_list.length,
+                'total':    actual_list.length
+            }
+            list.page = function(page_num) {
+                if (page_num != 1)
+                    return [];
+                return self.get(basequery);
+            };
+            list.find = function(value, attr, usesvc) {
+                return self.find(basequery, value, attr, usesvc)
+            };
+            list.filter = function(filter, any, usesvc) {
+                return self.filter(basequery, filter, any, usesvc)
+            };
+            list.forEach = function(cb) {
+                actual_list.forEach(cb);
+            };
+        }
+
+        callback(list);
+    }
+
     // Get list from datastore, indexed by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
         var key = self.toKey(query);
@@ -351,8 +446,14 @@ function _Store(name) {
                 if (data) {
                     if (async)
                         console.log("received async result");
-                    if (!nocache)
+                    if (!nocache) {
+                        if (self.setPageInfo(query, data)) {
+                            data = data.list;
+                            if (!('page' in query))
+                                query['page'] = 1;
+                        }
                         self.set(query, data);
+                    }
                     if (_callback_queue[key]) {
                         // async callback(s)
                         _callback_queue[key].forEach(function(fn) {
@@ -439,6 +540,42 @@ function _Store(name) {
         // Default: assume JSON root is actual data
         return result;
     };
+
+    //
+    self.getPageInfo = function(query) {
+        var basequery = {};
+        for (var key in query) {
+            if (key == 'page')
+                continue;
+            basequery[key] = query[key];
+        }
+        var pageinfo = self.get("pageinfo");
+        var key = self.toKey(basequery);
+        if (pageinfo && pageinfo[key])
+            return pageinfo[key];
+        return null;
+    }
+
+    self.setPageInfo = function(query, data) {
+        if (!data || !data.list || !data.total || !data.pages || !data.per_page)
+            return false;
+
+        var basequery = {};
+        for (var key in query) {
+            if (key == 'page')
+                continue;
+            basequery[key] = query[key];
+        }
+        var pageinfo = self.get("pageinfo") || {};
+        var key = self.toKey(query);
+        pageinfo[key] = {
+            'pages':    data.pages,
+            'per_page': data.per_page,
+            'total':    data.total
+        }
+        self.set('pageinfo', pageinfo);
+        return true;
+    }
 
     // Queue data for server use; use outbox to cache unsaved items
     self.save = function(data, id, callback) {
