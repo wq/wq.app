@@ -38,6 +38,7 @@ app.init = function(config, templates, svc) {
             jqm.defaultDialogTransition = config.transitions.dialog;
         if (config.transitions.save)
             _saveTransition = config.transitions.save;
+        jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
     
     pages.register('logout\/?', app.logout);
@@ -93,28 +94,47 @@ function _registerList(page) {
     function go(match, ui, params) {
         if (ui && ui.options && ui.options.data) return; // Ignore form actions
         ds.getList({'url': conf.url}, function(list) {
-            var pnum = 1, next = null, prev = null;
-            if (params && params['page'])
-                pnum = params['page'];
+            var pnum = 1, next = null, prev = null, filter;
+            if (params) {
+                if (params['page']) {
+                    pnum = params['page'];
+                } else {
+                    filter = {};
+                    for (var key in params) {
+                        filter[key] = params[key];
+                    }
+                    conf.parents.forEach(function(p) {
+                        if (p == page + 'type')
+                             p = 'type';
+                        if (filter[p]) {
+                            filter[p + '_id'] = filter[p];
+                            delete filter[p];
+                        }
+                    });
+                }
+            }
             
+            var data = filter ? list.filter(filter) : list.page(pnum);
+
             if (pnum > 1) {
                 var prevp = {'page': parseInt(pnum) - 1};
                 prev = conf.url + '/?' + $.param(prevp);
             }
 
-            if (pnum < list.info.pages) {
+            if (pnum < data.info.pages) {
                 var nextp = {'page': parseInt(pnum) + 1};
                 next = conf.url + '/?' + $.param(nextp);
             }
 
             var context = {
-                'list':     list.page(pnum),
+                'list':     data,
                 'page':     pnum,
-                'pages':    list.info.pages,
-                'per_page': list.info.per_page,
-                'total':    list.info.total,
+                'pages':    data.info.pages,
+                'per_page': data.info.per_page,
+                'total':    data.info.total,
                 'previous': prev ? '/' + prev : null,
-                'next':     next ? '/' + next : null
+                'next':     next ? '/' + next : null,
+                'multiple': data.info.pages > 1
             };
             _addLookups(page, context, false);
             var url = conf.url + '/';

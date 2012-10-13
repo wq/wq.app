@@ -154,7 +154,9 @@ function _Store(name) {
                 if (page_num < 1 || page_num > pageinfo.pages)
                     return [];
                 var query = list.getQuery(page_num);
-                return self.get(query);
+                var result = [].concat(self.get(query));
+                result.info = list.info;
+                return result;
             }
 
             // Find object in any page
@@ -174,6 +176,11 @@ function _Store(name) {
                 for (var p = 1; p <= pageinfo.pages; p++) {
                     var query = list.getQuery(p);
                     result = result.concat(self.filter(query, filter, any, usesvc));
+                }
+                result.info = {
+                    'pages':    1,
+                    'per_page': result.length,
+                    'total':    result.length
                 }
                 return result;
             };
@@ -199,13 +206,21 @@ function _Store(name) {
             list.page = function(page_num) {
                 if (page_num != 1)
                     return [];
-                return self.get(basequery);
+                var result = [].concat(self.get(basequery));
+                result.info = list.info;
+                return result;
             };
             list.find = function(value, attr, usesvc) {
                 return self.find(basequery, value, attr, usesvc)
             };
             list.filter = function(filter, any, usesvc) {
-                return self.filter(basequery, filter, any, usesvc)
+                var result = self.filter(basequery, filter, any, usesvc)
+                result.info = {
+                    'pages':    1,
+                    'per_page': result.length,
+                    'total':    result.length
+                }
+                return result;
             };
             list.forEach = function(cb) {
                 actual_list.forEach(cb);
