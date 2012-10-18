@@ -5,8 +5,8 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery', './online', './spinner', './console'], 
-function($, ol, spin, console) {
+define(['./lib/jquery', './online', './console'], 
+function($, ol, console) {
 
 // Hybrid module object provides/is a singleton instance...
 var store = new _Store('main');
@@ -623,7 +623,7 @@ function _Store(name) {
     };
 
     // Send a single item from the outbox to the server
-    self.sendItem = function(id, callback, nospin) {
+    self.sendItem = function(id, callback) {
         var item = self.find('outbox', id);
         if (!item || item.saved) {
             if (callback) callback(null);
@@ -653,8 +653,6 @@ function _Store(name) {
             data = data.data;
             contenttype = processdata = false;
         }
-	
-        if (!nospin) spin.start();
 	
 	if (data.fileupload) {
 	    var opts = new FileUploadOptions();
@@ -691,12 +689,10 @@ function _Store(name) {
             // Re-save outbox to update caches
             self.set('outbox', self.get('outbox'));
 
-            if (!nospin)  spin.stop();
             if (callback) callback(item);
         }
 
 	function error(jqxhr, status) {
-            if (!nospin) spin.stop();
             if (jqxhr.responseText) {
                 try {
                     item.error = JSON.parse(jqxhr.responseText);
@@ -729,7 +725,6 @@ function _Store(name) {
         });
 
         var success = true;
-        spin.start();
         $.ajax(self.batchService, {
             data: JSON.stringify(data),
             type: "POST",
@@ -739,7 +734,6 @@ function _Store(name) {
             success: function(r) {
                 var results = self.parseBatchResult(r);
                 if (!results || results.length != items.length) {
-                    spin.stop();
                     if (callback) callback(null);
                     return;
                 }
@@ -753,11 +747,9 @@ function _Store(name) {
                 // Re-save outbox to update caches
                 self.set('outbox', self.get('outbox'));
 
-                spin.stop();
                 if (callback) callback(success);
             },
             error: function() {
-                spin.stop();
                 if (callback) callback(null);
             }
         });
@@ -792,7 +784,6 @@ function _Store(name) {
         }
 
         var success = true;
-        spin.start();
         $.each(items, function(i, item) {
             self.sendItem(item.id, function(item) {
                 if (!item)
@@ -804,7 +795,6 @@ function _Store(name) {
                     // After last sendItem is complete, wrap up
                     // (this should always execute, since sendItem calls back
                     //  even after an error)
-                    spin.stop();
                     callback(success);
                 }
             }, true);
