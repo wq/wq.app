@@ -1,5 +1,5 @@
 /*!
- * jQueryMobile-router v0.9
+ * jQueryMobile-router v0.93
  * http://github.com/azicchetti/jquerymobile-router
  *
  * Copyright 2011 (c) Andrea Zicchetti
@@ -41,19 +41,24 @@ $(document).bind("mobileinit",function(){
 		if (DEBUG) console.log(err);
 	}
 
-	var previousUrl=null, nextUrl=null;
+	var previousUrl=null, nextUrl=null, ignoreNext=false;
 
 	$(document).bind("pagebeforechange", function( e, data ) {
 		var toPage=( typeof data.toPage === "string" ) ? data.toPage : data.toPage.jqmData("url")||"";
 
 		if ( data.options.hasOwnProperty("_jqmrouter_handled") ){ return; }
 		data.options._jqmrouter_handled = true;
-
+		// handle form submissions
+		if (data.options.data && (data.options.type+"").toLowerCase()=="get"){
+			toPage+="?"+data.options.data;
+		}
 		var u = $.mobile.path.parseUrl( toPage );
 		previousUrl=nextUrl;
 		nextUrl=u;
 
-		if ( u.hash.indexOf("?") !== -1 ) {
+		if (	u.hash.indexOf("?") !== -1 ||
+			(u.hash.length>0 && previousUrl!==null && previousUrl.hash.indexOf(u.hash+"?")!==-1)
+		) {
 			var page=u.hash.replace( /\?.*$/, "" );
 			// We don't want the data-url of the page we just modified
 			// to be the url that shows up in the browser's location field,
@@ -65,7 +70,7 @@ $(document).bind("mobileinit",function(){
 			if (	$.mobile.activePage &&
 				page.replace(/^#/,"")==$.mobile.activePage.jqmData("url")
 			){
-				data.options.allowSamePageTransition=true;
+				data.options.allowSamePageTransition=true && !ignoreNext;
 				$.mobile.changePage( $(page), data.options );
 			} else {
 				$.mobile.changePage( $(page), data.options );
@@ -74,6 +79,10 @@ $(document).bind("mobileinit",function(){
 			// have to do anything.
 			e.preventDefault();
 			$.mobile.urlHistory.ignoreNextHashChange=true;
+		}
+		ignoreNext=false;
+		if (window.location.hash.indexOf("&ui-state=dialog")!=-1){
+			ignoreNext=true;
 		}
 	});
 
@@ -113,7 +122,8 @@ $(document).bind("mobileinit",function(){
 			pagebeforehide: null, pagehide: null,
 			pageinit: null, pageremove: null,
 			pagebeforechange: null, pagebeforeload: null,
-			pageload: null
+			pageload: null,
+			popupbeforeposition: null, popupafteropen: null, popupafterclose: null
 		};
 		this.evtLookup = {
 			bC: "pagebeforechange", bl: "pagebeforeload",
@@ -121,7 +131,8 @@ $(document).bind("mobileinit",function(){
 			bc: "pagebeforecreate", c: "pagecreate",
 			bs: "pagebeforeshow", s: "pageshow",
 			bh: "pagebeforehide", h: "pagehide",
-			i: "pageinit", rm: "pageremove"
+			i: "pageinit", rm: "pageremove",
+			pbp: "popupbeforeposition", pao: "popupafteropen", pac: "popupafterclose"
 		};
 		this.routesRex={};
 		this.conf=$.extend({}, config, conf || {});
