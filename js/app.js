@@ -7,8 +7,8 @@
  */
 
 define(['./lib/jquery', './lib/jquery.mobile',
-        './store', './pages', './template'],
-function($, jqm, ds, pages, tmpl) {
+        './store', './pages', './template', './spinner'],
+function($, jqm, ds, pages, tmpl, spin) {
 
 var app = {};
 
@@ -221,7 +221,9 @@ function _handleForm(evt) {
     else
         vals.method = "PUT";  // .. but PUT to update existing records
     $('.error').html('');
+    spin.start();
     ds.save(vals, undefined, function(item) {
+        spin.stop();
         if (item && item.saved) {
             // Save was successful
             var data = ds.find({'url': conf.url}, item.newid);
