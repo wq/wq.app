@@ -1272,7 +1272,7 @@ L.Map = L.Class.extend({
 			this._layersMaxZoom = Math.max(this._layersMaxZoom || 0, layer.options.maxZoom);
 		}
 		if (layer.options && !isNaN(layer.options.minZoom)) {
-			this._layersMinZoom = Math.min(this._layersMinZoom || Infinity, layer.options.minZoom);
+			this._layersMinZoom = Math.min(this._layersMinZoom != undefined ? this._layersMinZoom : Infinity, layer.options.minZoom);
 		}
 
 		// TODO looks ugly, refactor!!!
