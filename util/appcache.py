@@ -65,11 +65,23 @@ def _parse_css_urls(path, filename):
     os.chdir(path)
     text = open(filename).read()
     base = os.path.dirname(filename)
+
+    def parse_url(url):
+        if url.startswith('data:'):
+            return None
+
+        url = os.path.normpath(base + '/' + url)
+        if os.sep != '/':
+            url = url.replace(os.sep, '/')
+        return url
+
     urls = []
     for line in text.split('\n'):
         m = re.search(r"url\(['\" ]*(.+?)['\" ]*\)", line)
         if m:
-            urls.append(os.path.normpath(base + '/' + m.group(1)))
+            url = parse_url(m.group(1))
+            if url:
+                urls.append(url)
     os.chdir(cur)
     return urls
 
