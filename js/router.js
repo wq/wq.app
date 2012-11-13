@@ -14,9 +14,18 @@ var router = {};
 
 // Mimics new Router()
 router.init = function(routedefs, handlers, opts) {
-   if (_router)
+   if (_router) {
+      // Reconfigure existing router
       _router.conf = $.extend(_router.conf, opts);
-   else
+      if (opts.defaultHandlerEvents) {
+          // Mimic functionality in router constructor
+          var events = opts.defaultHandlerEvents.split(",");
+          $.each(events, function(i, evt) {
+              var ename = _router.evtLookup[evt];
+              _router.defaultHandlerEvents[ename] = evt;
+          });
+      }
+   } else
       _conf = $.extend(_conf, opts);
    router.add(routedefs, handlers);
 }
