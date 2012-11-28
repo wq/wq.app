@@ -3174,7 +3174,9 @@ L.Popup = L.Class.extend({
 		}
 
 		var wrapper = this._wrapper = L.DomUtil.create('div', prefix + '-content-wrapper', container);
-		L.DomEvent.disableClickPropagation(wrapper);
+
+		// This interferes with jQuery Mobile's link hijacker
+		// L.DomEvent.disableClickPropagation(wrapper);
 
 		this._contentNode = L.DomUtil.create('div', prefix + '-content', wrapper);
 		L.DomEvent.on(this._contentNode, 'mousewheel', L.DomEvent.stopPropagation);
