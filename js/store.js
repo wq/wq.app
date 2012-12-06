@@ -185,6 +185,35 @@ function _Store(name) {
                 return result;
             };
 
+            // Update list, across all pages
+            list.update = function(items, key) {
+                // Only update existing items found in each page
+                for (var p = 1; p < pageinfo.pages; p++) {
+                    var query = list.getQuery(p);
+                    items = self.updateList(query, items, key, {'updateOnly': true});
+                }
+
+                // Add any remaining items to last page
+                if (items.length > 0) {
+                    // FIXME: this could result in the last page having more than per_page items
+                    var query = list.getQuery(pageinfo.pages);
+                    items = self.updateList(query, items, key);
+                }
+            };
+
+            // Prefetch all pages
+            list.prefetch = function(callback) {
+                var pending = pageinfo.pages;
+                for (var p = 1; p <= pageinfo.pages; p++) {
+                    var query = list.getQuery(p);
+                    self.prefetch(query, function() {
+                        pending--;
+                        if (pending == 0 && callback)
+                            callback();
+                    });
+                }
+            };
+
             // Iterate across all pages
             list.forEach = function(cb) {
                 for (var p = 1; p <= pageinfo.pages; p++) {
@@ -221,6 +250,12 @@ function _Store(name) {
                     'total':    result.length
                 }
                 return result;
+            };
+            list.update = function(items, key, opts) {
+                self.updateList(basequery, items, key, opts);
+            };
+            list.prefetch = function(callback) {
+                self.prefetch(basequery, callback);
             };
             list.forEach = function(cb) {
                 actual_list.forEach(cb);
@@ -524,13 +559,16 @@ function _Store(name) {
     // Merge new/updated items into list
     self.updateList = function(query, data, idcol, opts) {
         var list = self.get(query);
+        var extra = [];
+        if (!opts) opts = {};
+
         if (!$.isArray(list))
            throw "List is not an array";
         if (!$.isArray(data))
             throw "Data is not an array!";
         if (data.length == 0)
             return;
-        if (opts && opts.prepend)
+        if (opts.prepend)
             data = data.reverse();
 
         $.each(data, function(i, obj) {
@@ -539,14 +577,18 @@ function _Store(name) {
                 // Object exists in list already; update with new attrs
                 $.extend(curobj, obj);
             } else {
-                // Object does not exist in list; add to beginning/end
-                if (opts && opts.prepend)
-                    list.unshift(obj);
+                // Object does not exist in list
+                if (opts.updateOnly)
+                    extra.push(obj); // Return to sender
+                else if (opts.prepend)
+                    list.unshift(obj); // Add to beginning of list
                 else
-                    list.push(obj);
+                    list.push(obj); // Add to end of list
             }
         });
         self.set(query, list);
+        if (opts.updateOnly)
+            return extra;
     };
 
     // Process service fetch() results
@@ -572,7 +614,7 @@ function _Store(name) {
     }
 
     self.setPageInfo = function(query, data) {
-        if (!data || !data.list || !data.total || !data.pages || !data.per_page)
+        if (!data || !data.pages || !data.per_page)
             return false;
 
         var basequery = {};
