@@ -32,8 +32,8 @@ app.init = function(config, templates, svc) {
     }
 
     if (config.transitions) {
-        if (config.transitions.default)
-            jqm.defaultPageTransition = config.transitions.default;
+        if (config.transitions['default'])
+            jqm.defaultPageTransition = config.transitions['default'];
         if (config.transitions.dialog)
             jqm.defaultDialogTransition = config.transitions.dialog;
         if (config.transitions.save)
