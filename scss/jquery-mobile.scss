@@ -458,11 +458,6 @@ a.ui-link-inherit {
   $disc: rgba(0,0,0,.4)
 ){
 
-.ui-icon-loading {
-  background: url(#{$url + "/ajax-loader.gif"});
-  background-size: 46px 46px;
-}
-
 .ui-icon,
 .ui-icon-searchfield:after {
   @if $disc {
@@ -563,6 +558,11 @@ a.ui-link-inherit {
 }
 .ui-icon-radio-on {
   background-position: -720px 50%;
+}
+
+.ui-icon-loading {
+  background: url(#{$url + "/ajax-loader.gif"});
+  background-size: 46px 46px;
 }
 
 }

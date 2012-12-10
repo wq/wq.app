@@ -69,6 +69,8 @@ def _parse_css_urls(path, filename):
     def parse_url(url):
         if url.startswith('data:'):
             return None
+        if url.startswith('http://') or url.startswith('https://'):
+            return url
 
         url = os.path.normpath(base + '/' + url)
         if os.sep != '/':
