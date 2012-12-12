@@ -27,7 +27,8 @@ app.init = function(config, templates, svc) {
         app.user = user;
         tmpl.setDefault('user', user);
         app.config = ds.get({'url': 'config'});
-    } else if (document.cookie) {
+    }
+    if (document.cookie) {
         app.check_login();
     }
 
@@ -42,14 +43,14 @@ app.init = function(config, templates, svc) {
     }
     
     pages.register('logout\/?', app.logout);
-    for (var page in config.pages) {
-        var conf = config.pages[page];
+    for (var page in app.config.pages) {
+        var conf = app.config.pages[page];
         if (conf.list) {
             _registerList(page);
             _registerDetail(page);
             _registerEdit(page);
-        } else {
-            pages.register(conf.url);
+        } else if (conf) {
+            _registerOther(page);
         }
     }
 
@@ -210,6 +211,18 @@ function _registerEdit(page) {
     }
 }
 
+// Render non-list pages with with [url] template;
+// handles requests for [url] and [url]/
+function _registerOther(page) {
+    var conf = app.config.pages[page];
+    pages.register(conf.url, go);
+    pages.register(conf.url + '/', go);
+    function go(match, ui, params) {
+        if (ui && ui.options && ui.options.data) return; // Ignore form actions
+        pages.go(conf.url, page, params, ui);
+    }
+}
+
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
     evt.preventDefault();
@@ -239,17 +252,36 @@ function _handleForm(evt) {
             // Save was successful
             var options = {'reverse': true, 'transition': _saveTransition};
             jqm.changePage('/' + conf.url + '/' + item.newid, options);
-        } else {
-            if (item && item.error && item.error.field_errors) {
-                // Rest API provided detailed error information
-                for (f in item.error.field_errors) {
-                    var err = item.error.field_errors[f][0];
-                    $('.' + conf.page + '-' + f + '-errors', $form).html(err);
-                }
-            } else {
-                // Save failed for some unknown reason
-                $('.' + conf.page + '-errors', $form).html("Error saving data.");
+            return;
+        }
+
+        if (!item || !item.error) {
+            // Save failed for some unknown reason
+            showError("Error saving data.");
+            return;
+        }
+
+        // Rest API provided detailed error information
+        if (typeof(item.error) === 'string') {
+            showError(item.error);
+            return;
+        }
+
+        if (item.error.field_errors) {
+            for (f in item.error.field_errors) {
+                var err = item.error.field_errors[f][0];
+                showError(err, f);
             }
+        }
+
+        if (item.error.errors) {
+            var err = item.error.errors[0];
+            showError(err);
+        }
+
+        function showError(err, field) {
+            var sel = '.' + conf.page + '-' + (field ? field + '-' : '') + 'errors';
+            $form.find(sel).html(err);
         }
     });
 }
