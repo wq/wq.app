@@ -77,6 +77,8 @@ app.check_login = function() {
     ds.fetch({'url': 'login'}, false, function(result) {
         if (result && result.user && result.config) {
             app.save_login(result.user, result.config);
+        } else if (result && app.user) {
+            app.logout();
         }
     }, true);
 };
