@@ -158,11 +158,29 @@ function _registerDetail(page) {
         if (match[1] == "new") return;
         ds.getList({'url': conf.url}, function(list) {
             var url = conf.url + '/' + match[1];
-            var context = $.extend({}, list.find(match[1]));
-            if (!context) {
-                pages.notFound(url)
+            var item = list.find(match[1]);
+            if (!item) {
+                // Item not found in stored list...
+                if (!conf.partial) {
+                    // List is assumed to contain entire dataset,
+                    // so the item probably does not exist
+                    pages.notFound(url);
+                } else {
+                    // List does not represent entire dataset;
+                    // attempt to load HTML directly from the server
+                    // (using built-in jQM loader)
+                    var jqmurl = '/' + url;
+                    jqm.loadPage(jqmurl).then(function() {
+                        $page = $(":jqmData(url='" + jqmurl + "')");
+                        if ($page.length > 0)
+                            jqm.changePage($page);
+                        else
+                            pages.notFound(url);
+                    });
+                }
                 return;
             }
+            var context = $.extend({}, item);
             _addLookups(page, context, false, function(context) {
                 pages.go(url, page + '_detail', context, ui);
             });
