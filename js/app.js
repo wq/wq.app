@@ -33,8 +33,9 @@ app.init = function(config, templates, svc) {
     }
 
     if (config.transitions) {
-        if (config.transitions['default'])
-            jqm.defaultPageTransition = config.transitions['default'];
+        var def = "default";
+        if (config.transitions[def])
+            jqm.defaultPageTransition = config.transitions[def];
         if (config.transitions.dialog)
             jqm.defaultDialogTransition = config.transitions.dialog;
         if (config.transitions.save)
@@ -253,12 +254,20 @@ function _handleForm(evt) {
     var conf = _getConfByUrl(url);
 
     var vals = {};
-    if (app.native) {	
+    var has_files = ($form.find('input[type=file]').length > 0);
+    if (window.FormData && !app.native && has_files) {
+        // Use FormData to upload files via AJAX, although localStorage version
+        // of outbox item will be unusable
+        vals.data = new FormData(this);
+    } else {
+        // Use a simple dictionary for values, better for outbox serialization
+        // but files will not be uploaded if this is a web app.
 	$.each($form.serializeArray(), function(i, v) {
 	    vals[v.name] = v.value;
 	});
-    } else {
-        vals.data = new FormData(this);
+        if (has_files && !app.native) {
+            // FIXME: handle this case
+        }
     }
     
     vals.url = url;
