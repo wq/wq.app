@@ -36,8 +36,13 @@ function _update(evt) {
 };
 
 // Initialization
-document.addEventListener('offline', _update, false);
-document.addEventListener('online',  _update, false);
+if (document.addEventListener) {
+    document.addEventListener('offline', _update, false);
+    document.addEventListener('online',  _update, false);
+} else if (document.attachEvent) {
+    document.attachEvent('onoffline', _update);
+    document.attachEvent('ononline',  _update);
+}
 window.setInterval(_update, 1000 * 10);
 
 return ol;
