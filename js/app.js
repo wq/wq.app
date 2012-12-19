@@ -211,8 +211,10 @@ function _registerEdit(page) {
                 var context = {}; //FIXME: defaults
                 url = 'new';
                 _addLookups(page, context, true, function(context) {
-                    if (!conf.annotated)
+                    if (!conf.annotated) {
                         done(context);
+                        return;
+                    }
 
                     context['annotations'] = [];
                     ds.getList({'url': 'annotationtypes'}, function(list) {
@@ -313,7 +315,9 @@ function _applyResult(item, result) {
         item.saved = true;
         item.newid = result.id;
         ds.getList({'url': conf.url}, function(list) {
-            list.update([result], 'id');
+            var res = $.extend({}, result);
+            delete res.updates;
+            list.update([res], 'id');
         });
         if (result.updates) {
             for (var page in result.updates) {
