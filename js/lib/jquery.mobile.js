@@ -63,6 +63,9 @@
 		// Set maximum window width for transitions to apply - 'false' for no limit
 		maxTransitionWidth: false,
 
+		// Set maximum window width for auto height adjustment - 'false' for no limit
+		maxAdjustmentWidth: false,
+
 		// Minimum scroll distance that will be remembered when returning to a page
 		minScrollBack: 250,
 
@@ -3389,7 +3392,13 @@ $.mobile.getMaxScrollForTransition = $.mobile.getMaxScrollForTransition || defau
 			aPageBorderT = parseFloat( aPage.css( "border-top-width" ) ),
 			aPageBorderB = parseFloat( aPage.css( "border-bottom-width" ) );
 
-		aPage.css( "min-height", getScreenHeight() - aPagePadT - aPagePadB - aPageBorderT - aPageBorderB );
+		var height;
+		if ($.mobile.maxAdjustmentWidth && $(window).width() > $.mobile.maxAdjustmentWidth)
+			height = "";
+		else
+			height = getScreenHeight() - aPagePadT - aPagePadB - aPageBorderT - aPageBorderB;
+
+		aPage.css( "min-height", height);
 	}
 
 	//shared page enhancements
