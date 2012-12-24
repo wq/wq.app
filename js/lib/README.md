@@ -8,7 +8,7 @@ Library                                                  |  Version  |  Notes
 -------------------------------------------------------- | --------- | -------------------------------------------
 [d3.js](/mbostock/d3)                                    |   2.10.3  |  wrapped as AMD module
 [jquery](/jquery/jquery)                                 |    1.8.2  |  patched to define anonymous AMD module
-[jquery.mobile](/jquery/jquery-mobile)                   |    1.2.0  |  patched to ensure router loads first
+[jquery.mobile](/jquery/jquery-mobile)                   |    1.2.0  |  patched to ensure router loads first<br>make resetActivePageHeight configurable
 [jquery.mobile.router](/azicchetti/jquerymobile-router)  |     0.93  |  patched with relative jQuery dependency
 [jquery.validate](/jzaefferer/jquery-validation)         |   1.10.0  |  wrapped as AMD module
 [leaflet](/CloudMade/Leaflet)                            |    0.4.4  |  wrapped as AMD module<br>patched _layersMinZoom computation in Map.addLayer<br>commented out disableClickPropagation in Popup._initLayout
