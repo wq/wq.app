@@ -5,7 +5,8 @@
  * http://wq.io/license
  */
 
-define(function() {
+define(['./console'], 
+function(console) {
 
 // Exported module object
 var ol = {
@@ -24,8 +25,11 @@ var ol = {
 };
 
 // Internal functions
+var _last_type = null;
 function _callback(type, msg) {
-    console.log(type + ' - ' + msg);
+    if (type != _last_type)
+        console.log(type + ' - ' + msg);
+    _last_type = type;
 };
 
 function _update(evt) {

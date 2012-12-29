@@ -35,6 +35,7 @@ function _Store(name) {
     // Base URL of web service
     self.service     = undefined;
     self.saveMethod  = 'POST';
+    self.debug       = false;
     
     // Default parameters (e.g f=json)
     self.defaults    = {}; 
@@ -52,10 +53,17 @@ function _Store(name) {
          if (defaults)          self.defaults = defaults;
          if (!opts) return;
 
-         if (opts.saveMethod)  self.saveMethod  = opts.saveMethod;
-         if (opts.parseData)   self.parseData   = opts.parseData;
-         if (opts.applyResult) self.applyResult = opts.applyResult;
-         if (opts.jsonp)       self.jsonp       = opts.jsonp;
+         var optlist = [
+             'saveMethod',
+             'parseData',
+             'applyResult',
+             'jsonp',
+             'debug'
+         ]
+         optlist.forEach(function(opt) {
+             if (opts[opt])
+                 self[opt] = opts[opt];
+         });
 
          if (opts.batchService) {
              self.batchService = opts.batchService;
@@ -83,11 +91,13 @@ function _Store(name) {
         if (useservice !== undefined)
             usesvc = (useservice ? 'always' : 'never');
 
-        console.log('looking up ' + key);
+        if (self.debug)
+            console.log('looking up ' + key);
 
         // First check JSON cache
         if (_cache[key] && usesvc != 'always') {
-            console.log('in memory')
+            if (self.debug) 
+                console.log('in memory');
             return _cache[key];
         }
 
@@ -96,27 +106,33 @@ function _Store(name) {
             var item = _ls.getItem(_lsp + key);
             if (item) {
                 _cache[key] = JSON.parse(item);
-                console.log('in localStorage');
-                // console.log(_cache[key]);
+                if (self.debug)
+                    console.log('in localStorage');
+                // if (self.debug) 
+                //     console.log(_cache[key]);
                 return _cache[key];
             }
         }
 
         // Search ends here if query is a simple string
         if (typeof query == "string") {
-            console.log('not found');
+            if (self.debug)
+                console.log('not found');
             return null;
         }
             
         // More complex queries are assumed to be server requests
         if (self.service !== undefined && usesvc != 'never') {
-            console.log('on server');
+            if (self.debug)
+                console.log('on server');
             self.fetch(query);
-            // console.log(_cache[key]);
+            // if (self.debug)
+            //     console.log(_cache[key]);
             return _cache[key];
         }
 
-        console.log('not found');
+        if (self.debug) 
+            console.log('not found');
         return null;
     };
 
@@ -349,13 +365,16 @@ function _Store(name) {
     self.set = function(query, value) {
         key = self.toKey(query);
         if (value !== null) {
-            console.log('saving new value for ' + key + ' to memory and localStorage');
-            // console.log(value);
+            if (self.debug)
+                console.log('saving new value for ' + key + ' to memory and localStorage');
+            // if (self.debug) 
+            //     console.log(value);
             _cache[key] = value;
             if (_ls) 
                 _ls.setItem(_lsp + key, JSON.stringify(value));
         } else {
-            console.log('deleting ' + key + ' from memory and localStorage');
+            if (self.debug)
+                console.log('deleting ' + key + ' from memory and localStorage');
             delete _cache[key];
             if (_ls)
                 _ls.removeItem(_lsp + key);
@@ -442,7 +461,8 @@ function _Store(name) {
         if (!attr) attr = 'id';
         var ilist = self.getIndex(query, attr, usesvc);
         var key = self.toKey(query);
-        console.log('finding item in ' + key + ' where ' + attr + '=' + value);
+        if (self.debug)
+            console.log('finding item in ' + key + ' where ' + attr + '=' + value);
         if (ilist && ilist[value])
             return ilist[value];
         else
@@ -495,7 +515,8 @@ function _Store(name) {
                 var data = self.parseData(result);
                 if (data) {
                     if (async)
-                        console.log("received async result");
+                        if (self.debug)
+                            console.log("received async result");
                     if (!nocache) {
                         if (self.setPageInfo(query, data)) {
                             data = data.list;
@@ -528,7 +549,8 @@ function _Store(name) {
     
     // Helper function for async requests
     self.prefetch = function(query, callback) {
-        console.log("prefetching " + self.toKey(query));
+        if (self.debug) 
+            console.log("prefetching " + self.toKey(query));
         self.fetch(query, true, callback);
     };
     
