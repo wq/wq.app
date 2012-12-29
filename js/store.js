@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery', './online', './console'], 
+define(['./lib/jquery', './online', './console', './lib/es5-shim'], 
 function($, ol, console) {
 
 // Hybrid module object provides/is a singleton instance...

@@ -7,7 +7,8 @@
  */
 
 define(['./lib/jquery', './lib/jquery.mobile',
-        './store', './pages', './template', './spinner'],
+        './store', './pages', './template', './spinner',
+        './lib/es5-shim'],
 function($, jqm, ds, pages, tmpl, spin) {
 
 var app = {};

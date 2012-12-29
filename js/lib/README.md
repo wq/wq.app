@@ -7,6 +7,7 @@ These are the dependencies of various wq.app modules as well as some other usefu
 Library                                                  |  Version  |  Notes
 -------------------------------------------------------- | --------- | -------------------------------------------
 [d3.js](/mbostock/d3)                                    |   2.10.3  |  wrapped as AMD module
+[es5-shim.js](/kriskowal/es5-shim)                       |    2.0.5  |  no changes
 [jquery](/jquery/jquery)                                 |    1.8.2  |  patched to define anonymous AMD module
 [jquery.mobile](/jquery/jquery-mobile)                   |    1.2.0  |  patched to ensure router loads first<br>make resetActivePageHeight configurable
 [jquery.mobile.router](/azicchetti/jquerymobile-router)  |     0.93  |  patched with relative jQuery dependency
