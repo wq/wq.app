@@ -5,23 +5,33 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery.mobile'], 
-function(jqm) {
+define(['./lib/jquery.mobile', './console'], 
+function(jqm, console) {
 
 // Exported module object
 var spin = {};
 
-spin.start = function(msg, theme) {
-    if (msg)
-        jqm.loadingMessageTextVisible = true;
-    if (!theme)
-        theme = 'a';
-    jqm.showPageLoadingMsg(theme, msg);
-    jqm.loadingMessageTextVisible = false;
-};
+spin.start = function(msg, duration, opts) {
+    if (!jqm.loaderWidget) {
+        console.log('Not ready to spin!')
+        return;
+    }
+
+    if (!opts) opts = {};
+    if (msg) {
+        opts.text = msg;
+        opts.textVisible = true;
+    }
+    jqm.loading('show', opts);
+
+    if (duration)
+        setTimeout(spin.stop, duration * 1000);
+}
 
 spin.stop = function() {
-    jqm.hidePageLoadingMsg();
+    if (!jqm.loaderWidget)
+        return;
+    jqm.loading('hide');
 }
 
 return spin;
