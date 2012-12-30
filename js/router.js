@@ -14,37 +14,37 @@ var router = {};
 
 // Mimics new Router()
 router.init = function(routedefs, handlers, opts) {
-   if (_router) {
-      // Reconfigure existing router
-      _router.conf = $.extend(_router.conf, opts);
-      if (opts.defaultHandlerEvents) {
-          // Mimic functionality in router constructor
-          var events = opts.defaultHandlerEvents.split(",");
-          $.each(events, function(i, evt) {
-              var ename = _router.evtLookup[evt];
-              _router.defaultHandlerEvents[ename] = evt;
-          });
-      }
-   } else
-      _conf = $.extend(_conf, opts);
-   router.add(routedefs, handlers);
+    if (_router) {
+        // Reconfigure existing router
+        _router.conf = $.extend(_router.conf, opts);
+        if (opts.defaultHandlerEvents) {
+            // Mimic functionality in router constructor
+            var events = opts.defaultHandlerEvents.split(",");
+            $.each(events, function(i, evt) {
+                var ename = _router.evtLookup[evt];
+                _router.defaultHandlerEvents[ename] = evt;
+            });
+        }
+    } else
+        _conf = $.extend(_conf, opts);
+    router.add(routedefs, handlers);
 }
 
 // Mimics Router.add()
 router.add = function(routedefs, handlers) {
-   if (_router)
-      // After init, can directly add routes to Router
-      _router.add(routedefs, handlers);
-   else
-      // Before init, need to collect routes in queue
-      _pending.push({'r': routedefs, 'h': handlers});
+    if (_router)
+        // After init, can directly add routes to Router
+        _router.add(routedefs, handlers);
+    else
+        // Before init, need to collect routes in queue
+        _pending.push({'r': routedefs, 'h': handlers});
 }
 
 // Mimics Router.getParams()
 router.getParams = function(search) {
-   if (!_router)
-       throw "Router is not ready to getParams!";
-   return _router.getParams(search);
+    if (!_router)
+        throw "Router is not ready to getParams!";
+    return _router.getParams(search);
 }
 
 // Internal variables
