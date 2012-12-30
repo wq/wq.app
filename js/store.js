@@ -20,7 +20,7 @@ store.getStore = function(name) {
 };
 
 // Internal variables and functions
-var _ls = window.localStorage;
+var _ls = 'localStorage' in window && window.localStorage;
 var _stores;
 
 function _Store(name) {
@@ -57,6 +57,7 @@ function _Store(name) {
              'saveMethod',
              'parseData',
              'applyResult',
+             'localStorageFail',
              'jsonp',
              'debug'
          ]
@@ -74,6 +75,9 @@ function _Store(name) {
          }
          if (opts.functions)
              _functions = opts.functions;
+
+         if (!_ls)
+             self.localStorageFail();
     };
 
     // Get value from datastore
@@ -106,10 +110,10 @@ function _Store(name) {
             var item = _ls.getItem(_lsp + key);
             if (item) {
                 _cache[key] = JSON.parse(item);
-                if (self.debug)
+                if (self.debug) {
                     console.log('in localStorage');
-                // if (self.debug) 
-                //     console.log(_cache[key]);
+                    console.log(_cache[key]);
+                }
                 return _cache[key];
             }
         }
@@ -126,8 +130,8 @@ function _Store(name) {
             if (self.debug)
                 console.log('on server');
             self.fetch(query);
-            // if (self.debug)
-            //     console.log(_cache[key]);
+            if (self.debug)
+                console.log(_cache[key]);
             return _cache[key];
         }
 
@@ -365,13 +369,29 @@ function _Store(name) {
     self.set = function(query, value) {
         key = self.toKey(query);
         if (value !== null) {
-            if (self.debug)
+            if (self.debug) {
                 console.log('saving new value for ' + key + ' to memory and localStorage');
-            // if (self.debug) 
-            //     console.log(value);
+                console.log(value);
+            }
             _cache[key] = value;
-            if (_ls) 
-                _ls.setItem(_lsp + key, JSON.stringify(value));
+            if (_ls) {
+                var val = JSON.stringify(value);
+                var lskey = _lsp + key;
+                try {
+                    _ls.setItem(lskey, val);
+                } catch (e) {
+                    // Probably QUOTA_EXCEEDED_ERR, try removing and setting again
+                    // (in case the old item is being counted against the quota)
+                    _ls.removeItem(lskey);
+                    try {
+                        _ls.setItem(lskey, val);
+                    } catch (e) {
+                        // No luck, report error and stop using localStorage
+                        self.localStorageFail(val, e);
+                        _ls = false;
+                    }
+                }
+            }
         } else {
             if (self.debug)
                 console.log('deleting ' + key + ' from memory and localStorage');
@@ -384,6 +404,26 @@ function _Store(name) {
         delete _group_cache[key];
     };
 
+    // Callback for localStorage failure - override to inform the user
+    self.localStorageFail = function(item, error) {
+        if (self.localStorageUsage() > 0)
+            console.warn("localStorage appears to be full.");
+        else
+            console.warn("localStorage appears to be disabled.");
+    };
+    
+    // Simple computation for quota usage
+    self.localStorageUsage = function() {
+        if (!_ls)
+            return null;
+        var usage = 0;
+        for (var key in _ls) {
+            usage += _ls.getItem(key).length;
+        }
+        // UTF-16 means two bytes per character in storage - at least on webkit
+        return usage * 2;
+    }
+    
     // Helper to allow simple objects to be used as keys
     self.toKey = function(query) {
         if (!query)
