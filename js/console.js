@@ -8,10 +8,15 @@
 define(function() {
 
 if (window.console)
-    return window.console
-else
+    return window.console;
+else {
+    var fn = function() {};
     return {
-        'log': function() {}
+        'log':   fn,
+        'debug': fn,
+        'info':  fn,
+        'warn':  fn,
+        'error': fn
     };
-
+}
 });
