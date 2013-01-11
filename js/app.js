@@ -26,7 +26,7 @@ app.init = function(config, templates, svc) {
     var user = ds.get('user');
     if (user) {
         app.user = user;
-        tmpl.setDefault('user', user);
+        tmpl.setDefault('login_user', user);
         app.config = ds.get({'url': 'config'});
     }
     if (document.cookie) {
@@ -62,7 +62,7 @@ app.init = function(config, templates, svc) {
 app.logout = function() {
     delete app.user;
     ds.set('user', null);
-    tmpl.setDefault('user', null);
+    tmpl.setDefault('login_user', null);
     app.config = app.default_config;
     ds.fetch({'url': 'logout'}, true, undefined, true);
 };
@@ -71,7 +71,7 @@ app.save_login = function(user, config) {
     app.config = config;
     ds.set({'url': 'config'}, config);
     app.user = user;
-    tmpl.setDefault('user', user);
+    tmpl.setDefault('login_user', user);
     ds.set('user', user);
 };
 
@@ -195,18 +195,19 @@ function _registerDetail(page) {
 function _registerEdit(page) {
     var conf = app.config.pages[page];
     pages.register(conf.url + '/([^/]+)/edit', go);
-    pages.register(conf.url + '/new', go);
+    pages.register(conf.url + '/(new)', go);
     function go(match, ui, params) {
         ds.getList({'url': conf.url}, function(list) {
             var url;
-            if (match && match[1]) {
+            if (match && match[1] != "new") {
                 // Edit existing item
                 url = match[1] + '/edit';
-                var context = $.extend({}, list.find(match[1]));
-                if (!context) {
+                var item = list.find(match[1]);
+                if (!item) {
                     pages.notFound(url);
                     return;
                 }
+                var context = $.extend({}, item);
                 _addLookups(page, context, true, done);
             } else {
                 // Create new item
