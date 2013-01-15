@@ -244,7 +244,7 @@ function _registerOther(page) {
     pages.register(conf.url + '/', go);
     function go(match, ui, params) {
         if (ui && ui.options && ui.options.data) return; // Ignore form actions
-        pages.go(conf.url, page, params, ui);
+        pages.go(conf.url, page, params, ui, conf.once ? true : false);
     }
 }
 
