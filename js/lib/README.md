@@ -14,6 +14,7 @@ Library                                                  |  Version  |  Notes
 [jquery.validate](/jzaefferer/jquery-validation)         |   1.10.0  |  wrapped as AMD module
 [leaflet](/CloudMade/Leaflet)                            |    0.4.4  |  wrapped as AMD module<br>patched _layersMinZoom computation in Map.addLayer<br>commented out disableClickPropagation in Popup._initLayout
 [leaflet.markercluster](/danzel/Leaflet.markercluster)   |  315c2c8  |  wrapped as AMD module
+[marked](/chjj/marked)                                   |    0.2.7  |  no changes
 [mustache.js](/janl/mustache.js)                         |    0.7.0  |  no changes
 [proj4js](http://trac.osgeo.org/proj4js/)                |    1.1.0  |  wrapped as AMD module
 [proj4leaflet](/kartena/Proj4Leaflet)                    |  219fc47  |  wrapped as AMD module
