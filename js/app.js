@@ -46,7 +46,7 @@ app.init = function(config, templates, svc) {
     
     pages.register('logout\/?', app.logout);
     for (var page in app.config.pages) {
-        var conf = app.config.pages[page];
+        var conf = _getConf(page);
         if (conf.list) {
             _registerList(page);
             _registerDetail(page);
@@ -88,164 +88,194 @@ app.check_login = function() {
 // Internal variables and functions
 var _saveTransition = "none";
 
-// Wrappers for pages.register to handle common use cases
+// Wrappers for pages.register & pages.go to handle common use cases
+
+// Determine appropriate context & template for pages.go
+app.go = function(page, ui, params, itemid, edit, url) {
+    if (ui && ui.options && ui.options.data) return; // Ignore form actions
+    var conf = _getConf(page);
+    if (!conf.list) {
+        _renderOther(page, ui, params);
+        return;
+    }
+    ds.getList({'url': conf.url}, function(list) {
+        if (itemid) {
+            if (edit)
+                _renderEdit(page, list, ui, params, itemid, url);
+            else
+                _renderDetail(page, list, ui, params, itemid, url);
+        } else {
+            _renderList(page, list, ui, params, url);
+        }
+    });
+}
 
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 function _registerList(page) {
-    var conf = app.config.pages[page];
+    var conf = _getConf(page);
     pages.register(conf.url, go);
     pages.register(conf.url + '/', go);
     function go(match, ui, params) {
-        if (ui && ui.options && ui.options.data) return; // Ignore form actions
-        ds.getList({'url': conf.url}, function(list) {
-            var pnum = 1, next = null, prev = null, filter;
-            if (params) {
-                if (params['page']) {
-                    pnum = params['page'];
-                } else {
-                    filter = {};
-                    for (var key in params) {
-                        filter[key] = params[key];
-                    }
-                    conf.parents.forEach(function(p) {
-                        if (p == page + 'type')
-                             p = 'type';
-                        if (filter[p]) {
-                            filter[p + '_id'] = filter[p];
-                            delete filter[p];
-                        }
-                    });
-                }
-            }
-            
-            var data = filter ? list.filter(filter) : list.page(pnum);
-
-            if (pnum > 1) {
-                var prevp = {'page': parseInt(pnum) - 1};
-                prev = conf.url + '/?' + $.param(prevp);
-            }
-
-            if (pnum < data.info.pages) {
-                var nextp = {'page': parseInt(pnum) + 1};
-                next = conf.url + '/?' + $.param(nextp);
-            }
-
-            var context = {
-                'list':     data,
-                'page':     pnum,
-                'pages':    data.info.pages,
-                'per_page': data.info.per_page,
-                'total':    data.info.total,
-                'previous': prev ? '/' + prev : null,
-                'next':     next ? '/' + next : null,
-                'multiple': data.info.pages > 1
-            };
-            _addLookups(page, context, false, function(context) {
-                var url = conf.url + '/';
-                if (params)
-                    url += "?" + $.param(params);
-                pages.go(url, page + '_list', context, ui);
-            });
-        });
+        app.go(page, ui, params);
     }
+}
+function _renderList(page, list, ui, params, url) {
+    var conf = _getConf(page);
+    var pnum = 1, next = null, prev = null, filter;
+    if (url === undefined)
+        url = conf.url + '/';
+    if (params) {
+        url += "?" + $.param(params);
+        if (params['page']) {
+            pnum = params['page'];
+        } else {
+            filter = {};
+            for (var key in params) {
+                filter[key] = params[key];
+            }
+            conf.parents.forEach(function(p) {
+                if (p == page + 'type')
+                     p = 'type';
+                if (filter[p]) {
+                    filter[p + '_id'] = filter[p];
+                    delete filter[p];
+                }
+            });
+        }
+    }
+    
+    var data = filter ? list.filter(filter) : list.page(pnum);
+
+    if (pnum > 1) {
+        var prevp = {'page': parseInt(pnum) - 1};
+        prev = conf.url + '/?' + $.param(prevp);
+    }
+
+    if (pnum < data.info.pages) {
+        var nextp = {'page': parseInt(pnum) + 1};
+        next = conf.url + '/?' + $.param(nextp);
+    }
+
+    var context = {
+        'list':     data,
+        'page':     pnum,
+        'pages':    data.info.pages,
+        'per_page': data.info.per_page,
+        'total':    data.info.total,
+        'previous': prev ? '/' + prev : null,
+        'next':     next ? '/' + next : null,
+        'multiple': data.info.pages > 1
+    };
+    _addLookups(page, context, false, function(context) {
+        pages.go(url, page + '_list', context, ui);
+    });
 }
 
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
 function _registerDetail(page) {
-    var conf = app.config.pages[page];
+    var conf = _getConf(page);
     pages.register(conf.url + '/([^/\?]+)', function(match, ui, params) {
-        if (ui && ui.options && ui.options.data) return; // Ignore form actions
-        if (match[1] == "new") return;
-        ds.getList({'url': conf.url}, function(list) {
-            var url = conf.url + '/' + match[1];
-            var item = list.find(match[1]);
-            if (!item) {
-                // Item not found in stored list...
-                if (!conf.partial) {
-                    // List is assumed to contain entire dataset,
-                    // so the item probably does not exist
+        app.go(page, ui, params, match[1]);
+    });
+}
+function _renderDetail(page, list, ui, params, itemid, url) {
+    var conf = _getConf(page);
+    if (url === undefined)
+        url = conf.url + '/' + itemid;
+    var item = list.find(itemid);
+    if (!item) {
+        // Item not found in stored list...
+        if (!conf.partial) {
+            // List is assumed to contain entire dataset,
+            // so the item probably does not exist
+            pages.notFound(url);
+        } else {
+            // List does not represent entire dataset;
+            // attempt to load HTML directly from the server
+            // (using built-in jQM loader)
+            var jqmurl = '/' + url;
+            jqm.loadPage(jqmurl).then(function() {
+                $page = $(":jqmData(url='" + jqmurl + "')");
+                if ($page.length > 0)
+                    jqm.changePage($page);
+                else
                     pages.notFound(url);
-                } else {
-                    // List does not represent entire dataset;
-                    // attempt to load HTML directly from the server
-                    // (using built-in jQM loader)
-                    var jqmurl = '/' + url;
-                    jqm.loadPage(jqmurl).then(function() {
-                        $page = $(":jqmData(url='" + jqmurl + "')");
-                        if ($page.length > 0)
-                            jqm.changePage($page);
-                        else
-                            pages.notFound(url);
-                    });
-                }
-                return;
-            }
-            var context = $.extend({}, item);
-            _addLookups(page, context, false, function(context) {
-                pages.go(url, page + '_detail', context, ui);
             });
-        });
+        }
+        return;
+    }
+    var context = $.extend({}, item);
+    _addLookups(page, context, false, function(context) {
+        pages.go(url, page + '_detail', context, ui);
     });
 }
 
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
 function _registerEdit(page) {
-    var conf = app.config.pages[page];
+    var conf = _getConf(page);
     pages.register(conf.url + '/([^/]+)/edit', go);
     pages.register(conf.url + '/(new)', go);
     function go(match, ui, params) {
-        ds.getList({'url': conf.url}, function(list) {
-            var url;
-            if (match && match[1] != "new") {
-                // Edit existing item
-                url = match[1] + '/edit';
-                var item = list.find(match[1]);
-                if (!item) {
-                    pages.notFound(url);
-                    return;
-                }
-                var context = $.extend({}, item);
-                _addLookups(page, context, true, done);
-            } else {
-                // Create new item
-                var context = {}; //FIXME: defaults
-                url = 'new';
-                _addLookups(page, context, true, function(context) {
-                    if (!conf.annotated) {
-                        done(context);
-                        return;
-                    }
+        app.go(page, ui, params, match[1], true);
+    }
+}
+function _renderEdit(page, list, ui, params, itemid, url) {
+    if (itemid != "new") {
+        // Edit existing item
+        if (url === undefined)
+            url = itemid + '/edit';
+        var item = list.find(itemid);
+        if (!item) {
+            pages.notFound(url);
+            return;
+        }
+        var context = $.extend({}, item);
+        _addLookups(page, context, true, done);
+    } else {
+        // Create new item
+        var context = {}; //FIXME: defaults
+        if (url === undefined)
+            url = 'new';
+        _addLookups(page, context, true, function(context) {
+            if (!conf.annotated) {
+                done(context);
+                return;
+            }
 
-                    context['annotations'] = [];
-                    ds.getList({'url': 'annotationtypes'}, function(list) {
-                        var types = list.filter({'for': page});
-                        $.each(types, function(i, t) {
-                            context['annotations'].push({'annotationtype_id': t.id});
-                        });
-                        done(context);
-                    });
+            context['annotations'] = [];
+            ds.getList({'url': 'annotationtypes'}, function(list) {
+                var types = list.filter({'for': page});
+                $.each(types, function(i, t) {
+                    context['annotations'].push({'annotationtype_id': t.id});
                 });
-            }
-            function done(context) {
-                pages.go(conf.url + '/' + url, page + '_edit', context, ui);
-            }
+                done(context);
+            });
         });
+    }
+    function done(context) {
+        pages.go(conf.url + '/' + url, page + '_edit', context, ui);
     }
 }
 
 // Render non-list pages with with [url] template;
 // handles requests for [url] and [url]/
 function _registerOther(page) {
-    var conf = app.config.pages[page];
+    var conf = _getConf(page);
     pages.register(conf.url, go);
     pages.register(conf.url + '/', go);
     function go(match, ui, params) {
-        if (ui && ui.options && ui.options.data) return; // Ignore form actions
-        pages.go(conf.url, page, params, ui, conf.once ? true : false);
+        app.go(page, ui, params);
     }
+}
+
+function _renderOther(page, ui, params, url) {
+    if (url === undefined)
+        url = conf.url;
+    var conf = _getConf(page);
+    pages.go(url, page, params, ui, conf.once ? true : false);
 }
 
 // Handle form submit from [url]_edit views
@@ -332,7 +362,7 @@ function _applyResult(item, result) {
         });
         if (result.updates) {
             for (var page in result.updates) {
-                var pconf = app.config.pages[page];
+                var pconf = _getConf(page);
                 ds.getList({'url': pconf.url}, function(list) {
                     list.update(result.updates[page], 'id');
                 });
@@ -347,7 +377,7 @@ function _applyResult(item, result) {
 // Add various callback functions to context object to automate foreign key 
 // lookups within templates
 function _addLookups(page, context, editable, callback) {
-    var conf = app.config.pages[page];
+    var conf = _getConf(page);
     var lookups = {};
     $.each(conf.parents, function(i, v) {
         lookups[v] = _parent_lookup(v)
@@ -378,7 +408,7 @@ function _addLookups(page, context, editable, callback) {
 
 function _make_lookup(page, fn) {
     return function(context, key, callback) {
-        var conf = app.config.pages[page]
+        var conf = _getConf(page);
         ds.getList({'url': conf.url}, function(list) {
             context[key] = fn(list);
             callback(context);
@@ -439,6 +469,11 @@ function _annotation_lookup(page) {
             return annots;
         }
     });
+}
+
+// Load configuration based on page id
+function _getConf(page) {
+    return app.config.pages[page];
 }
 
 // Helper to load configuration based on URL 
