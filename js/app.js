@@ -391,6 +391,11 @@ function _addLookups(page, context, editable, callback) {
         lookups['annotations']    = _annotation_lookup(page);
         lookups['annotationtype'] = _parent_lookup('annotationtype');
     }
+    if (conf.related) {
+        lookups['relationships']        = _relationship_lookup(page);
+        lookups['inverserelationships'] = _relationship_lookup(page, true);
+        lookups['relationshiptype']     = _parent_lookup('relationshiptype');
+    }
     var queue = [];
     for (key in lookups)
         queue.push(key);
@@ -467,6 +472,31 @@ function _annotation_lookup(page) {
                 annots.push(item);
             });
             return annots;
+        }
+    });
+}
+
+// List of relationships for this object
+// (grouped by type)
+function _relationship_lookup(page, inverse) {
+    var name = inverse ? 'inverserelationship' : 'relationship';
+    return _make_lookup(name, function(list) {
+        return function() {
+            var filter = {}, groups = {};
+            filter[page + '_id'] = this.id;
+            list.filter(filter).forEach(function(rel) {
+                if (!groups[rel.type])
+                    groups[rel.type] = {
+                        'type': rel.type,
+                        'list': []
+                    }
+                groups[rel.type].list.push(rel)
+            });
+            var garray = [];
+            for (group in groups) {
+                garray.push(groups[group]);
+            }
+            return garray;
         }
     });
 }
