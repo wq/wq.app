@@ -26,7 +26,7 @@ app.init = function(config, templates, svc) {
     var user = ds.get('user');
     if (user) {
         app.user = user;
-        tmpl.setDefault('login_user', user);
+        tmpl.setDefault('user', user);
         app.config = ds.get({'url': 'config'});
     }
     if (document.cookie) {
@@ -62,7 +62,7 @@ app.init = function(config, templates, svc) {
 app.logout = function() {
     delete app.user;
     ds.set('user', null);
-    tmpl.setDefault('login_user', null);
+    tmpl.setDefault('user', null);
     app.config = app.default_config;
     ds.fetch({'url': 'logout'}, true, undefined, true);
 };
@@ -71,7 +71,7 @@ app.save_login = function(user, config) {
     app.config = config;
     ds.set({'url': 'config'}, config);
     app.user = user;
-    tmpl.setDefault('login_user', user);
+    tmpl.setDefault('user', user);
     ds.set('user', user);
 };
 
@@ -223,6 +223,7 @@ function _registerEdit(page) {
     }
 }
 function _renderEdit(page, list, ui, params, itemid, url) {
+    var conf = _getConf(page);
     if (itemid != "new") {
         // Edit existing item
         if (url === undefined)
@@ -272,9 +273,9 @@ function _registerOther(page) {
 }
 
 function _renderOther(page, ui, params, url) {
+    var conf = _getConf(page);
     if (url === undefined)
         url = conf.url;
-    var conf = _getConf(page);
     pages.go(url, page, params, ui, conf.once ? true : false);
 }
 
@@ -380,12 +381,14 @@ function _addLookups(page, context, editable, callback) {
     var conf = _getConf(page);
     var lookups = {};
     $.each(conf.parents, function(i, v) {
+        var pconf = _getConf(v);
         lookups[v] = _parent_lookup(v)
         if (editable)
-           lookups[app.config.pages[v].url] = _parent_dropdown_lookup(v);
+            lookups[pconf.url] = _parent_dropdown_lookup(v);
     });
     $.each(conf.children, function(i, v) {
-        lookups[app.config.pages[v].url] = _children_lookup(page, v)
+        var cconf = _getConf(v);
+        lookups[cconf.url] = _children_lookup(page, v)
     });
     if (conf.annotated) {
         lookups['annotations']    = _annotation_lookup(page);
@@ -503,7 +506,10 @@ function _relationship_lookup(page, inverse) {
 
 // Load configuration based on page id
 function _getConf(page) {
-    return app.config.pages[page];
+    var conf = app.config.pages[page];
+    if (!conf)
+        throw 'Configuration for "' + page + '" not found!";
+    return conf;
 }
 
 // Helper to load configuration based on URL 
@@ -515,6 +521,8 @@ function _getConfByUrl(url) {
             conf = $.extend({}, app.config.pages[p]);
             conf.page = p;
         }
+    if (!conf)
+        throw 'Configuration for "/' + url + '" not found!';
     return conf;
 }
 
