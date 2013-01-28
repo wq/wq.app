@@ -508,7 +508,7 @@ function _relationship_lookup(page, inverse) {
 function _getConf(page) {
     var conf = app.config.pages[page];
     if (!conf)
-        throw 'Configuration for "' + page + '" not found!";
+        throw 'Configuration for "' + page + '" not found!';
     return conf;
 }
 
