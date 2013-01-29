@@ -177,6 +177,8 @@ function _renderList(page, list, ui, params, url) {
 function _registerDetail(page) {
     var conf = _getConf(page);
     pages.register(conf.url + '/([^/\?]+)', function(match, ui, params) {
+        if (match[1] == 'new')
+            return;
         app.go(page, ui, params, match[1]);
     });
 }
