@@ -4,19 +4,34 @@ These are the dependencies of various wq.app modules as well as some other usefu
 
 ## Library versions
 
-Library                                                  |  Version  |  Notes
--------------------------------------------------------- | --------- | -------------------------------------------
-[d3.js](/mbostock/d3)                                    |   2.10.3  |  wrapped as AMD module
-[es5-shim.js](/kriskowal/es5-shim)                       |    2.0.5  |  no changes
-[jquery](/jquery/jquery)                                 |    1.8.2  |  patched to define anonymous AMD module
-[jquery.mobile](/jquery/jquery-mobile)                   |    1.2.0  |  patched to ensure router loads first<br>make resetActivePageHeight configurable
-[jquery.mobile.router](/azicchetti/jquerymobile-router)  |     0.93  |  patched with relative jQuery dependency
-[jquery.validate](/jzaefferer/jquery-validation)         |   1.10.0  |  wrapped as AMD module
-[leaflet](/CloudMade/Leaflet)                            |    0.4.4  |  wrapped as AMD module<br>patched _layersMinZoom computation in Map.addLayer<br>commented out disableClickPropagation in Popup._initLayout
-[leaflet.markercluster](/danzel/Leaflet.markercluster)   |  315c2c8  |  wrapped as AMD module
-[marked](/chjj/marked)                                   |    0.2.7  |  no changes
-[mustache.js](/janl/mustache.js)                         |    0.7.0  |  no changes
-[proj4js](http://trac.osgeo.org/proj4js/)                |    1.1.0  |  wrapped as AMD module
-[proj4leaflet](/kartena/Proj4Leaflet)                    |  219fc47  |  wrapped as AMD module
-[requirejs](/jrburke/requirejs)                          |    2.0.6  |  no changes
-[rtree.js](/imbcmdth/RTree)                              |    0.6.2  |  wrapped as AMD module 
+Library                 |  Version  |  Notes
+------------------------| --------- | -------------------------------------------
+[d3.js]                 |    3.0.6  |  wrapped as AMD module
+[es5-shim.js]           |    2.0.5  |  no changes
+[jquery]                |    1.9.1  |  patched to define anonymous AMD module
+[jquery.mobile]         | 1.3.0rc1  |  custom deps to ensure router loads first<br>make resetActivePageHeight configurable ([#5530])
+[jquery.mobile.router]  | 1164588e  |  patched with relative jQuery dependency
+[jquery.validate]       |   1.11.0  |  wrapped as AMD module
+[leaflet]               |    0.5.1  |  wrapped as AMD module<br>commented out disableClickPropagation in Popup._initLayout
+[leaflet.markercluster] |      0.2  |  wrapped as AMD module (returns modified Leaflet object)
+[marked]                |    0.2.8  |  no changes
+[mustache.js]           |    0.7.2  |  no changes
+[proj4js]               |    1.1.0  |  wrapped as AMD module
+[proj4leaflet]          |    0.4.5  |  wrapped as AMD module (returns modified Leaflet object)
+[requirejs], [r.js]     |    2.1.4  |  no changes; r.js is in /util
+
+[d3.js]:                 https://github.com/mbostock/d3
+[es5-shim.js]:           https://github.com/kriskowal/es5-shim
+[jquery]:                https://github.com/jquery/jquery
+[jquery.mobile]:         https://github.com/jquery/jquery-mobile
+[#5530]:                 https://github.com/jquery/jquery-mobile/pull/5530
+[jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
+[jquery.validate]:       https://github.com/jzaefferer/jquery-validation
+[leaflet]:               https://github.com/Leaflet/Leaflet
+[leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
+[marked]:                https://github.com/chjj/marked
+[mustache.js]:           https://github.com/janl/mustache.js
+[proj4js]:               http://trac.osgeo.org/proj4js/
+[proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
+[requirejs]:             https://github.com/jrburke/requirejs
+[r.js]:                  https://github.com/jrburke/r.js

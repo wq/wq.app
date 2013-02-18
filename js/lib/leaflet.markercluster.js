@@ -60,6 +60,17 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			return this.addLayers(array);
 		}
 
+		if (this.options.singleMarkerMode) {
+			layer.options.icon = this.options.iconCreateFunction({
+				getChildCount: function () {
+					return 1;
+				},
+				getAllChildMarkers: function () {
+					return [layer];
+				}
+			});
+		}
+
 		if (!this._map) {
 			this._needsClustering.push(layer);
 			return this;
@@ -119,9 +130,6 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			L.FeatureGroup.prototype.removeLayer.call(this, layer);
 			layer.setOpacity(1);
 		}
-
-		delete layer.__parent;
-
 		return this;
 	},
 
@@ -190,11 +198,10 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 	clearLayers: function () {
 		//Need our own special implementation as the LayerGroup one doesn't work for us
 
-		//If we aren't on the map (yet), blow away the markers we know of
+		//If we aren't on the map yet, just blow away the markers we know of
 		if (!this._map) {
 			this._needsClustering = [];
-			delete this._gridClusters;
-			delete this._gridUnclustered;
+			return this;
 		}
 
 		if (this._unspiderfy) {
@@ -208,25 +215,10 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			}
 		}
 
-		if (this._map) {
-			//Reset _topClusterLevel and the DistanceGrids
-			this._generateInitialClusters();
-		}
+		//Reset _topClusterLevel and the DistanceGrids
+		this._generateInitialClusters();
 
 		return this;
-	},
-
-	//Override FeatureGroup.getBounds as it doesn't work
-	getBounds: function () {
-		var bounds = new L.LatLngBounds();
-		if (this._topClusterLevel) {
-			bounds.extend(this._topClusterLevel._bounds);
-		} else {
-			for (var i = this._needsClustering.length - 1; i >= 0; i--) {
-				bounds.extend(this._needsClustering[i].getLatLng());
-			}
-		}
-		return bounds;
 	},
 
 	//Returns true if the given layer is in this MarkerClusterGroup
@@ -531,17 +523,6 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		    gridUnclustered = this._gridUnclustered,
 		    markerPoint, z;
 
-		if (this.options.singleMarkerMode) {
-			layer.options.icon = this.options.iconCreateFunction({
-				getChildCount: function () {
-					return 1;
-				},
-				getAllChildMarkers: function () {
-					return [layer];
-				}
-			});
-		}
-
 		//Find the lowest zoom level to slot this one in
 		for (; zoom >= 0; zoom--) {
 			markerPoint = this._map.project(layer.getLatLng(), zoom); // calculate pixel position
@@ -618,15 +599,13 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 	//Gets the maps visible bounds expanded in each direction by the size of the screen (so the user cannot see an area we do not cover in one pan)
 	_getExpandedVisibleBounds: function () {
 		var map = this._map,
-			bounds = map.getBounds(),
-			sw = bounds._southWest,
-			ne = bounds._northEast,
-			latDiff = L.Browser.mobile ? 0 : Math.abs(sw.lat - ne.lat),
-			lngDiff = L.Browser.mobile ? 0 : Math.abs(sw.lng - ne.lng);
+			bounds = map.getPixelBounds(),
+			width =  L.Browser.mobile ? 0 : Math.abs(bounds.max.x - bounds.min.x),
+			height = L.Browser.mobile ? 0 : Math.abs(bounds.max.y - bounds.min.y),
+			sw = map.unproject(new L.Point(bounds.min.x - width, bounds.min.y - height)),
+			ne = map.unproject(new L.Point(bounds.max.x + width, bounds.max.y + height));
 
-		return new L.LatLngBounds(
-			new L.LatLng(sw.lat - latDiff, sw.lng - lngDiff, true),
-			new L.LatLng(ne.lat + latDiff, ne.lng + lngDiff, true));
+		return new L.LatLngBounds(sw, ne);
 	},
 
 	//Shared animation code
