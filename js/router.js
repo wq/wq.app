@@ -55,7 +55,7 @@ var _conf = {'ajaxApp': true};
 // Initialization
 // Need to wait until mobileinit before initializing
 // (since that's what jquery.mobile.router does)
-$(document).live('mobileinit', function() {
+$(document).bind('mobileinit', function() {
     _router = new $.mobile.Router(undefined, undefined, _conf);
     $.each(_pending, function(i, p) {
         _router.add(p.r, p.h);

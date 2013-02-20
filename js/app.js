@@ -56,7 +56,7 @@ app.init = function(config, templates, svc) {
         }
     }
 
-    $('form').live("submit", _handleForm);
+    $(document).on('submit', 'form', _handleForm);
 }
 
 app.logout = function() {

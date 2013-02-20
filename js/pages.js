@@ -83,7 +83,9 @@ pages.inject = function(path, template, context) {
         throw "No content found in template '" + template + "'!";
     var title = html.split(/<\/?title>/)[1];
     var body  = html.split(/<\/?body>/)[1];
-    var $page = $(body ? body : html);
+    if (body)
+        html = body;
+    var $page = $(html.trim());
     var role = $page.jqmData('role');
     var url   = pages.info.full_path;
     var $oldpage = $(":jqmData(url='" + url + "')");
