@@ -18,19 +18,21 @@ app.init = function(config, templates, svc) {
        svc = '';
     app.config = app.default_config = config;
     app.native = !!window.cordova;
+    app.can_login = !!config.pages.login;
     ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
     pages.init();
     tmpl.init(templates, templates.partials, config.defaults);
     tmpl.setDefault('native', app.native);
 
-    var user = ds.get('user');
-    if (user) {
-        app.user = user;
-        tmpl.setDefault('user', user);
-        app.config = ds.get({'url': 'config'});
-    }
-    if (document.cookie) {
+    if (app.can_login) {
+        var user = ds.get('user');
+        if (user) {
+            app.user = user;
+            tmpl.setDefault('user', user);
+            app.config = ds.get({'url': 'config'});
+        }
         app.check_login();
+        pages.register('logout\/?', app.logout);
     }
 
     if (config.transitions) {
@@ -44,7 +46,6 @@ app.init = function(config, templates, svc) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
     
-    pages.register('logout\/?', app.logout);
     for (var page in app.config.pages) {
         var conf = _getConf(page);
         if (conf.list) {
@@ -60,6 +61,8 @@ app.init = function(config, templates, svc) {
 }
 
 app.logout = function() {
+    if (!app.can_login)
+        return;
     delete app.user;
     ds.set('user', null);
     tmpl.setDefault('user', null);
@@ -68,6 +71,8 @@ app.logout = function() {
 };
 
 app.save_login = function(user, config) {
+    if (!app.can_login)
+        return;
     app.config = config;
     ds.set({'url': 'config'}, config);
     app.user = user;
@@ -76,6 +81,8 @@ app.save_login = function(user, config) {
 };
 
 app.check_login = function() {
+    if (!app.can_login)
+        return;
     ds.fetch({'url': 'login'}, false, function(result) {
         if (result && result.user && result.config) {
             app.save_login(result.user, result.config);
@@ -371,7 +378,7 @@ function _applyResult(item, result) {
                 });
             }
         }
-    } else if (result && result.user && result.config) {
+    } else if (app.can_login && result && result.user && result.config) {
         app.save_login(result.user, result.config);
         pages.go("login", "login");
     }
