@@ -29,7 +29,9 @@ app.init = function(config, templates, svc) {
         if (user) {
             app.user = user;
             tmpl.setDefault('user', user);
+            tmpl.setDefault('is_authenticated', true);
             app.config = ds.get({'url': 'config'});
+            $('body').trigger('login');
         }
         app.check_login();
         pages.register('logout\/?', app.logout);
@@ -66,8 +68,10 @@ app.logout = function() {
     delete app.user;
     ds.set('user', null);
     tmpl.setDefault('user', null);
+    tmpl.setDefault('is_authenticated', false);
     app.config = app.default_config;
     ds.fetch({'url': 'logout'}, true, undefined, true);
+    $('body').trigger('logout');
 };
 
 app.save_login = function(user, config) {
@@ -77,7 +81,9 @@ app.save_login = function(user, config) {
     ds.set({'url': 'config'}, config);
     app.user = user;
     tmpl.setDefault('user', user);
+    tmpl.setDefault('is_authenticated', true);
     ds.set('user', user);
+    $('body').trigger('login');
 };
 
 app.check_login = function() {
