@@ -59,10 +59,11 @@ function _Store(name) {
              'applyResult',
              'localStorageFail',
              'jsonp',
-             'debug'
+             'debug',
+             'formatKeyword'
          ]
          optlist.forEach(function(opt) {
-             if (opts[opt])
+             if (opts.hasOwnProperty(opt))
                  self[opt] = opts[opt];
          });
 
@@ -141,7 +142,7 @@ function _Store(name) {
     };
 
     // Retrieve a stored list as an object with helper functions
-    //  - especially useful for paginated lists
+    //  - especially useful for server-paginated lists
     //  - must be called asynchronously
     self.getList = function(basequery, callback) {
         var pageinfo = self.getPageInfo(basequery);
@@ -522,14 +523,18 @@ function _Store(name) {
         if (!ol.online)
             throw "This function requires an Internet connection.";
         if (self.jsonp && !async)
-            throw "Cannot fetch jsonp asyncronously";
+            throw "Cannot fetch jsonp synchronously";
 
         var key = self.toKey(query);
         var data = $.extend({}, self.defaults, query);
         var url = self.service;
-        if (data.url) {
+        if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
             delete data.url;
+        }
+        if (data.format && !self.formatKeyword) {
+            url += '.' + data.format;
+            delete data.format;
         }
 
         var queued;
@@ -560,7 +565,7 @@ function _Store(name) {
                     if (!nocache) {
                         if (self.setPageInfo(query, data)) {
                             data = data.list;
-                            if (!('page' in query))
+                            if (!query.hasOwnProperty('page'))
                                 query['page'] = 1;
                         }
                         self.set(query, data);
@@ -742,7 +747,7 @@ function _Store(name) {
         var data = $.extend({}, item.data);
         var contenttype;
         var processdata;
-        if (data.url) {
+        if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
             delete data.url;
         }
@@ -750,8 +755,16 @@ function _Store(name) {
             method = data.method;
             delete data.method;
         }
-        if ($.param(self.defaults))
-            url += '?' + $.param(self.defaults);
+
+        var defaults = $.extend({}, self.defaults);
+        if (defaults.format && !self.formatKeyword) {
+            url = url.replace(/\/$/, '');
+            url += '.' + defaults.format;
+            delete defaults.format;
+        }
+        if ($.param(defaults)) {
+            url += '?' + $.param(defaults);
+        }
 
         if (data.data) {
             data = data.data;
