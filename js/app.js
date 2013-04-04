@@ -260,7 +260,7 @@ function _renderEdit(page, list, ui, params, itemid, url) {
         _addLookups(page, context, true, done);
     } else {
         // Create new item
-        var context = {}; //FIXME: defaults
+        var context = $.extend({}, params); //FIXME: defaults
         if (url === undefined)
             url = 'new';
         _addLookups(page, context, true, function(context) {
@@ -404,8 +404,10 @@ function _addLookups(page, context, editable, callback) {
     $.each(conf.parents, function(i, v) {
         var pconf = _getConf(v);
         lookups[v] = _parent_lookup(v)
-        if (editable)
-            lookups[pconf.url] = _parent_dropdown_lookup(v);
+        if (editable) {
+            lookups[pconf.url]   = _parent_dropdown_lookup(v);
+            lookups[v + '_list'] = _parent_dropdown_lookup(v);
+        }
     });
     $.each(conf.children, function(i, v) {
         var cconf = _getConf(v);
