@@ -348,22 +348,20 @@ function _handleForm(evt) {
             return;
         }
 
-        // Rest API provided detailed error information
+        // REST API provided general error information
         if (typeof(item.error) === 'string') {
             showError(item.error);
             return;
         }
 
-        if (item.error.field_errors) {
-            for (f in item.error.field_errors) {
-                var err = item.error.field_errors[f][0];
+        // REST API provided per-field error information
+        for (f in item.error) {
+            // FIXME: there may be multiple errors per field
+            var err = item.error[f][0];
+            if (f == 'non_field_errors')
+                showError(err);
+            else
                 showError(err, f);
-            }
-        }
-
-        if (item.error.errors) {
-            var err = item.error.errors[0];
-            showError(err);
         }
 
         function showError(err, field) {
