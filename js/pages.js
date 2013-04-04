@@ -82,7 +82,7 @@ pages.inject = function(path, template, context) {
     if (!html.match(/<div/))
         throw "No content found in template '" + template + "'!";
     var title = html.split(/<\/?title>/)[1];
-    var body  = html.split(/<\/?body>/)[1];
+    var body  = html.split(/<\/?body[^>?]*>/)[1];
     if (body)
         html = body;
     var $page = $(html.trim());
