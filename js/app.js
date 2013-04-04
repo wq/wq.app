@@ -26,10 +26,12 @@ app.init = function(config, templates, svc) {
 
     if (app.can_login) {
         var user = ds.get('user');
+        var csrftoken = ds.get('csrftoken');
         if (user) {
             app.user = user;
             tmpl.setDefault('user', user);
             tmpl.setDefault('is_authenticated', true);
+            tmpl.setDefault('csrftoken', csrftoken);
             app.config = ds.get({'url': 'config'});
             $('body').trigger('login');
         }
@@ -69,12 +71,16 @@ app.logout = function() {
     ds.set('user', null);
     tmpl.setDefault('user', null);
     tmpl.setDefault('is_authenticated', false);
+    tmpl.setDefault('csrftoken', null);
     app.config = app.default_config;
     ds.fetch({'url': 'logout'}, true, undefined, true);
     $('body').trigger('logout');
 };
 
-app.save_login = function(user, config) {
+app.save_login = function(result) {
+    var config = result.config,
+        user = result.user,
+        csrftoken = result.csrftoken;
     if (!app.can_login)
         return;
     app.config = config;
@@ -82,7 +88,9 @@ app.save_login = function(user, config) {
     app.user = user;
     tmpl.setDefault('user', user);
     tmpl.setDefault('is_authenticated', true);
+    tmpl.setDefault('csrftoken', csrftoken);
     ds.set('user', user);
+    ds.set('csrftoken', csrftoken);
     $('body').trigger('login');
 };
 
@@ -91,7 +99,7 @@ app.check_login = function() {
         return;
     ds.fetch({'url': 'login'}, false, function(result) {
         if (result && result.user && result.config) {
-            app.save_login(result.user, result.config);
+            app.save_login(result);
         } else if (result && app.user) {
             app.logout();
         }
@@ -385,7 +393,7 @@ function _applyResult(item, result) {
             }
         }
     } else if (app.can_login && result && result.user && result.config) {
-        app.save_login(result.user, result.config);
+        app.save_login(result);
         pages.go("login", "login");
     }
 }
