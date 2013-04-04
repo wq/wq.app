@@ -379,16 +379,19 @@ function _applyResult(item, result) {
         item.newid = result.id;
         ds.getList({'url': conf.url}, function(list) {
             var res = $.extend({}, result);
-            delete res.updates;
+            if (conf.annotated && res.annotations)
+                delete res.annotations;
             list.update([res], 'id');
         });
-        if (result.updates) {
-            for (var page in result.updates) {
-                var pconf = _getConf(page);
-                ds.getList({'url': pconf.url}, function(list) {
-                    list.update(result.updates[page], 'id');
-                });
-            }
+        if (conf.annotated && result.annotations) {
+            var annots = result.annotations;
+            annots.forEach(function(a) {
+                a[conf.page + '_id'] = result.id;
+            });
+            console.log(annots);
+            ds.getList({'url': 'annotations'}, function(list) {
+                list.update(annots, 'id');
+            });
         }
     } else if (app.can_login && result && result.user && result.config) {
         app.save_login(result);
