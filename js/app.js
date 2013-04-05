@@ -144,8 +144,11 @@ function _registerList(page) {
 function _renderList(page, list, ui, params, url) {
     var conf = _getConf(page);
     var pnum = 1, next = null, prev = null, filter;
-    if (url === undefined)
-        url = conf.url + '/';
+    if (url === undefined) {
+        url = conf.url;
+        if (url)
+            url += '/';
+    }
     if (params) {
         url += "?" + $.param(params);
         if (params['page']) {
