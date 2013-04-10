@@ -131,6 +131,10 @@ app.go = function(page, ui, params, itemid, edit, url) {
     });
 }
 
+app.getAnnotationTypeFilter = function(page, obj) {
+    return {'for': page};
+};
+
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 function _registerList(page) {
@@ -274,7 +278,7 @@ function _renderEdit(page, list, ui, params, itemid, url) {
 
             context['annotations'] = [];
             ds.getList({'url': 'annotationtypes'}, function(list) {
-                var types = list.filter({'for': page});
+                var types = list.filter(app.getAnnotationTypeFilter(page, context));
                 $.each(types, function(i, t) {
                     context['annotations'].push({'annotationtype_id': t.id});
                 });
