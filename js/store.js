@@ -691,7 +691,7 @@ function _Store(name) {
             basequery[key] = query[key];
         }
         var pageinfo = self.get("pageinfo") || {};
-        var key = self.toKey(query);
+        var key = self.toKey(basequery);
         pageinfo[key] = {
             'pages':    data.pages,
             'per_page': data.per_page,
