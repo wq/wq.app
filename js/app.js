@@ -17,12 +17,12 @@ app.init = function(config, templates, svc) {
     if (svc === undefined)
        svc = '';
     app.config = app.default_config = config;
-    app.native = !!window.cordova;
+    app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
     ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
     pages.init();
     tmpl.init(templates, templates.partials, config.defaults);
-    tmpl.setDefault('native', app.native);
+    tmpl.setDefault('native', app['native']);
 
     if (app.can_login) {
         var user = ds.get('user');
@@ -97,7 +97,7 @@ app.save_login = function(result) {
 app.check_login = function() {
     if (!app.can_login)
         return;
-    ds.fetch({'url': 'login'}, false, function(result) {
+    ds.fetch({'url': 'login'}, true, function(result) {
         if (result && result.user && result.config) {
             app.save_login(result);
         } else if (result && app.user) {
@@ -318,7 +318,7 @@ function _handleForm(evt) {
 
     var vals = {};
     var has_files = ($form.find('input[type=file]').length > 0);
-    if (window.FormData && !app.native && has_files) {
+    if (window.FormData && !app['native'] && has_files) {
         // Use FormData to upload files via AJAX, although localStorage version
         // of outbox item will be unusable
         vals.data = new FormData(this);
@@ -328,7 +328,7 @@ function _handleForm(evt) {
 	$.each($form.serializeArray(), function(i, v) {
 	    vals[v.name] = v.value;
 	});
-        if (has_files && !app.native) {
+        if (has_files && !app['native']) {
             // FIXME: handle this case
         }
     }
