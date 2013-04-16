@@ -395,7 +395,6 @@ function _applyResult(item, result) {
             annots.forEach(function(a) {
                 a[conf.page + '_id'] = result.id;
             });
-            console.log(annots);
             ds.getList({'url': 'annotations'}, function(list) {
                 list.update(annots, 'id');
             });
