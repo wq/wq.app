@@ -268,8 +268,11 @@ function _renderEdit(page, list, ui, params, itemid, url) {
     } else {
         // Create new item
         var context = $.extend({}, params); //FIXME: defaults
-        if (url === undefined)
+        if (url === undefined) {
             url = 'new';
+            if ($.param(params))
+                url += '?' + $.param(params);
+        }
         _addLookups(page, context, true, function(context) {
             if (!conf.annotated) {
                 done(context);
