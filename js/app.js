@@ -290,7 +290,8 @@ function _renderEdit(page, list, ui, params, itemid, url) {
         });
     }
     function done(context) {
-        pages.go(conf.url + '/' + url, page + '_edit', context, ui);
+        var divid = page + '_' + itemid + '-page';
+        pages.go(conf.url + '/' + url, page + '_edit', context, ui, false, divid);
     }
 }
 

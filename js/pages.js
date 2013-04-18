@@ -76,7 +76,7 @@ pages.addRoute = function(path, events, callback, obj) {
 };
 
 // Render page and inject it into DOM (replace existing page if it exists)
-pages.inject = function(path, template, context) {
+pages.inject = function(path, template, context, pageid) {
     _updateInfo(path);
     var html  = tmpl.render(template, context);
     if (!html.match(/<div/))
@@ -88,13 +88,22 @@ pages.inject = function(path, template, context) {
     var $page = $(html.trim());
     var role = $page.jqmData('role');
     var url   = pages.info.full_path;
-    var $oldpage = $(":jqmData(url='" + url + "')");
+    var $oldpage;
+    if (pageid) {
+        if (pageid === true)
+            pageid = template + '-page';
+        $oldpage = $('#' + pageid);
+    } else {
+        $oldpage = $(":jqmData(url='" + url + "')");
+    }
     if (role == 'popup') {
         $page.appendTo(jqm.activePage);
         $page.popup();
         $page.trigger('create');
     } else if ($oldpage.length) {
         $oldpage.jqmData('title', title);
+        if (pageid)
+            $oldpage.jqmData('url', url);
         var $header     = $(":jqmData(role='header')",  $page).find("h1,h2,h3");
         var $oldheader  = $(":jqmData(role='header')",  $oldpage).find("h1,h2,h3");
         $oldheader.html($header.html());
@@ -106,6 +115,8 @@ pages.inject = function(path, template, context) {
     } else {
         $page.attr("data-" + jqm.ns + "url", url);
         $page.attr("data-" + jqm.ns + "title", title);
+        if (pageid)
+            $page.attr('id', pageid);
         $page.appendTo(jqm.pageContainer);
         $page.page();
     }
@@ -113,8 +124,9 @@ pages.inject = function(path, template, context) {
 };
 
 // Render template only once
-pages.injectOnce = function(path, template, context) {
-    var id = template + "-page";
+pages.injectOnce = function(path, template, context, id) {
+    if(!id)
+        id = template + "-page";
     var $page = $('#' + id);
     if ($page.length == 0) {
         // Initial render, use context if available
@@ -131,15 +143,15 @@ pages.injectOnce = function(path, template, context) {
 }
 
 // Inject and display page
-pages.go = function(path, template, context, ui, once) {
+pages.go = function(path, template, context, ui, once, pageid) {
     var $page;
     once = once || _injectOnce;
     if (once)
         // Only render the template once
-        $page = pages.injectOnce(path, template, context);
+        $page = pages.injectOnce(path, template, context, pageid);
     else
         // Default: render the template every time the page is loaded
-        $page = pages.inject(path, template, context);
+        $page = pages.inject(path, template, context, pageid);
 
     var role = $page.jqmData('role');
     if (role == 'page') {
