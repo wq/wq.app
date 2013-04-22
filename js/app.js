@@ -349,7 +349,10 @@ function _handleForm(evt) {
         if (item && item.saved) {
             // Save was successful
             var options = {'reverse': true, 'transition': _saveTransition};
-            jqm.changePage('/' + conf.url + '/' + item.newid, options);
+            if (conf.list)
+                jqm.changePage('/' + conf.url + '/' + item.newid, options);
+            else
+                jqm.changePage('/' + conf.url + '/', options);
             return;
         }
 
