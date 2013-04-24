@@ -324,7 +324,7 @@ function _handleForm(evt) {
     var has_files = ($files.length > 0 && $files.val().length > 0);
     if (!app['native'] && has_files) {
         // Files present and we're not running in Cordova.
-        if (false && window.FormData && window.Blob)
+        if (window.FormData && window.Blob)
             // Modern browser; use FormData to upload files via AJAX.
             // FIXME: localStorage version of outbox item will be unusable.  
             // Can we serialize this object somehow?
