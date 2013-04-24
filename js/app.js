@@ -315,27 +315,36 @@ function _renderOther(page, ui, params, url) {
 
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
-    evt.preventDefault();
     var $form = $(this);
     var url = $form.attr('action').substring(1);
     var conf = _getConfByUrl(url);
 
     var vals = {};
-    var has_files = ($form.find('input[type=file]').length > 0);
-    if (window.FormData && !app['native'] && has_files) {
-        // Use FormData to upload files via AJAX, although localStorage version
-        // of outbox item will be unusable
-        vals.data = new FormData(this);
+    var $files = $form.find('input[type=file]');
+    var has_files = ($files.length > 0 && $files.val().length > 0);
+    if (!app['native'] && has_files) {
+        // Files present and we're not running in Cordova.
+        if (false && window.FormData && window.Blob)
+            // Modern browser; use FormData to upload files via AJAX.
+            // FIXME: localStorage version of outbox item will be unusable.  
+            // Can we serialize this object somehow?
+            vals.data = new FormData(this);
+        else
+            // Looks like we're in a an old browser and we can't upload files
+            // via AJAX or Cordova...  Bypass store and assume server is
+            // configured to accept regular form posts.
+            return; 
     } else {
-        // Use a simple dictionary for values, better for outbox serialization
-        // but files will not be uploaded if this is a web app.
+        // No files, or we're running in Cordova.
+        // Use a simple dictionary for values, which is better for outbox
+        // serialization.  store will automatically use Cordova FileUpload iff
+        // there is a form field named 'fileupload'.
 	$.each($form.serializeArray(), function(i, v) {
 	    vals[v.name] = v.value;
 	});
-        if (has_files && !app['native']) {
-            // FIXME: handle this case
-        }
     }
+    // Skip regular form submission, we're saving this via store
+    evt.preventDefault();
     
     vals.url = url;
     if (url == conf.url + "/" || !conf.list)
@@ -377,6 +386,8 @@ function _handleForm(evt) {
             else
                 showError(err, f);
         }
+        if (!item.error.non_field_errors)
+            showError('One or more errors were found.');
 
         function showError(err, field) {
             var sel = '.' + conf.page + '-' + (field ? field + '-' : '') + 'errors';
