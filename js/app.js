@@ -231,7 +231,7 @@ function _renderDetail(page, list, ui, params, itemid, url) {
     var conf = _getConf(page);
     if (url === undefined)
         url = conf.url + '/' + itemid;
-    var item = list.find(itemid);
+    var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
     if (!item) {
         // Item not found in stored list...
         if (!conf.partial) {
@@ -277,7 +277,7 @@ function _renderEdit(page, list, ui, params, itemid, url) {
         // Edit existing item
         if (url === undefined)
             url = itemid + '/edit';
-        var item = list.find(itemid);
+        var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
         if (!item) {
             pages.notFound(url);
             return;
