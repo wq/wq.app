@@ -181,8 +181,10 @@ function _Store(name) {
             }
 
             // Find object in any page
-            list.find = function(value, attr, usesvc) {
-                for (var p = 1; p <= pageinfo.pages; p++) {
+            list.find = function(value, attr, usesvc, max_pages) {
+                if (!max_pages || max_pages > pageinfo.pages)
+                    max_pages = pageinfo.pages;
+                for (var p = 1; p <= max_pages; p++) {
                     var query = list.getQuery(p);
                     var obj = self.find(query, value, attr, usesvc);
                     if (obj)
@@ -192,9 +194,11 @@ function _Store(name) {
             };
 
             // Filter across all pages
-            list.filter = function(filter, any, usesvc) {
+            list.filter = function(filter, any, usesvc, max_pages) {
                 var result = [];
-                for (var p = 1; p <= pageinfo.pages; p++) {
+                if (!max_pages || max_pages > pageinfo.pages)
+                    max_pages = pageinfo.pages;
+                for (var p = 1; p <= max_pages; p++) {
                     var query = list.getQuery(p);
                     result = result.concat(self.filter(query, filter, any, usesvc));
                 }
@@ -207,18 +211,26 @@ function _Store(name) {
             };
 
             // Update list, across all pages
-            list.update = function(items, key) {
+            list.update = function(items, key, prepend) {
+                var query, opts;
+
                 // Only update existing items found in each page
                 for (var p = 1; p < pageinfo.pages; p++) {
-                    var query = list.getQuery(p);
+                    query = list.getQuery(p);
                     items = self.updateList(query, items, key, {'updateOnly': true});
                 }
 
-                // Add any remaining items to last page
+                // Add any remaining items to last or first page
                 if (items.length > 0) {
-                    // FIXME: this could result in the last page having more than per_page items
-                    var query = list.getQuery(pageinfo.pages);
-                    items = self.updateList(query, items, key);
+                    // FIXME: this could result in the page having more than per_page items
+                    if (prepend) {
+                        query = list.getQuery(1);
+                        opts = {'prepend': true};
+                    } else {
+                        query = list.getQuery(pageinfo.pages);
+                        opts = {};
+                    }
+                    items = self.updateList(query, items, key, opts);
                 }
             };
 
@@ -260,10 +272,10 @@ function _Store(name) {
                 result.info = list.info;
                 return result;
             };
-            list.find = function(value, attr, usesvc) {
+            list.find = function(value, attr, usesvc, max_pages) {
                 return self.find(basequery, value, attr, usesvc)
             };
-            list.filter = function(filter, any, usesvc) {
+            list.filter = function(filter, any, usesvc, max_pages) {
                 var result = self.filter(basequery, filter, any, usesvc)
                 result.info = {
                     'pages':    1,

@@ -172,7 +172,24 @@ function _renderList(page, list, ui, params, url) {
             });
         }
     }
-    
+
+    if (pnum > conf.max_local_pages) { 
+        // Set max_local_pages to avoid filling up local storage and
+        // instead attempt to load HTML directly from the server
+        // (using built-in jQM loader)
+        var jqmurl = '/' + url;
+        spin.start();
+        jqm.loadPage(jqmurl).then(function() {
+            spin.stop();
+            $page = $(":jqmData(url='" + jqmurl + "')");
+            if ($page.length > 0)
+                jqm.changePage($page);
+            else
+                pages.notFound(url);
+        });
+        return;
+    }
+
     var data = filter ? list.filter(filter) : list.page(pnum);
 
     if (pnum > 1) {
@@ -218,15 +235,17 @@ function _renderDetail(page, list, ui, params, itemid, url) {
     if (!item) {
         // Item not found in stored list...
         if (!conf.partial) {
-            // List is assumed to contain entire dataset,
-            // so the item probably does not exist
+            // If partial is not set, locally stored list is assumed to 
+            // contain the entire dataset, so the item probably does not exist.
             pages.notFound(url);
         } else {
-            // List does not represent entire dataset;
-            // attempt to load HTML directly from the server
-            // (using built-in jQM loader)
+            // Set partial to indicate local list does not represent entire 
+            // dataset; if an item is not found will attempt to load HTML 
+            // directly from the server (using built-in jQM loader)
             var jqmurl = '/' + url;
+            spin.start();
             jqm.loadPage(jqmurl).then(function() {
+                spin.stop();
                 $page = $(":jqmData(url='" + jqmurl + "')");
                 if ($page.length > 0)
                     jqm.changePage($page);
@@ -406,7 +425,7 @@ function _applyResult(item, result) {
             var res = $.extend({}, result);
             if (conf.annotated && res.annotations)
                 delete res.annotations;
-            list.update([res], 'id');
+            list.update([res], 'id', conf.reversed);
         });
         if (conf.annotated && result.annotations) {
             var annots = result.annotations;
