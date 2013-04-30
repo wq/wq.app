@@ -335,6 +335,9 @@ function _renderOther(page, ui, params, url) {
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
     var $form = $(this);
+    if ($form.data('json') !== undefined && $form.data('json') == false)
+        return; // Defer to default (HTML-based) handler
+
     var url = $form.attr('action').substring(1);
     var conf = _getConfByUrl(url);
 
