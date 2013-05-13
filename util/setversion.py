@@ -1,7 +1,7 @@
 import os
 
 def setversion(conf, indir):
-    filename = indir + '/version.txt'
+    filename = conf.get('filename', indir + '/version.txt')
     if (conf.get('version', None) is None):
         if os.path.exists(filename):
             version = open(filename).read().strip()
