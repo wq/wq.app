@@ -6,6 +6,7 @@ from collect    import collectjson
 from setversion import setversion
 from appcache   import appcache
 from compilers  import optimize, scss
+from init       import init
 
 class Builder(object):
     conf = None
@@ -24,8 +25,15 @@ class Builder(object):
         self.outdir = self.conf['optimize']['dir']
         if version is not None:
             self.version = version
+
+    def init(self, conf=None):
+        if conf is None:
+            conf = self.conf.get('init', {})
+        init(conf, self.indir)
     
     def build(self):
+        self.init()
+
         # Save version information
         if 'setversion' in self.conf or self.version != "":
             self.setversion()

@@ -9,7 +9,9 @@ Valid commands:
    appcache
    build
    collectjson
+   init
    optimize
+   scss
    setversion
 """
 
