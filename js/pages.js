@@ -96,9 +96,12 @@ pages.inject = function(path, template, context, pageid) {
     } else {
         $oldpage = $(":jqmData(url='" + url + "')");
     }
-    if (role == 'popup') {
-        $page.appendTo(jqm.activePage);
-        $page.popup();
+    if (role == 'popup' || role == 'panel') {
+        $page.appendTo(jqm.activePage[0]);
+        if (role == 'popup')
+            $page.popup();
+        else
+            $page.panel();
         $page.trigger('create');
     } else if ($oldpage.length) {
         $oldpage.jqmData('title', title);
@@ -178,6 +181,8 @@ pages.go = function(path, template, context, ui, once, pageid) {
             });
         }
         $page.popup('open', options);
+    } else if (role == 'panel') {
+        $page.panel('open');
     }
     return $page;
 };
