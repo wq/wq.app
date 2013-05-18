@@ -1,8 +1,19 @@
 import os
 import json
+try:
+    import yaml
+except:
+    yaml = None
 
-def readfiles(basedir, ftype=None):
+NEST = {
+   'json': json,
+   'yaml': yaml
+}
+
+def readfiles(basedir, ftype=None, fext=None):
     obj = {}
+    if fext is None:
+        fext = ftype
 
     for path, dirs, files in os.walk(basedir):
         if '.svn' in dirs:
@@ -19,14 +30,14 @@ def readfiles(basedir, ftype=None):
 
         for filename in files:
             name, ext = os.path.splitext(filename)
-            if ftype and ext != '.' + ftype:
+            if ftype and ext != '.' + fext:
                 continue
 
             fpath = path + name
             data = open(basedir + os.sep + fpath + ext)
-            if ftype == "json":
+            if NEST.get(ftype, None):
                 try:
-                    o[name] = json.load(data)
+                    o[name] = NEST[ftype].load(data)
                 except ValueError:
                     print "Could not parse %s!" % name
                     raise
@@ -46,7 +57,7 @@ def collectjson(conf, directory):
     os.chdir(directory)
 
     for d in conf['paths']:
-        obj.update(readfiles(d, conf['type']))
+        obj.update(readfiles(d, conf['type'], conf.get('extension', None)))
 
     outfile = open(conf['output'], 'w')
 
