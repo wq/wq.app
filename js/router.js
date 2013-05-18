@@ -50,7 +50,7 @@ router.getParams = function(search) {
 // Internal variables
 var _router;       // Actual Router object 
 var _pending = []; // queue of pending add() requests
-var _conf = {'ajaxApp': true};
+var _conf = {'ajaxApp': true, 'bCAllowStringPage': true};
 
 // Initialization
 // Need to wait until mobileinit before initializing

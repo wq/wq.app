@@ -1,5 +1,5 @@
 /*!
- * jQueryMobile-router v20130514
+ * jQueryMobile-router v20130518
  * http://github.com/azicchetti/jquerymobile-router
  *
  * Copyright 2011-2013 (c) Andrea Zicchetti
@@ -30,17 +30,10 @@ $(document).on("mobileinit", function(){
 
   var config = $.extend({
     fixFirstPageDataUrl: false, firstPageDataUrl: "index.html",
-    ajaxApp: false, firstMatchOnly: false, defaultArgsRe: false
+    ajaxApp: false, firstMatchOnly: false, defaultArgsRe: false,
+    bCAllowStringPage: false
   }, $.mobile.jqmRouter || {});
 
-
-  var DEBUG = true;
-  function debug(err){
-    if (DEBUG) {
-      console.log(err);
-      if (err.stack){ console.log(err.stack); }
-    }
-  }
 
   var previousUrl = null, nextUrl = null, ignoreNext = false;
 
@@ -137,6 +130,17 @@ $(document).on("mobileinit", function(){
   $.extend($.mobile.Router.prototype,{
     documentEvts: { pagebeforechange:1, pagebeforeload:1, pageload:1 },
 
+    debug: function(err){ 
+      var conf = this.conf; 
+      if (conf.debugHandler){
+        conf.debugHandler.apply(this, arguments);
+      } else if (conf.debugHandler !== false && typeof(console) != "undefined" && console.log){
+	console.log.apply(console, arguments);
+        // for webkit
+        if (err.stack){ console.log(err.stack); }
+      }
+    },
+
     add: function(userRoutes,userHandlers,_skipAttach){
       if (!userRoutes) { return; }
 
@@ -174,7 +178,7 @@ $(document).on("mobileinit", function(){
                   _self.routesRex[r] = new RegExp(r);
                 }
               } else {
-                debug("can't set unsupported route " + trig[i]);
+                _self.debug("can't set unsupported route " + trig[i]);
               }
             }
           }
@@ -212,16 +216,26 @@ $(document).on("mobileinit", function(){
     },
 
     _processRoutes: function(e,ui,page) {
-      var _self=this, refUrl, url, $page, retry = 0;
-      if (e.type == "pagebeforechange"){
-	if ( typeof ui.toPage === "string" || ui.options._jqmrouter_bC ){
-	  // we won't support bC events fired with data.toPage != $(jQuery object) [because we want
-	  //   to pass the page reference to the handler]
-	  // we also have to return when _jqmrouter_bC is set to avoid loops
+      var _self=this, refUrl, url, $page, retry = 0,
+        bCEvent = (e.type == "pagebeforechange"),
+        toPageIsString = (typeof ui.toPage === "string");
+
+      if (bCEvent) {
+        if (ui.options._jqmrouter_bC) {
+          // we have to return when _jqmrouter_bC is set to avoid loops
           return;
-	}
-	// normalizing the "page" reference, we're sure that ui.toPage is a jQuery Object
-	page = ui.toPage;
+        }
+
+        if (toPageIsString) {
+          // Because we want to pass the page reference to the handler,
+          // we won't support bC events fired with data.toPage != $(jQuery object)
+          // unless the user explicitly requests it.
+          if (!_self.conf.bCAllowStringPage) 
+            return;
+        } else {
+          // normalizing the "page" reference, we're sure that ui.toPage is a jQuery Object
+          page = ui.toPage;
+        }
       }
       if ( e.type in { "pagebeforehide":true, "pagehide":true, "pageremove": true } ){
         refUrl = previousUrl;
@@ -255,7 +269,7 @@ $(document).on("mobileinit", function(){
         retry ++;
       } while( url.length == 0 && retry <= 1 );
 
-      var bHandled = false, bCDeferred = (e.type == "pagebeforechange" ? $.Deferred() : null);
+      var bHandled = false, bCDeferred = (bCEvent && !toPageIsString ? $.Deferred() : null);
       $.each(this.routes[e.type], function(route,handler){
         var res, handleFn;
         if ( (res = url.match(_self.routesRex[route])) ) {
@@ -266,30 +280,34 @@ $(document).on("mobileinit", function(){
           }
           if ( handleFn ){
             try {
-	      if (bCDeferred && ui){
+              if (bCDeferred && ui){
                 ui.bCDeferred = bCDeferred;
-	      }
+              }
               handleFn.apply(_self.userHandlers, [e.type,res,ui,page,e]);
               bHandled = true;
-            }catch(err){ debug(err); }
+            } catch(err){
+              _self.debug(err);
+            }
           }
         }
-        if ( bHandled && _self.conf.firstMatchOnly ) return false;
+        if ( bHandled && _self.conf.firstMatchOnly ){ return false; }
       });
       //Pass to default if specified and can handle this event type
       if ( !bHandled && this.conf.defaultHandler && this.defaultHandlerEvents[e.type] ) {
         var handleFn;
         if ( typeof(this.conf.defaultHandler) == "function" ) {
-	  handleFn = this.conf.defaultHandler;
+          handleFn = this.conf.defaultHandler;
         } else if ( typeof(this.userHandlers[this.conf.defaultHandler]) == "function" ) {
           handleFn = this.userHandlers[this.conf.defaultHandler];
         }
 	try {
 	  handleFn.apply(this.userHandlers, [e.type, ui, page, e]);
-	} catch(err){ debug(err); }
+	} catch(err){
+          this.debug(err);
+        }
       }
 
-      if (e.type=="pagebeforechange" && bHandled){
+      if (bCDeferred && bHandled) {
         e.preventDefault();
 	bCDeferred.done(function(){
 	  // destination page is refUrl.href, ui.toPage or page.

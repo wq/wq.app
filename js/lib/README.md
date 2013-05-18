@@ -10,7 +10,7 @@ Library                 |  Version  |  Notes
 [es5-shim.js]           |   2.0.11  |  no changes
 [jquery]                |    1.9.1  |  patched to define anonymous AMD module
 [jquery.mobile]         |    1.3.1  |  custom deps to ensure router loads first
-[jquery.mobile.router]  | 095737e9  |  patched with relative jQuery dependency
+[jquery.mobile.router]  |  570d7de  |  [#76]; patched with relative jQuery dependency
 [jquery.validate]       |   1.11.0  |  wrapped as AMD module
 [leaflet]               |    0.5.1  |  wrapped as AMD module<br>commented out disableClickPropagation in Popup._initLayout
 [leaflet.markercluster] |      0.2  |  wrapped as AMD module (returns modified Leaflet object)
@@ -24,8 +24,8 @@ Library                 |  Version  |  Notes
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
 [jquery]:                https://github.com/jquery/jquery
 [jquery.mobile]:         https://github.com/jquery/jquery-mobile
-[#5530]:                 https://github.com/jquery/jquery-mobile/pull/5530
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
+[#76]:                   https://github.com/azicchetti/jquerymobile-router/pull/76
 [jquery.validate]:       https://github.com/jzaefferer/jquery-validation
 [leaflet]:               https://github.com/Leaflet/Leaflet
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster

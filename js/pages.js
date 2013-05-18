@@ -156,6 +156,7 @@ pages.go = function(path, template, context, ui, once, pageid) {
     var role = $page.jqmData('role');
     if (role == 'page') {
         var options = ui && ui.options || {};
+        options._jqmrouter_bC = true;
         if (once || _injectOnce)
             options.allowSamePageTransition = true;
         jqm.changePage($page, options);
