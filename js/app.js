@@ -162,7 +162,7 @@ function _renderList(page, list, ui, params, url) {
             for (var key in params) {
                 filter[key] = params[key];
             }
-            conf.parents.forEach(function(p) {
+            (conf.parents || []).forEach(function(p) {
                 if (p == page + 'type')
                      p = 'type';
                 if (filter[p]) {
@@ -221,16 +221,29 @@ function _renderList(page, list, ui, params, url) {
 // handles requests for [url]/[id]
 function _registerDetail(page) {
     var conf = _getConf(page);
-    pages.register(conf.url + '/([^/\?]+)', function(match, ui, params) {
-        if (match[1] == 'new')
+    var url = conf.url;
+    var reserved = ["new"];
+    if (url) {
+        url += "/";
+    } else {
+        // This list is bound to the root URL, don't mistake other lists for items
+        for (var key in app.config.pages)
+            reserved.push(app.config.pages[key].url);
+    }
+    pages.register(url + '([^/\?]+)', function(match, ui, params) {
+        if (reserved.indexOf(match[1]) > -1)
             return;
         app.go(page, ui, params, match[1]);
     });
 }
 function _renderDetail(page, list, ui, params, itemid, url) {
     var conf = _getConf(page);
-    if (url === undefined)
-        url = conf.url + '/' + itemid;
+    if (url === undefined) {
+        url = conf.url;
+        if (url)
+            url += '/';
+        url += itemid;
+    }
     var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
     if (!item) {
         // Item not found in stored list...
@@ -450,7 +463,7 @@ function _applyResult(item, result) {
 function _addLookups(page, context, editable, callback) {
     var conf = _getConf(page);
     var lookups = {};
-    $.each(conf.parents, function(i, v) {
+    $.each(conf.parents || [], function(i, v) {
         var pconf = _getConf(v);
         lookups[v] = _parent_lookup(v)
         if (editable) {
@@ -458,7 +471,7 @@ function _addLookups(page, context, editable, callback) {
             lookups[v + '_list'] = _parent_dropdown_lookup(v);
         }
     });
-    $.each(conf.children, function(i, v) {
+    $.each(conf.children || [], function(i, v) {
         var cconf = _getConf(v);
         lookups[cconf.url] = _children_lookup(page, v)
     });
