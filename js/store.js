@@ -379,7 +379,7 @@ function _Store(name) {
     };
 
     // Set value (locally)
-    self.set = function(query, value) {
+    self.set = function(query, value, memonly) {
         key = self.toKey(query);
         if (value !== null) {
             if (self.debug) {
@@ -387,7 +387,7 @@ function _Store(name) {
                 console.log(value);
             }
             _cache[key] = value;
-            if (_ls) {
+            if (_ls && !memonly) {
                 var val = JSON.stringify(value);
                 var lskey = _lsp + key;
                 try {
@@ -409,7 +409,7 @@ function _Store(name) {
             if (self.debug)
                 console.log('deleting ' + key + ' from memory and localStorage');
             delete _cache[key];
-            if (_ls)
+            if (_ls && !memonly)
                 _ls.removeItem(_lsp + key);
         }
         // Force caches to be rebuilt on next use
