@@ -199,6 +199,7 @@ pages.info = {
 };
 
 function _updateInfo(path) {
+    pages.info.prev_path = pages.info.path;
     pages.info.path = path;
     pages.info.full_path = pages.info.base_url + "/" + path;
     tmpl.setDefault('pages_info', pages.info);
