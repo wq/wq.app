@@ -13,14 +13,16 @@ function($, jqm, ds, pages, tmpl, spin) {
 
 var app = {};
 
-app.init = function(config, templates, svc) {
+app.init = function(config, templates, baseurl, svc) {
+    if (baseurl === undefined)
+        baseurl = '';
     if (svc === undefined)
-       svc = '';
+        svc = baseurl;
     app.config = app.default_config = config;
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
     ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
-    pages.init();
+    pages.init(baseurl);
     tmpl.init(templates, templates.partials, config.defaults);
     tmpl.setDefault('native', app['native']);
 
