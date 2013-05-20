@@ -8,6 +8,7 @@ Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
 [d3.js]                 |    3.1.6  |  wrapped as AMD module
 [es5-shim.js]           |   2.0.11  |  no changes
+[highlight.js]          |  b26a4c6  |  tools/build.py -n -tamd css javascript markdown python scss 
 [jquery]                |    1.9.1  |  patched to define anonymous AMD module
 [jquery.mobile]         |    1.3.1  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  570d7de  |  [#76]; patched with relative jQuery dependency
@@ -22,6 +23,7 @@ Library                 |  Version  |  Notes
 
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
+[highlight.js]:          https://github.com/isagalaev/highlight.js
 [jquery]:                https://github.com/jquery/jquery
 [jquery.mobile]:         https://github.com/jquery/jquery-mobile
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
