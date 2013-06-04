@@ -415,16 +415,25 @@ function _handleForm(evt) {
         }
 
         // REST API provided per-field error information
-        for (f in item.error) {
-            // FIXME: there may be multiple errors per field
-            var err = item.error[f][0];
-            if (f == 'non_field_errors')
-                showError(err);
-            else
-                showError(err, f);
+        var errs = Object.keys(item.error);
+
+        // General API errors have a single "detail" attribute
+        if (errs.length == 1 && errs[0] == 'detail') {
+            showError(item.error.detail);
+        } else {
+
+            // Form errors (other than non_field_errors) are keyed by field name
+            for (f in item.error) {
+                // FIXME: there may be multiple errors per field
+                var err = item.error[f][0];
+                if (f == 'non_field_errors')
+                    showError(err);
+                else
+                    showError(err, f);
+            }
+            if (!item.error.non_field_errors)
+                showError('One or more errors were found.');
         }
-        if (!item.error.non_field_errors)
-            showError('One or more errors were found.');
 
         function showError(err, field) {
             var sel = '.' + conf.page + '-' + (field ? field + '-' : '') + 'errors';
