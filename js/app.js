@@ -317,11 +317,14 @@ function _renderEdit(page, list, ui, params, itemid, url) {
                 return;
             }
 
-            context['annotations'] = [];
-            ds.getList({'url': 'annotationtypes'}, function(list) {
+            var annot_conf = _getConf('annotation');
+            var atype_conf = _getConf('annotationtype');
+            context[annot_conf.url] = [];
+            ds.getList({'url': atype_conf.url}, function(list) {
                 var types = list.filter(app.getAnnotationTypeFilter(page, context));
                 $.each(types, function(i, t) {
-                    context['annotations'].push({'annotationtype_id': t.id});
+                    var annot = {};
+                    annot[atype_conf.page + '_id'] = t.id;
                 });
                 done(context);
             });
@@ -459,14 +462,17 @@ function _applyResult(item, result) {
                 delete res.annotations;
             list.update([res], 'id', conf.reversed);
         });
-        if (conf.annotated && result.annotations) {
-            var annots = result.annotations;
-            annots.forEach(function(a) {
-                a[conf.page + '_id'] = result.id;
-            });
-            ds.getList({'url': 'annotations'}, function(list) {
-                list.update(annots, 'id');
-            });
+        if (conf.annotated) {
+            var annot_conf = _getConf('annotation');
+            var annots = result[annot_conf.url];
+            if (annots) {
+                annots.forEach(function(a) {
+                    a[conf.page + '_id'] = result.id;
+                });
+                ds.getList({'url': annot_conf.url}, function(list) {
+                    list.update(annots, 'id');
+                });
+            }
         }
     } else if (app.can_login && result && result.user && result.config) {
         app.save_login(result);
@@ -610,7 +616,9 @@ function _getConf(page) {
     var conf = app.config.pages[page];
     if (!conf)
         throw 'Configuration for "' + page + '" not found!';
-    return conf;
+    if (conf.alias)
+        return _getConf(conf.alias);
+    return $.extend({'page': page}, conf);
 }
 
 // Helper to load configuration based on URL 
