@@ -25,6 +25,7 @@ app.init = function(config, templates, baseurl, svc) {
     pages.init(baseurl);
     tmpl.init(templates, templates.partials, config.defaults);
     tmpl.setDefault('native', app['native']);
+    tmpl.setDefault('app_config', app.config);
 
     if (app.can_login) {
         var user = ds.get('user');
@@ -35,6 +36,7 @@ app.init = function(config, templates, baseurl, svc) {
             tmpl.setDefault('is_authenticated', true);
             tmpl.setDefault('csrftoken', csrftoken);
             app.config = ds.get({'url': 'config'});
+            tmpl.setDefault('app_config', app.config);
             $('body').trigger('login');
         }
         app.check_login();
@@ -75,6 +77,7 @@ app.logout = function() {
     tmpl.setDefault('is_authenticated', false);
     tmpl.setDefault('csrftoken', null);
     app.config = app.default_config;
+    tmpl.setDefault('app_config', app.config);
     ds.fetch({'url': 'logout'}, true, undefined, true);
     $('body').trigger('logout');
 };
@@ -87,6 +90,7 @@ app.save_login = function(result) {
         return;
     app.config = config;
     ds.set({'url': 'config'}, config);
+    tmpl.setDefault('app_config', config);
     app.user = user;
     tmpl.setDefault('user', user);
     tmpl.setDefault('is_authenticated', true);
@@ -204,7 +208,7 @@ function _renderList(page, list, ui, params, url) {
         next = conf.url + '/?' + $.param(nextp);
     }
 
-    var context = {
+    var context = $.extend({}, conf, {
         'list':     data,
         'page':     pnum,
         'pages':    data.info.pages,
@@ -213,7 +217,7 @@ function _renderList(page, list, ui, params, url) {
         'previous': prev ? '/' + prev : null,
         'next':     next ? '/' + next : null,
         'multiple': data.info.pages > 1
-    };
+    });
     _addLookups(page, context, false, function(context) {
         pages.go(url, page + '_list', context, ui);
     });
@@ -270,7 +274,7 @@ function _renderDetail(page, list, ui, params, itemid, url) {
         }
         return;
     }
-    var context = $.extend({}, item);
+    var context = $.extend({}, conf, item);
     _addLookups(page, context, false, function(context) {
         pages.go(url, page + '_detail', context, ui);
     });
@@ -297,11 +301,11 @@ function _renderEdit(page, list, ui, params, itemid, url) {
             pages.notFound(url);
             return;
         }
-        var context = $.extend({}, item);
+        var context = $.extend({}, conf, item);
         _addLookups(page, context, true, done);
     } else {
         // Create new item
-        var context = $.extend({}, params); //FIXME: defaults
+        var context = $.extend({}, conf, params); //FIXME: defaults
         if (url === undefined) {
             url = 'new';
             if (params && $.param(params))
@@ -344,7 +348,8 @@ function _renderOther(page, ui, params, url) {
     var conf = _getConf(page);
     if (url === undefined)
         url = conf.url;
-    pages.go(url, page, params, ui, conf.once ? true : false);
+    var context = $.extend({}, conf, params);
+    pages.go(url, page, context, ui, conf.once ? true : false);
 }
 
 // Handle form submit from [url]_edit views
