@@ -4243,7 +4243,7 @@ $.mobile.getMaxScrollForTransition = $.mobile.getMaxScrollForTransition || defau
 				enhancePage( page, settings.role );
 				deferred.resolve( absUrl, options, page );
 				//if we are reloading the page make sure we update the base if its not a prefetch 
-				if( base && !options.prefetch ){
+				if( base && (!options || !options.prefetch) ){
 					base.set(url);
 				}
 				return deferred.promise();
@@ -4281,7 +4281,7 @@ $.mobile.getMaxScrollForTransition = $.mobile.getMaxScrollForTransition || defau
 		}
 		// Reset base to the default document base.
 		// only reset if we are not prefetching 
-		if ( base && typeof options.prefetch === "undefined" ) {
+		if ( base && (typeof options === "undefined" || options.prefetch === "undefined" )) {
 			base.reset();
 		}
 
@@ -4317,7 +4317,7 @@ $.mobile.getMaxScrollForTransition = $.mobile.getMaxScrollForTransition || defau
 						url = fileUrl = path.getFilePath( $( "<div>" + RegExp.$1 + "</div>" ).text() );
 					}
 					//dont update the base tag if we are prefetching
-					if ( base && typeof options.prefetch === "undefined") {
+					if ( base && (typeof options === "undefined" || options.prefetch === "undefined" )) {
 						base.set( fileUrl );
 					}
 

@@ -308,7 +308,7 @@ $(document).on("mobileinit", function(){
       }
 
       if (bCDeferred && bHandled) {
-        e.preventDefault();
+        // e.preventDefault();
 	bCDeferred.done(function(){
 	  // destination page is refUrl.href, ui.toPage or page.
 	  // I'm using ui.toPage so that really crazy users may try to re-route the transition to

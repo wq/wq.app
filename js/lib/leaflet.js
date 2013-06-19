@@ -5910,7 +5910,7 @@ L.extend(L.GeoJSON, {
 					geometry: geometry.geometries[i],
 					type: 'Feature',
 					properties: geojson.properties
-				}, pointToLayer);
+				}, pointToLayer, coordsToLatLng);
 
 				layers.push(layer);
 			}
