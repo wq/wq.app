@@ -336,6 +336,12 @@ chart.scatter = function() {
         return plot;
     };
 
+    plot.timeFormat = function(val) {
+        if (!arguments.length) return format;
+        format = d3.time.format(val);
+        return plot;
+    };
+
     return plot;
 };
 
