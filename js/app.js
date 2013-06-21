@@ -118,27 +118,40 @@ var _saveTransition = "none";
 // Wrappers for pages.register & pages.go to handle common use cases
 
 // Determine appropriate context & template for pages.go
-app.go = function(page, ui, params, itemid, edit, url) {
+app.go = function(page, ui, params, itemid, edit, url, context) {
     if (ui && ui.options && ui.options.data) return; // Ignore form actions
     var conf = _getConf(page);
     if (!conf.list) {
-        _renderOther(page, ui, params);
+        _renderOther(page, ui, params, url, context);
         return;
     }
     ds.getList({'url': conf.url}, function(list) {
         if (itemid) {
             if (edit)
-                _renderEdit(page, list, ui, params, itemid, url);
+                _renderEdit(page, list, ui, params, itemid, url, context);
             else
-                _renderDetail(page, list, ui, params, itemid, url);
+                _renderDetail(page, list, ui, params, itemid, url, context);
         } else {
-            _renderList(page, list, ui, params, url);
+            _renderList(page, list, ui, params, url, context);
         }
     });
 }
 
-app.getAnnotationTypeFilter = function(page, obj) {
-    return {'for': page};
+app.typedAttachments = {
+    annotation: {
+        'predicate': 'annotated',
+        'type': 'annotationtype',
+        'getTypeFilter': function(page, context) {
+            return {'for': page};
+        }
+     },
+     identifier: {
+        'predicate': 'identified',
+        'type': 'authority',
+        'getTypeFilter': function(page, context) {
+            return {};
+        }
+    }
 };
 
 // Generate list view context and render with [url]_list template;
@@ -150,8 +163,35 @@ function _registerList(page) {
     function go(match, ui, params) {
         app.go(page, ui, params);
     }
+
+    (conf.parents || []).forEach(function(ppage) {
+        var pconf = _getConf(ppage);
+        var url = pconf.url;
+        if (url)
+            url += '/';
+        url += '<slug>/' + conf.url;
+        pages.register(url, goUrl(ppage, url))
+        pages.register(url + '/', goUrl(ppage, url))
+    });
+    function goUrl(ppage, url) {
+        return function(match, ui, params) {
+            if (!params) params = {};
+            if (ppage == page + 'type')
+                params['type'] = match[1];
+            else
+                params[ppage] = match[1];
+            url = url.replace('<slug>', match[1]);
+            ds.getList({'url': _getConf(ppage).url}, function(plist) {
+                var pitem = plist.find(match[1]);
+                app.go(page, ui, params, undefined, false, url, {
+                    'parent_id': match[1],
+                    'parent_label': pitem && pitem.label
+                });
+            });
+        }
+    }
 }
-function _renderList(page, list, ui, params, url) {
+function _renderList(page, list, ui, params, url, context) {
     var conf = _getConf(page);
     var pnum = 1, next = null, prev = null, filter;
     if (url === undefined) {
@@ -160,7 +200,8 @@ function _renderList(page, list, ui, params, url) {
             url += '/';
     }
     if (params) {
-        url += "?" + $.param(params);
+        if (url == conf.url || url == conf.url + '/')
+            url += "?" + $.param(params);
         if (params['page']) {
             pnum = params['page'];
         } else {
@@ -208,7 +249,7 @@ function _renderList(page, list, ui, params, url) {
         next = conf.url + '/?' + $.param(nextp);
     }
 
-    var context = $.extend({}, conf, {
+    context = $.extend({}, conf, {
         'list':     data,
         'page':     pnum,
         'pages':    data.info.pages,
@@ -217,9 +258,9 @@ function _renderList(page, list, ui, params, url) {
         'previous': prev ? '/' + prev : null,
         'next':     next ? '/' + next : null,
         'multiple': data.info.pages > 1
-    });
+    }, context);
     _addLookups(page, context, false, function(context) {
-        pages.go(url, page + '_list', context, ui);
+        pages.go(url, page + '_list', context, ui, conf.once ? true : false);
     });
 }
 
@@ -236,13 +277,13 @@ function _registerDetail(page) {
         for (var key in app.config.pages)
             reserved.push(app.config.pages[key].url);
     }
-    pages.register(url + '([^/\?]+)', function(match, ui, params) {
+    pages.register(url + '<slug>', function(match, ui, params) {
         if (reserved.indexOf(match[1]) > -1)
             return;
         app.go(page, ui, params, match[1]);
     });
 }
-function _renderDetail(page, list, ui, params, itemid, url) {
+function _renderDetail(page, list, ui, params, itemid, url, context) {
     var conf = _getConf(page);
     if (url === undefined) {
         url = conf.url;
@@ -274,9 +315,9 @@ function _renderDetail(page, list, ui, params, itemid, url) {
         }
         return;
     }
-    var context = $.extend({}, conf, item);
+    context = $.extend({}, conf, item, context);
     _addLookups(page, context, false, function(context) {
-        pages.go(url, page + '_detail', context, ui);
+        pages.go(url, page + '_detail', context, ui, conf.once ? true : false);
     });
 }
 
@@ -284,13 +325,13 @@ function _renderDetail(page, list, ui, params, itemid, url) {
 // handles requests for [url]/[id]/edit and [url]/new
 function _registerEdit(page) {
     var conf = _getConf(page);
-    pages.register(conf.url + '/([^/]+)/edit', go);
+    pages.register(conf.url + '/<slug>/edit', go);
     pages.register(conf.url + '/(new)', go);
     function go(match, ui, params) {
         app.go(page, ui, params, match[1], true);
     }
 }
-function _renderEdit(page, list, ui, params, itemid, url) {
+function _renderEdit(page, list, ui, params, itemid, url, context) {
     var conf = _getConf(page);
     if (itemid != "new") {
         // Edit existing item
@@ -301,35 +342,19 @@ function _renderEdit(page, list, ui, params, itemid, url) {
             pages.notFound(url);
             return;
         }
-        var context = $.extend({}, conf, item);
+        context = $.extend({}, conf, item, context);
         _addLookups(page, context, true, done);
     } else {
         // Create new item
-        var context = $.extend({}, conf, params); //FIXME: defaults
+        context = $.extend({}, conf, params, context); //FIXME: defaults
         if (url === undefined) {
             url = 'new';
             if (params && $.param(params))
                 url += '?' + $.param(params);
         }
-        _addLookups(page, context, true, function(context) {
-            if (!conf.annotated) {
-                done(context);
-                return;
-            }
-
-            var annot_conf = _getConf('annotation');
-            var atype_conf = _getConf('annotationtype');
-            context[annot_conf.url] = [];
-            ds.getList({'url': atype_conf.url}, function(list) {
-                var types = list.filter(app.getAnnotationTypeFilter(page, context));
-                $.each(types, function(i, t) {
-                    var annot = {};
-                    annot[atype_conf.page + '_id'] = t.id;
-                });
-                done(context);
-            });
-        });
+        _addLookups(page, context, "new", done);
     }
+
     function done(context) {
         var divid = page + '_' + itemid + '-page';
         pages.go(conf.url + '/' + url, page + '_edit', context, ui, false, divid);
@@ -347,11 +372,11 @@ function _registerOther(page) {
     }
 }
 
-function _renderOther(page, ui, params, url) {
+function _renderOther(page, ui, params, url, context) {
     var conf = _getConf(page);
     if (url === undefined)
         url = conf.url;
-    var context = $.extend({}, conf, params);
+    context = $.extend({}, conf, params, context);
     pages.go(url, page, context, ui, conf.once ? true : false);
 }
 
@@ -461,26 +486,29 @@ function _applyResult(item, result) {
         item.newid = result.id;
         ds.getList({'url': conf.url}, function(list) {
             var res = $.extend({}, result);
-            if (conf.annotated && res.annotations)
-                delete res.annotations;
+            for (aname in app.typedAttachments)
+                _updateAttachments(conf, res, aname);
             list.update([res], 'id', conf.reversed);
         });
-        if (conf.annotated) {
-            var annot_conf = _getConf('annotation');
-            var annots = result[annot_conf.url];
-            if (annots) {
-                annots.forEach(function(a) {
-                    a[conf.page + '_id'] = result.id;
-                });
-                ds.getList({'url': annot_conf.url}, function(list) {
-                    list.update(annots, 'id');
-                });
-            }
-        }
     } else if (app.can_login && result && result.user && result.config) {
         app.save_login(result);
         pages.go("login", "login");
     }
+}
+
+function _updateAttachments(conf, res, aname) {
+    var info = app.typedAttachments[aname];
+    var aconf = _getConf(aname);
+    if (!conf[info.predicate] || !res[aconf.url])
+        return;
+    var attachments = res[aconf.url];
+    attachments.forEach(function(a) {
+        a[conf.page + '_id'] = res.id;
+    });
+    ds.getList({'url': aconf.url}, function(list) {
+        list.update(attachments, 'id');
+    });
+    delete res[aconf.url];
 }
 
 // Add various callback functions to context object to automate foreign key 
@@ -490,19 +518,35 @@ function _addLookups(page, context, editable, callback) {
     var lookups = {};
     $.each(conf.parents || [], function(i, v) {
         var pconf = _getConf(v);
-        lookups[v] = _parent_lookup(v)
+        var col;
+        if (v == page + 'type')
+            col = 'type_id';
+        else
+            col = v + '_id';
+        lookups[v] = _parent_lookup(v, col)
         if (editable) {
-            lookups[pconf.url]   = _parent_dropdown_lookup(v);
-            lookups[v + '_list'] = _parent_dropdown_lookup(v);
+            lookups[v + '_list'] = _parent_dropdown_lookup(v, col);
+            if (pconf.url)
+                lookups[pconf.url] = lookups[v + '_list'];
         }
     });
     $.each(conf.children || [], function(i, v) {
         var cconf = _getConf(v);
         lookups[cconf.url] = _children_lookup(page, v)
     });
-    if (conf.annotated) {
-        lookups['annotations']    = _annotation_lookup(page);
-        lookups['annotationtype'] = _parent_lookup('annotationtype');
+
+    // Load annotations and identifiers
+    for (aname in app.typedAttachments) {
+        var info = app.typedAttachments[aname];
+        var aconf = _getConf(aname);
+        if (!conf[info.predicate])
+            continue;
+
+        lookups[info.type] = _parent_lookup(info.type);
+        if (editable == "new")
+            lookups[aconf.url] = _default_attachments(page, aname);
+        else
+            lookups[aconf.url] = _children_lookup(page, aname);
     }
     if (conf.related) {
         lookups['relationships']        = _relationship_lookup(page);
@@ -528,30 +572,32 @@ function _make_lookup(page, fn) {
     return function(context, key, callback) {
         var conf = _getConf(page);
         ds.getList({'url': conf.url}, function(list) {
-            context[key] = fn(list);
+            context[key] = fn(list, context);
             callback(context);
         });
     }
 }
 
 // Simple foreign key lookup
-function _parent_lookup(page) {
+function _parent_lookup(page, column) {
+    if (!column) column = page + '_id';
     return _make_lookup(page, function(list) {
         return function() {
-            return list.find(this[page + '_id']);
+            return list.find(this[column]);
         }
     });
 }
 
 // List of all potential foreign key values (useful for generating dropdowns)
-function _parent_dropdown_lookup(page) {
+function _parent_dropdown_lookup(page, column) {
+    if (!column) column = page + '_id';
     return _make_lookup(page, function(list) {
         return function() {
             var obj = this;
             var parents = [];
             list.forEach(function(v) {
                 var item = $.extend({}, v);
-                if (item.id == obj[page + '_id'])
+                if (item.id == obj[column])
                     item.selected = true; // Currently selected item
                 parents.push(item);
             });
@@ -571,21 +617,19 @@ function _children_lookup(ppage, cpage) {
     });
 }
 
-// List of annotations for this object
-// (like _children_lookup but with a dropdown helper)
-function _annotation_lookup(page) {
-    return _make_lookup('annotation', function(list) {
-        return function() {
-            var filter = {};
-            filter[page + '_id'] = this.id;
-            var annots = [];
-            list.filter(filter).forEach(function(v) {
-                var item = $.extend({}, v);
-                item.selected = function(){return this == item.value};
-                annots.push(item);
+// List of empty annotations for new objects
+function _default_attachments(ppage, apage) {
+    var info = app.typedAttachments[apage];
+    return _make_lookup(info.type, function(list, context) {
+        var filter = info.getTypeFilter(ppage, context);
+        var types = list.filter(filter);
+        var attachments = [];
+        types.forEach(function(t) {
+            attachments.push({
+                'type_id': t.id
             });
-            return annots;
-        }
+        });
+        return attachments;
     });
 }
 

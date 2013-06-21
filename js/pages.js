@@ -9,7 +9,9 @@ define(['./lib/jquery', './lib/jquery.mobile', './router', './template'],
 function($, jqm, router, tmpl) {
 
 // Exported module object
-var pages = {};
+var pages = {
+    'slug': '([^/\?#]+)'
+};
 
 // Configuration
 pages.init = function(baseurl, opts) {
@@ -45,32 +47,37 @@ pages.register = function(path, fn, obj, prevent) {
             return true;
         }
     }
-    var callback = function(etype, match, ui, page, evt) {
+    var callback = function(match, ui, params, hash, evt, page) {
+        var curpath = jqm.activePage && jqm.activePage.jqmData('url');
         if (typeof ui.toPage !== "string")
             return; // Capture URLs only, not completed pages
-        if (jqm.activePage && ui.toPage == jqm.activePage.jqmData('url'))
-            return; // Avoid interfering with hash updates when popups close
+        if (curpath == match[0] || curpath + '#' + hash == match[0])
+            return; // Avoid interfering with hash updates when popups open & close
 
         // Prevent default changePage behavior
         if (prevent(match, ui, params))
             evt.preventDefault();
 
-        var params = router.getParams(match[match.length-1]);
-        if (typeof fn === "string")
-            obj[fn](match, ui, params);
-        else
-            fn(match, ui, params);
+        fn = (typeof fn == "string" ? obj[fn] : fn)
+        fn(match, ui, params, hash, evt, page);
     };
-    pages.addRoute(path, events, callback, obj);
+    pages.addRoute(path, events, callback);
 };
 
 // Wrapper for router.add - adds URL base and parameter regex to path
-pages.addRoute = function(path, events, callback, obj) {
+pages.addRoute = function(path, events, fn, obj) {
     var rt = {};
-    var url = '^' +  pages.info.base_url + '/' + path + '(?:[?](.*))?$';
+    path = path.replace('<slug>', pages.slug);
+    var url = '^' +  pages.info.base_url + '/' + path + '(?:[?](.*))?(?:[#](.*))?$';
+    var callback = function(etype, match, ui, page, evt) {
+        hash = match.pop();
+        params = router.getParams(match.pop());
+        fn = (typeof fn == "string" ? obj[fn] : fn)
+        fn(match, ui, params, hash, evt, page);
+    }
     rt[url] = {
         'events': events,
-        'handler': typeof callback == "string" ? obj[callback] : callback
+        'handler': callback
     }
     router.add(rt);
 };
