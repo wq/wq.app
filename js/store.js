@@ -646,7 +646,7 @@ function _Store(name) {
         if (!$.isArray(data))
             throw "Data is not an array!";
         if (data.length == 0)
-            return;
+            return opts.updateOnly ? [] : undefined;
         if (opts.prepend)
             data = data.reverse();
 
