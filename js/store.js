@@ -759,6 +759,7 @@ function _Store(name) {
         var data = $.extend({}, item.data);
         var contenttype;
         var processdata;
+        var headers = {};
         if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
             delete data.url;
@@ -766,6 +767,10 @@ function _Store(name) {
         if (data.method) {
             method = data.method;
             delete data.method;
+        }
+        if (data.csrftoken) {
+            headers['X-CSRFToken'] = data.csrftoken;
+            delete data.csrftoken;
         }
 
         var defaults = $.extend({}, self.defaults);
@@ -809,7 +814,8 @@ function _Store(name) {
                 processData: processdata,
                 async: true,
 	        success: success,
-	        error: error
+	        error: error,
+                headers: headers
             });
         }
 

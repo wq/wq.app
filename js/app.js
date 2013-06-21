@@ -396,6 +396,9 @@ function _handleForm(evt) {
         vals.method = "POST"; // REST API uses POST for new records
     else
         vals.method = "PUT";  // .. but PUT to update existing records
+
+    vals.csrftoken = ds.get('csrftoken');
+
     $('.error').html('');
     spin.start();
     ds.save(vals, undefined, function(item) {
