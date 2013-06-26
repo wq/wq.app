@@ -13,7 +13,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile]         |    1.3.1  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  570d7de  |  [#76]; patched with relative jQuery dependency
 [jquery.validate]       |   1.11.0  |  wrapped as AMD module
-[leaflet]               |  aae54a3  |  patched to define anonymous AMD module<br>commented out disableClickPropagation in Popup._initLayout
+[leaflet]               |      0.6  |  no changes
 [leaflet.markercluster] |  6fda9a2  |  wrapped as AMD module (returns modified Leaflet object)
 [marked]                |    0.2.8  |  no changes
 [mustache.js]           |    0.7.2  |  no changes
