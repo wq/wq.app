@@ -21,8 +21,13 @@ app.init = function(config, templates, baseurl, svc) {
     app.config = app.default_config = config;
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
+    
     ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
+    app.service = ds.service;
+
     pages.init(baseurl);
+    app.base_url = pages.info.base_url;
+
     tmpl.init(templates, templates.partials, config.defaults);
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
