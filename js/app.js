@@ -142,7 +142,7 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
     });
 }
 
-app.typedAttachments = {
+app.attachmentTypes = {
     annotation: {
         'predicate': 'annotated',
         'type': 'annotationtype',
@@ -156,6 +156,10 @@ app.typedAttachments = {
         'getTypeFilter': function(page, context) {
             return {};
         }
+    },
+    location: {
+        'predicate': 'located',
+        'type': null
     }
 };
 
@@ -181,8 +185,8 @@ function _registerList(page) {
     function goUrl(ppage, url) {
         return function(match, ui, params) {
             if (!params) params = {};
-            if (ppage == page + 'type')
-                params['type'] = match[1];
+            if (ppage.indexOf(page) == 0)
+                params[ppage.replace(page, '')] = match[1];
             else
                 params[ppage] = match[1];
             url = url.replace('<slug>', match[1]);
@@ -215,8 +219,8 @@ function _renderList(page, list, ui, params, url, context) {
                 filter[key] = params[key];
             }
             (conf.parents || []).forEach(function(p) {
-                if (p == page + 'type')
-                     p = 'type';
+                if (p.indexOf(page) == 0)
+                     p = p.replace(page, '');
                 if (filter[p]) {
                     filter[p + '_id'] = filter[p];
                     delete filter[p];
@@ -491,7 +495,7 @@ function _applyResult(item, result) {
         item.newid = result.id;
         ds.getList({'url': conf.url}, function(list) {
             var res = $.extend({}, result);
-            for (aname in app.typedAttachments)
+            for (aname in app.attachmentTypes)
                 _updateAttachments(conf, res, aname);
             list.update([res], 'id', conf.reversed);
         });
@@ -502,7 +506,7 @@ function _applyResult(item, result) {
 }
 
 function _updateAttachments(conf, res, aname) {
-    var info = app.typedAttachments[aname];
+    var info = app.attachmentTypes[aname];
     var aconf = _getConf(aname);
     if (!conf[info.predicate] || !res[aconf.url])
         return;
@@ -524,8 +528,8 @@ function _addLookups(page, context, editable, callback) {
     $.each(conf.parents || [], function(i, v) {
         var pconf = _getConf(v);
         var col;
-        if (v == page + 'type')
-            col = 'type_id';
+        if (v.indexOf(page) == 0)
+            col = v.replace(page, '') + '_id';
         else
             col = v + '_id';
         lookups[v] = _parent_lookup(v, col)
@@ -541,13 +545,14 @@ function _addLookups(page, context, editable, callback) {
     });
 
     // Load annotations and identifiers
-    for (aname in app.typedAttachments) {
-        var info = app.typedAttachments[aname];
+    for (aname in app.attachmentTypes) {
+        var info = app.attachmentTypes[aname];
         var aconf = _getConf(aname);
         if (!conf[info.predicate])
             continue;
 
-        lookups[info.type] = _parent_lookup(info.type);
+        if (info.type)
+            lookups[info.type] = _parent_lookup(info.type);
         if (editable == "new")
             lookups[aconf.url] = _default_attachments(page, aname);
         else
@@ -624,7 +629,9 @@ function _children_lookup(ppage, cpage) {
 
 // List of empty annotations for new objects
 function _default_attachments(ppage, apage) {
-    var info = app.typedAttachments[apage];
+    var info = app.attachmentTypes[apage];
+    if (!info.type)
+        return [];
     return _make_lookup(info.type, function(list, context) {
         var filter = info.getTypeFilter(ppage, context);
         var types = list.filter(filter);
