@@ -130,7 +130,9 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
         _renderOther(page, ui, params, url, context);
         return;
     }
+    spin.start();
     ds.getList({'url': conf.url}, function(list) {
+        spin.stop();
         if (itemid) {
             if (edit)
                 _renderEdit(page, list, ui, params, itemid, url, context);
@@ -190,7 +192,9 @@ function _registerList(page) {
             else
                 params[ppage] = match[1];
             url = url.replace('<slug>', match[1]);
+            spin.start();
             ds.getList({'url': _getConf(ppage).url}, function(plist) {
+                spin.stop();
                 var pitem = plist.find(match[1]);
                 app.go(page, ui, params, undefined, false, url, {
                     'parent_id': match[1],
@@ -567,9 +571,11 @@ function _addLookups(page, context, editable, callback) {
     for (key in lookups)
         queue.push(key);
 
+    spin.start();
     step();
     function step() {
         if (queue.length == 0) {
+            spin.stop();
             callback(context);
             return;
         }
