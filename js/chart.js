@@ -291,9 +291,29 @@ chart.base = function() {
         xvalue = fn;
         return plot;
     }
+    plot.xmin = function(fn) {
+        if (!arguments.length) return xmin;
+        xmin = fn;
+        return plot;
+    }
+    plot.xmax = function(fn) {
+        if (!arguments.length) return xmax;
+        xmax = fn;
+        return plot;
+    }
     plot.yvalue = function(fn) {
         if (!arguments.length) return yvalue;
         yvalue = fn;
+        return plot;
+    }
+    plot.ymin = function(fn) {
+        if (!arguments.length) return ymin;
+        ymin = fn;
+        return plot;
+    }
+    plot.ymax = function(fn) {
+        if (!arguments.length) return ymax;
+        ymax = fn;
         return plot;
     }
 
@@ -441,6 +461,115 @@ chart.timeSeries = function() {
 
     return plot;
 };
+
+chart.boxplot = function() {
+    var plot = chart.base()
+        .ymin(function(dataset) {
+            var items = plot.items();
+            return d3.min(items(dataset), function(d) {
+                return d.min;
+            });
+        })
+        .ymax(function(dataset) {
+            var items = plot.items();
+            return d3.max(items(dataset), function(d) {
+                return d.max;
+            });
+        })
+        .render(function(dataset) {
+            var items     = plot.items()(dataset),
+                yunits    = plot.yunits()(dataset),
+                yscales   = plot.yscales(),
+                xscale    = plot.xscale(),
+                xvalue    = plot.xvalue();
+
+            function translate(sid) {
+                var yscale = yscales[sid];
+                return function(d) {
+                    var x = xscale.scale(xvalue(d));
+                    var y = yscale.scale(0);
+                    return _trans(x, y);
+                };
+            }
+
+            d3.select(this).selectAll('g.data').data(items)
+                .enter()
+                .append('g')
+                    .attr('class', 'data')
+                    .attr('transform', translate(yunits))
+                .each(box(yunits))
+        });
+
+    function box(sid) {
+        var yscale = plot.yscales()[sid];
+        return function(d) {
+            if (!d || (!d.median && !d.min && !d.max))
+                return;
+            function y(val) {
+                return yscale.scale(val) - yscale.scale(0);
+            }
+            var box = d3.select(this).append('g')
+                .attr('class', 'box')
+                .attr('transform', _trans(-10, 0));
+            box.append('line')
+               .attr('x1', 0)
+               .attr('x2', 20)
+               .attr('y1', y(d.p25))
+               .attr('y2', y(d.p25))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 0)
+               .attr('x2', 20)
+               .attr('y1', y(d.p75))
+               .attr('y2', y(d.p75))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 0)
+               .attr('x2', 20)
+               .attr('y1', y(d.median))
+               .attr('y2', y(d.median))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 0)
+               .attr('x2', 0)
+               .attr('y1', y(d.p25))
+               .attr('y2', y(d.p75))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 20)
+               .attr('x2', 20)
+               .attr('y1', y(d.p25))
+               .attr('y2', y(d.p75))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 5)
+               .attr('x2', 15)
+               .attr('y1', y(d.max))
+               .attr('y2', y(d.max))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 5)
+               .attr('x2', 15)
+               .attr('y1', y(d.min))
+               .attr('y2', y(d.min))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 10)
+               .attr('x2', 10)
+               .attr('y1', y(d.max))
+               .attr('y2', y(d.p75))
+               .attr('stroke', '#000');
+            box.append('line')
+               .attr('x1', 10)
+               .attr('x2', 10)
+               .attr('y1', y(d.min))
+               .attr('y2', y(d.p25))
+               .attr('stroke', '#000');
+        }
+    }
+
+    return plot;
+}
 
 return chart;
 
