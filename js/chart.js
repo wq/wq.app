@@ -10,7 +10,11 @@ function(d3) {
 
 var chart = {};
 
-function _trans(x, y) {
+function _trans(x, y, off) {
+    if (off) {
+        x -= 0.5;
+        y -= 0.5;
+    }
     return 'translate(' + x + ',' + y + ')';
 }
 
@@ -18,7 +22,11 @@ function _trans(x, y) {
 chart.base = function() {
     var width=700, height=300, padding=7.5, 
         margins = {'left': 80, 'right': 10, 'top': 10, 'bottom': 80},
-        scales = {};
+        xscale = null,
+        xscalefn = d3.scale.linear,
+        xnice = null,
+        yscales = {},
+        yscalefn = d3.scale.linear;
 
     // Accessor for entire data object
     function datasets(d) {
@@ -28,31 +36,52 @@ chart.base = function() {
     }
 
     // Accessors for individual datasets
-    function id(d) {
-        return d.id;
+    function id(dataset) {
+        return dataset.id;
     }
-    function items(d) {
-        return d.list;
+    function label(dataset) {
+        return dataset.label;
     }
-    function units(d) {
-        return d.units;
+    function items(dataset) {
+        return dataset.list;
     }
-    function ymax(d) {
-        return d3.max(items(d), value);
+
+    function xunits(dataset) {throw "xunits accessor not defined!"}
+    function xmax(dataset) {
+        return d3.max(items(dataset), xvalue);
     }
-    function ymin(d) {
-        return d3.min(items(d), value);
+    function xmin(dataset) {
+        return d3.min(items(dataset), xvalue);
+    }
+
+    function yunits(dataset) {
+        return dataset.units;
+    }
+    function ymax(dataset) {
+        return d3.max(items(dataset), yvalue);
+    }
+    function ymin(dataset) {
+        return d3.min(items(dataset), yvalue);
     }
 
     // Accessors for individual items
-    function value(d) {
-        return d.value;
-    }
+    function xvalue(d) {throw "xvalue accessor not defined!"}
+    function yvalue(d) {throw "yvalue accessor not defined!"}
     
     // Rendering functions (should be overridden)
     function init(datasets, opts){};
-    function render(data){};
+    function render(dataset){};
     function wrapup(datasets, opts){};
+
+    // Generate translation function xscale + given yscale
+    function translate(sid) {
+        var yscale = yscales[sid];
+        return function(d) {
+            var x = xscale.scale(xvalue(d));
+            var y = yscale.scale(yvalue(d));
+            return _trans(x, y);
+        };
+    }
 
     // Plot using given selection (usually a single object, but allow for array)
     function plot(sel) {
@@ -66,6 +95,7 @@ chart.base = function() {
         var cheight = height - padding - padding;
         var gwidth = cwidth - margins.left - margins.right;
         var gheight = cheight - margins.top - margins.bottom;
+        var cbottom = cheight - margins.bottom;
 
         // Clip for inner graphing area
         var clip = svg.append('defs')
@@ -77,7 +107,7 @@ chart.base = function() {
 
         // Outer chart area (includes legends, axes & actual graph)
         var outer = svg.append('g');
-        outer.attr('transform', _trans(padding, padding));
+        outer.attr('transform', _trans(padding, padding, true));
         outer.append('rect')
             .attr('width', cwidth)
             .attr('height', cheight)
@@ -91,13 +121,22 @@ chart.base = function() {
             .attr('height', gheight)
             .attr('fill', '#ccc');
 
-        // Compute vertical scales
-        // - may be more than one if there are different units
+        // Compute horizontal & vertical scales
+        // - may be more than one vertical scale if there are different units
         var left = true;
-        datasets(data).forEach(function(d) {
-            var sid = units(d);
-            if (!scales[sid]) {
-                scales[sid] = {
+        datasets(data).forEach(function(dataset) {
+            if (!xscale) {
+                xscale = {
+                    'xmin': Infinity,
+                    'xmax': -Infinity
+                }
+            }
+            xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
+            xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
+
+            var sid = yunits(dataset);
+            if (!yscales[sid]) {
+                yscales[sid] = {
                     'id':   sid,
                     'ymin': 0,
                     'ymax': 0,
@@ -106,23 +145,35 @@ chart.base = function() {
                 }
                 left = !left;
             }
-            var scale = scales[sid];
-            scale.sets++;
-            scale.ymax = d3.max([scale.ymax, ymax(d)]);
-            scale.ymin = d3.min([scale.ymin, ymin(d)]);
+            var yscale = yscales[sid];
+            yscale.sets++;
+            yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
+            yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
         });
 
         // Create actual scale & axis objects
-        for (sid in scales) {
-            var scale = scales[sid];
-            scale.scale = d3.scale.linear()
+        xscale.scale = xscalefn()
+            .domain([xscale.xmin, xscale.xmax])
+            .range([0, gwidth]);
+        if (xscale.scale.nice && xnice)
+            xscale.scale.nice(xnice);
+
+        xscale.axis = d3.svg.axis()
+            .scale(xscale.scale)
+            .orient('bottom')
+            .tickSize(4, 2, 1);
+            
+        for (sid in yscales) {
+            var scale = yscales[sid];
+            scale.scale = yscalefn()
                 .domain([scale.ymin, scale.ymax])
                 .nice()
                 .range([gheight, 0])
 
             scale.axis = d3.svg.axis()
                 .scale(scale.scale)
-                .orient(scale.orient);
+                .orient(scale.orient)
+                .tickSize(4, 2, 1);
         }
 
         // Additional processing
@@ -144,7 +195,13 @@ chart.base = function() {
             .each(render);
 
         // Render axes
-        outer.selectAll('g.axis').data(d3.values(scales, id)).enter()
+        outer.append('g')
+            .attr('class', 'xaxis')
+            .attr('transform', _trans(margins.left, cbottom))
+            .call(xscale.axis)
+            .selectAll('line').attr('stroke', '#000');
+
+        outer.selectAll('g.axis').data(d3.values(yscales, id)).enter()
             .append('g')
             .attr('class', 'axis')
             .attr('transform', function(d) {
@@ -153,7 +210,9 @@ chart.base = function() {
                 return _trans(x, y);
             })
             .each(function(d) {
-                d.axis(d3.select(this));
+                d3.select(this)
+                   .call(d.axis)
+                   .selectAll('line').attr('stroke', '#000');
             });
 
         wrapup.call(this, datasets(data), opts);
@@ -174,12 +233,32 @@ chart.base = function() {
         if (!arguments.length) return margins;
         margins = val;
         return plot;
-    }
-    plot.scales = function(val) {
-        if (!arguments.length) return scales;
-        scales = val;
+    };
+    plot.xscale = function(val) {
+        if (!arguments.length) return xscale;
+        xscale = val;
         return plot;
-    }
+    };
+    plot.xscalefn = function(fn) {
+        if (!arguments.length) return xscalefn;
+        xscalefn = fn;
+        return plot;
+    };
+    plot.xnice = function(val) {
+        if (!arguments.length) return xnice;
+        xnice = val;
+        return plot;
+    };
+    plot.yscales = function(val) {
+        if (!arguments.length) return yscales;
+        yscales = val;
+        return plot;
+    };
+    plot.yscalefn = function(fn) {
+        if (!arguments.length) return yscalefn;
+        yscalefn = fn;
+        return plot;
+    };
 
     // Getters/setters for accessors
     plot.id = function(fn) {
@@ -187,19 +266,34 @@ chart.base = function() {
         id = fn;
         return plot;
     }
+    plot.label = function(fn) {
+        if (!arguments.length) return label;
+        label = fn;
+        return plot;
+    }
     plot.items = function(fn) {
         if (!arguments.length) return items;
         items = fn;
         return plot;
     }
-    plot.units = function(fn) {
-        if (!arguments.length) return units;
-        units = fn;
+    plot.yunits = function(fn) {
+        if (!arguments.length) return yunits;
+        yunits = fn;
         return plot;
     }
-    plot.value = function(fn) {
-        if (!arguments.length) return value;
-        value = fn;
+    plot.xunits = function(fn) {
+        if (!arguments.length) return xunits;
+        xunits = fn;
+        return plot;
+    }
+    plot.xvalue = function(fn) {
+        if (!arguments.length) return xvalue;
+        xvalue = fn;
+        return plot;
+    }
+    plot.yvalue = function(fn) {
+        if (!arguments.length) return yvalue;
+        yvalue = fn;
         return plot;
     }
 
@@ -219,31 +313,28 @@ chart.base = function() {
         wrapup = fn;
         return plot;
     }
+    plot.translate = function(fn) {
+        if (!arguments.length) return translate;
+        translate = fn;
+        return plot;
+    }
     return plot;
 };
 
 // Scatter plot
 chart.scatter = function() {
     var plot = chart.base(),
-        format = d3.time.format('%Y-%m-%d'),
-        xscale = d3.time.scale(),
-        cscale = d3.scale.category20(),
-        xnice = d3.time.year;
+        cscale = d3.scale.category20();
 
-    function xvalue(d) {
-        return format.parse(d.date);
-    }
-
-    function translate(sid) {
-        var yscale = plot.scales()[sid].scale;
-        var yvalue = plot.value();
-        var xscale = plot.xscale();
-        return function(d) {
-            var x = xscale(xvalue(d));
-            var y = yscale(yvalue(d));
-            return _trans(x, y);
-        };
-    }
+    plot.xvalue(function(d) {
+        return d.x;
+    }).xunits(function(dataset) {
+        return dataset.xunits;
+    }).yvalue(function(d) {
+        return d.y;
+    }).yunits(function(dataset) {
+        return dataset.xunits;
+    });
 
     function point(sid) {
         var color = cscale(sid);
@@ -252,49 +343,43 @@ chart.scatter = function() {
                 .attr('r', 3)
                 .attr('fill', color)
                 .attr('stroke', 'black')
+                .attr('cursor', 'pointer')
         }
     }
 
-    plot.init(function(datasets, opts) {
-        var xmin = Infinity, xmax = -Infinity;
-        datasets.forEach(function(data) {
-            var items = plot.items()(data);
-            xmin = d3.min([xmin, d3.min(items, xvalue)]);
-            xmax = d3.max([xmax, d3.max(items, xvalue)]);
-        });
+    function pointover(sid) {
+        return function(d) {
+            d3.select(this).selectAll('circle').attr('fill', '#9999ff');
+        }
+    }
+    function pointout(sid) {
+        return function(d) {
+            d3.select(this).selectAll('circle').attr('fill', cscale(sid));
+        }
+    }
 
-        xscale.domain([xmin, xmax])
-              .range([0, opts.gwidth]);
-        if (xscale.nice)
-              xscale.nice(xnice);
-
-    });
-
-    plot.render(function(data) {
-        var items = plot.items()(data);
-        var units = plot.units()(data);
-        var sid   = plot.id()(data);
+    plot.render(function(dataset) {
+        var items     = plot.items()(dataset),
+            yunits    = plot.yunits()(dataset),
+            sid       = plot.id()(dataset),
+            translate = plot.translate()
         d3.select(this).selectAll('g.data').data(items)
             .enter()
             .append('g')
                 .attr('class', 'data')
-                .attr('transform', translate(units))
+                .attr('transform', translate(yunits))
             .call(point(sid))
+            .on('mouseover', pointover(sid))
+            .on('mouseout',  pointout(sid));
     });
 
     plot.wrapup(function(datasets, opts) {
         var svg = d3.select(this),
             outer = svg.select('g'),
             margins = plot.margins(),
-            xaxis = d3.svg.axis()
-                .scale(xscale)
-                .orient('bottom')
+            label = plot.label();
                 
         var cbottom = opts.cheight - margins.bottom;
-        outer.append('g')
-            .attr('class', 'xaxis')
-            .attr('transform', _trans(margins.left, cbottom))
-            .call(xaxis);
         
         var legend = outer.append('g')
             .attr('class', 'legend')
@@ -318,24 +403,36 @@ chart.scatter = function() {
                         g.attr('transform', _trans(10, 10 + i * 12));
                         g.call(point(sid));
                         g.append('text')
-                            .text(d.label)
+                            .text(label(d))
                             .attr('transform', _trans(5, 5));
                     });
     });
 
     // Getters/setters for chart configuration
-    plot.xscale = function(fn) {
-        if (!arguments.length) return xscale;
-        xscale = fn;
+    plot.cscale = function(fn) {
+        if (!arguments.length) return cscale;
+        cscale = fn;
         return plot;
     };
 
-    plot.xnice = function(val) {
-        if (!arguments.length) return xnice;
-        xnice = val;
-        return plot;
-    };
+    return plot;
+};
 
+// Time series scatter plot
+chart.timeSeries = function() {
+    var plot = chart.scatter(),
+        format = d3.time.format('%Y-%m-%d');
+
+    plot.xvalue(function(d) {
+        return format.parse(d.date);
+    })
+    .xscalefn(d3.time.scale)
+    .xnice(d3.time.year)
+    .yvalue(function(d) {
+        return d.value;
+    });
+
+    // Getters/setters for chart configuration
     plot.timeFormat = function(val) {
         if (!arguments.length) return format;
         format = d3.time.format(val);
