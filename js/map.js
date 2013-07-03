@@ -5,8 +5,8 @@
  * http://wq.io/license
  */
 
-define(['./lib/leaflet', './app', './pages', './json', './spinner', './template'],
-function(L, app, pages, json, spin, tmpl) {
+define(['./lib/leaflet', './app', './pages', './json', './spinner', './template', './console'],
+function(L, app, pages, json, spin, tmpl, console) {
 
 // module variable
 var map = {};
@@ -180,9 +180,11 @@ map.createMap = function(page, itemid) {
         divid = mapid + '-map';
 
     div = L.DomUtil.get(divid);
-    if (!div)
-        // Silently fail if the expected div doesn't exist
-        return; 
+    if (!div) {
+        // Skip map creation if the expected div doesn't exist
+        console.log(divid + ' not found; skipping map creation');
+        return;
+    }
 
     // Make sure leaflet hasn't already been initialized for this map
     if (div._leaflet) {
@@ -202,7 +204,7 @@ map.createMap = function(page, itemid) {
         if (layerconf.cluster && L.MarkerClusterGroup) {
             var options = {};
             if (layerconf.clusterIcon)
-                options.iconCreateFunction = l.clusterIcon;
+                options.iconCreateFunction = layerconf.clusterIcon;
             layerconf.layer = new L.MarkerClusterGroup(options).addTo(m);
         } else {
             layerconf.layer = L.layerGroup().addTo(m);
