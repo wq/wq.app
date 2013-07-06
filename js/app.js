@@ -186,18 +186,20 @@ function _registerList(page) {
     });
     function goUrl(ppage, url) {
         return function(match, ui, params) {
+            var pconf = _getConf(ppage);
             if (!params) params = {};
             if (ppage.indexOf(page) == 0)
                 params[ppage.replace(page, '')] = match[1];
             else
                 params[ppage] = match[1];
-            url = url.replace('<slug>', match[1]);
+            var pageurl = url.replace('<slug>', match[1]);
             spin.start();
-            ds.getList({'url': _getConf(ppage).url}, function(plist) {
+            ds.getList({'url': pconf.url}, function(plist) {
                 spin.stop();
                 var pitem = plist.find(match[1]);
-                app.go(page, ui, params, undefined, false, url, {
+                app.go(page, ui, params, undefined, false, pageurl, {
                     'parent_id': match[1],
+                    'parent_url': pitem && (pconf.url + '/' + pitem.id),
                     'parent_label': pitem && pitem.label
                 });
             });
@@ -233,7 +235,7 @@ function _renderList(page, list, ui, params, url, context) {
         }
     }
 
-    if (pnum > conf.max_local_pages) { 
+    if (pnum > conf.max_local_pages || filter && conf.partial) { 
         // Set max_local_pages to avoid filling up local storage and
         // instead attempt to load HTML directly from the server
         // (using built-in jQM loader)
