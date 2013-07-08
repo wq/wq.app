@@ -536,6 +536,15 @@ function _updateAttachments(conf, res, aname) {
 function _addLookups(page, context, editable, callback) {
     var conf = _getConf(page);
     var lookups = {};
+    var field;
+    if (conf.choices) {
+        for (var field in conf.choices) {
+            lookups[field + '_label'] = _choice_label_lookup(field, conf.choices[field]);
+            if (editable) {
+                lookups[field + '_choices'] = _choice_dropdown_lookup(field, conf.choices[field]);
+            }
+        }
+    }
     $.each(conf.parents || [], function(i, v) {
         var pconf = _getConf(v);
         var col;
@@ -564,6 +573,11 @@ function _addLookups(page, context, editable, callback) {
 
         if (info.type)
             lookups[info.type] = _parent_lookup(info.type);
+        if (editable && aconf.choices) {
+            for (var field in aconf.choices) {
+                lookups[field + '_choices'] = _choice_dropdown_lookup(field, aconf.choices[field]);
+            }
+        }
         if (editable == "new")
             lookups[aconf.url] = _default_attachments(page, aname);
         else
@@ -600,6 +614,40 @@ function _make_lookup(page, fn) {
         });
     }
 }
+
+// Preset list of choices
+function _choice_label_lookup(name, choices) {
+    return function(context, key, callback) {
+        context[key] = function() {
+            if (!this[name])
+                return;
+            var label;
+            choices.forEach(function(choice) {
+                if (choice.value == this[name])
+                    label = choice.label;
+            })
+            return label;
+        };
+        callback(context);
+    };
+}
+
+function _choice_dropdown_lookup(name, choices) {
+    return function(context, key, callback) {
+        context[key] = function() {
+            var list = [];
+            choices.forEach(function(choice) {
+                var item = $.extend({}, choice);
+                if (choice.value == this[name])
+                    item.selected = true;
+                list.push(item);
+            })
+            return list;
+        };
+        callback(context);
+    }
+}
+
 
 // Simple foreign key lookup
 function _parent_lookup(page, column) {
