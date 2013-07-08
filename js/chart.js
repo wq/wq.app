@@ -124,15 +124,18 @@ chart.base = function() {
         // Compute horizontal & vertical scales
         // - may be more than one vertical scale if there are different units
         var left = true;
+        var xvals = d3.set();
         datasets(data).forEach(function(dataset) {
             if (!xscale) {
                 xscale = {
                     'xmin': Infinity,
-                    'xmax': -Infinity
+                    'xmax': -Infinity,
                 }
             }
             xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
             xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
+            if (xscalefn().rangePoints)
+                items(dataset).forEach(function(d){xvals.add(xvalue(d));});
 
             var sid = yunits(dataset);
             if (!yscales[sid]) {
@@ -151,10 +154,16 @@ chart.base = function() {
             yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
         });
 
+        xscale.scale = xscalefn();
         // Create actual scale & axis objects
-        xscale.scale = xscalefn()
-            .domain([xscale.xmin, xscale.xmax])
-            .range([0, gwidth]);
+        if (xscale.scale.rangePoints)
+            xscale.scale
+                .domain(xvals.values())
+                .rangePoints([0, gwidth], 1);
+        else
+            xscale.scale
+                .domain([xscale.xmin, xscale.xmax])
+                .range([0, gwidth]);
         if (xscale.scale.nice && xnice)
             xscale.scale.nice(xnice);
 
@@ -464,6 +473,7 @@ chart.timeSeries = function() {
 
 chart.boxplot = function() {
     var plot = chart.base()
+        .xscalefn(d3.scale.ordinal)
         .ymin(function(dataset) {
             var items = plot.items();
             return d3.min(items(dataset), function(d) {
