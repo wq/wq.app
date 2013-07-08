@@ -80,10 +80,12 @@ app.logout = function() {
     ds.set('user', null);
     tmpl.setDefault('user', null);
     tmpl.setDefault('is_authenticated', false);
-    tmpl.setDefault('csrftoken', null);
     app.config = app.default_config;
     tmpl.setDefault('app_config', app.config);
-    ds.fetch({'url': 'logout'}, true, undefined, true);
+    ds.fetch({'url': 'logout'}, true, function(result) {
+        tmpl.setDefault('csrftoken', result.csrftoken);
+        ds.set('csrftoken', result.csrftoken);
+    }, true);
     $('body').trigger('logout');
 };
 
@@ -113,6 +115,9 @@ app.check_login = function() {
             app.save_login(result);
         } else if (result && app.user) {
             app.logout();
+        } else if (result && result.csrftoken) {
+            tmpl.setDefault('csrftoken', result.csrftoken);
+            ds.set('csrftoken', result.csrftoken);
         }
     }, true);
 };
