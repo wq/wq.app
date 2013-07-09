@@ -410,12 +410,14 @@ chart.scatter = function() {
                 
         var cbottom = opts.cheight - margins.bottom;
         
+        var height = datasets.length * 22 + 20;
+        
         var legend = outer.append('g')
             .attr('class', 'legend')
             .attr('transform', _trans(margins.left, cbottom + 30))
         legend.append('rect')
             .attr('width', opts.gwidth)
-            .attr('height', margins.bottom - 30)
+            .attr('height', height)
             .attr('fill', 'white')
             .attr('stroke', '#999')
 
@@ -429,11 +431,11 @@ chart.scatter = function() {
                         var g = d3.select(this),
                             sid = plot.id()(d);
                          
-                        g.attr('transform', _trans(10, 10 + i * 12));
+                        g.attr('transform', _trans(20, 20 + i * 22));
                         g.call(point(sid));
                         g.append('text')
                             .text(label(d))
-                            .attr('transform', _trans(5, 5));
+                            .attr('transform', _trans(10, 5));
                     });
     });
 
