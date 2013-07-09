@@ -74,8 +74,8 @@ chart.base = function() {
     function wrapup(datasets, opts){};
 
     // Generate translation function xscale + given yscale
-    function translate(sid) {
-        var yscale = yscales[sid];
+    function translate(scaleid) {
+        var yscale = yscales[scaleid];
         return function(d) {
             var x = xscale.scale(xvalue(d));
             var y = yscale.scale(yvalue(d));
@@ -137,10 +137,10 @@ chart.base = function() {
             if (xscalefn().rangePoints)
                 items(dataset).forEach(function(d){xvals.add(xvalue(d));});
 
-            var sid = yunits(dataset);
-            if (!yscales[sid]) {
-                yscales[sid] = {
-                    'id':   sid,
+            var scaleid = yunits(dataset);
+            if (!yscales[scaleid]) {
+                yscales[scaleid] = {
+                    'id':   scaleid,
                     'ymin': 0,
                     'ymax': 0,
                     'sets': 0,
@@ -148,7 +148,7 @@ chart.base = function() {
                 }
                 left = !left;
             }
-            var yscale = yscales[sid];
+            var yscale = yscales[scaleid];
             yscale.sets++;
             yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
             yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
@@ -172,8 +172,8 @@ chart.base = function() {
             .orient('bottom')
             .tickSize(4, 2, 1);
             
-        for (sid in yscales) {
-            var scale = yscales[sid];
+        for (scaleid in yscales) {
+            var scale = yscales[scaleid];
             scale.scale = yscalefn()
                 .domain([scale.ymin, scale.ymax])
                 .nice()
@@ -493,8 +493,8 @@ chart.boxplot = function() {
                 xscale    = plot.xscale(),
                 xvalue    = plot.xvalue();
 
-            function translate(sid) {
-                var yscale = yscales[sid];
+            function translate(scaleid) {
+                var yscale = yscales[scaleid];
                 return function(d) {
                     var x = xscale.scale(xvalue(d));
                     var y = yscale.scale(0);
