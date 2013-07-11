@@ -67,7 +67,7 @@ pages.register = function(path, fn, obj, prevent) {
 // Wrapper for router.add - adds URL base and parameter regex to path
 pages.addRoute = function(path, events, fn, obj) {
     var rt = {};
-    path = path.replace('<slug>', pages.slug);
+    path = path.replace(/<slug>/g, pages.slug);
     var url = '^' +  pages.info.base_url + '/' + path + '(?:[?](.*))?(?:[#](.*))?$';
     var callback = function(etype, match, ui, page, evt) {
         hash = match.pop();
