@@ -167,6 +167,38 @@ app.attachmentTypes = {
     location: {
         'predicate': 'located',
         'type': null
+    },
+    relationship: {
+        'predicate': 'related',
+        'type': 'relationshiptype',
+        'getTypeFilter': function(page, context) {
+             return {'from_type': page}
+        },
+        'getChoiceList': function(type) {
+            return type.to_type;
+        },
+        'getChoiceListFilter': function(type) {
+            return {};
+        },
+        'getDefaults': function(type) {
+            return {'type_label': type.name};
+        }
+    },
+    inverserelationship: {
+        'predicate': 'related',
+        'type': 'relationshiptype',
+        'getTypeFilter': function(page, context) {
+             return {'to_type': page}
+        },
+        'getChoiceList': function(type) {
+            return type.from_type;
+        },
+        'getChoiceListFilter': function(type) {
+            return {};
+        },
+        'getDefaults': function(type) {
+            return {'type_label': type.inverse_name};
+        }
     }
 };
 
@@ -572,20 +604,20 @@ function _addLookups(page, context, editable, callback) {
 
         if (info.type)
             lookups[info.type] = _parent_lookup(info.type);
-        if (editable && aconf.choices) {
-            for (var field in aconf.choices) {
-                lookups[field + '_choices'] = _choice_dropdown_lookup(field, aconf.choices[field]);
+        if (editable) {
+            if (aconf.choices) {
+                for (var field in aconf.choices) {
+                    lookups[field + '_choices'] = _choice_dropdown_lookup(field, aconf.choices[field]);
+                }
+            }
+            if (info.getChoiceList) {
+                lookups['item_choices'] = _item_choice_lookup(page, aname);
             }
         }
         if (editable == "new")
             lookups[aconf.url] = _default_attachments(page, aname);
         else
             lookups[aconf.url] = _children_lookup(page, aname);
-    }
-    if (conf.related) {
-        lookups['relationships']        = _relationship_lookup(page);
-        lookups['inverserelationships'] = _relationship_lookup(page, true);
-        lookups['relationshiptype']     = _parent_lookup('relationshiptype');
     }
     var queue = [];
     for (key in lookups)
@@ -647,6 +679,51 @@ function _choice_dropdown_lookup(name, choices) {
     }
 }
 
+function _item_choice_lookup(page, aname) {
+    return function(context, key, callback) {
+        var conf = _getConf(aname);
+        var info = app.attachmentTypes[aname];
+        var tconf = _getConf(info.type);
+        ds.getList({'url': tconf.url}, function(types) {
+            var lists = [], listLookup = {};
+            types.filter(info.getTypeFilter(page)).forEach(function(type) {
+                lists.push(info.getChoiceList(type));
+            });
+            if (lists.length == 0)
+                callback(context);
+            else
+                addList(0);
+            function addList(index) {
+                var lconf = _getConf(lists[index]);
+                ds.getList({'url': lconf.url}, function(list) {
+                    listLookup[lists[index]] = function(type) {
+                        var items = list.filter(info.getChoiceListFilter(type));
+                        items.forEach(function(item, i) {
+                            if (item.id == this.item_id) {
+                                item = $.extend({}, item);
+                                item.selected = true;
+                                items[i] = item;
+                            }
+                        }, this);
+                        return items;
+                    }
+                    if (index < lists.length - 1)
+                        addList(index + 1);
+                    else {
+                        context[key] = function() {
+                            if (this.type_id) {
+                                var type = types.find(this.type_id);
+                                var listid = info.getChoiceList(type);
+                                return listLookup[listid].call(this, type);
+                            }
+                        }
+                        callback(context);
+                    }
+                });
+            }
+        });
+    };
+}
 
 // Simple foreign key lookup
 function _parent_lookup(page, column) {
@@ -697,36 +774,13 @@ function _default_attachments(ppage, apage) {
         var types = list.filter(filter);
         var attachments = [];
         types.forEach(function(t) {
-            attachments.push({
-                'type_id': t.id
-            });
+            var obj = {};
+            if (info.getDefaults)
+                obj = info.getDefaults(t);
+            obj['type_id'] = t.id;
+            attachments.push(obj);
         });
         return attachments;
-    });
-}
-
-// List of relationships for this object
-// (grouped by type)
-function _relationship_lookup(page, inverse) {
-    var name = inverse ? 'inverserelationship' : 'relationship';
-    return _make_lookup(name, function(list) {
-        return function() {
-            var filter = {}, groups = {};
-            filter[page + '_id'] = this.id;
-            list.filter(filter).forEach(function(rel) {
-                if (!groups[rel.type])
-                    groups[rel.type] = {
-                        'type': rel.type,
-                        'list': []
-                    }
-                groups[rel.type].list.push(rel)
-            });
-            var garray = [];
-            for (group in groups) {
-                garray.push(groups[group]);
-            }
-            return garray;
-        }
     });
 }
 
