@@ -192,11 +192,6 @@ function _registerList(page) {
     function goUrl(ppage, url) {
         return function(match, ui, params) {
             var pconf = _getConf(ppage);
-            if (!params) params = {};
-            if (ppage.indexOf(page) == 0)
-                params[ppage.replace(page, '')] = match[1];
-            else
-                params[ppage] = match[1];
             var pageurl = url.replace('<slug>', match[1]);
             spin.start();
             ds.getList({'url': pconf.url}, function(plist) {
@@ -205,7 +200,8 @@ function _registerList(page) {
                 app.go(page, ui, params, undefined, false, pageurl, {
                     'parent_id': match[1],
                     'parent_url': pitem && (pconf.url + '/' + pitem.id),
-                    'parent_label': pitem && pitem.label
+                    'parent_label': pitem && pitem.label,
+                    'parent_page': ppage
                 });
             });
         }
@@ -219,22 +215,25 @@ function _renderList(page, list, ui, params, url, context) {
         if (url)
             url += '/';
     }
-    if (params) {
-        if (url == conf.url || url == conf.url + '/')
+    if (params || (context && context.parent_page)) {
+        if (params)
             url += "?" + $.param(params);
-        if (params['page']) {
+        if (params && params['page']) {
             pnum = params['page'];
         } else {
             filter = {};
-            for (var key in params) {
+            for (var key in params || {}) {
                 filter[key] = params[key];
             }
-            (conf.parents || []).forEach(function(p) {
+            (conf.parents || []).forEach(function(ppage) {
+                var p = ppage;
                 if (p.indexOf(page) == 0)
                      p = p.replace(page, '');
                 if (filter[p]) {
                     filter[p + '_id'] = filter[p];
                     delete filter[p];
+                } else if (context && context.parent_page == ppage) {
+                    filter[p + '_id'] = context.parent_id;
                 }
             });
         }
