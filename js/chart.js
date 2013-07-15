@@ -140,15 +140,18 @@ chart.base = function() {
             var scaleid = yunits(dataset);
             if (!yscales[scaleid]) {
                 yscales[scaleid] = {
-                    'id':   scaleid,
                     'ymin': 0,
-                    'ymax': 0,
-                    'sets': 0,
-                    'orient': left ? 'left' : 'right'
+                    'ymax': 0
                 }
-                left = !left;
             }
             var yscale = yscales[scaleid];
+            if (!yscale.id)
+                yscale.id = scaleid;
+            if (!yscale.orient)
+                yscale.orient = left ? 'left' : 'right';
+            left = !left;
+            if (!yscale.sets)
+                yscale.sets = 0;
             yscale.sets++;
             yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
             yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
@@ -174,8 +177,9 @@ chart.base = function() {
             
         for (scaleid in yscales) {
             var scale = yscales[scaleid];
+            var domain = scale.invert ? [scale.ymax, scale.ymin] : [scale.ymin, scale.ymax];
             scale.scale = yscalefn()
-                .domain([scale.ymin, scale.ymax])
+                .domain(domain)
                 .nice()
                 .range([gheight, 0])
 
@@ -362,7 +366,7 @@ chart.scatter = function() {
     }).yvalue(function(d) {
         return d.y;
     }).yunits(function(dataset) {
-        return dataset.xunits;
+        return dataset.yunits;
     });
 
     function point(sid) {
@@ -473,6 +477,39 @@ chart.timeSeries = function() {
     return plot;
 };
 
+// Contours (precomputed)
+chart.contour = function() {
+    var plot = chart.scatter();
+    plot.render(function(dataset) {
+        var x = plot.xvalue(),
+            y = plot.yvalue()
+            yunits = plot.yunits(),
+            xscale = plot.xscale().scale,
+            yscale = plot.yscales()[yunits(dataset)].scale,
+            cscale = plot.cscale(),
+            id = plot.id(),
+            items = plot.items();
+
+        var path = d3.svg.line()
+            .x(function(d) { 
+                return xscale(x(d))
+            })
+            .y(function(d) { 
+                return yscale(y(d))
+            });
+            
+        d3.select(this).selectAll('path.contour')
+           .data(items(dataset))
+           .enter()
+               .append('path')
+               .attr('class', 'contour')
+               .attr('d', path)
+               .attr('fill', cscale(id(dataset)));
+    });
+    return plot;
+}
+
+// Box & whiskers (precomputed)
 chart.boxplot = function() {
     var plot = chart.base()
         .xscalefn(d3.scale.ordinal)
