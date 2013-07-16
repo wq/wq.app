@@ -21,7 +21,7 @@ function _trans(x, y, off) {
 // General chart configuration
 chart.base = function() {
     var width=700, height=300, padding=7.5, 
-        margins = {'left': 80, 'right': 10, 'top': 10, 'bottom': 80},
+        margins = {'left': 80, 'right': 10, 'top': 10, 'bottom': 30},
         xscale = null,
         xscalefn = d3.scale.linear,
         xnice = null,
@@ -69,7 +69,7 @@ chart.base = function() {
     function yvalue(d) {throw "yvalue accessor not defined!"}
     
     // Rendering functions (should be overridden)
-    function init(datasets, opts){};
+    function init(datasets){};
     function render(dataset){};
     function wrapup(datasets, opts){};
 
@@ -90,6 +90,8 @@ chart.base = function() {
 
     // The actual work
     function _plot(data) {
+        init.call(this, datasets(data));
+
         var svg = d3.select(this);
         var cwidth = width - padding - padding;
         var cheight = height - padding - padding;
@@ -197,7 +199,6 @@ chart.base = function() {
             'cwidth': cwidth,
             'cheight': cheight
         }
-        init.call(this, datasets(data), opts);
         
         // Render each dataset
         var series = inner.selectAll('g.dataset')
@@ -357,7 +358,8 @@ chart.base = function() {
 // Scatter plot
 chart.scatter = function() {
     var plot = chart.base(),
-        cscale = d3.scale.category20();
+        cscale = d3.scale.category20(),
+        legend = null;
 
     plot.xvalue(function(d) {
         return d.x;
@@ -367,6 +369,24 @@ chart.scatter = function() {
         return d.y;
     }).yunits(function(dataset) {
         return dataset.yunits;
+    });
+
+    plot.init(function(datasets) {
+        if (plot.legend())
+            return;
+
+        var rows = datasets.length;
+        if (rows > 5) {
+            plot.legend({
+                'position': 'right',
+                'size': 200
+            });
+        } else {
+            plot.legend({
+                'position': 'bottom',
+                'size': (rows * 22 + 20)
+            });
+        }
     });
 
     function point(sid) {
@@ -410,22 +430,31 @@ chart.scatter = function() {
         var svg = d3.select(this),
             outer = svg.select('g'),
             margins = plot.margins(),
-            label = plot.label();
+            label = plot.label(),
+            legendX, legendY, legendW, legendH;
                 
-        var cbottom = opts.cheight - margins.bottom;
+        if (legend.position == 'bottom') {
+             legendX = margins.left;
+             legendY = opts.cheight - margins.bottom + 30;
+             legendW = opts.gwidth;
+             legendH = legend.size;
+        } else {
+             legendX = opts.cwidth - margins.right + 10;
+             legendY = margins.top;
+             legendW = legend.size; 
+             legendH = opts.gheight;
+        }
         
-        var height = datasets.length * 22 + 20;
-        
-        var legend = outer.append('g')
+        var leg = outer.append('g')
             .attr('class', 'legend')
-            .attr('transform', _trans(margins.left, cbottom + 30))
-        legend.append('rect')
-            .attr('width', opts.gwidth)
-            .attr('height', height)
+            .attr('transform', _trans(legendX, legendY));
+        leg.append('rect')
+            .attr('width', legendW)
+            .attr('height', legendH)
             .attr('fill', 'white')
             .attr('stroke', '#999')
 
-        legend.selectAll('g.legenditem')
+        leg.selectAll('g.legenditem')
             .data(datasets)
             .enter().append('g')
                 .attr('class', 'legenditem')
@@ -447,6 +476,21 @@ chart.scatter = function() {
     plot.cscale = function(fn) {
         if (!arguments.length) return cscale;
         cscale = fn;
+        return plot;
+    };
+
+    plot.legend = function(val) {
+        if (!arguments.length) return legend;
+        legend = val;
+        var margins = plot.margins();
+        if (legend.position == 'bottom') {
+            margins.bottom = legend.size + 30;
+            margins.right = 10;
+        } else {
+            margins.bottom = 30;
+            margins.right = legend.size + 20;
+        }
+        plot.margins(margins);
         return plot;
     };
 
