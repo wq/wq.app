@@ -80,6 +80,8 @@ function _registerDetail(page) {
     var url = mapconf.url ? mapconf.url + '/' : '';
     pages.addRoute(url + '<slug>', 's', function(match) {
         var itemid = match[1];
+        if (itemid == 'new')
+            return;
         map.createMap(page, itemid);
     });
 }

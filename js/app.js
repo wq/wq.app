@@ -162,6 +162,13 @@ app.attachmentTypes = {
         'type': 'authority',
         'getTypeFilter': function(page, context) {
             return {};
+        },
+        'getDefaults': function(type) {
+            return {
+                'authority_id': type.id,
+                'authority_label': type.label,
+                'name': ''
+            };
         }
     },
     location: {
@@ -768,7 +775,10 @@ function _children_lookup(ppage, cpage) {
 function _default_attachments(ppage, apage) {
     var info = app.attachmentTypes[apage];
     if (!info.type)
-        return [];
+        return function(context, key, callback) {
+            context[key] = [];
+            callback(context);
+        };
     return _make_lookup(info.type, function(list, context) {
         var filter = info.getTypeFilter(ppage, context);
         var types = list.filter(filter);
