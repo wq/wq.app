@@ -77,7 +77,8 @@ pages.addRoute = function(path, events, fn, obj) {
     }
     rt[url] = {
         'events': events,
-        'handler': callback
+        'handler': callback,
+        'step': 'all'
     }
     router.add(rt);
 };

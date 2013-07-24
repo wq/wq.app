@@ -11,7 +11,7 @@ Library                 |  Version  |  Notes
 [highlight.js]          |  b26a4c6  |  tools/build.py -n -tamd css javascript markdown python scss 
 [jquery]                |    1.9.1  |  patched to define anonymous AMD module
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
-[jquery.mobile.router]  |  570d7de  |  [#76]; patched with relative jQuery dependency
+[jquery.mobile.router]  |  443d352  |  patched with relative jQuery dependency
 [jquery.validate]       |   1.11.0  |  wrapped as AMD module
 [leaflet]               |      0.6  |  no changes
 [leaflet.markercluster] |  6fda9a2  |  wrapped as AMD module (returns modified Leaflet object)
@@ -27,7 +27,6 @@ Library                 |  Version  |  Notes
 [jquery]:                https://github.com/jquery/jquery
 [jquery.mobile]:         https://github.com/jquery/jquery-mobile
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
-[#76]:                   https://github.com/azicchetti/jquerymobile-router/pull/76
 [jquery.validate]:       https://github.com/jzaefferer/jquery-validation
 [leaflet]:               https://github.com/Leaflet/Leaflet
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
