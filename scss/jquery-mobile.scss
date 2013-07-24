@@ -415,7 +415,7 @@ a.ui-link-inherit {
 .ui-icon,
 .ui-icon-searchfield:after {
   @if $disc {
-    background-color: $disc;
+    background: $disc;
   }
   @include border-radius(9px);
   background-image: url(#{$url + "/icons-18-white.png"});
