@@ -408,7 +408,7 @@ a.ui-link-inherit {
 
 /* Default Icon set */
 @mixin jquery-mobile-icons(
-  $url: 'images/',
+  $url: 'images',
   $disc: rgba(0,0,0,.4)
 ){
 
