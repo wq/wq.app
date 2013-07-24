@@ -556,8 +556,8 @@ function _applyResult(item, result) {
 
 function _updateAttachments(conf, res, aname) {
     var info = app.attachmentTypes[aname];
-    var aconf = _getConf(aname);
-    if (!conf[info.predicate] || !res[aconf.url])
+    var aconf = _getConf(aname, true);
+    if (!aconf || !conf[info.predicate] || !res[aconf.url])
         return;
     var attachments = res[aconf.url];
     attachments.forEach(function(a) {
@@ -605,8 +605,8 @@ function _addLookups(page, context, editable, callback) {
     // Load annotations and identifiers
     for (aname in app.attachmentTypes) {
         var info = app.attachmentTypes[aname];
-        var aconf = _getConf(aname);
-        if (!conf[info.predicate])
+        var aconf = _getConf(aname, true);
+        if (!aconf || !conf[info.predicate])
             continue;
 
         if (info.type)
@@ -795,10 +795,13 @@ function _default_attachments(ppage, apage) {
 }
 
 // Load configuration based on page id
-function _getConf(page) {
+function _getConf(page, silentFail) {
     var conf = app.config.pages[page];
     if (!conf)
-        throw 'Configuration for "' + page + '" not found!';
+        if (silentFail)
+            return;
+        else
+            throw 'Configuration for "' + page + '" not found!';
     if (conf.alias)
         return _getConf(conf.alias);
     return $.extend({'page': page}, conf);
