@@ -13,7 +13,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  patched with relative jQuery dependency
 [jquery.validate]       |   1.11.0  |  wrapped as AMD module
-[leaflet]               |      0.6  |  no changes
+[leaflet]               |    0.6.4  |  no changes
 [leaflet.markercluster] |  6fda9a2  |  wrapped as AMD module (returns modified Leaflet object)
 [marked]                |    0.2.8  |  no changes
 [mustache.js]           |    0.7.2  |  no changes
