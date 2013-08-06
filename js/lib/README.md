@@ -19,7 +19,7 @@ Library                 |  Version  |  Notes
 [mustache.js]           |    0.7.2  |  no changes
 [proj4js]               |    1.1.0  |  wrapped as AMD module
 [proj4leaflet]          |  f4f5b6d  |  wrapped as AMD module (returns modified Leaflet object)
-[requirejs], [r.js]     |    2.1.6  |  no changes; r.js is in /util
+[requirejs], [r.js]     |    2.1.8  |  no changes; r.js is in /util
 
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
