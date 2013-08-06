@@ -12,7 +12,7 @@ Library                 |  Version  |  Notes
 [jquery]                |    1.9.1  |  patched to define anonymous AMD module
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  patched with relative jQuery dependency
-[jquery.validate]       |   1.11.0  |  wrapped as AMD module
+[jquery.validate]       |   1.11.1  |  wrapped as AMD module
 [leaflet]               |    0.6.4  |  no changes
 [leaflet.markercluster] |  8ccd5a3  |  wrapped as AMD module (returns modified Leaflet object)
 [marked]                |    0.2.8  |  no changes
