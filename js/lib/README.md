@@ -14,7 +14,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile.router]  |  443d352  |  patched with relative jQuery dependency
 [jquery.validate]       |   1.11.0  |  wrapped as AMD module
 [leaflet]               |    0.6.4  |  no changes
-[leaflet.markercluster] |  6fda9a2  |  wrapped as AMD module (returns modified Leaflet object)
+[leaflet.markercluster] |  8ccd5a3  |  wrapped as AMD module (returns modified Leaflet object)
 [marked]                |    0.2.8  |  no changes
 [mustache.js]           |    0.7.2  |  no changes
 [proj4js]               |    1.1.0  |  wrapped as AMD module
