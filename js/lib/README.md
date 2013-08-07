@@ -18,7 +18,7 @@ Library                 |  Version  |  Notes
 [marked]                |    0.2.9  |  no changes
 [mustache.js]           |    0.7.2  |  no changes
 [proj4js]               |    1.1.0  |  wrapped as AMD module
-[proj4leaflet]          |  f4f5b6d  |  wrapped as AMD module (returns modified Leaflet object)
+[proj4leaflet]          |  c7f5097  |  added L.Proj.GeoJSON ([#32]); wrapped as AMD module (returns modified Leaflet object)
 [requirejs], [r.js]     |    2.1.8  |  no changes; r.js is in /util
 
 [d3.js]:                 https://github.com/mbostock/d3
@@ -36,3 +36,4 @@ Library                 |  Version  |  Notes
 [proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
 [requirejs]:             https://github.com/jrburke/requirejs
 [r.js]:                  https://github.com/jrburke/r.js
+[#32]:                   https://github.com/kartena/Proj4Leaflet/pull/32
