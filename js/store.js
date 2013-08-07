@@ -787,25 +787,25 @@ function _Store(name) {
             data = data.data;
             contenttype = processdata = false;
         }
-	
-	if (data.fileupload) {
-	    var opts = new FileUploadOptions();
-	    opts.fileKey  = data.fileupload;
-	    opts.fileName = data[data.fileupload];
-	    delete data[data.fileupload];
-	    delete data.fileupload;
+        
+        if (data.fileupload) {
+            var opts = new FileUploadOptions();
+            opts.fileKey  = data.fileupload;
+            opts.fileName = data[data.fileupload];
+            delete data[data.fileupload];
+            delete data.fileupload;
             opts.params = data;
-	    var ft = new FileTransfer();
+            var ft = new FileTransfer();
             ft.upload(opts.fileName, url,
-		function(res) {
-		    var response = JSON.parse(decodeURIComponent(res.response));
-		    success(response);
-		},
-		function(res) {
-		    error({responseText: 'Error uploading file: ' + res.code});
-		}, opts
-	    );
-	} else {
+                function(res) {
+                    var response = JSON.parse(decodeURIComponent(res.response));
+                    success(response);
+                },
+                function(res) {
+                    error({responseText: 'Error uploading file: ' + res.code});
+                }, opts
+            );
+        } else {
             $.ajax(url, {
                 data: data,
                 type: method,
@@ -813,8 +813,8 @@ function _Store(name) {
                 contentType: contenttype,
                 processData: processdata,
                 async: true,
-	        success: success,
-	        error: error,
+                success: success,
+                error: error,
                 headers: headers
             });
         }
@@ -827,7 +827,7 @@ function _Store(name) {
             if (callback) callback(item);
         }
 
-	function error(jqxhr, status) {
+        function error(jqxhr, status) {
             if (jqxhr.responseText) {
                 try {
                     item.error = JSON.parse(jqxhr.responseText);

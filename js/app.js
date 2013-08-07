@@ -467,9 +467,9 @@ function _handleForm(evt) {
         // Use a simple dictionary for values, which is better for outbox
         // serialization.  store will automatically use Cordova FileUpload iff
         // there is a form field named 'fileupload'.
-	$.each($form.serializeArray(), function(i, v) {
-	    vals[v.name] = v.value;
-	});
+        $.each($form.serializeArray(), function(i, v) {
+            vals[v.name] = v.value;
+        });
     }
     // Skip regular form submission, we're saving this via store
     evt.preventDefault();
