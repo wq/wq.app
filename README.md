@@ -1,6 +1,7 @@
-<img src="https://raw.github.com/wq/wq/master/images/512/wq.app.png"
+[<img src="https://raw.github.com/wq/wq/master/images/512/wq.app.png"
   width="256" height="256"
-  alt="wq.app">
+  alt="wq.app">]
+  (http://wq.io/wq.app)
 
 **wq.app** is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for crowdsourcing, citizen science, and volunteered geographic information, as well as professional field data collection.  wq.app is the client component of the [wq framework], and can be used with any REST service.  When combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create progressively enhanced websites / apps, that can selectively render individual application screens on the server *or* on the client depending on project needs, network connectivity, and `localStorage` availability.
 
