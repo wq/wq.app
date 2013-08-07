@@ -1,7 +1,7 @@
 /*
  * wq.app - router.js
  * Simple wrapper for jQuery.mobile.Router
- * (c) 2012 S. Andrew Sheppard
+ * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
  */
 

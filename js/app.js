@@ -2,7 +2,7 @@
  * wq.app - app.js
  * Utilizes store and pages to dynamically load and render
  * content from a wq.db-compatible REST service
- * (c) 2012 S. Andrew Sheppard
+ * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
  */
 

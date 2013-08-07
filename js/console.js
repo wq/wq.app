@@ -1,7 +1,7 @@
 /*
  * wq.app - console.js
  * Fallback for code using console.log
- * (c) 2012 S. Andrew Sheppard
+ * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
  */
 

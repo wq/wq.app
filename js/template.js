@@ -1,7 +1,7 @@
 /*
  * wq.app - template.js
  * Convenience wrapper for mustache.js
- * (c) 2012 S. Andrew Sheppard
+ * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
  */
 

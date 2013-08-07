@@ -1,7 +1,7 @@
 /*!
  * wq.app - pages.js
  * Dynamically generate jQuery Mobile pages for specified URLs
- * (c) 2012 S. Andrew Sheppard
+ * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
  */
 
