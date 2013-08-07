@@ -19,7 +19,7 @@ class Builder(object):
         self.conf = json.load(open(config))
         if 'optimize' not in self.conf:
            raise Exception("No optimize section in conf file!")
-        
+
         # Determine input and output directories
         self.indir  = self.conf['optimize']['appDir']
         self.outdir = self.conf['optimize']['dir']
@@ -30,7 +30,7 @@ class Builder(object):
         if conf is None:
             conf = self.conf.get('init', {})
         init(conf, self.indir)
-    
+
     def build(self):
         self.init()
 
@@ -47,7 +47,7 @@ class Builder(object):
 
         # Compile Javascript / CSS (using r.js)
         self.optimize()
-    
+
         # Generate HTML5 Cache manifests
         if 'appcache' in self.conf:
            self.appcache()

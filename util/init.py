@@ -7,4 +7,4 @@ def init(conf, indir):
         os.symlink(assets + '/js', jsdir + '/wq')
     if not os.path.exists(cssdir + '/wq'):
         os.symlink(assets + '/css', cssdir + '/wq')
-        
+

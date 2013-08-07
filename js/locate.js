@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/leaflet', './spinner'], 
+define(['./lib/leaflet', './spinner'],
 function(L, spin) {
 
 // Exported module object
@@ -20,7 +20,7 @@ locate.init = function(map) {
 // Simple geolocation function
 locate.locate = function(success, error, high, watch) {
     var map = _map || L.map(L.DomUtil.create('div'));
-    var opts = {}; 
+    var opts = {};
     var nospin = false;
 
     // If no success callback, assume setView
@@ -68,7 +68,7 @@ locate.Locator = function(map, fields) {
     var self = this;
 
     if (!fields) fields = {};
-    
+
     var _mode, _marker, _circle, _locate;
 
     // Mode switching functions (define fields.toggle for default usage)
@@ -89,7 +89,7 @@ locate.Locator = function(map, fields) {
         if (_mode)
             self[_mode + 'Stop']();
     };
-    
+
     // GPS mode
     self.gpsStart = function() {
         locate.init(map);
@@ -145,7 +145,7 @@ locate.Locator = function(map, fields) {
         // Update display
         _marker.setLatLng(loc);
         _circle.setLatLng(loc).setRadius(accuracy);
-        
+
         // Save to fields
         if (fields) {
             if (fields.latitude)  fields.latitude.val(loc.lat);
@@ -175,7 +175,7 @@ locate.Locator = function(map, fields) {
         var distance = ll.getNorthWest().distanceTo(ll.getSouthWest());
         var height = px.getSize().y;
 
-        // Assume accuracy is equivalent to the real-world length represented 
+        // Assume accuracy is equivalent to the real-world length represented
         // by 2 pixels
         var accuracy = L.Util.formatNum(distance / height * 2, 3);
 
@@ -186,7 +186,7 @@ locate.Locator = function(map, fields) {
         if (_mode != 'manual')
             return;
         self.update(L.latLng(
-            fields.latitude.val(), 
+            fields.latitude.val(),
             fields.longitude.val()
         ), null);
     }
@@ -200,7 +200,7 @@ locate.Locator = function(map, fields) {
     }
 
     // Leaflet events
-    map.on('click', _clickMap); 
+    map.on('click', _clickMap);
 
     // jQuery Events
     if (fields.toggle) {

@@ -15,10 +15,10 @@ def appcache(conf, indir, outdir, version):
 
     # Built CSS file contains image URLs from the @import-ed CSS files above
     images = _parse_css_urls(outdir, conf['css'])
- 
+
     # build.txt contains a list of built javascript files and their sources
     s_js, b_js = _parse_js_buildfile(outdir + '/build.txt')
-    
+
     b_css = [conf['css']]
 
     # Collect path names and create appcaches
@@ -52,7 +52,7 @@ def _parse_js_buildfile(filename):
     built   = []
     for group in text[1:].split('\n\n'):
         files = group.split('\n')
-        
+
         if files[0][-2:] != 'js':
             continue
         sources.extend(files[2:])

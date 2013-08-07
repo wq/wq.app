@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery', './online', './console', './lib/es5-shim'], 
+define(['./lib/jquery', './online', './console', './lib/es5-shim'],
 function($, ol, console) {
 
 // Hybrid module object provides/is a singleton instance...
@@ -36,9 +36,9 @@ function _Store(name) {
     self.service     = undefined;
     self.saveMethod  = 'POST';
     self.debug       = false;
-    
+
     // Default parameters (e.g f=json)
-    self.defaults    = {}; 
+    self.defaults    = {};
 
     var _lsp     = name + '_'; // Used to prefix localstorage keys
     var _cache = {};           // Cache for JSON results
@@ -47,7 +47,7 @@ function _Store(name) {
 
     var _functions = {};       // Configurable functions to e.g. filter data by
     var _callback_queue = {};  // Queue callbacks to prevent redundant fetches
-    
+
     self.init = function(svc, defaults, opts) {
          if (svc !== undefined) self.service = svc;
          if (defaults)          self.defaults = defaults;
@@ -101,7 +101,7 @@ function _Store(name) {
 
         // First check JSON cache
         if (_cache[key] && usesvc != 'always') {
-            if (self.debug) 
+            if (self.debug)
                 console.log('in memory');
             return _cache[key];
         }
@@ -125,7 +125,7 @@ function _Store(name) {
                 console.log('not found');
             return null;
         }
-            
+
         // More complex queries are assumed to be server requests
         if (self.service !== undefined && usesvc != 'never') {
             if (self.debug)
@@ -136,7 +136,7 @@ function _Store(name) {
             return _cache[key];
         }
 
-        if (self.debug) 
+        if (self.debug)
             console.log('not found');
         return null;
     };
@@ -257,7 +257,7 @@ function _Store(name) {
             }
 
         } else {
-            // List does not have pagination info, 
+            // List does not have pagination info,
             // create a compatible wrapper around query result
             var actual_list = self.get(basequery);
             list.info = {
@@ -326,10 +326,10 @@ function _Store(name) {
             var list = self.get(query, usesvc);
             if (!list || !$.isArray(list))
                 return null;
-            
+
             if (!_group_cache[key])
                 _group_cache[key] = {};
-            
+
             if (!_group_cache[key][attr]) {
                 _group_cache[key][attr] = {};
                 $.each(list, function (i, obj) {
@@ -342,7 +342,7 @@ function _Store(name) {
                         $.each(value, function(i, v) {
                            _addToCache(key, attr, v, obj);
                         });
-                    else 
+                    else
                         _addToCache(key, attr, value, obj);
 
                 });
@@ -352,7 +352,7 @@ function _Store(name) {
 
         return _group_cache[key][attr];
 
-        // Internal function 
+        // Internal function
         function _addToCache(key, attr, val, obj) {
             if (!_group_cache[key][attr][val])
                 _group_cache[key][attr][val] = [];
@@ -424,7 +424,7 @@ function _Store(name) {
         else
             console.warn("localStorage appears to be disabled.");
     };
-    
+
     // Simple computation for quota usage
     self.localStorageUsage = function() {
         if (!_ls)
@@ -436,7 +436,7 @@ function _Store(name) {
         // UTF-16 means two bytes per character in storage - at least on webkit
         return usage * 2;
     }
-    
+
     // Helper to allow simple objects to be used as keys
     self.toKey = function(query) {
         if (!query)
@@ -446,7 +446,7 @@ function _Store(name) {
          else
             return $.param(query);
     };
-    
+
     // Helper to check existence of a key without loading the object
     self.exists = function(query) {
         var key = self.toKey(query);
@@ -456,7 +456,7 @@ function _Store(name) {
             return true;
         return false;
     };
-    
+
     // Filter an array of objects by one or more attributes
     self.filter = function(query, filter, any, usesvc) {
         if (!filter) {
@@ -509,7 +509,7 @@ function _Store(name) {
         }
     }
 
-    // Find an object by id 
+    // Find an object by id
     self.find = function(query, value, attr, usesvc) {
         if (!attr) attr = 'id';
         var ilist = self.getIndex(query, attr, usesvc);
@@ -603,14 +603,14 @@ function _Store(name) {
             }
         });
     };
-    
+
     // Helper function for async requests
     self.prefetch = function(query, callback) {
-        if (self.debug) 
+        if (self.debug)
             console.log("prefetching " + self.toKey(query));
         self.fetch(query, true, callback);
     };
-    
+
     // Helper for partial list updates (useful for large lists)
     // Note: params should contain correct arguments to fetch only "recent"
     // items from server; idcol should be a unique identifier for the list
@@ -722,7 +722,7 @@ function _Store(name) {
         var item;
         if (id)
             item = self.find('outbox', id);
-        
+
         if (item && !item.saved)
             // reuse existing item
             item.data = data;
@@ -794,7 +794,7 @@ function _Store(name) {
 	    opts.fileName = data[data.fileupload];
 	    delete data[data.fileupload];
 	    delete data.fileupload;
-            opts.params = data; 
+            opts.params = data;
 	    var ft = new FileTransfer();
             ft.upload(opts.fileName, url,
 		function(res) {
@@ -889,7 +889,7 @@ function _Store(name) {
             }
         });
     };
-    
+
     // Send all unsaved items, using batch service if available
     self.sendAll = function(callback) {
         var outbox = self.get('outbox');
@@ -897,12 +897,12 @@ function _Store(name) {
             if (callback) callback(true);
             return;
         }
-          
+
         if (!ol.online) {
             if (callback) callback(false);
             return;
         }
-        
+
         // Utilize batch service if it exists
         if (self.batchService) {
             self.sendBatch(callback);
@@ -935,7 +935,7 @@ function _Store(name) {
             }, true);
         });
     };
-    
+
     // Process service send() results
     // (override to apply additional result attributes to item,
     //  but be sure to set item.saved)
@@ -944,12 +944,12 @@ function _Store(name) {
         if (result)
             item.saved = true;
     };
-    
+
     // Count of pending outbox items (never saved, or save was unsuccessful)
     self.unsaved = function() {
         return self.filter('outbox', {'saved': false}).length;
     }
-    
+
     // Clear local caches
     self.reset = function() {
         _cache = {};

@@ -20,7 +20,7 @@ function _trans(x, y, off) {
 
 // General chart configuration
 chart.base = function() {
-    var width=700, height=300, padding=7.5, 
+    var width=700, height=300, padding=7.5,
         margins = {'left': 80, 'right': 10, 'top': 10, 'bottom': 30},
         xscale = null,
         xscalefn = d3.scale.linear,
@@ -67,7 +67,7 @@ chart.base = function() {
     // Accessors for individual items
     function xvalue(d) {throw "xvalue accessor not defined!"}
     function yvalue(d) {throw "yvalue accessor not defined!"}
-    
+
     // Rendering functions (should be overridden)
     function init(datasets){};
     function render(dataset){};
@@ -176,7 +176,7 @@ chart.base = function() {
             .scale(xscale.scale)
             .orient('bottom')
             .tickSize(4, 2, 1);
-            
+
         for (scaleid in yscales) {
             var scale = yscales[scaleid];
             var domain = scale.invert ? [scale.ymax, scale.ymin] : [scale.ymin, scale.ymax];
@@ -199,7 +199,7 @@ chart.base = function() {
             'cwidth': cwidth,
             'cheight': cheight
         }
-        
+
         // Render each dataset
         var series = inner.selectAll('g.dataset')
             .data(datasets(data));
@@ -432,7 +432,7 @@ chart.scatter = function() {
             margins = plot.margins(),
             label = plot.label(),
             legendX, legendY, legendW, legendH;
-                
+
         if (legend.position == 'bottom') {
              legendX = margins.left;
              legendY = opts.cheight - margins.bottom + 30;
@@ -441,10 +441,10 @@ chart.scatter = function() {
         } else {
              legendX = opts.cwidth - margins.right + 10;
              legendY = margins.top;
-             legendW = legend.size; 
+             legendW = legend.size;
              legendH = opts.gheight;
         }
-        
+
         var leg = outer.append('g')
             .attr('class', 'legend')
             .attr('transform', _trans(legendX, legendY));
@@ -463,7 +463,7 @@ chart.scatter = function() {
                     .each(function(d, i) {
                         var g = d3.select(this),
                             sid = plot.id()(d);
-                         
+
                         g.attr('transform', _trans(20, 20 + i * 22));
                         g.call(point(sid));
                         g.append('text')
@@ -535,13 +535,13 @@ chart.contour = function() {
             items = plot.items();
 
         var path = d3.svg.line()
-            .x(function(d) { 
+            .x(function(d) {
                 return xscale(x(d))
             })
-            .y(function(d) { 
+            .y(function(d) {
                 return yscale(y(d))
             });
-            
+
         d3.select(this).selectAll('path.contour')
            .data(items(dataset))
            .enter()

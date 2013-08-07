@@ -48,7 +48,7 @@ router.getParams = function(search) {
 }
 
 // Internal variables
-var _router;       // Actual Router object 
+var _router;       // Actual Router object
 var _pending = []; // queue of pending add() requests
 var _conf = {'ajaxApp': true};
 

@@ -21,7 +21,7 @@ app.init = function(config, templates, baseurl, svc) {
     app.config = app.default_config = config;
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
-    
+
     ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
     app.service = ds.service;
 
@@ -58,7 +58,7 @@ app.init = function(config, templates, baseurl, svc) {
             _saveTransition = config.transitions.save;
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
-    
+
     for (var page in app.config.pages) {
         var conf = _getConf(page);
         if (conf.list) {
@@ -278,7 +278,7 @@ function _renderList(page, list, ui, params, url, context) {
         }
     }
 
-    if (pnum > conf.max_local_pages || filter && conf.partial) { 
+    if (pnum > conf.max_local_pages || filter && conf.partial) {
         // Set max_local_pages to avoid filling up local storage and
         // instead attempt to load HTML directly from the server
         // (using built-in jQM loader)
@@ -353,12 +353,12 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
     if (!item) {
         // Item not found in stored list...
         if (!conf.partial) {
-            // If partial is not set, locally stored list is assumed to 
+            // If partial is not set, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
             pages.notFound(url);
         } else {
-            // Set partial to indicate local list does not represent entire 
-            // dataset; if an item is not found will attempt to load HTML 
+            // Set partial to indicate local list does not represent entire
+            // dataset; if an item is not found will attempt to load HTML
             // directly from the server (using built-in jQM loader)
             var jqmurl = '/' + url;
             spin.start();
@@ -454,14 +454,14 @@ function _handleForm(evt) {
         // Files present and we're not running in Cordova.
         if (window.FormData && window.Blob)
             // Modern browser; use FormData to upload files via AJAX.
-            // FIXME: localStorage version of outbox item will be unusable.  
+            // FIXME: localStorage version of outbox item will be unusable.
             // Can we serialize this object somehow?
             vals.data = new FormData(this);
         else
             // Looks like we're in a an old browser and we can't upload files
             // via AJAX or Cordova...  Bypass store and assume server is
             // configured to accept regular form posts.
-            return; 
+            return;
     } else {
         // No files, or we're running in Cordova.
         // Use a simple dictionary for values, which is better for outbox
@@ -473,7 +473,7 @@ function _handleForm(evt) {
     }
     // Skip regular form submission, we're saving this via store
     evt.preventDefault();
-    
+
     vals.url = url;
     if (url == conf.url + "/" || !conf.list)
         vals.method = "POST"; // REST API uses POST for new records
@@ -569,7 +569,7 @@ function _updateAttachments(conf, res, aname) {
     delete res[aconf.url];
 }
 
-// Add various callback functions to context object to automate foreign key 
+// Add various callback functions to context object to automate foreign key
 // lookups within templates
 function _addLookups(page, context, editable, callback) {
     var conf = _getConf(page);
@@ -756,7 +756,7 @@ function _parent_dropdown_lookup(page, column) {
                 parents.push(item);
             });
             return parents;
-        }; 
+        };
     });
 }
 
@@ -807,7 +807,7 @@ function _getConf(page, silentFail) {
     return $.extend({'page': page}, conf);
 }
 
-// Helper to load configuration based on URL 
+// Helper to load configuration based on URL
 function _getConfByUrl(url) {
     var parts = url.split('/');
     var conf;

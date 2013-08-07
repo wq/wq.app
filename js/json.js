@@ -12,7 +12,7 @@ var json = {};
 
 json.get = function fetch(url, success, error) {
    $.ajax(url, {
-       'dataType': 'json', 
+       'dataType': 'json',
        'success': success,
        'error': error
    });

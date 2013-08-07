@@ -21,7 +21,7 @@ def setversion(conf, indir):
         print '%s: %s' % (conf['jsout'], version)
     else:
         print 'Application version: %s' % version
- 
+
     return version
 
 VERSIONJS_TMPL = """define(function(){return "%s";});"""

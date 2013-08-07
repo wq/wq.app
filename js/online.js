@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./console'], 
+define(['./console'],
 function(console) {
 
 // Exported module object

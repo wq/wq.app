@@ -48,7 +48,7 @@ def readfiles(basedir, ftype=None, fext=None):
             o[name] = {}
 
     return obj
-    
+
 
 def collectjson(conf, directory):
     "Collect files and dump the result into a JSON object"

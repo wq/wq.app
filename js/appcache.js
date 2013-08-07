@@ -33,7 +33,7 @@ ac.messages = {
     'downloading': "Downloading application...",
     'updateready': "New version is ready!",
     'obsolete':    "Caching issue - contact vendor!",
-    
+
     // Standard event types
     'noupdate':    "Software is up-to-date.",
     'progress':    "Downloading application...",
@@ -81,7 +81,7 @@ function _callback(type, msg) {
 
 // Determine type from event or from _ac.status, then trigger callback
 function _update(evt) {
-    
+
     var type;
     if (evt && _etypes[evt.type])
         type = evt.type;
@@ -94,7 +94,7 @@ function _update(evt) {
 
     if ((type == 'idle' || type == 'error') && !ol.online)
         type = 'offline';
-        
+
     var msg = ac.messages[type] ? ac.messages[type] : ac.messages.unknown;
 
     if (type == 'progress' && evt.loaded & evt.total)

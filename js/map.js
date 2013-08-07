@@ -95,7 +95,7 @@ function _registerOther(page) {
     });
 }
 
-// Add a layer configuration (layerconf) to a map configuration 
+// Add a layer configuration (layerconf) to a map configuration
 map.addLayerConf = function(page, layerconf) {
     var mapconf = _getConf(page);
     mapconf.layers.push(layerconf);
@@ -195,12 +195,12 @@ map.createMap = function(page, itemid) {
         map.maps[mapid].invalidateSize();
         return;
     }
-    
+
     // Create map, set default zoom and basemap
     m = map.maps[mapid] = L.map(mapid + '-map');
     m.setView(defaults.center, defaults.zoom);
     map.createBaseMap().addTo(m);
-    
+
     // Load layerconfs and add empty layer groups to map
     map.getLayerConfs(page, itemid).forEach(function(layerconf) {
         if (layerconf.cluster && L.MarkerClusterGroup) {

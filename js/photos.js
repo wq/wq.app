@@ -57,7 +57,7 @@ function load(uri, input, preview) {
 function error(msg) {
     alert(msg);
 }
-       
+
 var _defaults = {
     quality: 75,
     destinationType: 1, //Camera.DestinationType.FILE_URI
