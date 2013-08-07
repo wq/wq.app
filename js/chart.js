@@ -46,7 +46,7 @@ chart.base = function() {
         return dataset.list;
     }
 
-    function xunits(dataset) {throw "xunits accessor not defined!"}
+    function xunits(dataset) {throw "xunits accessor not defined!";}
     function xmax(dataset) {
         return d3.max(items(dataset), xvalue);
     }
@@ -65,13 +65,13 @@ chart.base = function() {
     }
 
     // Accessors for individual items
-    function xvalue(d) {throw "xvalue accessor not defined!"}
-    function yvalue(d) {throw "yvalue accessor not defined!"}
+    function xvalue(d) {throw "xvalue accessor not defined!";}
+    function yvalue(d) {throw "yvalue accessor not defined!";}
 
     // Rendering functions (should be overridden)
-    function init(datasets){};
-    function render(dataset){};
-    function wrapup(datasets, opts){};
+    function init(datasets){}
+    function render(dataset){}
+    function wrapup(datasets, opts){}
 
     // Generate translation function xscale + given yscale
     function translate(scaleid) {
@@ -105,7 +105,7 @@ chart.base = function() {
                 .attr('id', 'clip')
             .append('rect')
                 .attr('width', gwidth)
-                .attr('height', gheight)
+                .attr('height', gheight);
 
         // Outer chart area (includes legends, axes & actual graph)
         var outer = svg.append('g');
@@ -132,7 +132,7 @@ chart.base = function() {
                 xscale = {
                     'xmin': Infinity,
                     'xmax': -Infinity,
-                }
+                };
             }
             xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
             xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
@@ -144,7 +144,7 @@ chart.base = function() {
                 yscales[scaleid] = {
                     'ymin': 0,
                     'ymax': 0
-                }
+                };
             }
             var yscale = yscales[scaleid];
             if (!yscale.id)
@@ -177,13 +177,13 @@ chart.base = function() {
             .orient('bottom')
             .tickSize(4, 2, 1);
 
-        for (scaleid in yscales) {
+        for (var scaleid in yscales) {
             var scale = yscales[scaleid];
             var domain = scale.invert ? [scale.ymax, scale.ymin] : [scale.ymin, scale.ymax];
             scale.scale = yscalefn()
                 .domain(domain)
                 .nice()
-                .range([gheight, 0])
+                .range([gheight, 0]);
 
             scale.axis = d3.svg.axis()
                 .scale(scale.scale)
@@ -198,7 +198,7 @@ chart.base = function() {
             'gheight': gheight,
             'cwidth': cwidth,
             'cheight': cheight
-        }
+        };
 
         // Render each dataset
         var series = inner.selectAll('g.dataset')
@@ -279,79 +279,79 @@ chart.base = function() {
         if (!arguments.length) return id;
         id = fn;
         return plot;
-    }
+    };
     plot.label = function(fn) {
         if (!arguments.length) return label;
         label = fn;
         return plot;
-    }
+    };
     plot.items = function(fn) {
         if (!arguments.length) return items;
         items = fn;
         return plot;
-    }
+    };
     plot.yunits = function(fn) {
         if (!arguments.length) return yunits;
         yunits = fn;
         return plot;
-    }
+    };
     plot.xunits = function(fn) {
         if (!arguments.length) return xunits;
         xunits = fn;
         return plot;
-    }
+    };
     plot.xvalue = function(fn) {
         if (!arguments.length) return xvalue;
         xvalue = fn;
         return plot;
-    }
+    };
     plot.xmin = function(fn) {
         if (!arguments.length) return xmin;
         xmin = fn;
         return plot;
-    }
+    };
     plot.xmax = function(fn) {
         if (!arguments.length) return xmax;
         xmax = fn;
         return plot;
-    }
+    };
     plot.yvalue = function(fn) {
         if (!arguments.length) return yvalue;
         yvalue = fn;
         return plot;
-    }
+    };
     plot.ymin = function(fn) {
         if (!arguments.length) return ymin;
         ymin = fn;
         return plot;
-    }
+    };
     plot.ymax = function(fn) {
         if (!arguments.length) return ymax;
         ymax = fn;
         return plot;
-    }
+    };
 
     // Getters/setters for render functions
     plot.init = function(fn) {
         if (!arguments.length) return init;
         init = fn;
         return plot;
-    }
+    };
     plot.render = function(fn) {
         if (!arguments.length) return render;
         render = fn;
         return plot;
-    }
+    };
     plot.wrapup = function(fn) {
         if (!arguments.length) return wrapup;
         wrapup = fn;
         return plot;
-    }
+    };
     plot.translate = function(fn) {
         if (!arguments.length) return translate;
         translate = fn;
         return plot;
-    }
+    };
     return plot;
 };
 
@@ -396,26 +396,26 @@ chart.scatter = function() {
                 .attr('r', 3)
                 .attr('fill', color)
                 .attr('stroke', 'black')
-                .attr('cursor', 'pointer')
-        }
+                .attr('cursor', 'pointer');
+        };
     }
 
     function pointover(sid) {
         return function(d) {
             d3.select(this).selectAll('circle').attr('fill', '#9999ff');
-        }
+        };
     }
     function pointout(sid) {
         return function(d) {
             d3.select(this).selectAll('circle').attr('fill', cscale(sid));
-        }
+        };
     }
 
     plot.render(function(dataset) {
         var items     = plot.items()(dataset),
             yunits    = plot.yunits()(dataset),
             sid       = plot.id()(dataset),
-            translate = plot.translate()
+            translate = plot.translate();
         d3.select(this).selectAll('g.data').data(items)
             .enter()
             .append('g')
@@ -452,7 +452,7 @@ chart.scatter = function() {
             .attr('width', legendW)
             .attr('height', legendH)
             .attr('fill', 'white')
-            .attr('stroke', '#999')
+            .attr('stroke', '#999');
 
         leg.selectAll('g.legenditem')
             .data(datasets)
@@ -526,7 +526,7 @@ chart.contour = function() {
     var plot = chart.scatter();
     plot.render(function(dataset) {
         var x = plot.xvalue(),
-            y = plot.yvalue()
+            y = plot.yvalue(),
             yunits = plot.yunits(),
             xscale = plot.xscale().scale,
             yscale = plot.yscales()[yunits(dataset)].scale,
@@ -536,10 +536,10 @@ chart.contour = function() {
 
         var path = d3.svg.line()
             .x(function(d) {
-                return xscale(x(d))
+                return xscale(x(d));
             })
             .y(function(d) {
-                return yscale(y(d))
+                return yscale(y(d));
             });
 
         d3.select(this).selectAll('path.contour')
@@ -551,7 +551,7 @@ chart.contour = function() {
                .attr('fill', cscale(id(dataset)));
     });
     return plot;
-}
+};
 
 // Box & whiskers (precomputed)
 chart.boxplot = function() {
@@ -590,7 +590,7 @@ chart.boxplot = function() {
                 .append('g')
                     .attr('class', 'data')
                     .attr('transform', translate(yunits))
-                .each(box(yunits))
+                .each(box(yunits));
         });
 
     function box(sid) {
@@ -658,11 +658,11 @@ chart.boxplot = function() {
                .attr('y1', y(d.min))
                .attr('y2', y(d.p25))
                .attr('stroke', '#000');
-        }
+        };
     }
 
     return plot;
-}
+};
 
 return chart;
 

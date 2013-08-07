@@ -15,7 +15,7 @@ var locate = {};
 var _map;
 locate.init = function(map) {
     _map = map;
-}
+};
 
 // Simple geolocation function
 locate.locate = function(success, error, high, watch) {
@@ -27,14 +27,14 @@ locate.locate = function(success, error, high, watch) {
     if (!success) {
         success = function(){};
         if (!error) error = success;
-        opts['setView'] = true;
+        opts.setView = true;
     }
     if (high) {
-        opts['enableHighAccuracy'] = true;
-        opts['timeout'] = 60 * 1000;
+        opts.enableHighAccuracy = true;
+        opts.timeout = 60 * 1000;
     }
     if (watch) {
-        opts['watch'] = true;
+        opts.watch = true;
         nospin = true;
     }
 
@@ -51,7 +51,7 @@ locate.locate = function(success, error, high, watch) {
             if (!nospin)
                 spin.stop();
             fn(evt);
-        }
+        };
     }
 
     if (watch)
@@ -59,8 +59,8 @@ locate.locate = function(success, error, high, watch) {
             'stop': function() {
                 map.stopLocate();
             }
-        }
-}
+        };
+};
 
 // Interactive GPS & map-based locator tool
 // map should be an L.map; fields should be an object of jQuery-wrapped <input>s
@@ -156,7 +156,7 @@ locate.Locator = function(map, fields) {
 
         // User-defined callback (FIXME: make event?)
         if (self.onupdate)
-            self.onupdate(loc, accuracy)
+            self.onupdate(loc, accuracy);
     };
 
     self.onerror = function(evt) {
@@ -214,12 +214,12 @@ locate.Locator = function(map, fields) {
         fields.latitude.on('change', _updateManual);
         fields.longitude.on('change', _updateManual);
     }
-}
+};
 
 // Leaflet-style generator function
 locate.locator = function(map, fields) {
     return new locate.Locator(map, fields);
-}
+};
 
 return locate;
 

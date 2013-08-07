@@ -20,7 +20,7 @@ ac.init = function(callback) {
 // Allow manual trigger of update
 ac.update = function() {
     _update();
-}
+};
 
 // Messages (exported so they can be overridden)
 ac.messages = {
@@ -77,7 +77,7 @@ var _etypes = {
 // Default callback (meant to be overridden)
 function _callback(type, msg) {
      console.log(type + ' - ' + msg);
-};
+}
 
 // Determine type from event or from _ac.status, then trigger callback
 function _update(evt) {
@@ -101,11 +101,11 @@ function _update(evt) {
         msg += ' (' + evt.loaded + ' of ' + evt.total + ')';
 
     _callback(type, msg);
-};
+}
 
 // Initialization
 if (_ac)
-    for (type in _etypes)
+    for (var type in _etypes)
         _ac.addEventListener(type, _update, true);
 
 

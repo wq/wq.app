@@ -14,7 +14,7 @@ photos.preview = function(imgid, file, fallback) {
         var reader = new FileReader();
         reader.onload = function(evt) {
             $('#'+imgid).attr('src', evt.target.result);
-        }
+        };
         reader.readAsDataURL(file);
     } else if (fallback) {
         $('#'+imgid).attr('src', fallback);
@@ -29,7 +29,7 @@ photos.take = function(input, preview) {
         saveToPhotoAlbum: true
     }, _defaults);
     _start(options, input, preview);
-}
+};
 
 photos.pick = function(input, preview) {
     var options = $.extend({

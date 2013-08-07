@@ -61,7 +61,7 @@ function _Store(name) {
              'jsonp',
              'debug',
              'formatKeyword'
-         ]
+         ];
          optlist.forEach(function(opt) {
              if (opts.hasOwnProperty(opt))
                  self[opt] = opts[opt];
@@ -164,9 +164,9 @@ function _Store(name) {
             // Get full query for a given page number
             list.getQuery = function(page_num) {
                 var query = {};
-                for (key in basequery)
+                for (var key in basequery)
                     query[key] = basequery[key];
-                query['page'] = page_num;
+                query.page = page_num;
                 return query;
             };
 
@@ -178,7 +178,7 @@ function _Store(name) {
                 var result = [].concat(self.get(query));
                 result.info = list.info;
                 return result;
-            }
+            };
 
             // Find object in any page
             list.find = function(value, attr, usesvc, max_pages) {
@@ -206,7 +206,7 @@ function _Store(name) {
                     'pages':    1,
                     'per_page': result.length,
                     'total':    result.length
-                }
+                };
                 return result;
             };
 
@@ -235,15 +235,16 @@ function _Store(name) {
             };
 
             // Prefetch all pages
-            list.prefetch = function(callback) {
+            list.prefetch = function(fn) {
                 var pending = pageinfo.pages;
+                function callback() {
+                    pending--;
+                    if (!pending && fn)
+                        fn();
+                }
                 for (var p = 1; p <= pageinfo.pages; p++) {
                     var query = list.getQuery(p);
-                    self.prefetch(query, function() {
-                        pending--;
-                        if (pending == 0 && callback)
-                            callback();
-                    });
+                    self.prefetch(query, callback);
                 }
             };
 
@@ -254,7 +255,7 @@ function _Store(name) {
                     var data = self.get(query);
                     data.forEach(cb);
                 }
-            }
+            };
 
         } else {
             // List does not have pagination info,
@@ -264,7 +265,7 @@ function _Store(name) {
                 'pages':    1,
                 'per_page': actual_list.length,
                 'total':    actual_list.length
-            }
+            };
             list.page = function(page_num) {
                 if (page_num != 1)
                     return [];
@@ -273,15 +274,15 @@ function _Store(name) {
                 return result;
             };
             list.find = function(value, attr, usesvc, max_pages) {
-                return self.find(basequery, value, attr, usesvc)
+                return self.find(basequery, value, attr, usesvc);
             };
             list.filter = function(filter, any, usesvc, max_pages) {
-                var result = self.filter(basequery, filter, any, usesvc)
+                var result = self.filter(basequery, filter, any, usesvc);
                 result.info = {
                     'pages':    1,
                     'per_page': result.length,
                     'total':    result.length
-                }
+                };
                 return result;
             };
             list.update = function(items, key, opts) {
@@ -296,7 +297,7 @@ function _Store(name) {
         }
 
         callback(list);
-    }
+    };
 
     // Get list from datastore, indexed by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
@@ -398,9 +399,9 @@ function _Store(name) {
                     _ls.removeItem(lskey);
                     try {
                         _ls.setItem(lskey, val);
-                    } catch (e) {
+                    } catch (err) {
                         // No luck, report error and stop using localStorage
-                        self.localStorageFail(val, e);
+                        self.localStorageFail(val, err);
                         _ls = false;
                     }
                 }
@@ -435,14 +436,14 @@ function _Store(name) {
         }
         // UTF-16 means two bytes per character in storage - at least on webkit
         return usage * 2;
-    }
+    };
 
     // Helper to allow simple objects to be used as keys
     self.toKey = function(query) {
         if (!query)
             throw "Invalid query!";
         if (typeof query == "string")
-            return query
+            return query;
          else
             return $.param(query);
     };
@@ -459,6 +460,7 @@ function _Store(name) {
 
     // Filter an array of objects by one or more attributes
     self.filter = function(query, filter, any, usesvc) {
+        var result = [], group, attr;
         if (!filter) {
             // No filter: return unmodified list directly
             return self.get(query, usesvc);
@@ -466,9 +468,8 @@ function _Store(name) {
         } else if (any) {
             // any=true: Match on any of the provided filter attributes
 
-            var result = [];
             for (attr in filter) {
-                var group = self.getGroup(query, attr, filter[attr], usesvc);
+                group = self.getGroup(query, attr, filter[attr], usesvc);
                 // Note: objects matching more than one attribute will be duplicated
                 result = result.concat(group);
             }
@@ -483,19 +484,18 @@ function _Store(name) {
                 afilter.push({'name': attr, 'value': filter[attr]});
 
             // Empty filter: return unmodified list directly
-            if (afilter.length == 0)
+            if (!afilter.length)
                 return self.get(query, usesvc);
 
             // Use getGroup to filter list on first given attribute
             var f = afilter.shift();
-            var group = self.getGroup(query, f.name, f.value, usesvc);
+            group = self.getGroup(query, f.name, f.value, usesvc);
 
             // If only one filter attribute was given return the group as is
-            if (afilter.length == 0)
+            if (!afilter.length)
                 return group;
 
             // Otherwise continue to filter using the remaining attributes
-            var result = [];
             $.each(group, function(i, obj) {
                 var match = true;
                 $.each(afilter, function(i, f) {
@@ -507,7 +507,7 @@ function _Store(name) {
             });
             return result;
         }
-    }
+    };
 
     // Find an object by id
     self.find = function(query, value, attr, usesvc) {
@@ -520,7 +520,7 @@ function _Store(name) {
             return ilist[value];
         else
             return null;
-    }
+    };
 
     // Apply a predefined function to a retreived item
     self.compute = function(fn, item) {
@@ -528,7 +528,7 @@ function _Store(name) {
             return _functions[fn](item);
         else
             return null;
-    }
+    };
 
     // Fetch data from server
     self.fetch = function(query, async, callback, nocache) {
@@ -578,7 +578,7 @@ function _Store(name) {
                         if (self.setPageInfo(query, data)) {
                             data = data.list;
                             if (!query.hasOwnProperty('page'))
-                                query['page'] = 1;
+                                query.page = 1;
                         }
                         self.set(query, data);
                     }
@@ -645,7 +645,7 @@ function _Store(name) {
            throw "List is not an array";
         if (!$.isArray(data))
             throw "Data is not an array!";
-        if (data.length == 0)
+        if (!data.length)
             return opts.updateOnly ? [] : undefined;
         if (opts.prepend)
             data = data.reverse();
@@ -686,11 +686,11 @@ function _Store(name) {
             basequery[key] = query[key];
         }
         var pageinfo = self.get("pageinfo");
-        var key = self.toKey(basequery);
-        if (pageinfo && pageinfo[key])
-            return pageinfo[key];
+        var qkey = self.toKey(basequery);
+        if (pageinfo && pageinfo[qkey])
+            return pageinfo[qkey];
         return null;
-    }
+    };
 
     self.setPageInfo = function(query, data) {
         if (!data || !data.pages || !data.per_page)
@@ -703,15 +703,15 @@ function _Store(name) {
             basequery[key] = query[key];
         }
         var pageinfo = self.get("pageinfo") || {};
-        var key = self.toKey(basequery);
-        pageinfo[key] = {
+        var qkey = self.toKey(basequery);
+        pageinfo[qkey] = {
             'pages':    data.pages,
             'per_page': data.per_page,
             'total':    data.total
-        }
+        };
         self.set('pageinfo', pageinfo);
         return true;
-    }
+    };
 
     // Queue data for server use; use outbox to cache unsaved items
     self.save = function(data, id, callback) {
@@ -832,7 +832,7 @@ function _Store(name) {
                 try {
                     item.error = JSON.parse(jqxhr.responseText);
                 } catch (e) {
-                    item.error = jqxhr.responseText
+                    item.error = jqxhr.responseText;
                 }
             } else {
                 item.error = status;
@@ -845,7 +845,7 @@ function _Store(name) {
     // Send all unsaved items to a batch service on the server
     self.sendBatch = function(callback) {
         var items = self.filter('outbox', {'saved': false});
-        if (items.length == 0) {
+        if (!items.length) {
             callback(true);
             return;
         }
@@ -913,7 +913,7 @@ function _Store(name) {
         // the server and summarizing the result
         var items = self.filter('outbox', {'saved': false});
         var remain = items.length;
-        if (remain == 0) {
+        if (!remain) {
             callback(true);
             return;
         }
@@ -926,7 +926,7 @@ function _Store(name) {
                 else if (success && !item.saved)
                     success = false; // sendItem did not result in save
                 remain--;
-                if (remain == 0) {
+                if (!remain) {
                     // After last sendItem is complete, wrap up
                     // (this should always execute, since sendItem calls back
                     //  even after an error)
@@ -948,7 +948,7 @@ function _Store(name) {
     // Count of pending outbox items (never saved, or save was unsuccessful)
     self.unsaved = function() {
         return self.filter('outbox', {'saved': false}).length;
-    }
+    };
 
     // Clear local caches
     self.reset = function() {
@@ -959,7 +959,7 @@ function _Store(name) {
             _ls.clear(); // FIXME: what about other stores?!
     };
 
-};
+}
 
 return store;
 

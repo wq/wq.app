@@ -22,10 +22,10 @@ tmpl.setDefault = function(key, value) {
 };
 
 tmpl.render = function(template, data) {
-    var context = {};
-    for (var key in _defaults)
+    var context = {}, key;
+    for (key in _defaults)
         context[key] = _defaults[key];
-    for (var key in data)
+    for (key in data)
         context[key] = data[key];
 
     template = _templates[template] || template;

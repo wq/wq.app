@@ -10,7 +10,7 @@ function($, jqm, router, tmpl) {
 
 // Exported module object
 var pages = {
-    'slug': '([^/\?#]+)'
+    'slug': '([^/?#]+)'
 };
 
 // Configuration
@@ -28,7 +28,7 @@ pages.init = function(baseurl, opts) {
 
     // Re-use rendered templates
     if (opts.injectOnce)
-        _injectOnce = opts.injectOnce
+        _injectOnce = opts.injectOnce;
 };
 
 // Register URL patterns to override default JQM behavior and inject pages
@@ -39,13 +39,13 @@ pages.register = function(path, fn, obj, prevent) {
         fn = function(match, ui, params) {
             // Assume there is a template with the same name
             pages.go(path, path, params, ui);
-        }
+        };
     }
     if (!prevent) {
         prevent = function(match, ui, params) {
             // By default, always prevent default changePage behavior
             return true;
-        }
+        };
     }
     var callback = function(match, ui, params, hash, evt, page) {
         var curpath = jqm.activePage && jqm.activePage.jqmData('url');
@@ -58,7 +58,7 @@ pages.register = function(path, fn, obj, prevent) {
         if (prevent(match, ui, params))
             evt.preventDefault();
 
-        fn = (typeof fn == "string" ? obj[fn] : fn)
+        fn = (typeof fn == "string" ? obj[fn] : fn);
         fn(match, ui, params, hash, evt, page);
     };
     pages.addRoute(path, events, callback);
@@ -72,14 +72,14 @@ pages.addRoute = function(path, events, fn, obj) {
     var callback = function(etype, match, ui, page, evt) {
         hash = match.pop();
         params = router.getParams(match.pop());
-        fn = (typeof fn == "string" ? obj[fn] : fn)
+        fn = (typeof fn == "string" ? obj[fn] : fn);
         fn(match, ui, params, hash, evt, page);
-    }
+    };
     rt[url] = {
         'events': events,
         'handler': callback,
         'step': 'all'
-    }
+    };
     router.add(rt);
 };
 
@@ -139,7 +139,7 @@ pages.injectOnce = function(path, template, context, id) {
     if(!id)
         id = template + "-page";
     var $page = $('#' + id);
-    if ($page.length == 0) {
+    if (!$page.length) {
         // Initial render, use context if available
         $page = pages.inject(path, template, context);
         $page.attr("id", id);
@@ -151,11 +151,11 @@ pages.injectOnce = function(path, template, context, id) {
         $page.jqmData("url", pages.info.full_path);
     }
     return $page;
-}
+};
 
 // Inject and display page
 pages.go = function(path, template, context, ui, once, pageid) {
-    var $page;
+    var $page, role, options;
     once = once || _injectOnce;
     if (once)
         // Only render the template once
@@ -164,15 +164,15 @@ pages.go = function(path, template, context, ui, once, pageid) {
         // Default: render the template every time the page is loaded
         $page = pages.inject(path, template, context, pageid);
 
-    var role = $page.jqmData('role');
+    role = $page.jqmData('role');
     if (role == 'page') {
-        var options = ui && ui.options || {};
+        options = ui && ui.options || {};
         options._jqmrouter_bC = true;
         if (once || _injectOnce)
             options.allowSamePageTransition = true;
         jqm.changePage($page, options);
     } else if (role == 'popup') {
-        var options = {};
+        options = {};
         if (ui && ui.options) {
             options.transition = ui.options.transition;
             if (ui.options.link && ui.options.link.jqmData('position-to'))

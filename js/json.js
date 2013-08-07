@@ -16,7 +16,7 @@ json.get = function fetch(url, success, error) {
        'success': success,
        'error': error
    });
-}
+};
 
 return json;
 

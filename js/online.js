@@ -30,14 +30,14 @@ function _callback(type, msg) {
     if (type != _last_type)
         console.log(type + ' - ' + msg);
     _last_type = type;
-};
+}
 
 function _update(evt) {
     ol.online = navigator.onLine;
     var type = ol.online ? "online"          : "offline";
     var msg  = ol.online ? "&#10003; Online" : "&#10005; Offline";
     _callback(type, msg);
-};
+}
 
 // Initialization
 if (document.addEventListener) {

@@ -47,7 +47,7 @@ map.init = function(defaults) {
         L.extend(map.config.defaults, defaults);
 
     // Define map configuration for all app pages with map=True
-    for (page in app.config.pages) {
+    for (var page in app.config.pages) {
         var pconf = L.extend({}, app.config.pages[page]);
         if (!pconf.map)
             continue;
@@ -63,7 +63,7 @@ map.init = function(defaults) {
             _registerOther(page);
         }
     }
-}
+};
 
 // Register an onshow event for list views
 function _registerList(page) {
@@ -99,13 +99,13 @@ function _registerOther(page) {
 map.addLayerConf = function(page, layerconf) {
     var mapconf = _getConf(page);
     mapconf.layers.push(layerconf);
-}
+};
 
 // Define an icon for use by list items displayed as points
 map.createIcon = function(name, options) {
-    options = L.extend({}, map.config.defaults.icon, options)
+    options = L.extend({}, map.config.defaults.icon, options);
     map.icons[name] = L.icon(options);
-}
+};
 
 // Load map configuration for the given page
 map.getLayerConfs = function(page, itemid) {
@@ -132,7 +132,7 @@ map.getLayerConfs = function(page, itemid) {
         });
     }
     return layers;
-}
+};
 
 // Internal layer loading function - override to customize
 map.loadLayer = function(url, callback) {
@@ -141,8 +141,8 @@ map.loadLayer = function(url, callback) {
     json.get(url, function(geojson) {
         spin.stop();
         callback(geojson);
-    })
-}
+    });
+};
 
 // Default base map - override to customize
 map.createBaseMap = function() {
@@ -150,7 +150,7 @@ map.createBaseMap = function() {
        "http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png",
        {'subdomains': '1234'}
     );
-}
+};
 
 // Default popup renderer for items - override to customize
 // (assumes template called [page]_popup)
@@ -160,8 +160,8 @@ map.renderPopup = function(page) {
         layer.bindPopup(
             tmpl.render(page + '_popup', attrs)
         );
-    }
-}
+    };
+};
 
 // Primary map routine
 map.createMap = function(page, itemid) {
@@ -228,11 +228,11 @@ map.createMap = function(page, itemid) {
 
     // Ensure valid layout on screen
     setTimeout(function() {
-        m.invalidateSize()
+        m.invalidateSize();
     }, 100);
 
     return m;
-}
+};
 
 // Internal function for creating markers (used with layerconf.icon)
 function _makeMarker(icon) {
@@ -241,7 +241,7 @@ function _makeMarker(icon) {
         if (typeof icon == 'function')
             icon = icon(geojson.properties);
         return L.marker(latlng, {'icon': map.icons[icon]});
-    }
+    };
 }
 
 // Load map configuration for a given page

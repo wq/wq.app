@@ -13,7 +13,7 @@ var spin = {};
 
 spin.start = function(msg, duration, opts) {
     if (!jqm.loaderWidget) {
-        console.warn('Not ready to spin!')
+        console.warn('Not ready to spin!');
         return;
     }
 
@@ -26,13 +26,13 @@ spin.start = function(msg, duration, opts) {
 
     if (duration)
         setTimeout(spin.stop, duration * 1000);
-}
+};
 
 spin.stop = function() {
     if (!jqm.loaderWidget)
         return;
     jqm.loading('hide');
-}
+};
 
 return spin;
 

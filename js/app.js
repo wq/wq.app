@@ -71,7 +71,7 @@ app.init = function(config, templates, baseurl, svc) {
     }
 
     $(document).on('submit', 'form', _handleForm);
-}
+};
 
 app.logout = function() {
     if (!app.can_login)
@@ -147,7 +147,7 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
             _renderList(page, list, ui, params, url, context);
         }
     });
-}
+};
 
 app.attachmentTypes = {
     annotation: {
@@ -179,7 +179,7 @@ app.attachmentTypes = {
         'predicate': 'related',
         'type': 'relationshiptype',
         'getTypeFilter': function(page, context) {
-             return {'from_type': page}
+             return {'from_type': page};
         },
         'getChoiceList': function(type) {
             return type.to_type;
@@ -195,7 +195,7 @@ app.attachmentTypes = {
         'predicate': 'related',
         'type': 'relationshiptype',
         'getTypeFilter': function(page, context) {
-             return {'to_type': page}
+             return {'to_type': page};
         },
         'getChoiceList': function(type) {
             return type.from_type;
@@ -225,8 +225,8 @@ function _registerList(page) {
         if (url)
             url += '/';
         url += '<slug>/' + conf.url;
-        pages.register(url, goUrl(ppage, url))
-        pages.register(url + '/', goUrl(ppage, url))
+        pages.register(url, goUrl(ppage, url));
+        pages.register(url + '/', goUrl(ppage, url));
     });
     function goUrl(ppage, url) {
         return function(match, ui, params) {
@@ -243,7 +243,7 @@ function _registerList(page) {
                     'parent_page': ppage
                 });
             });
-        }
+        };
     }
 }
 function _renderList(page, list, ui, params, url, context) {
@@ -257,8 +257,8 @@ function _renderList(page, list, ui, params, url, context) {
     if (params || (context && context.parent_page)) {
         if (params)
             url += "?" + $.param(params);
-        if (params && params['page']) {
-            pnum = params['page'];
+        if (params && params.page) {
+            pnum = params.page;
         } else {
             filter = {};
             for (var key in params || {}) {
@@ -266,7 +266,7 @@ function _renderList(page, list, ui, params, url, context) {
             }
             (conf.parents || []).forEach(function(ppage) {
                 var p = ppage;
-                if (p.indexOf(page) == 0)
+                if (p.indexOf(page) === 0)
                      p = p.replace(page, '');
                 if (filter[p]) {
                     filter[p + '_id'] = filter[p];
@@ -298,12 +298,12 @@ function _renderList(page, list, ui, params, url, context) {
     var data = filter ? list.filter(filter) : list.page(pnum);
 
     if (pnum > 1) {
-        var prevp = {'page': parseInt(pnum) - 1};
+        var prevp = {'page': +pnum - 1};
         prev = conf.url + '/?' + $.param(prevp);
     }
 
     if (pnum < data.info.pages) {
-        var nextp = {'page': parseInt(pnum) + 1};
+        var nextp = {'page': +pnum + 1};
         next = conf.url + '/?' + $.param(nextp);
     }
 
@@ -441,7 +441,7 @@ function _renderOther(page, ui, params, url, context) {
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
     var $form = $(this);
-    if ($form.data('json') !== undefined && $form.data('json') == false)
+    if ($form.data('json') !== undefined && !$form.data('json'))
         return; // Defer to default (HTML-based) handler
 
     var url = $form.attr('action').substring(1);
@@ -517,7 +517,7 @@ function _handleForm(evt) {
         } else {
 
             // Form errors (other than non_field_errors) are keyed by field name
-            for (f in item.error) {
+            for (var f in item.error) {
                 // FIXME: there may be multiple errors per field
                 var err = item.error[f][0];
                 if (f == 'non_field_errors')
@@ -544,7 +544,7 @@ function _applyResult(item, result) {
         item.newid = result.id;
         ds.getList({'url': conf.url}, function(list) {
             var res = $.extend({}, result);
-            for (aname in app.attachmentTypes)
+            for (var aname in app.attachmentTypes)
                 _updateAttachments(conf, res, aname);
             list.update([res], 'id', conf.reversed);
         });
@@ -576,7 +576,7 @@ function _addLookups(page, context, editable, callback) {
     var lookups = {};
     var field;
     if (conf.choices) {
-        for (var field in conf.choices) {
+        for (field in conf.choices) {
             lookups[field + '_label'] = _choice_label_lookup(field, conf.choices[field]);
             if (editable) {
                 lookups[field + '_choices'] = _choice_dropdown_lookup(field, conf.choices[field]);
@@ -586,11 +586,11 @@ function _addLookups(page, context, editable, callback) {
     $.each(conf.parents || [], function(i, v) {
         var pconf = _getConf(v);
         var col;
-        if (v.indexOf(page) == 0)
+        if (v.indexOf(page) === 0)
             col = v.replace(page, '') + '_id';
         else
             col = v + '_id';
-        lookups[v] = _parent_lookup(v, col)
+        lookups[v] = _parent_lookup(v, col);
         if (editable) {
             lookups[v + '_list'] = _parent_dropdown_lookup(v, col);
             if (pconf.url)
@@ -599,11 +599,11 @@ function _addLookups(page, context, editable, callback) {
     });
     $.each(conf.children || [], function(i, v) {
         var cconf = _getConf(v);
-        lookups[cconf.url] = _children_lookup(page, v)
+        lookups[cconf.url] = _children_lookup(page, v);
     });
 
     // Load annotations and identifiers
-    for (aname in app.attachmentTypes) {
+    for (var aname in app.attachmentTypes) {
         var info = app.attachmentTypes[aname];
         var aconf = _getConf(aname, true);
         if (!aconf || !conf[info.predicate])
@@ -613,12 +613,12 @@ function _addLookups(page, context, editable, callback) {
             lookups[info.type] = _parent_lookup(info.type);
         if (editable) {
             if (aconf.choices) {
-                for (var field in aconf.choices) {
+                for (field in aconf.choices) {
                     lookups[field + '_choices'] = _choice_dropdown_lookup(field, aconf.choices[field]);
                 }
             }
             if (info.getChoiceList) {
-                lookups['item_choices'] = _item_choice_lookup(page, aname);
+                lookups.item_choices = _item_choice_lookup(page, aname);
             }
         }
         if (editable == "new")
@@ -627,13 +627,13 @@ function _addLookups(page, context, editable, callback) {
             lookups[aconf.url] = _children_lookup(page, aname);
     }
     var queue = [];
-    for (key in lookups)
+    for (var key in lookups)
         queue.push(key);
 
     spin.start();
     step();
     function step() {
-        if (queue.length == 0) {
+        if (!queue.length) {
             spin.stop();
             callback(context);
             return;
@@ -650,7 +650,7 @@ function _make_lookup(page, fn) {
             context[key] = fn(list, context);
             callback(context);
         });
-    }
+    };
 }
 
 // Preset list of choices
@@ -663,7 +663,7 @@ function _choice_label_lookup(name, choices) {
             choices.forEach(function(choice) {
                 if (choice.value == this[name])
                     label = choice.label;
-            })
+            });
             return label;
         };
         callback(context);
@@ -679,11 +679,11 @@ function _choice_dropdown_lookup(name, choices) {
                 if (choice.value == this[name])
                     item.selected = true;
                 list.push(item);
-            })
+            });
             return list;
         };
         callback(context);
-    }
+    };
 }
 
 function _item_choice_lookup(page, aname) {
@@ -696,7 +696,7 @@ function _item_choice_lookup(page, aname) {
             types.filter(info.getTypeFilter(page)).forEach(function(type) {
                 lists.push(info.getChoiceList(type));
             });
-            if (lists.length == 0)
+            if (!lists.length)
                 callback(context);
             else
                 addList(0);
@@ -713,7 +713,7 @@ function _item_choice_lookup(page, aname) {
                             }
                         }, this);
                         return items;
-                    }
+                    };
                     if (index < lists.length - 1)
                         addList(index + 1);
                     else {
@@ -723,7 +723,7 @@ function _item_choice_lookup(page, aname) {
                                 var listid = info.getChoiceList(type);
                                 return listLookup[listid].call(this, type);
                             }
-                        }
+                        };
                         callback(context);
                     }
                 });
@@ -738,7 +738,7 @@ function _parent_lookup(page, column) {
     return _make_lookup(page, function(list) {
         return function() {
             return list.find(this[column]);
-        }
+        };
     });
 }
 
@@ -767,7 +767,7 @@ function _children_lookup(ppage, cpage) {
             var filter = {};
             filter[ppage + '_id'] = this.id;
             return list.filter(filter);
-        }
+        };
     });
 }
 
@@ -787,7 +787,7 @@ function _default_attachments(ppage, apage) {
             var obj = {};
             if (info.getDefaults)
                 obj = info.getDefaults(t);
-            obj['type_id'] = t.id;
+            obj.type_id = t.id;
             attachments.push(obj);
         });
         return attachments;
