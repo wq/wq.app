@@ -60,7 +60,7 @@ function error(msg) {
 
 var _defaults = {
     quality: 75,
-    destinationType: 1, //Camera.DestinationType.FILE_URI
+    destinationType: 1 //Camera.DestinationType.FILE_URI
 };
 
 return photos;
