@@ -144,12 +144,29 @@ map.loadLayer = function(url, callback) {
     });
 };
 
-// Default base map - override to customize
-map.createBaseMap = function() {
-    return new L.TileLayer(
-       "http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png",
-       {'subdomains': '1234'}
-    );
+// Default base maps - override to customize
+map.createBaseMaps = function() {
+    var mqcdn = "http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.png";
+
+    // Attribution (https://gist.github.com/mourner/1804938)
+    var osmAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+    var aerialAttr = 'Imagery &copy; NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency';
+    var mqTilesAttr = 'Tiles &copy; <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png" />';
+
+    return {
+        "Street": L.tileLayer(mqcdn,
+            {
+                'subdomains': '1234',
+                'type': 'map',
+                'attribution': osmAttr + ', ' + mqTilesAttr
+            }),
+        "Aerial": L.tileLayer(mqcdn,
+            {
+                'subdomains': '1234',
+                'type': 'sat',
+                'attribution': aerialAttr + ', ' + mqTilesAttr
+            })
+    };
 };
 
 // Default popup renderer for items - override to customize
@@ -199,9 +216,12 @@ map.createMap = function(page, itemid) {
     // Create map, set default zoom and basemap
     m = map.maps[mapid] = L.map(mapid + '-map');
     m.setView(defaults.center, defaults.zoom);
-    map.createBaseMap().addTo(m);
+    var basemaps = map.createBaseMaps();
+    var basemap = Object.keys(basemaps)[0];
+    basemaps[basemap].addTo(m);
 
     // Load layerconfs and add empty layer groups to map
+    var layers = {};
     map.getLayerConfs(page, itemid).forEach(function(layerconf) {
         if (layerconf.cluster && L.MarkerClusterGroup) {
             var options = {};
@@ -212,7 +232,10 @@ map.createMap = function(page, itemid) {
             layerconf.layer = L.layerGroup().addTo(m);
         }
         loadLayer(layerconf);
+        layers[layerconf.name] = layerconf.layer;
     });
+
+    L.control.layers(basemaps, layers).addTo(m);
 
     // Async-load geojson for layers and add to layergroups
     function loadLayer(layerconf) {
