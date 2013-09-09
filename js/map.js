@@ -264,6 +264,8 @@ map.createMap = function(page, itemid) {
         m.invalidateSize();
     }, 100);
 
+    if (mapconf.onshow)
+        mapconf.onshow(m);
     return m;
 };
 
