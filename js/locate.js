@@ -18,9 +18,9 @@ locate.init = function(map) {
 };
 
 // Simple geolocation function
-locate.locate = function(success, error, high, watch) {
+locate.locate = function(success, error, high, watch, opts) {
     var map = _map || L.map(L.DomUtil.create('div'));
-    var opts = {};
+    if (!opts) opts = {};
     var nospin = false;
 
     // If no success callback, assume setView
@@ -97,7 +97,7 @@ locate.Locator = function(map, fields) {
             self.update(evt.latlng, evt.accuracy);
         }, function(evt) {
             self.onerror(evt);
-        }, true, true);
+        }, true, true, {'setView': true});
     };
 
     self.gpsStop = function() {
