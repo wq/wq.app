@@ -135,11 +135,21 @@ map.getLayerConfs = function(page, itemid) {
 };
 
 // Internal layer loading function - override to customize
+var _cache = {};
 map.loadLayer = function(url, callback) {
-    url = app.service + '/' + url + '.geojson';
+    url = app.service + '/' + url;
+    if (url.indexOf('.geojson') == -1)
+        url += '.geojson';
+    if (_cache[url]) {
+        setTimeout(function() {
+            callback(_cache[url]);
+        }, 100);
+        return;
+    }
     spin.start();
     json.get(url, function(geojson) {
         spin.stop();
+        _cache[url] = geojson;
         callback(geojson);
     });
 };
@@ -214,7 +224,7 @@ map.createMap = function(page, itemid) {
     }
 
     // Create map, set default zoom and basemap
-    m = map.maps[mapid] = L.map(mapid + '-map');
+    m = map.maps[mapid] = L.map(divid);
     m.setView(defaults.center, defaults.zoom);
     var basemaps = map.createBaseMaps();
     var basemap = Object.keys(basemaps)[0];
