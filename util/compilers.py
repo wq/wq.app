@@ -5,6 +5,7 @@ import json
 
 from collect import readfiles
 
+
 def optimize(conf, indir, outdir):
     bfile = "rjsconf%s" % (random.random() * 10000)
     bjs = open(bfile, 'w')
@@ -21,11 +22,13 @@ def optimize(conf, indir, outdir):
     print "Optimization complete"
     print '#' * 20
 
+
 def scss(conf):
     import scss
     import logging
     compiler = scss.Scss(scss_opts={'compress': 0})
     logging.getLogger("scss").addHandler(logging.StreamHandler())
+
     def compile(path, source):
         css = compiler.compile(source)
         outfile = open(path, 'w')

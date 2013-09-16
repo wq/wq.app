@@ -2,11 +2,12 @@
 
 import json
 
-from collect    import collectjson
+from collect import collectjson
 from setversion import setversion
-from appcache   import appcache
-from compilers  import optimize, scss
-from init       import init
+from appcache import appcache
+from compilers import optimize, scss
+from init import init
+
 
 class Builder(object):
     conf = None
@@ -18,10 +19,10 @@ class Builder(object):
         # Load configuration file
         self.conf = json.load(open(config))
         if 'optimize' not in self.conf:
-           raise Exception("No optimize section in conf file!")
+            raise Exception("No optimize section in conf file!")
 
         # Determine input and output directories
-        self.indir  = self.conf['optimize']['appDir']
+        self.indir = self.conf['optimize']['appDir']
         self.outdir = self.conf['optimize']['dir']
         if version is not None:
             self.version = version
@@ -50,7 +51,7 @@ class Builder(object):
 
         # Generate HTML5 Cache manifests
         if 'appcache' in self.conf:
-           self.appcache()
+            self.appcache()
 
     def setversion(self, directory=None, conf=None):
         if directory is None:

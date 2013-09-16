@@ -2,6 +2,7 @@
 import sys
 from build import Builder
 
+
 def usage():
     print """Usage: wq [command] [version] [configfile]"
 

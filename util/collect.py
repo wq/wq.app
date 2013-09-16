@@ -6,9 +6,10 @@ except:
     yaml = None
 
 NEST = {
-   'json': json,
-   'yaml': yaml
+    'json': json,
+    'yaml': yaml
 }
+
 
 def readfiles(basedir, ftype=None, fext=None):
     obj = {}
@@ -22,7 +23,7 @@ def readfiles(basedir, ftype=None, fext=None):
         if path == basedir:
             path = ""
         else:
-            path = path[len(basedir)+1:]
+            path = path[len(basedir) + 1:]
             apath = path.split(os.sep)
             for subdir in apath:
                 o = o[subdir]
@@ -73,7 +74,9 @@ def collectjson(conf, directory):
     else:
         json.dump(obj, outfile, **opts)
 
-    print '%s: %s objects collected from %s' % (conf['output'], len(obj), ', '.join(conf['paths']))
+    print '%s: %s objects collected from %s' % (
+        conf['output'], len(obj), ', '.join(conf['paths'])
+    )
 
     outfile.close()
     os.chdir(cur)

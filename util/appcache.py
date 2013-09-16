@@ -1,13 +1,14 @@
 import os
 import re
 
+
 def appcache(conf, indir, outdir, version):
 
     # Open output files
-    s_acpath = indir  + '/' + conf['name']
+    s_acpath = indir + '/' + conf['name']
     b_acpath = outdir + '/' + conf['name']
-    s_ac  = open(s_acpath, 'w')
-    b_ac  = open(b_acpath, 'w')
+    s_ac = open(s_acpath, 'w')
+    b_ac = open(b_acpath, 'w')
 
     # Start in source directory - read @imports from main CSS file
     s_css = [conf['css']]
@@ -22,12 +23,12 @@ def appcache(conf, indir, outdir, version):
     b_css = [conf['css']]
 
     # Collect path names and create appcaches
-    cache        = list(conf['cache'])
+    cache = list(conf['cache'])
     source_cache = cache + s_js + s_css + images
-    built_cache  = cache + b_js + b_css + images
+    built_cache = cache + b_js + b_css + images
 
-    network      = list(conf['network'])
-    fallback     = list(conf['fallback'])
+    network = list(conf['network'])
+    fallback = list(conf['fallback'])
 
     s_ac.write(APPCACHE_TMPL % {
         'version':  '%s_dev' % version,
@@ -44,12 +45,13 @@ def appcache(conf, indir, outdir, version):
     s_ac.close()
     b_ac.close()
     print "%s: %s items" % (s_acpath, len(source_cache + network + fallback))
-    print "%s: %s items" % (b_acpath, len(built_cache  + network + fallback))
+    print "%s: %s items" % (b_acpath, len(built_cache + network + fallback))
+
 
 def _parse_js_buildfile(filename):
     text = open(filename).read()
     sources = []
-    built   = []
+    built = []
     for group in text[1:].split('\n\n'):
         files = group.split('\n')
 
@@ -59,6 +61,7 @@ def _parse_js_buildfile(filename):
         built.append(files[0])
 
     return sources, built
+
 
 def _parse_css_urls(path, filename):
     cur = os.getcwd()

@@ -1,5 +1,6 @@
 import os
 
+
 def setversion(conf, indir):
     filename = conf.get('filename', indir + '/version.txt')
     if (conf.get('version', None) is None):
