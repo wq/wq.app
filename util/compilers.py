@@ -3,7 +3,7 @@ import subprocess
 import random
 import json
 
-from collect import readfiles
+from .collect import readfiles
 
 
 def optimize(conf, indir, outdir):

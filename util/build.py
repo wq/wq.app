@@ -2,11 +2,11 @@
 
 import json
 
-from collect import collectjson
-from setversion import setversion
-from appcache import appcache
-from compilers import optimize, scss
-from init import init
+from .collect import collectjson
+from .setversion import setversion
+from .appcache import appcache
+from .compilers import optimize, scss
+from .init import init
 
 
 class Builder(object):
