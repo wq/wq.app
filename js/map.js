@@ -1,11 +1,11 @@
 /*!
- * wq.app 0.4.0 - map.js
+ * wq.app 0.4.1 - map.js
  * Leaflet integration for app.js list & detail views
  * (c) 2013, S. Andrew Sheppard
  * http://wq.io/license
  */
 
-define(['./lib/leaflet', './app', './pages', './json', './spinner', './template', './console'],
+define(['./lib/leaflet', './app', './pages', './json', './spinner', './template', './console', './lib/es5-shim'],
 function(L, app, pages, json, spin, tmpl, console) {
 
 // module variable
