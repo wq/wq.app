@@ -4,7 +4,7 @@ from wq.app.util.build import Builder
 
 
 def usage():
-    print """Usage: wq [command] [version] [configfile]"
+    print """Usage: wq [command] [version] [configfile]
 
 Valid commands:
    appcache
