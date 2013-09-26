@@ -1,4 +1,5 @@
-# Third party libraries
+Third party libraries
+=====================
 
 These are the dependencies of various wq.app modules as well as some other useful libraries.  Most of these have been patched to support better integration as AMD modules.
 
