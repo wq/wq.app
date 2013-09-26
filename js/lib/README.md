@@ -9,7 +9,7 @@ Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
 [d3.js]                 |    3.2.8  |  wrapped as AMD module
 [es5-shim.js]           |    2.1.0  |  no changes
-[highlight.js]          |  b26a4c6  |  tools/build.py -n -tamd css javascript markdown python scss 
+[highlight.js]          |  b26a4c6  |  tools/build.py -n -tamd bash css javascript markdown python scss xml
 [jquery]                |    1.9.1  |  patched to define anonymous AMD module
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  patched with relative jQuery dependency
