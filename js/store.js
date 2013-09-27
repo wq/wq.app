@@ -532,8 +532,8 @@ function _Store(name) {
 
     // Fetch data from server
     self.fetch = function(query, async, callback, nocache) {
-        if (!ol.online)
-            throw "This function requires an Internet connection.";
+        if (!ol.online && async)
+            return; // FIXME: should defer until later
         if (self.jsonp && !async)
             throw "Cannot fetch jsonp synchronously";
 
