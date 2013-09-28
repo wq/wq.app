@@ -37,7 +37,7 @@ wq.app does not currently include any default HTML templates, leaving this as an
  [Mustache.js]: https://mustache.github.com/
  
  [store.js]: http://wq.io/docs/store.js
- [pages.js]: http://wq.io/docs//pages.js
+ [pages.js]: http://wq.io/docs/pages.js
  [app.js]: http://wq.io/docs/app.js
  [map.js]: http://wq.io/docs/map.js
  [chart.js]: http://wq.io/docs/chart.js
