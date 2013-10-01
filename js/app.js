@@ -663,7 +663,7 @@ function _choice_label_lookup(name, choices) {
             choices.forEach(function(choice) {
                 if (choice.value == this[name])
                     label = choice.label;
-            });
+            }, this);
             return label;
         };
         callback(context);
@@ -679,7 +679,7 @@ function _choice_dropdown_lookup(name, choices) {
                 if (choice.value == this[name])
                     item.selected = true;
                 list.push(item);
-            });
+            }, this);
             return list;
         };
         callback(context);
@@ -747,14 +747,13 @@ function _parent_dropdown_lookup(page, column) {
     if (!column) column = page + '_id';
     return _make_lookup(page, function(list) {
         return function() {
-            var obj = this;
             var parents = [];
             list.forEach(function(v) {
                 var item = $.extend({}, v);
-                if (item.id == obj[column])
+                if (item.id == this[column])
                     item.selected = true; // Currently selected item
                 parents.push(item);
-            });
+            }, this);
             return parents;
         };
     });
