@@ -28,7 +28,12 @@ md.init = function(tmplvar, contextvar) {
 
 // Parsing function (can be used directly)
 md.parse = function(value) {
-    return marked.parse(value);
+    return md.postProcess(marked.parse(value));
+}
+
+// Override with custom post-processing function
+md.postProcess = function(html) {
+    return html;
 }
 
 // Connect markdown processor to code highlighter
