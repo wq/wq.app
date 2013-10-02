@@ -249,11 +249,11 @@ function _Store(name) {
             };
 
             // Iterate across all pages
-            list.forEach = function(cb) {
+            list.forEach = function(cb, thisarg) {
                 for (var p = 1; p <= pageinfo.pages; p++) {
                     var query = list.getQuery(p);
                     var data = self.get(query);
-                    data.forEach(cb);
+                    data.forEach(cb, thisarg);
                 }
             };
 
@@ -291,8 +291,8 @@ function _Store(name) {
             list.prefetch = function(callback) {
                 self.prefetch(basequery, callback);
             };
-            list.forEach = function(cb) {
-                actual_list.forEach(cb);
+            list.forEach = function(cb, thisarg) {
+                actual_list.forEach(cb, thisarg);
             };
         }
 
