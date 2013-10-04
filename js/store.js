@@ -301,7 +301,7 @@ function _Store(name) {
 
     // Get list from datastore, indexed by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
-        var key = self.toKey(query);
+        var key = self.toKey(query) + '#' + attr;
 
         if (!_index_cache[key] || usesvc) {
            var list = self.get(query, usesvc);
