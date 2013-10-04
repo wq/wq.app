@@ -484,15 +484,28 @@ function _handleForm(evt) {
 
     $('.error').html('');
     spin.start();
-    ds.save(vals, undefined, function(item) {
+    ds.save(vals, undefined, function(item, result) {
         spin.stop();
         if (item && item.saved) {
             // Save was successful
             var options = {'reverse': true, 'transition': _saveTransition};
-            if (conf.list)
-                jqm.changePage('/' + conf.url + '/' + item.newid, options);
-            else
+            if (conf.list) {
+                // List pages: redirect to detail view for item
+                var baseurl, itemid;
+                if (conf.postsave && conf.postsave != conf.page) {
+                    // Optional: return to detail view for a parent model
+                    baseurl = _getConf(conf.postsave).url;
+                    itemid = result[conf.postsave + '_id'] || "";
+                } else {
+                    // Default: return to detail view for saved model
+                    baseurl = conf.url;
+                    itemid = item.newid;
+                }
+                jqm.changePage('/' + baseurl + '/' + itemid, options);
+            } else {
+                // Other pages: return to page
                 jqm.changePage('/' + conf.url + '/', options);
+            }
             return;
         }
 

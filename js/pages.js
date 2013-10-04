@@ -43,7 +43,13 @@ pages.register = function(path, fn, obj, prevent) {
     }
     if (!prevent) {
         prevent = function(match, ui, params) {
-            // By default, always prevent default changePage behavior
+            // By default, prevent default changePage behavior 
+            // (unless this is a form post and is not being handled by app.js)
+            if (ui && ui.options && ui.options.data && ui.options.fromPage) {
+                var $form = ui.options.fromPage.find('form');
+                if ($form.data('json') !== undefined && !$form.data('json'))
+                    return false;
+            }
             return true;
         };
     }

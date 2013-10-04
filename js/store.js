@@ -824,7 +824,7 @@ function _Store(name) {
             // Re-save outbox to update caches
             self.set('outbox', self.get('outbox'));
 
-            if (callback) callback(item);
+            if (callback) callback(item, result);
         }
 
         function error(jqxhr, status) {
