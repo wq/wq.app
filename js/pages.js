@@ -53,7 +53,7 @@ pages.register = function(path, fn, obj, prevent) {
             return true;
         };
     }
-    var callback = function(match, ui, params, hash, evt, page) {
+    var callback = function(match, ui, params, hash, evt, $page) {
         var curpath = jqm.activePage && jqm.activePage.jqmData('url');
         if (typeof ui.toPage !== "string")
             return; // Capture URLs only, not completed pages
@@ -65,7 +65,7 @@ pages.register = function(path, fn, obj, prevent) {
             evt.preventDefault();
 
         fn = (typeof fn == "string" ? obj[fn] : fn);
-        fn(match, ui, params, hash, evt, page);
+        fn(match, ui, params, hash, evt, $page);
     };
     pages.addRoute(path, events, callback);
 };
@@ -79,7 +79,7 @@ pages.addRoute = function(path, events, fn, obj) {
         hash = match.pop();
         params = router.getParams(match.pop());
         fn = (typeof fn == "string" ? obj[fn] : fn);
-        fn(match, ui, params, hash, evt, page);
+        fn(match, ui, params, hash, evt, $(page));
     };
     rt[url] = {
         'events': events,
