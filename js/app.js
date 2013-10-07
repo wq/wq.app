@@ -239,12 +239,14 @@ function _registerList(page) {
             ds.getList({'url': pconf.url}, function(plist) {
                 spin.stop();
                 var pitem = plist.find(match[1]);
-                app.go(page, ui, params, undefined, false, pageurl, {
+                var context = {
                     'parent_id': match[1],
                     'parent_url': pitem && (pconf.url + '/' + pitem.id),
                     'parent_label': pitem && pitem.label,
                     'parent_page': ppage
-                });
+                };
+                context['parent_is_' + ppage] = true;
+                app.go(page, ui, params, undefined, false, pageurl, context);
             });
         };
     }
