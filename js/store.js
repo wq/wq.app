@@ -205,7 +205,7 @@ function _Store(name) {
                 result.info = {
                     'pages':    1,
                     'per_page': result.length,
-                    'total':    result.length
+                    'count':    result.length
                 };
                 return result;
             };
@@ -264,7 +264,7 @@ function _Store(name) {
             list.info = {
                 'pages':    1,
                 'per_page': actual_list.length,
-                'total':    actual_list.length
+                'count':    actual_list.length
             };
             list.page = function(page_num) {
                 if (page_num != 1)
@@ -281,7 +281,7 @@ function _Store(name) {
                 result.info = {
                     'pages':    1,
                     'per_page': result.length,
-                    'total':    result.length
+                    'count':    result.length
                 };
                 return result;
             };
@@ -707,7 +707,7 @@ function _Store(name) {
         pageinfo[qkey] = {
             'pages':    data.pages,
             'per_page': data.per_page,
-            'total':    data.total
+            'count':    data.count
         };
         self.set('pageinfo', pageinfo);
         return true;
