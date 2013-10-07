@@ -22,7 +22,10 @@ app.init = function(config, templates, baseurl, svc) {
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
 
-    ds.init(svc, {'format':'json'}, {'applyResult': _applyResult});
+    var dsconf = config.store || {};
+    if (!dsconf.applyResult)
+        dsconf.applyResult = _applyResult;
+    ds.init(svc, {'format': 'json'}, dsconf);
     app.service = ds.service;
 
     pages.init(baseurl);
