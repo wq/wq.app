@@ -301,22 +301,24 @@ function _Store(name) {
 
     // Get list from datastore, indexed by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
-        var key = self.toKey(query) + '#' + attr;
+        var key = self.toKey(query);
+        if (!_index_cache[key])
+             _index_cache[key] = {};
 
-        if (!_index_cache[key] || usesvc) {
-           var list = self.get(query, usesvc);
-           if (!list || !$.isArray(list))
-              return null;
-           _index_cache[key] = {};
-           $.each(list, function(i, obj) {
-               var id = obj[attr];
-               if (id === undefined && _functions[attr])
-                   id = self.compute(attr, obj);
-               if (id !== undefined)
-                   _index_cache[key][id] = obj;
-           });
+        if (!_index_cache[key][attr] || usesvc) {
+            var list = self.get(query, usesvc);
+            if (!list || !$.isArray(list))
+                return null;
+            _index_cache[key][attr] = {};
+            $.each(list, function(i, obj) {
+                var id = obj[attr];
+                if (id === undefined && _functions[attr])
+                    id = self.compute(attr, obj);
+                if (id !== undefined)
+                    _index_cache[key][attr][id] = obj;
+            });
         }
-        return _index_cache[key];
+        return _index_cache[key][attr];
     };
 
     // Get list from datastore, grouped by an attribute (e.g. foreign key)
