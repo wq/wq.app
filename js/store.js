@@ -302,13 +302,13 @@ function _Store(name) {
     // Get list from datastore, indexed by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
         var key = self.toKey(query);
-        if (!_index_cache[key])
-             _index_cache[key] = {};
 
-        if (!_index_cache[key][attr] || usesvc) {
+        if (!_index_cache[key] || !_index_cache[key][attr] || usesvc) {
             var list = self.get(query, usesvc);
             if (!list || !$.isArray(list))
                 return null;
+            if (!_index_cache[key])
+                _index_cache[key] = {};
             _index_cache[key][attr] = {};
             $.each(list, function(i, obj) {
                 var id = obj[attr];
