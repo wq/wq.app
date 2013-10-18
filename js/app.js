@@ -409,7 +409,7 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
         _addLookups(page, context, true, done);
     } else {
         // Create new item
-        context = $.extend({}, conf, params, context); //FIXME: defaults
+        context = $.extend({}, conf.defaults, conf, params, context);
         if (url === undefined) {
             url = 'new';
             if (params && $.param(params))
