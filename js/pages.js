@@ -41,7 +41,7 @@ pages.register = function(path, fn, obj, prevent) {
             pages.go(path, path, params, ui);
         };
     }
-    if (!prevent) {
+    if (prevent === undefined) {
         prevent = function(match, ui, params) {
             // By default, prevent default changePage behavior 
             // (unless this is a form post and is not being handled by app.js)
@@ -61,7 +61,7 @@ pages.register = function(path, fn, obj, prevent) {
             return; // Avoid interfering with hash updates when popups open & close
 
         // Prevent default changePage behavior
-        if (prevent(match, ui, params))
+        if (typeof prevent === 'function' && prevent(match, ui, params) || prevent)
             evt.preventDefault();
 
         fn = (typeof fn == "string" ? obj[fn] : fn);
