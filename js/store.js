@@ -83,6 +83,14 @@ function _Store(name) {
 
     // Get value from datastore
     self.get = function(query, useservice) {
+        // Ensure single-page lists are retrieved correctly
+        // (though caller should really be using getList)
+        if (typeof query !== 'string' && !query.page) {
+            var pageinfo = self.getPageInfo(query);
+            if (pageinfo && pageinfo.pages == 1)
+                query.page = 1;
+        }
+
         // First argument is the lookup query
         var key = self.toKey(query);
 
