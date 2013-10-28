@@ -5,7 +5,8 @@
  * http://wq.io/license
  */
 
-define(['./lib/leaflet', './app', './pages', './json', './spinner', './template', './console', './lib/es5-shim'],
+define(['./lib/leaflet', './app', './pages', './json', './spinner',
+        './template', './console', './lib/es5-shim'],
 function(L, app, pages, json, spin, tmpl, console) {
 
 // module variable
@@ -128,7 +129,7 @@ map.getLayerConfs = function(page, itemid) {
             'name': mapconf.name,
             'url': mapconf.url,
             'oneach': map.renderPopup(page),
-            'cluster': true,
+            'cluster': true
         });
     }
     return layers;
@@ -156,6 +157,7 @@ map.loadLayer = function(url, callback) {
 
 // Default base maps - override to customize
 map.createBaseMaps = function() {
+    /* jshint maxlen: false */
     var mqcdn = "http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.png";
 
     // Attribution (https://gist.github.com/mourner/1804938)
@@ -164,18 +166,16 @@ map.createBaseMaps = function() {
     var mqTilesAttr = 'Tiles &copy; <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png" />';
 
     return {
-        "Street": L.tileLayer(mqcdn,
-            {
-                'subdomains': '1234',
-                'type': 'map',
-                'attribution': osmAttr + ', ' + mqTilesAttr
-            }),
-        "Aerial": L.tileLayer(mqcdn,
-            {
-                'subdomains': '1234',
-                'type': 'sat',
-                'attribution': aerialAttr + ', ' + mqTilesAttr
-            })
+        "Street": L.tileLayer(mqcdn, {
+            'subdomains': '1234',
+            'type': 'map',
+            'attribution': osmAttr + ', ' + mqTilesAttr
+        }),
+        "Aerial": L.tileLayer(mqcdn, {
+            'subdomains': '1234',
+            'type': 'sat',
+            'attribution': aerialAttr + ', ' + mqTilesAttr
+        })
     };
 };
 
@@ -192,7 +192,7 @@ map.renderPopup = function(page) {
 
 // Primary map routine
 map.createMap = function(page, itemid) {
-    var mapid, divid, mapconf, m, defaults, layers, div;
+    var mapid, divid, mapconf, m, defaults, layers, basemaps, basemap, div;
 
     // Load configuration and div id
     mapconf = _getConf(page);
@@ -226,12 +226,12 @@ map.createMap = function(page, itemid) {
     // Create map, set default zoom and basemap
     m = map.maps[mapid] = L.map(divid);
     m.setView(defaults.center, defaults.zoom);
-    var basemaps = map.createBaseMaps();
-    var basemap = Object.keys(basemaps)[0];
+    basemaps = map.createBaseMaps();
+    basemap = Object.keys(basemaps)[0];
     basemaps[basemap].addTo(m);
 
     // Load layerconfs and add empty layer groups to map
-    var layers = {};
+    layers = {};
     map.getLayerConfs(page, itemid).forEach(function(layerconf) {
         if (layerconf.cluster && L.MarkerClusterGroup) {
             var options = {};

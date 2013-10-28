@@ -10,18 +10,18 @@ function(console) {
 
 // Exported module object
 var ol = {
-  'online': navigator.onLine,
-  'messages': {
-    'online':  "&#10003; Online",
-    'offline': "&#10005; Offline"
-  },
-  'update': function() {
-    _update();
-  },
-  'init': function(callback) {
-    if (callback)
-      _callback = callback;
-  }
+    'online': navigator.onLine,
+    'messages': {
+        'online':  "&#10003; Online",
+        'offline': "&#10005; Offline"
+    },
+    'update': function() {
+        _update();
+    },
+    'init': function(callback) {
+        if (callback)
+            _callback = callback;
+    }
 };
 
 // Internal functions
@@ -33,6 +33,7 @@ function _callback(type, msg) {
 }
 
 function _update(evt) {
+    /* jshint unused: false */
     ol.online = navigator.onLine;
     var type = ol.online ? "online"          : "offline";
     var msg  = ol.online ? "&#10003; Online" : "&#10005; Offline";

@@ -11,11 +11,11 @@ define(['./lib/jquery'], function($) {
 var json = {};
 
 json.get = function fetch(url, success, error) {
-   $.ajax(url, {
-       'dataType': 'json',
-       'success': success,
-       'error': error
-   });
+    $.ajax(url, {
+        'dataType': 'json',
+        'success': success,
+        'error': error
+    });
 };
 
 return json;

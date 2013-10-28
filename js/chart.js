@@ -46,7 +46,10 @@ chart.base = function() {
         return dataset.list;
     }
 
-    function xunits(dataset) {throw "xunits accessor not defined!";}
+    function xunits(dataset) {
+        /* jshint unused: false */
+        throw "xunits accessor not defined!";
+    }
     function xmax(dataset) {
         return d3.max(items(dataset), xvalue);
     }
@@ -65,13 +68,25 @@ chart.base = function() {
     }
 
     // Accessors for individual items
-    function xvalue(d) {throw "xvalue accessor not defined!";}
-    function yvalue(d) {throw "yvalue accessor not defined!";}
+    function xvalue(d) {
+        /* jshint unused: false */
+        throw "xvalue accessor not defined!";
+    }
+    function yvalue(d) {
+        /* jshint unused: false */
+        throw "yvalue accessor not defined!";
+    }
 
     // Rendering functions (should be overridden)
-    function init(datasets){}
-    function render(dataset){}
-    function wrapup(datasets, opts){}
+    function init(datasets) {
+        /* jshint unused: false */
+    }
+    function render(dataset) {
+        /* jshint unused: false */
+    }
+    function wrapup(datasets, opts) {
+        /* jshint unused: false */
+    }
 
     // Generate translation function xscale + given yscale
     function translate(scaleid) {
@@ -83,7 +98,7 @@ chart.base = function() {
         };
     }
 
-    // Plot using given selection (usually a single object, but allow for array)
+    // Plot using given selection (usually one object, but wrapped as array)
     function plot(sel) {
         sel.each(_plot);
     }
@@ -100,7 +115,7 @@ chart.base = function() {
         var cbottom = cheight - margins.bottom;
 
         // Clip for inner graphing area
-        var clip = svg.append('defs')
+        svg.append('defs')
             .append('clipPath')
                 .attr('id', 'clip')
             .append('rect')
@@ -131,7 +146,7 @@ chart.base = function() {
             if (!xscale) {
                 xscale = {
                     'xmin': Infinity,
-                    'xmax': -Infinity,
+                    'xmax': -Infinity
                 };
             }
             xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
@@ -179,7 +194,11 @@ chart.base = function() {
 
         for (var scaleid in yscales) {
             var scale = yscales[scaleid];
-            var domain = scale.invert ? [scale.ymax, scale.ymin] : [scale.ymin, scale.ymax];
+            var domain;
+            if (scale.invert)
+                domain = [scale.ymax, scale.ymin];
+            else
+                domain = [scale.ymin, scale.ymax];
             scale.scale = yscalefn()
                 .domain(domain)
                 .nice()
@@ -219,7 +238,11 @@ chart.base = function() {
             .append('g')
             .attr('class', 'axis')
             .attr('transform', function(d) {
-                var x = d.orient == 'left' ? margins.left : cwidth - margins.right;
+                var x;
+                if (d.orient == 'left')
+                    x = margins.left;
+                else
+                    x = cwidth - margins.right;
                 var y = margins.top;
                 return _trans(x, y);
             })
@@ -401,11 +424,13 @@ chart.scatter = function() {
     }
 
     function pointover(sid) {
+        /* jshint unused: false */
         return function(d) {
             d3.select(this).selectAll('circle').attr('fill', '#9999ff');
         };
     }
     function pointout(sid) {
+        /* jshint unused: false */
         return function(d) {
             d3.select(this).selectAll('circle').attr('fill', cscale(sid));
         };
@@ -434,15 +459,15 @@ chart.scatter = function() {
             legendX, legendY, legendW, legendH;
 
         if (legend.position == 'bottom') {
-             legendX = margins.left;
-             legendY = opts.cheight - margins.bottom + 30;
-             legendW = opts.gwidth;
-             legendH = legend.size;
+            legendX = margins.left;
+            legendY = opts.cheight - margins.bottom + 30;
+            legendW = opts.gwidth;
+            legendH = legend.size;
         } else {
-             legendX = opts.cwidth - margins.right + 10;
-             legendY = margins.top;
-             legendW = legend.size;
-             legendH = opts.gheight;
+            legendX = opts.cwidth - margins.right + 10;
+            legendY = margins.top;
+            legendW = legend.size;
+            legendH = opts.gheight;
         }
 
         var leg = outer.append('g')

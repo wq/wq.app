@@ -157,13 +157,15 @@ app.attachmentTypes = {
         'predicate': 'annotated',
         'type': 'annotationtype',
         'getTypeFilter': function(page, context) {
+            /* jshint unused: false */
             return {'for': page};
         }
-     },
-     identifier: {
+    },
+    identifier: {
         'predicate': 'identified',
         'type': 'authority',
         'getTypeFilter': function(page, context) {
+            /* jshint unused: false */
             return {};
         },
         'getDefaults': function(type) {
@@ -182,12 +184,14 @@ app.attachmentTypes = {
         'predicate': 'related',
         'type': 'relationshiptype',
         'getTypeFilter': function(page, context) {
-             return {'from_type': page};
+            /* jshint unused: false */
+            return {'from_type': page};
         },
         'getChoiceList': function(type) {
             return type.to_type;
         },
         'getChoiceListFilter': function(type) {
+            /* jshint unused: false */
             return {};
         },
         'getDefaults': function(type) {
@@ -198,12 +202,14 @@ app.attachmentTypes = {
         'predicate': 'related',
         'type': 'relationshiptype',
         'getTypeFilter': function(page, context) {
-             return {'to_type': page};
+            /* jshint unused: false */
+            return {'to_type': page};
         },
         'getChoiceList': function(type) {
             return type.from_type;
         },
         'getChoiceListFilter': function(type) {
+            /* jshint unused: false */
             return {};
         },
         'getDefaults': function(type) {
@@ -272,7 +278,7 @@ function _renderList(page, list, ui, params, url, context) {
             (conf.parents || []).forEach(function(ppage) {
                 var p = ppage;
                 if (p.indexOf(page) === 0)
-                     p = p.replace(page, '');
+                    p = p.replace(page, '');
                 if (filter[p]) {
                     filter[p + '_id'] = filter[p];
                     delete filter[p];
@@ -291,7 +297,7 @@ function _renderList(page, list, ui, params, url, context) {
         spin.start();
         jqm.loadPage(jqmurl).then(function() {
             spin.stop();
-            $page = $(":jqmData(url='" + jqmurl + "')");
+            var $page = $(":jqmData(url='" + jqmurl + "')");
             if ($page.length > 0)
                 jqm.changePage($page);
             else
@@ -336,7 +342,7 @@ function _registerDetail(page) {
     if (url) {
         url += "/";
     } else {
-        // This list is bound to the root URL, don't mistake other lists for items
+        // This list is bound to root URL, don't mistake other lists for items
         for (var key in app.config.pages)
             reserved.push(app.config.pages[key].url);
     }
@@ -369,7 +375,7 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
             spin.start();
             jqm.loadPage(jqmurl).then(function() {
                 spin.stop();
-                $page = $(":jqmData(url='" + jqmurl + "')");
+                var $page = $(":jqmData(url='" + jqmurl + "')");
                 if ($page.length > 0)
                     jqm.changePage($page);
                 else
@@ -400,7 +406,9 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
         // Edit existing item
         if (url === undefined)
             url = itemid + '/edit';
-        var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
+        var item = list.find(
+            itemid, undefined, undefined, conf.max_local_pages
+        );
         if (!item) {
             pages.notFound(url);
             return;
@@ -420,7 +428,9 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
 
     function done(context) {
         var divid = page + '_' + itemid + '-page';
-        pages.go(conf.url + '/' + url, page + '_edit', context, ui, false, divid);
+        pages.go(
+            conf.url + '/' + url, page + '_edit', context, ui, false, divid
+        );
     }
 }
 
@@ -534,7 +544,7 @@ function _handleForm(evt) {
             showError(item.error.detail);
         } else {
 
-            // Form errors (other than non_field_errors) are keyed by field name
+            // Form errors (other than non_field_errors) are keyed by fieldname
             for (var f in item.error) {
                 // FIXME: there may be multiple errors per field
                 var err = item.error[f][0];
@@ -548,7 +558,11 @@ function _handleForm(evt) {
         }
 
         function showError(err, field) {
-            var sel = '.' + conf.page + '-' + (field ? field + '-' : '') + 'errors';
+            if (field)
+                field = field + '-';
+            else
+                field = '';
+            var sel = '.' + conf.page + '-' + field + 'errors';
             $form.find(sel).html(err);
         }
     });
@@ -595,9 +609,13 @@ function _addLookups(page, context, editable, callback) {
     var field;
     if (conf.choices) {
         for (field in conf.choices) {
-            lookups[field + '_label'] = _choice_label_lookup(field, conf.choices[field]);
+            lookups[field + '_label'] = _choice_label_lookup(
+                field, conf.choices[field]
+            );
             if (editable) {
-                lookups[field + '_choices'] = _choice_dropdown_lookup(field, conf.choices[field]);
+                lookups[field + '_choices'] = _choice_dropdown_lookup(
+                    field, conf.choices[field]
+                );
             }
         }
     }
@@ -632,7 +650,9 @@ function _addLookups(page, context, editable, callback) {
         if (editable) {
             if (aconf.choices) {
                 for (field in aconf.choices) {
-                    lookups[field + '_choices'] = _choice_dropdown_lookup(field, aconf.choices[field]);
+                    lookups[field + '_choices'] = _choice_dropdown_lookup(
+                        field, aconf.choices[field]
+                    );
                 }
             }
             if (info.getChoiceList) {
@@ -706,7 +726,6 @@ function _choice_dropdown_lookup(name, choices) {
 
 function _item_choice_lookup(page, aname) {
     return function(context, key, callback) {
-        var conf = _getConf(aname);
         var info = app.attachmentTypes[aname];
         var tconf = _getConf(info.type);
         ds.getList({'url': tconf.url}, function(types) {
@@ -722,7 +741,9 @@ function _item_choice_lookup(page, aname) {
                 var lconf = _getConf(lists[index]);
                 ds.getList({'url': lconf.url}, function(list) {
                     listLookup[lists[index]] = function(type) {
-                        var items = list.filter(info.getChoiceListFilter(type));
+                        var items = list.filter(
+                            info.getChoiceListFilter(type)
+                        );
                         items.forEach(function(item, i) {
                             if (item.id == this.item_id) {
                                 item = $.extend({}, item);

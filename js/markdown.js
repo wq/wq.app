@@ -17,24 +17,24 @@ md.init = function(tmplvar, contextvar) {
 
     // Default variable names
     if (!tmplvar) tmplvar = "html"; // Look for {{html}} in template
-    if (!contextvar) contextvar = "markdown" // Replace w/ parse(this.markdown)
+    if (!contextvar) contextvar = "markdown"; // Replace w/parse(this.markdown)
 
     tmpl.setDefault(tmplvar, function() {
         if (!this[contextvar])
             return "";
         return md.parse(this[contextvar]);
     });
-}
+};
 
 // Parsing function (can be used directly)
 md.parse = function(value) {
     return md.postProcess(marked.parse(value));
-}
+};
 
 // Override with custom post-processing function
 md.postProcess = function(html) {
     return html;
-}
+};
 
 // Connect markdown processor to code highlighter
 marked.setOptions({

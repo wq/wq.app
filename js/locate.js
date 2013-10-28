@@ -63,7 +63,8 @@ locate.locate = function(success, error, high, watch, opts) {
 };
 
 // Interactive GPS & map-based locator tool
-// map should be an L.map; fields should be an object of jQuery-wrapped <input>s
+// map should be an L.map; fields should be an map of keys to jQuery-wrapped
+// <input>s
 locate.Locator = function(map, fields) {
     var self = this;
 
@@ -160,8 +161,9 @@ locate.Locator = function(map, fields) {
     };
 
     self.onerror = function(evt) {
+        /* jshint unused: false */
         if (window.console)
-            console.log("Error retreiving coordinates!");
+            window.console.log("Error retrieving coordinates!");
     };
 
     // Respond to map clicks in interactive mode

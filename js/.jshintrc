@@ -1,0 +1,15 @@
+{
+    "trailing": true,
+    "es3": true,
+    "maxlen": 79,
+    "browser": true,
+    "latedef": "nofunc",
+    "noempty": true,
+    "noarg": true,
+    "nonew": true,
+    "unused": true,
+    "undef": true,
+    "globals": {
+        "define": false
+    }
+}

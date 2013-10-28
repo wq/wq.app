@@ -5,6 +5,9 @@
  * http://wq.io/license
  */
 
+/* global Camera */
+/* global alert */
+
 define(['./lib/jquery'], function($) {
 
 var photos = {};
@@ -50,8 +53,8 @@ function _start(options, input, preview) {
 }
 
 function load(uri, input, preview) {
-   $('#' + preview).attr('src', uri);
-   $('#' + input).val(uri);
+    $('#' + preview).attr('src', uri);
+    $('#' + input).val(uri);
 }
 
 function error(msg) {

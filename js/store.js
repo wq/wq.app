@@ -5,6 +5,9 @@
  * http://wq.io/license
  */
 
+/* global FileUploadOptions */
+/* global FileTransfer */
+
 define(['./lib/jquery', './online', './console', './lib/es5-shim'],
 function($, ol, console) {
 
@@ -49,36 +52,36 @@ function _Store(name) {
     var _callback_queue = {};  // Queue callbacks to prevent redundant fetches
 
     self.init = function(svc, defaults, opts) {
-         if (svc !== undefined) self.service = svc;
-         if (defaults)          self.defaults = defaults;
-         if (!opts) return;
+        if (svc !== undefined) self.service = svc;
+        if (defaults)          self.defaults = defaults;
+        if (!opts) return;
 
-         var optlist = [
-             'saveMethod',
-             'parseData',
-             'applyResult',
-             'localStorageFail',
-             'jsonp',
-             'debug',
-             'formatKeyword'
-         ];
-         optlist.forEach(function(opt) {
-             if (opts.hasOwnProperty(opt))
-                 self[opt] = opts[opt];
-         });
+        var optlist = [
+            'saveMethod',
+            'parseData',
+            'applyResult',
+            'localStorageFail',
+            'jsonp',
+            'debug',
+            'formatKeyword'
+        ];
+        optlist.forEach(function(opt) {
+            if (opts.hasOwnProperty(opt))
+                self[opt] = opts[opt];
+        });
 
-         if (opts.batchService) {
-             self.batchService = opts.batchService;
-             if (opts.parseBatchResult)
-                 self.parseBatchResult = opts.parseBatchResult;
-             else
-                 self.parseBatchResult = self.parseData;
-         }
-         if (opts.functions)
-             _functions = opts.functions;
+        if (opts.batchService) {
+            self.batchService = opts.batchService;
+            if (opts.parseBatchResult)
+                self.parseBatchResult = opts.parseBatchResult;
+            else
+                self.parseBatchResult = self.parseData;
+        }
+        if (opts.functions)
+            _functions = opts.functions;
 
-         if (!_ls)
-             self.localStorageFail();
+        if (!_ls)
+            self.localStorageFail();
     };
 
     // Get value from datastore
@@ -208,7 +211,9 @@ function _Store(name) {
                     max_pages = pageinfo.pages;
                 for (var p = 1; p <= max_pages; p++) {
                     var query = list.getQuery(p);
-                    result = result.concat(self.filter(query, filter, any, usesvc));
+                    result = result.concat(
+                        self.filter(query, filter, any, usesvc)
+                    );
                 }
                 result.info = {
                     'pages':    1,
@@ -225,12 +230,15 @@ function _Store(name) {
                 // Only update existing items found in each page
                 for (var p = 1; p < pageinfo.pages; p++) {
                     query = list.getQuery(p);
-                    items = self.updateList(query, items, key, {'updateOnly': true});
+                    items = self.updateList(
+                        query, items, key, {'updateOnly': true}
+                    );
                 }
 
                 // Add any remaining items to last or first page
                 if (items.length > 0) {
-                    // FIXME: this could result in the page having more than per_page items
+                    // FIXME: this could result in the page having more than
+                    // pageinfo.per_page items
                     if (prepend) {
                         query = list.getQuery(1);
                         opts = {'prepend': true};
@@ -282,9 +290,11 @@ function _Store(name) {
                 return result;
             };
             list.find = function(value, attr, usesvc, max_pages) {
+                /* jshint unused: false */
                 return self.find(basequery, value, attr, usesvc);
             };
             list.filter = function(filter, any, usesvc, max_pages) {
+                /* jshint unused: false */
                 var result = self.filter(basequery, filter, any, usesvc);
                 result.info = {
                     'pages':    1,
@@ -307,7 +317,7 @@ function _Store(name) {
         callback(list);
     };
 
-    // Get list from datastore, indexed by a unique attribute (e.g. primary key)
+    // Get list from datastore, index by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
         var key = self.toKey(query);
 
@@ -349,9 +359,9 @@ function _Store(name) {
                         value = self.compute(attr, obj);
 
                     if ($.isArray(value))
-                        // Assume multivalued attribute (e.g. an M2M relationship)
+                        // Assume multivalued attribute (e.g. M2M relationship)
                         $.each(value, function(i, v) {
-                           _addToCache(key, attr, v, obj);
+                            _addToCache(key, attr, v, obj);
                         });
                     else
                         _addToCache(key, attr, value, obj);
@@ -367,7 +377,7 @@ function _Store(name) {
         function _addToCache(key, attr, val, obj) {
             if (!_group_cache[key][attr][val])
                 _group_cache[key][attr][val] = [];
-             _group_cache[key][attr][val].push(obj);
+            _group_cache[key][attr][val].push(obj);
         }
     };
 
@@ -391,10 +401,10 @@ function _Store(name) {
 
     // Set value (locally)
     self.set = function(query, value, memonly) {
-        key = self.toKey(query);
+        var key = self.toKey(query);
         if (value !== null) {
             if (self.debug) {
-                console.log('saving new value for ' + key + ' to memory and localStorage');
+                console.log('saving new value for ' + key);
                 console.log(value);
             }
             _cache[key] = value;
@@ -404,8 +414,8 @@ function _Store(name) {
                 try {
                     _ls.setItem(lskey, val);
                 } catch (e) {
-                    // Probably QUOTA_EXCEEDED_ERR, try removing and setting again
-                    // (in case the old item is being counted against the quota)
+                    // Probably QUOTA_EXCEEDED_ERR, try removing and setting
+                    // again (in case old item is being counted against quota)
                     _ls.removeItem(lskey);
                     try {
                         _ls.setItem(lskey, val);
@@ -418,7 +428,7 @@ function _Store(name) {
             }
         } else {
             if (self.debug)
-                console.log('deleting ' + key + ' from memory and localStorage');
+                console.log('deleting ' + key);
             delete _cache[key];
             if (_ls && !memonly)
                 _ls.removeItem(_lsp + key);
@@ -430,6 +440,7 @@ function _Store(name) {
 
     // Callback for localStorage failure - override to inform the user
     self.localStorageFail = function(item, error) {
+        /* jshint unused: false */
         if (self.localStorageUsage() > 0)
             console.warn("localStorage appears to be full.");
         else
@@ -480,7 +491,7 @@ function _Store(name) {
 
             for (attr in filter) {
                 group = self.getGroup(query, attr, filter[attr], usesvc);
-                // Note: objects matching more than one attribute will be duplicated
+                // Note: might duplicate objects matching more than one filter 
                 result = result.concat(group);
             }
             return result;
@@ -525,7 +536,8 @@ function _Store(name) {
         var ilist = self.getIndex(query, attr, usesvc);
         var key = self.toKey(query);
         if (self.debug)
-            console.log('finding item in ' + key + ' where ' + attr + '=' + value);
+            console.log('finding item in ' + key +
+                        ' where ' + attr + '=' + value);
         if (ilist && ilist[value])
             return ilist[value];
         else
@@ -652,7 +664,7 @@ function _Store(name) {
         if (!opts) opts = {};
 
         if (!$.isArray(list))
-           throw "List is not an array";
+            throw "List is not an array";
         if (!$.isArray(data))
             throw "Data is not an array!";
         if (!data.length)
@@ -808,7 +820,9 @@ function _Store(name) {
             var ft = new FileTransfer();
             ft.upload(opts.fileName, url,
                 function(res) {
-                    var response = JSON.parse(decodeURIComponent(res.response));
+                    var response = JSON.parse(
+                        decodeURIComponent(res.response)
+                    );
                     success(response);
                 },
                 function(res) {

@@ -76,7 +76,7 @@ var _etypes = {
 
 // Default callback (meant to be overridden)
 function _callback(type, msg) {
-     console.log(type + ' - ' + msg);
+    console.log(type + ' - ' + msg);
 }
 
 // Determine type from event or from _ac.status, then trigger callback

@@ -10,7 +10,8 @@ function($, jqm, router, tmpl) {
 
 // Exported module object
 var pages = {
-    'slug': '([^/?#]+)'
+    'slug': '([^/?#]+)',
+    'query': '(?:[?](.*))?(?:[#](.*))?$'
 };
 
 // Configuration
@@ -24,7 +25,7 @@ pages.init = function(baseurl, opts) {
 
     // Define tmpl404 if there is not a template named '404'
     if (opts.tmpl404)
-        _404 = tmpl404;
+        _404 = opts.tmpl404;
 
     // Re-use rendered templates
     if (opts.injectOnce)
@@ -43,6 +44,7 @@ pages.register = function(path, fn, obj, prevent) {
     }
     if (prevent === undefined) {
         prevent = function(match, ui, params) {
+            /* jshint unused: false */
             // By default, prevent default changePage behavior 
             // (unless this is a form post and is not being handled by app.js)
             if (ui && ui.options && ui.options.data && ui.options.fromPage) {
@@ -55,13 +57,19 @@ pages.register = function(path, fn, obj, prevent) {
     }
     var callback = function(match, ui, params, hash, evt, $page) {
         var curpath = jqm.activePage && jqm.activePage.jqmData('url');
-        if (typeof ui.toPage !== "string")
-            return; // Capture URLs only, not completed pages
-        if (curpath == match[0] || curpath + '#' + hash == match[0])
-            return; // Avoid interfering with hash updates when popups open & close
 
-        // Prevent default changePage behavior
-        if (typeof prevent === 'function' && prevent(match, ui, params) || prevent)
+        // Capture URLs only, not completed pages
+        if (typeof ui.toPage !== "string")
+            return;
+        
+        // Avoid interfering with hash updates when popups open & close
+        if (curpath == match[0] || curpath + '#' + hash == match[0])
+            return;
+        
+        // Prevent default changePage behavior?
+        if (typeof prevent === 'function' && prevent(match, ui, params))
+            evt.preventDefault();
+        else if (prevent)
             evt.preventDefault();
 
         fn = (typeof fn == "string" ? obj[fn] : fn);
@@ -74,10 +82,10 @@ pages.register = function(path, fn, obj, prevent) {
 pages.addRoute = function(path, events, fn, obj) {
     var rt = {};
     path = path.replace(/<slug>/g, pages.slug);
-    var url = '^' +  pages.info.base_url + '/' + path + '(?:[?](.*))?(?:[#](.*))?$';
+    var url = '^' +  pages.info.base_url + '/' + path + pages.query;
     var callback = function(etype, match, ui, page, evt) {
-        hash = match.pop();
-        params = router.getParams(match.pop());
+        var hash = match.pop();
+        var params = router.getParams(match.pop());
         fn = (typeof fn == "string" ? obj[fn] : fn);
         fn(match, ui, params, hash, evt, $(page));
     };
@@ -121,12 +129,17 @@ pages.inject = function(path, template, context, pageid) {
         $oldpage.jqmData('title', title);
         if (pageid)
             $oldpage.jqmData('url', url);
-        var $header     = $(":jqmData(role='header')",  $page).find("h1,h2,h3");
-        var $oldheader  = $(":jqmData(role='header')",  $oldpage).find("h1,h2,h3");
+
+        var header = ":jqmData(role='header')";
+        var $header = $page.find(header).find("h1,h2,h3");
+        var $oldheader = $oldpage.find(header).find("h1,h2,h3");
         $oldheader.html($header.html());
-        var $content    = $(":jqmData(role='content')", $page);
-        var $oldcontent = $(":jqmData(role='content')", $oldpage);
+
+        var content = "jqmData(role='content')";
+        var $content = $page.find(content);
+        var $oldcontent = $oldpage.find(content);
         $oldcontent.html($content.html());
+
         $oldpage.trigger('create');
         $page = $oldpage;
     } else {
@@ -185,7 +198,7 @@ pages.go = function(path, template, context, ui, once, pageid) {
                 options.positionTo = ui.options.link.jqmData('position-to');
             else
                 options.positionTo = $page.jqmData('position-to');
-            // Default of 'origin' won't work since we are opening the popup manually
+            // 'origin' won't work since we're opening the popup manually
             if (!options.positionTo || options.positionTo == 'origin')
                 options.positionTo = ui.options.link[0];
             // Remove link highlight *after* popup is closed
