@@ -135,7 +135,7 @@ pages.inject = function(path, template, context, pageid) {
         var $oldheader = $oldpage.find(header).find("h1,h2,h3");
         $oldheader.html($header.html());
 
-        var content = "jqmData(role='content')";
+        var content = ":jqmData(role='content')";
         var $content = $page.find(content);
         var $oldcontent = $oldpage.find(content);
         $oldcontent.html($content.html());
