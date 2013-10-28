@@ -1,5 +1,5 @@
 /*
- * wq.app 0.4.2-dev - appcache.js
+ * wq.app 0.4.2 - appcache.js
  * Monitor HTML5 appcache events and trigger callback
  * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
