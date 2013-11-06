@@ -502,25 +502,26 @@ function _handleForm(evt) {
     ds.save(vals, undefined, function(item, result) {
         spin.stop();
         if (item && item.saved) {
-            // Save was successful
+            // Save was successful, redirect to next screen
             var options = {'reverse': true, 'transition': _saveTransition};
-            if (conf.list) {
-                // List pages: redirect to detail view for item
-                var baseurl, itemid;
-                if (conf.postsave && conf.postsave != conf.page) {
-                    // Optional: return to detail view for a parent model
-                    baseurl = _getConf(conf.postsave).url;
-                    itemid = result[conf.postsave + '_id'] || "";
-                } else {
-                    // Default: return to detail view for saved model
-                    baseurl = conf.url;
-                    itemid = item.newid;
-                }
-                jqm.changePage('/' + baseurl + '/' + itemid, options);
+            var baseurl, itemid, pconf;
+            if (conf.postsave && conf.postsave != conf.page) {
+                // Optional: return to detail view for a parent model
+                pconf = _getConf(conf.postsave, true);
+                // If conf.postsave is not a page name, assume it's a valid URL
+                baseurl = pconf && pconf.url || conf.postsave;
+                itemid = result[conf.postsave + '_id'] || "";
             } else {
-                // Other pages: return to page
-                jqm.changePage('/' + conf.url + '/', options);
+                // Default:
+                // List pages - redirect to detail view for item
+                // Other pages - return to page
+                baseurl = conf.url;
+                itemid = conf.list ? item.newid : "";
             }
+            jqm.changePage(
+                app.base_url + '/' + baseurl + '/' + itemid,
+                options
+            );
             return;
         }
 
@@ -582,7 +583,7 @@ function _applyResult(item, result) {
         });
     } else if (app.can_login && result && result.user && result.config) {
         app.save_login(result);
-        pages.go("login", "login");
+        item.saved = true;
     }
 }
 
