@@ -8,7 +8,7 @@
 /* global FileUploadOptions */
 /* global FileTransfer */
 
-define(['./lib/jquery', './online', './console', './lib/es5-shim'],
+define(['jquery', './online', './console', 'es5-shim'],
 function($, ol, console) {
 
 // Hybrid module object provides/is a singleton instance...

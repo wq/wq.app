@@ -5,8 +5,8 @@
  * http://wq.io/license
  */
 
-define(['./lib/leaflet', './app', './pages', './json', './spinner',
-        './template', './console', './lib/es5-shim'],
+define(['leaflet', './app', './pages', './json', './spinner',
+        './template', './console', 'es5-shim'],
 function(L, app, pages, json, spin, tmpl, console) {
 
 // module variable

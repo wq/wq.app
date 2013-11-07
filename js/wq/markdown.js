@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(["./lib/marked", "./lib/highlight", "./template"],
+define(["marked", "highlight", "./template"],
 function(marked, highlight, tmpl) {
 
 // Exported module object

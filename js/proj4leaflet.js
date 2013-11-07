@@ -1,4 +1,4 @@
-define(["./leaflet", "./proj4js"],
+define(["leaflet", "proj4js"],
 function(L, Proj4js) {
 
 L.Proj = {};

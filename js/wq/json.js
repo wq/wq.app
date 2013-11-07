@@ -6,7 +6,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery'], function($) {
+define(['jquery'], function($) {
 
 var json = {};
 

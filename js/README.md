@@ -12,7 +12,7 @@ Library                 |  Version  |  Notes
 [highlight.js]          |  b26a4c6  |  tools/build.py -n -tamd bash css javascript markdown python scss xml
 [jquery]                |    1.9.1  |  patched to define anonymous AMD module
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
-[jquery.mobile.router]  |  443d352  |  patched with relative jQuery dependency
+[jquery.mobile.router]  |  443d352  |  no changes
 [jquery.validate]       |   1.11.1  |  wrapped as AMD module
 [leaflet]               |    0.6.4  |  no changes
 [leaflet.markercluster] |  8ccd5a3  |  wrapped as AMD module (returns modified Leaflet object)
@@ -20,7 +20,7 @@ Library                 |  Version  |  Notes
 [mustache.js]           |    0.7.2  |  no changes
 [proj4js]               |    1.1.0  |  wrapped as AMD module
 [proj4leaflet]          |  c7f5097  |  added L.Proj.GeoJSON ([#32]); wrapped as AMD module (returns modified Leaflet object)
-[requirejs], [r.js]     |    2.1.8  |  no changes; r.js is in /util
+[requirejs], [r.js]     |    2.1.8  |  no changes; r.js is in /build
 
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim

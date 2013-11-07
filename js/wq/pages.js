@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery', './lib/jquery.mobile', './router', './template'],
+define(['jquery', 'jquery.mobile', './router', './template'],
 function($, jqm, router, tmpl) {
 
 // Exported module object

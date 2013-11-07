@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery.mobile', './console'],
+define(['jquery.mobile', './console'],
 function(jqm, console) {
 
 // Exported module object

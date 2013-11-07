@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(["./lib/d3"],
+define(["d3"],
 function(d3) {
 
 var chart = {};

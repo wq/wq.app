@@ -6,9 +6,9 @@
  * http://wq.io/license
  */
 
-define(['./lib/jquery', './lib/jquery.mobile',
+define(['jquery', 'jquery.mobile',
         './store', './pages', './template', './spinner',
-        './lib/es5-shim'],
+        'es5-shim'],
 function($, jqm, ds, pages, tmpl, spin) {
 
 var app = {};

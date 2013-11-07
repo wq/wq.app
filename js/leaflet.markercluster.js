@@ -1,4 +1,4 @@
-define(["./leaflet"],
+define(["leaflet"],
 function(L) {
 
 /*

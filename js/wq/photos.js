@@ -8,7 +8,7 @@
 /* global Camera */
 /* global alert */
 
-define(['./lib/jquery'], function($) {
+define(['jquery'], function($) {
 
 var photos = {};
 

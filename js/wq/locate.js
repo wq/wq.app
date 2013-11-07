@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(['./lib/leaflet', './spinner'],
+define(['leaflet', './spinner'],
 function(L, spin) {
 
 // Exported module object

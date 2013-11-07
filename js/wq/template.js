@@ -5,7 +5,7 @@
  * http://wq.io/license
  */
 
-define(["./lib/mustache"],
+define(["mustache"],
 function(m) {
 
 // Exported module object
