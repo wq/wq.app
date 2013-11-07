@@ -1,32 +1,67 @@
-define(["leaflet", "proj4js"],
-function(L, Proj4js) {
+(function (factory) {
+	var L, proj4;
+	if (typeof define === 'function' && define.amd) {
+		// AMD
+		define(['leaflet', 'proj4'], factory);
+	} else if (typeof module !== 'undefined') {
+		// Node/CommonJS
+		L = require('leaflet');
+		proj4 = require('proj4');
+		module.exports = factory(L, proj4);
+	} else {
+		// Browser globals
+		if (typeof window.L === 'undefined' || typeof window.proj4 === 'undefined')
+			throw "Leaflet and proj4 must be loaded first";
+		factory(window.L, window.proj4);
+	}
+}(function (L, proj4) {
 
 L.Proj = {};
 
-L.Proj._isProj4Proj = function(a) {
-	return typeof a['projName'] !== 'undefined';
-}
+L.Proj._isProj4Obj = function(a) {
+	return (typeof a['inverse'] !== 'undefined' 
+		&& typeof a['forward'] !== 'undefined');
+};
+
+L.Proj.ScaleDependantTransformation = function(scaleTransforms) {
+		this.scaleTransforms = scaleTransforms;
+	}
+
+L.Proj.ScaleDependantTransformation.prototype.transform = function(point, scale) {
+		return this.scaleTransforms[scale].transform(point, scale);
+};
+
+L.Proj.ScaleDependantTransformation.prototype.untransform = function(point, scale) {
+		return this.scaleTransforms[scale].untransform(point, scale);
+};
 
 L.Proj.Projection = L.Class.extend({
 	initialize: function(a, def) {
-		if (L.Proj._isProj4Proj(a)) {
+		if (L.Proj._isProj4Obj(a)) {
 			this._proj = a;
 		} else {
 			var code = a;
-			if (def)
-				Proj4js.defs[code] = def;
-			this._proj = new Proj4js.Proj(code);
+			if (def) {
+				proj4.defs(code, def);
+			} else if (proj4.defs[code] === undefined) {
+				var urn = code.split(':');
+				if (urn.length > 3)
+					code = urn[urn.length - 3] + ':' + urn[urn.length - 1];
+				if (proj4.defs[code] === undefined)
+					throw "No projection definition for code " + code;
+			}
+			this._proj = proj4(code);
 		}
 	},
 
 	project: function (latlng) {
-		var point = new L.Point(latlng.lng, latlng.lat);
-		return Proj4js.transform(Proj4js.WGS84, this._proj, point);
+		var point = this._proj.forward([latlng.lng, latlng.lat]);
+		return new L.Point(point[0], point[1]);
 	},
 
 	unproject: function (point, unbounded) {
-		var point2 = Proj4js.transform(this._proj, Proj4js.WGS84, point.clone());
-		return new L.LatLng(point2.y, point2.x, unbounded);
+		var point2 = this._proj.inverse([point.x, point.y]);
+		return new L.LatLng(point2[1], point2[0], unbounded);
 	}
 });
 
@@ -40,7 +75,7 @@ L.Proj.CRS = L.Class.extend({
 	initialize: function(a, b, c) {
 		var code, proj, def, options;
 
-		if (L.Proj._isProj4Proj(a)) {
+		if (L.Proj._isProj4Obj(a)) {
 			proj = a;
 			code = proj.srsCode;
 			options = b || {};
@@ -77,19 +112,19 @@ L.Proj.CRS = L.Class.extend({
 
 L.Proj.CRS.TMS = L.Proj.CRS.extend({
 	initialize: function(a, b, c, d) {
-		if (L.Proj._isProj4Proj(a)) {
+		if (L.Proj._isProj4Obj(a)) {
 			var proj = a,
 				projectedBounds = b,
 				options = c || {};
 			options.origin = [projectedBounds[0], projectedBounds[3]];
-			L.Proj.CRS.prototype.initialize(proj, options);
+			L.Proj.CRS.prototype.initialize.call(this, proj, options);
 		} else {
 			var code = a,
 				def = b,
 				projectedBounds = c,
 				options = d || {};
 			options.origin = [projectedBounds[0], projectedBounds[3]];
-			L.Proj.CRS.prototype.initialize(code, def, options);
+			L.Proj.CRS.prototype.initialize.call(this, code, def, options);
 		}
 
 		this.projectedBounds = projectedBounds;
@@ -105,32 +140,48 @@ L.Proj.TileLayer.TMS = L.TileLayer.extend({
 	},
 
 	initialize: function(urlTemplate, crs, options) {
+		var boundsMatchesGrid = true,
+			scaleTransforms,
+			upperY,
+			crsBounds;
+
 		if (!(crs instanceof L.Proj.CRS.TMS)) {
 			throw new Error("CRS is not L.Proj.CRS.TMS.");
 		}
 
 		L.TileLayer.prototype.initialize.call(this, urlTemplate, options);
 		this.crs = crs;
+		crsBounds = this.crs.projectedBounds;
 
 		// Verify grid alignment
-		for (var i = this.options.minZoom; i < this.options.maxZoom; i++) {
-			var gridHeight = (this.crs.projectedBounds[3] - this.crs.projectedBounds[1]) /
+		for (var i = this.options.minZoom; i < this.options.maxZoom && boundsMatchesGrid; i++) {
+			var gridHeight = (crsBounds[3] - crsBounds[1]) /
 				this._projectedTileSize(i);
-			if (Math.abs(gridHeight - Math.round(gridHeight)) > 1e-3) {
-				throw new Error("Projected bounds does not match grid at zoom " + i);
+			boundsMatchesGrid = Math.abs(gridHeight - Math.round(gridHeight)) > 1e-3;
+		}
+
+		if (!boundsMatchesGrid) {
+			scaleTransforms = {};
+			for (var i = this.options.minZoom; i < this.options.maxZoom; i++) {
+				upperY = crsBounds[1] + Math.ceil((crsBounds[3] - crsBounds[1]) /
+					this._projectedTileSize(i)) * this._projectedTileSize(i);
+				scaleTransforms[this.crs.scale(i)] = new L.Transformation(1, -crsBounds[0], -1, upperY);
 			}
+
+			this.crs = new L.Proj.CRS.TMS(this.crs.projection._proj, crsBounds, this.crs.options);
+			this.crs.transformation = new L.Proj.ScaleDependantTransformation(scaleTransforms);
 		}
 	},
 
-	getTileUrl: function(tilePoint) {
-		var gridHeight =
-			Math.round((this.crs.projectedBounds[3] - this.crs.projectedBounds[1]) /
-			this._projectedTileSize(this._map.getZoom()));
+	getTileUrl: function(tilePoint, zoom) {
+		var gridHeight = Math.ceil(
+      (this.crs.projectedBounds[3] - this.crs.projectedBounds[1]) /
+      this._projectedTileSize(zoom)
+    );
 
-		// TODO: relies on some of TileLayer's internals
 		return L.Util.template(this._url, L.Util.extend({
 			s: this._getSubdomain(tilePoint),
-			z: this._getZoomForUrl(),
+			z: zoom,
 			x: tilePoint.x,
 			y: gridHeight - tilePoint.y - 1
 		}, this.options));
@@ -156,12 +207,10 @@ L.Proj.GeoJSON = L.GeoJSON.extend({
 });
 
 L.Proj.geoJson = function(geojson, options) {
-    return new L.Proj.GeoJSON(geojson, options);
-}
+	return new L.Proj.GeoJSON(geojson, options);
+};
 
-if (typeof module !== 'undefined') module.exports = L.Proj;
-
-if (typeof L !== 'undefined' && typeof L.CRS !== 'undefined') {
+if (typeof L.CRS !== 'undefined') {
 	// This is left here for backwards compatibility
 	L.CRS.proj4js = (function () {
 		return function (code, def, transformation, options) {
@@ -173,6 +222,6 @@ if (typeof L !== 'undefined' && typeof L.CRS !== 'undefined') {
 	}());
 }
 
-return L;
+return L.Proj;
 
-});
+}));
