@@ -33,7 +33,7 @@ Library                 |  Version  |  Notes
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
 [marked]:                https://github.com/chjj/marked
 [mustache.js]:           https://github.com/janl/mustache.js
-[proj4js]:               https://github.com/proj4js/proj4js
+[proj4]:                https://github.com/proj4js/proj4js
 [proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
 [requirejs]:             https://github.com/jrburke/requirejs
 [r.js]:                  https://github.com/jrburke/r.js
