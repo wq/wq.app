@@ -152,6 +152,29 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
     });
 };
 
+app.postsave = function(item, result, conf) {
+    // Save was successful, redirect to next screen
+    var options = {'reverse': true, 'transition': _saveTransition};
+    var baseurl, itemid, pconf;
+    if (conf.postsave && conf.postsave != conf.page) {
+        // Optional: return to detail view for a parent model
+        pconf = _getConf(conf.postsave, true);
+        // If conf.postsave is not a page name, assume it's a valid URL
+        baseurl = pconf && pconf.url || conf.postsave;
+        itemid = result[conf.postsave + '_id'] || "";
+    } else {
+        // Default:
+        // List pages - redirect to detail view for item
+        // Other pages - return to page
+        baseurl = conf.url;
+        itemid = conf.list ? item.newid : "";
+    }
+    jqm.changePage(
+        app.base_url + '/' + baseurl + '/' + itemid,
+        options
+    );
+};
+
 app.attachmentTypes = {
     annotation: {
         'predicate': 'annotated',
@@ -502,26 +525,7 @@ function _handleForm(evt) {
     ds.save(vals, undefined, function(item, result) {
         spin.stop();
         if (item && item.saved) {
-            // Save was successful, redirect to next screen
-            var options = {'reverse': true, 'transition': _saveTransition};
-            var baseurl, itemid, pconf;
-            if (conf.postsave && conf.postsave != conf.page) {
-                // Optional: return to detail view for a parent model
-                pconf = _getConf(conf.postsave, true);
-                // If conf.postsave is not a page name, assume it's a valid URL
-                baseurl = pconf && pconf.url || conf.postsave;
-                itemid = result[conf.postsave + '_id'] || "";
-            } else {
-                // Default:
-                // List pages - redirect to detail view for item
-                // Other pages - return to page
-                baseurl = conf.url;
-                itemid = conf.list ? item.newid : "";
-            }
-            jqm.changePage(
-                app.base_url + '/' + baseurl + '/' + itemid,
-                options
-            );
+            app.postsave(item, result, conf);
             return;
         }
 
