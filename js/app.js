@@ -74,6 +74,7 @@ app.init = function(config, templates, baseurl, svc) {
     }
 
     $(document).on('submit', 'form', _handleForm);
+    $(document).on('click', 'form [type=submit]', _submitClick);
 };
 
 app.logout = function() {
@@ -478,7 +479,13 @@ function _renderOther(page, ui, params, url, context) {
 
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
-    var $form = $(this);
+    var $form = $(this), $submitVal;
+    if ($form.data('submit-button-name')) {
+        $submitVal = $("<input>")
+           .attr("name", $form.data('submit-button-name'))
+           .attr("value", $form.data('submit-button-value'));
+        $form.append($submitVal);
+    }
     if ($form.data('json') !== undefined && !$form.data('json'))
         return; // Defer to default (HTML-based) handler
 
@@ -511,6 +518,7 @@ function _handleForm(evt) {
     }
     // Skip regular form submission, we're saving this via store
     evt.preventDefault();
+    if ($submitVal) $submitVal.remove();
 
     vals.url = url;
     if (url == conf.url + "/" || !conf.list)
@@ -572,6 +580,19 @@ function _handleForm(evt) {
         }
     });
 }
+
+// Remember which submit button was clicked (and its value)
+function _submitClick() {
+    var $button = $(this),
+        $form = $(this.form),
+        name = $button.attr('name'),
+        value = $button.attr('value');
+    if (name !== undefined && value !== undefined) {
+        $form.data('submit-button-name', name);
+        $form.data('submit-button-value', value);
+    }
+}
+
 
 // Successful results from REST API contain the newly saved object
 function _applyResult(item, result) {
