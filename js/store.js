@@ -86,15 +86,8 @@ function _Store(name) {
 
     // Get value from datastore
     self.get = function(query, useservice) {
-        // Ensure single-page lists are retrieved correctly
-        // (though caller should really be using getList)
-        if (typeof query !== 'string' && !query.page) {
-            var pageinfo = self.getPageInfo(query);
-            if (pageinfo && pageinfo.pages == 1)
-                query.page = 1;
-        }
-
         // First argument is the lookup query
+        query = self.firstPageQuery(query);
         var key = self.toKey(query);
 
         // Optional second argument determines when to fetch via ajax.
@@ -319,6 +312,7 @@ function _Store(name) {
 
     // Get list from datastore, index by a unique attribute (e.g. primary key)
     self.getIndex = function(query, attr, usesvc) {
+        query = self.firstPageQuery(query);
         var key = self.toKey(query);
 
         if (!_index_cache[key] || !_index_cache[key][attr] || usesvc) {
@@ -341,6 +335,7 @@ function _Store(name) {
 
     // Get list from datastore, grouped by an attribute (e.g. foreign key)
     self.getGroups = function(query, attr, usesvc) {
+        query = self.firstPageQuery(query);
         var key = self.toKey(query);
 
         if (!_group_cache[key] || !_group_cache[key][attr] || usesvc) {
@@ -457,6 +452,16 @@ function _Store(name) {
         }
         // UTF-16 means two bytes per character in storage - at least on webkit
         return usage * 2;
+    };
+
+    // Ensure single-page lists are retrieved correctly
+    self.firstPageQuery = function(query) {
+        if (typeof query !== 'string' && !query.page) {
+            var pageinfo = self.getPageInfo(query);
+            if (pageinfo && pageinfo.pages == 1)
+                query.page = 1;
+        }
+        return query;
     };
 
     // Helper to allow simple objects to be used as keys
