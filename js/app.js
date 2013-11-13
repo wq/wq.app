@@ -526,6 +526,7 @@ function _handleForm(evt) {
     else
         vals.method = "PUT";  // .. but PUT to update existing records
 
+    vals.listQuery = {'url': conf.url};
     vals.csrftoken = ds.get('csrftoken');
 
     $('.error').html('');
@@ -597,10 +598,10 @@ function _submitClick() {
 // Successful results from REST API contain the newly saved object
 function _applyResult(item, result) {
     if (result && result.id) {
-        var conf = _getConfByUrl(item.data.url);
+        var conf = _getConfByUrl(item.listQuery.url);
         item.saved = true;
         item.newid = result.id;
-        ds.getList({'url': conf.url}, function(list) {
+        ds.getList(item.listQuery, function(list) {
             var res = $.extend({}, result);
             for (var aname in app.attachmentTypes)
                 _updateAttachments(conf, res, aname);

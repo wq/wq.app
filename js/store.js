@@ -307,6 +307,11 @@ function _Store(name) {
             };
         }
 
+        // Unsaved form items related to this list
+        list.unsavedItems = function() {
+            return self.unsavedItems(basequery);
+        };
+
         callback(list);
     };
 
@@ -760,6 +765,10 @@ function _Store(name) {
                 saved: false,
                 id:    outbox.length + 1
             };
+            if (data.listQuery) {
+                item.listQuery = data.listQuery;
+                delete data.listQuery;
+            }
             outbox.push(item);
         }
         self.set('outbox', outbox);
@@ -975,8 +984,27 @@ function _Store(name) {
     };
 
     // Count of pending outbox items (never saved, or save was unsuccessful)
-    self.unsaved = function() {
-        return self.filter('outbox', {'saved': false}).length;
+    self.unsaved = function(listQuery) {
+        return self.unsavedItems(listQuery).length;
+    };
+
+    // Actual unsaved items
+    self.unsavedItems = function(listQuery) {
+        var items = self.filter('outbox', {'saved': false});
+
+        // Return all unsaved items by default
+        if (!listQuery)
+            return items;
+
+        // Otherwise, only match items corresponding to the specified list
+        return items.filter(function(item) {
+            if (!item.listQuery)
+                return false;
+            for (var key in listQuery)
+                if (item.listQuery[key] != listQuery[key])
+                    return false;
+            return true;
+        });
     };
 
     // Clear local caches
