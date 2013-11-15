@@ -352,6 +352,12 @@ function _renderList(page, list, ui, params, url, context) {
         'next':     next ? '/' + next : null,
         'multiple': data.info.pages > 1
     }, context);
+
+    // Add any outbox items to context
+    var unsavedItems = list.unsavedItems();
+    context.unsaved = unsavedItems.length;
+    context.unsavedItems = unsavedItems;
+
     _addLookups(page, context, false, function(context) {
         pages.go(url, page + '_list', context, ui, conf.once ? true : false);
     });
@@ -428,8 +434,12 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
     var conf = _getConf(page);
     if (itemid != "new") {
         // Edit existing item
-        if (url === undefined)
-            url = itemid + '/edit';
+        if (url === undefined) {
+            url = conf.url;
+            if (url)
+                url += '/';
+            url += itemid + '/edit';
+        }
         var item = list.find(
             itemid, undefined, undefined, conf.max_local_pages
         );
@@ -443,7 +453,10 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
         // Create new item
         context = $.extend({}, conf.defaults, conf, params, context);
         if (url === undefined) {
-            url = 'new';
+            url = conf.url;
+            if (url)
+                url += '/';
+            url += 'new';
             if (params && $.param(params))
                 url += '?' + $.param(params);
         }
@@ -453,7 +466,7 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
     function done(context) {
         var divid = page + '_' + itemid + '-page';
         pages.go(
-            conf.url + '/' + url, page + '_edit', context, ui, false, divid
+            url, page + '_edit', context, ui, false, divid
         );
     }
 }
@@ -489,6 +502,7 @@ function _handleForm(evt) {
     if ($form.data('json') !== undefined && !$form.data('json'))
         return; // Defer to default (HTML-based) handler
 
+    var outboxId = $form.data('outbox-id');
     var url = $form.attr('action').substring(1);
     var conf = _getConfByUrl(url);
 
@@ -531,7 +545,7 @@ function _handleForm(evt) {
 
     $('.error').html('');
     spin.start();
-    ds.save(vals, undefined, function(item, result) {
+    ds.save(vals, outboxId, function(item, result) {
         spin.stop();
         if (item && item.saved) {
             app.postsave(item, result, conf);
