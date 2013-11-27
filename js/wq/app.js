@@ -74,6 +74,7 @@ app.init = function(config, templates, baseurl, svc) {
     }
 
     $(document).on('submit', 'form', _handleForm);
+    $(document).on('click', 'form [type=submit]', _submitClick);
 };
 
 app.logout = function() {
@@ -150,6 +151,29 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
             _renderList(page, list, ui, params, url, context);
         }
     });
+};
+
+app.postsave = function(item, result, conf) {
+    // Save was successful, redirect to next screen
+    var options = {'reverse': true, 'transition': _saveTransition};
+    var baseurl, itemid, pconf;
+    if (conf.postsave && conf.postsave != conf.page) {
+        // Optional: return to detail view for a parent model
+        pconf = _getConf(conf.postsave, true);
+        // If conf.postsave is not a page name, assume it's a valid URL
+        baseurl = pconf && pconf.url || conf.postsave;
+        itemid = result[conf.postsave + '_id'] || "";
+    } else {
+        // Default:
+        // List pages - redirect to detail view for item
+        // Other pages - return to page
+        baseurl = conf.url;
+        itemid = conf.list ? item.newid : "";
+    }
+    jqm.changePage(
+        app.base_url + '/' + baseurl + '/' + itemid,
+        options
+    );
 };
 
 app.attachmentTypes = {
@@ -328,6 +352,12 @@ function _renderList(page, list, ui, params, url, context) {
         'next':     next ? '/' + next : null,
         'multiple': data.info.pages > 1
     }, context);
+
+    // Add any outbox items to context
+    var unsavedItems = list.unsavedItems();
+    context.unsaved = unsavedItems.length;
+    context.unsavedItems = unsavedItems;
+
     _addLookups(page, context, false, function(context) {
         pages.go(url, page + '_list', context, ui, conf.once ? true : false);
     });
@@ -404,8 +434,12 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
     var conf = _getConf(page);
     if (itemid != "new") {
         // Edit existing item
-        if (url === undefined)
-            url = itemid + '/edit';
+        if (url === undefined) {
+            url = conf.url;
+            if (url)
+                url += '/';
+            url += itemid + '/edit';
+        }
         var item = list.find(
             itemid, undefined, undefined, conf.max_local_pages
         );
@@ -419,7 +453,10 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
         // Create new item
         context = $.extend({}, conf.defaults, conf, params, context);
         if (url === undefined) {
-            url = 'new';
+            url = conf.url;
+            if (url)
+                url += '/';
+            url += 'new';
             if (params && $.param(params))
                 url += '?' + $.param(params);
         }
@@ -429,7 +466,7 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
     function done(context) {
         var divid = page + '_' + itemid + '-page';
         pages.go(
-            conf.url + '/' + url, page + '_edit', context, ui, false, divid
+            url, page + '_edit', context, ui, false, divid
         );
     }
 }
@@ -455,10 +492,17 @@ function _renderOther(page, ui, params, url, context) {
 
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
-    var $form = $(this);
+    var $form = $(this), $submitVal;
+    if ($form.data('submit-button-name')) {
+        $submitVal = $("<input>")
+           .attr("name", $form.data('submit-button-name'))
+           .attr("value", $form.data('submit-button-value'));
+        $form.append($submitVal);
+    }
     if ($form.data('json') !== undefined && !$form.data('json'))
         return; // Defer to default (HTML-based) handler
 
+    var outboxId = $form.data('outbox-id');
     var url = $form.attr('action').substring(1);
     var conf = _getConfByUrl(url);
 
@@ -488,6 +532,7 @@ function _handleForm(evt) {
     }
     // Skip regular form submission, we're saving this via store
     evt.preventDefault();
+    if ($submitVal) $submitVal.remove();
 
     vals.url = url;
     if (url == conf.url + "/" || !conf.list)
@@ -495,33 +540,15 @@ function _handleForm(evt) {
     else
         vals.method = "PUT";  // .. but PUT to update existing records
 
+    vals.listQuery = {'url': conf.url};
     vals.csrftoken = ds.get('csrftoken');
 
     $('.error').html('');
     spin.start();
-    ds.save(vals, undefined, function(item, result) {
+    ds.save(vals, outboxId, function(item, result) {
         spin.stop();
         if (item && item.saved) {
-            // Save was successful, redirect to next screen
-            var options = {'reverse': true, 'transition': _saveTransition};
-            var baseurl, itemid, pconf;
-            if (conf.postsave && conf.postsave != conf.page) {
-                // Optional: return to detail view for a parent model
-                pconf = _getConf(conf.postsave, true);
-                // If conf.postsave is not a page name, assume it's a valid URL
-                baseurl = pconf && pconf.url || conf.postsave;
-                itemid = result[conf.postsave + '_id'] || "";
-            } else {
-                // Default:
-                // List pages - redirect to detail view for item
-                // Other pages - return to page
-                baseurl = conf.url;
-                itemid = conf.list ? item.newid : "";
-            }
-            jqm.changePage(
-                app.base_url + '/' + baseurl + '/' + itemid,
-                options
-            );
+            app.postsave(item, result, conf);
             return;
         }
 
@@ -569,13 +596,26 @@ function _handleForm(evt) {
     });
 }
 
+// Remember which submit button was clicked (and its value)
+function _submitClick() {
+    var $button = $(this),
+        $form = $(this.form),
+        name = $button.attr('name'),
+        value = $button.attr('value');
+    if (name !== undefined && value !== undefined) {
+        $form.data('submit-button-name', name);
+        $form.data('submit-button-value', value);
+    }
+}
+
+
 // Successful results from REST API contain the newly saved object
 function _applyResult(item, result) {
     if (result && result.id) {
-        var conf = _getConfByUrl(item.data.url);
+        var conf = _getConfByUrl(item.listQuery.url);
         item.saved = true;
         item.newid = result.id;
-        ds.getList({'url': conf.url}, function(list) {
+        ds.getList(item.listQuery, function(list) {
             var res = $.extend({}, result);
             for (var aname in app.attachmentTypes)
                 _updateAttachments(conf, res, aname);
