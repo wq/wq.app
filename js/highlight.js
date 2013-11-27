@@ -9,7 +9,7 @@ var hljs = new function() {
 
   function findCode(pre) {
     for (var node = pre.firstChild; node; node = node.nextSibling) {
-      if (node.nodeName == 'CODE')
+      if (node.nodeName.toUpperCase () == 'CODE')
         return node;
       if (!(node.nodeType == 3 && node.nodeValue.match(/\s+/)))
         break;
@@ -21,7 +21,7 @@ var hljs = new function() {
       if (node.nodeType == 3) {
         return ignoreNewLines ? node.nodeValue.replace(/\n/g, '') : node.nodeValue;
       }
-      if (node.nodeName == 'BR') {
+      if (node.nodeName.toUpperCase () == 'BR') {
         return '\n';
       }
       return blockText(node, ignoreNewLines);
@@ -30,7 +30,7 @@ var hljs = new function() {
 
   function blockLanguage(block) {
     var classes = (block.className + ' ' + (block.parentNode ? block.parentNode.className : '')).split(/\s+/);
-    classes = classes.map(function(c) {return c.replace(/^language-/, '')});
+    classes = classes.map(function(c) {return c.replace(/^language-/, '');});
     for (var i = 0; i < classes.length; i++) {
       if (languages[classes[i]] || classes[i] == 'no-highlight') {
         return classes[i];
@@ -46,7 +46,7 @@ var hljs = new function() {
       for (var child = node.firstChild; child; child = child.nextSibling) {
         if (child.nodeType == 3)
           offset += child.nodeValue.length;
-        else if (child.nodeName == 'BR')
+        else if (child.nodeName.toUpperCase() == 'BR')
           offset += 1;
         else if (child.nodeType == 1) {
           result.push({
@@ -67,62 +67,74 @@ var hljs = new function() {
     return result;
   }
 
-  function mergeStreams(stream1, stream2, value) {
+  function mergeStreams(original, highlighted, value) {
     var processed = 0;
     var result = '';
     var nodeStack = [];
 
     function selectStream() {
-      if (stream1.length && stream2.length) {
-        if (stream1[0].offset != stream2[0].offset)
-          return (stream1[0].offset < stream2[0].offset) ? stream1 : stream2;
-        else {
-          /*
-          To avoid starting the stream just before it should stop the order is
-          ensured that stream1 always starts first and closes last:
-
-          if (event1 == 'start' && event2 == 'start')
-            return stream1;
-          if (event1 == 'start' && event2 == 'stop')
-            return stream2;
-          if (event1 == 'stop' && event2 == 'start')
-            return stream1;
-          if (event1 == 'stop' && event2 == 'stop')
-            return stream2;
-
-          ... which is collapsed to:
-          */
-          return stream2[0].event == 'start' ? stream1 : stream2;
-        }
-      } else {
-        return stream1.length ? stream1 : stream2;
+      if (!original.length || !highlighted.length) {
+        return original.length ? original : highlighted;
       }
+      if (original[0].offset != highlighted[0].offset) {
+        return (original[0].offset < highlighted[0].offset) ? original : highlighted;
+      }
+
+      /*
+      To avoid starting the stream just before it should stop the order is
+      ensured that original always starts first and closes last:
+
+      if (event1 == 'start' && event2 == 'start')
+        return original;
+      if (event1 == 'start' && event2 == 'stop')
+        return highlighted;
+      if (event1 == 'stop' && event2 == 'start')
+        return original;
+      if (event1 == 'stop' && event2 == 'stop')
+        return highlighted;
+
+      ... which is collapsed to:
+      */
+      return highlighted[0].event == 'start' ? original : highlighted;
     }
 
     function open(node) {
-      function attr_str(a) {return ' ' + a.nodeName + '="' + escape(a.value) + '"'};
-      return '<' + node.nodeName + Array.prototype.map.call(node.attributes, attr_str).join('') + '>';
+      function attr_str(a) {return ' ' + a.nodeName + '="' + escape(a.value) + '"';}
+      result += '<' + node.nodeName.toLowerCase() + Array.prototype.map.call(node.attributes, attr_str).join('') + '>';
     }
 
-    while (stream1.length || stream2.length) {
-      var current = selectStream().splice(0, 1)[0];
-      result += escape(value.substr(processed, current.offset - processed));
-      processed = current.offset;
-      if ( current.event == 'start') {
-        result += open(current.node);
-        nodeStack.push(current.node);
-      } else if (current.event == 'stop') {
-        var node, i = nodeStack.length;
+    function close(node) {
+      result += '</' + node.nodeName.toLowerCase() + '>';
+    }
+
+    function render(event) {
+      (event.event == 'start' ? open : close)(event.node);
+    }
+
+    while (original.length || highlighted.length) {
+      var stream = selectStream();
+      result += escape(value.substr(processed, stream[0].offset - processed));
+      processed = stream[0].offset;
+      if (stream == original) {
+        /*
+        On any opening or closing tag of the original markup we first close
+        the entire highlighted node stack, then render the original tag along
+        with all the following original tags at the same offset and then
+        reopen all the tags on the highlighted stack.
+        */
+        nodeStack.reverse().forEach(close);
         do {
-          i--;
-          node = nodeStack[i];
-          result += ('</' + node.nodeName.toLowerCase() + '>');
-        } while (node != current.node);
-        nodeStack.splice(i, 1);
-        while (i < nodeStack.length) {
-          result += open(nodeStack[i]);
-          i++;
+          render(stream.splice(0, 1)[0]);
+          stream = selectStream();
+        } while (stream == original && stream.length && stream[0].offset == processed);
+        nodeStack.reverse().forEach(open);
+      } else {
+        if (stream[0].event == 'start') {
+          nodeStack.push(stream[0].node);
+        } else {
+          nodeStack.pop();
         }
+        render(stream.splice(0, 1)[0]);
       }
     }
     return result + escape(value.substr(processed));
@@ -153,6 +165,9 @@ var hljs = new function() {
         var compiled_keywords = {};
 
         function flatten(className, str) {
+          if (language.case_insensitive) {
+            str = str.toLowerCase();
+          }
           str.split(' ').forEach(function(kw) {
             var pair = kw.split('|');
             compiled_keywords[pair[0]] = [className, pair[1] ? Number(pair[1]) : 1];
@@ -160,9 +175,9 @@ var hljs = new function() {
           });
         }
 
-        mode.lexemsRe = langRe(mode.lexems || hljs.IDENT_RE + '(?!\\.)', true);
+        mode.lexemsRe = langRe(mode.lexems || '\\b' + hljs.IDENT_RE + '\\b(?!\\.)', true);
         if (typeof mode.keywords == 'string') { // string
-          flatten('keyword', mode.keywords)
+          flatten('keyword', mode.keywords);
         } else {
           for (var className in mode.keywords) {
             if (!mode.keywords.hasOwnProperty(className))
@@ -227,7 +242,7 @@ var hljs = new function() {
   - value (an HTML string with highlighting markup)
 
   */
-  function highlight(language_name, value, ignore_illegals) {
+  function highlight(language_name, value, ignore_illegals, continuation) {
 
     function subMode(lexem, mode) {
       for (var i = 0; i < mode.contains.length; i++) {
@@ -283,7 +298,8 @@ var hljs = new function() {
       if (top.subLanguage && !languages[top.subLanguage]) {
         return escape(mode_buffer);
       }
-      var result = top.subLanguage ? highlight(top.subLanguage, mode_buffer) : highlightAuto(mode_buffer);
+      var continuation = top.subLanguageMode == 'continuous' ? top.top : undefined;
+      var result = top.subLanguage ? highlight(top.subLanguage, mode_buffer, true, continuation) : highlightAuto(mode_buffer);
       // Counting embedded language score towards the host language may be disabled
       // with zeroing the containing mode relevance. Usecase in point is Markdown that
       // allows XML everywhere and makes every XML snippet to have a much larger Markdown
@@ -292,6 +308,7 @@ var hljs = new function() {
         keyword_count += result.keyword_count;
         relevance += result.relevance;
       }
+      top.top = result.top;
       return '<span class="' + result.language  + '">' + result.value + '</span>';
     }
 
@@ -365,12 +382,21 @@ var hljs = new function() {
     }
 
     var language = languages[language_name];
+    if (!language) {
+      throw new Error('Unknown language: "' + language_name + '"');
+    }
+
     compileLanguage(language);
-    var top = language;
+    var top = continuation || language;
+    var result = '';
+    for(var current = top; current != language; current = current.parent) {
+      if (current.className) {
+        result = '<span class="' + current.className +'">' + result;
+      }
+    }
     var mode_buffer = '';
     var relevance = 0;
     var keyword_count = 0;
-    var result = '';
     try {
       var match, count, index = 0;
       while (true) {
@@ -381,12 +407,18 @@ var hljs = new function() {
         count = processLexem(value.substr(index, match.index - index), match[0]);
         index = match.index + count;
       }
-      processLexem(value.substr(index))
+      processLexem(value.substr(index));
+      for(var current = top; current.parent; current = current.parent) { // close dangling modes
+        if (current.className) {
+          result += '</span>';
+        }
+      };
       return {
         relevance: relevance,
         keyword_count: keyword_count,
         value: result,
-        language: language_name
+        language: language_name,
+        top: top
       };
     } catch (e) {
       if (e.message.indexOf('Illegal') != -1) {
@@ -471,7 +503,7 @@ var hljs = new function() {
     language = result.language;
     var original = nodeStream(block);
     if (original.length) {
-      var pre = document.createElement('pre');
+      var pre = document.createElementNS('http://www.w3.org/1999/xhtml', 'pre');
       pre.innerHTML = result.value;
       result.value = mergeStreams(original, nodeStream(pre), text);
     }
@@ -504,9 +536,9 @@ var hljs = new function() {
     if (initHighlighting.called)
       return;
     initHighlighting.called = true;
-    Array.prototype.map.call(document.getElementsByTagName('pre'), findCode).
+    Array.prototype.map.call(document.getElementsByTagNameNS('http://www.w3.org/1999/xhtml', 'pre'), findCode).
       filter(Boolean).
-      forEach(function(code){highlightBlock(code, hljs.tabReplace)});
+      forEach(function(code){highlightBlock(code, hljs.tabReplace);});
   }
 
   /*
@@ -594,18 +626,18 @@ var hljs = new function() {
         contains: [this.BACKSLASH_ESCAPE]
       }
     ]
-  }
+  };
 
   // Utility functions
   this.inherit = function(parent, obj) {
-    var result = {}
+    var result = {};
     for (var key in parent)
       result[key] = parent[key];
     if (obj)
       for (var key in obj)
         result[key] = obj[key];
     return result;
-  }
+  };
 }();
 hljs.LANGUAGES['xml'] = function(hljs) {
   var XML_IDENT_RE = '[A-Za-z0-9\\._:-]+';
@@ -850,9 +882,9 @@ hljs.LANGUAGES['python'] = function(hljs) {
       keyword:
         'and elif is global as in if from raise for except finally print import pass return ' +
         'exec else break not with class assert yield try while continue del or def lambda ' +
-        'nonlocal|10',
+        'nonlocal|10 None True False',
       built_in:
-        'None True False Ellipsis NotImplemented'
+        'Ellipsis NotImplemented'
     },
     illegal: /(<\/|->|\?)/,
     contains: STRINGS.concat([
@@ -1036,109 +1068,6 @@ hljs.LANGUAGES['bash'] = function(hljs) {
     ]
   };
 }(hljs);
-hljs.LANGUAGES['xml'] = function(hljs) {
-  var XML_IDENT_RE = '[A-Za-z0-9\\._:-]+';
-  var TAG_INTERNALS = {
-    endsWithParent: true,
-    relevance: 0,
-    contains: [
-      {
-        className: 'attribute',
-        begin: XML_IDENT_RE,
-        relevance: 0
-      },
-      {
-        begin: '="', returnBegin: true, end: '"',
-        contains: [{
-            className: 'value',
-            begin: '"', endsWithParent: true
-        }]
-      },
-      {
-        begin: '=\'', returnBegin: true, end: '\'',
-        contains: [{
-          className: 'value',
-          begin: '\'', endsWithParent: true
-        }]
-      },
-      {
-        begin: '=',
-        contains: [{
-          className: 'value',
-          begin: '[^\\s/>]+'
-        }]
-      }
-    ]
-  };
-  return {
-    case_insensitive: true,
-    contains: [
-      {
-        className: 'pi',
-        begin: '<\\?', end: '\\?>',
-        relevance: 10
-      },
-      {
-        className: 'doctype',
-        begin: '<!DOCTYPE', end: '>',
-        relevance: 10,
-        contains: [{begin: '\\[', end: '\\]'}]
-      },
-      {
-        className: 'comment',
-        begin: '<!--', end: '-->',
-        relevance: 10
-      },
-      {
-        className: 'cdata',
-        begin: '<\\!\\[CDATA\\[', end: '\\]\\]>',
-        relevance: 10
-      },
-      {
-        className: 'tag',
-        /*
-        The lookahead pattern (?=...) ensures that 'begin' only matches
-        '<style' as a single word, followed by a whitespace or an
-        ending braket. The '$' is needed for the lexem to be recognized
-        by hljs.subMode() that tests lexems outside the stream.
-        */
-        begin: '<style(?=\\s|>|$)', end: '>',
-        keywords: {title: 'style'},
-        contains: [TAG_INTERNALS],
-        starts: {
-          end: '</style>', returnEnd: true,
-          subLanguage: 'css'
-        }
-      },
-      {
-        className: 'tag',
-        // See the comment in the <style tag about the lookahead pattern
-        begin: '<script(?=\\s|>|$)', end: '>',
-        keywords: {title: 'script'},
-        contains: [TAG_INTERNALS],
-        starts: {
-          end: '</script>', returnEnd: true,
-          subLanguage: 'javascript'
-        }
-      },
-      {
-        begin: '<%', end: '%>',
-        subLanguage: 'vbscript'
-      },
-      {
-        className: 'tag',
-        begin: '</?', end: '/?>',
-        relevance: 0,
-        contains: [
-          {
-            className: 'title', begin: '[^ /><]+'
-          },
-          TAG_INTERNALS
-        ]
-      }
-    ]
-  };
-}(hljs);
 hljs.LANGUAGES['scss'] = function(hljs) {
   var IDENT_RE = '[a-zA-Z-][a-zA-Z0-9_-]*';
   var FUNCTION = {
@@ -1232,7 +1161,7 @@ hljs.LANGUAGES['scss'] = function(hljs) {
       {
         className: 'at_rule',
         begin: '@', end: '[{;]',
-        keywords: 'mixin include for extend charset import media page font-face namespace',
+        keywords: 'mixin include extend for if else each while charset import debug media page content font-face namespace warn',
         contains: [
           FUNCTION,
           hljs.QUOTE_STRING_MODE,

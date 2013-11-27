@@ -7,20 +7,20 @@ These are the dependencies of various wq.app modules as well as some other usefu
 
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
-[d3.js]                 |    3.2.8  |  wrapped as AMD module
+[d3.js]                 |   3.3.10  |  wrapped as AMD module
 [es5-shim.js]           |    2.1.0  |  
-[highlight.js]          |  b26a4c6  |  tools/build.py -n -tamd bash css javascript markdown python scss xml
+[highlight.js]          |      7.5  |  tools/build.py -n -tamd bash css javascript markdown python scss xml
 [jquery]                |    1.9.1  |  
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.11.1  |  wrapped as AMD module
 [leaflet]               |      0.7  |  
 [leaflet.markercluster] |  8ccd5a3  |  wrapped as AMD module
-[marked]                |    0.2.9  |  
-[mustache.js]           |    0.7.2  |  
+[marked]                |   0.2.10  |  
+[mustache.js]           |    0.7.3  |  
 [proj4]                 |    2.0.0  |  
 [proj4leaflet]          |    0.7.0  |  
-[requirejs], [r.js]     |    2.1.8  |  r.js is in /build
+[requirejs], [r.js]     |    2.1.9  |  r.js is in /build
 
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
