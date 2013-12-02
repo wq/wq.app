@@ -1,1 +1,8 @@
 *.py[cod]
+*.egg-info/
+dist/
+# Note: build/*.py is actually wq.app.build, while build/*/ is 
+# created by distutils...
+build/*/
+README.rst
+wq/__init__.py

@@ -1,52 +1,85 @@
 import os
 from setuptools import setup, find_packages
 
-LONG_DESCRIPION = """
+LONG_DESCRIPTION = """
 JavaScript web apps with RequireJS, jQuery Mobile, Mustache, and Leaflet
 """
 
-def long_description():
-    """Return long description from README.rst if it's present
-    because it doesn't get installed."""
+
+def parse_markdown_readme():
+    """
+    Convert README.md to RST via pandoc, and load into memory
+    (fallback to LONG_DESCRIPTION on failure)
+    """
+    # Attempt to run pandoc on markdown file
+    import subprocess
     try:
-        return open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
-    except IOError:
+        subprocess.call(
+            ['pandoc', '-t', 'rst', '-o', 'README.rst', 'README.md']
+        )
+    except OSError:
         return LONG_DESCRIPTION
 
-def get_package_data(package):
+    # Attempt to load output
+    try:
+        readme = open(os.path.join(
+            os.path.dirname(__file__),
+            'README.rst'
+        ))
+    except IOError:
+        return LONG_DESCRIPTION
+    return readme.read()
+
+
+def list_package_data(root):
     """
-    Return all files under the root package, that are not in a
-    package themselves.
+    List top level js, css, & scss folders for inclusion as package data
     """
-    walk = [(dirpath.replace(package + os.sep, '', 1), filenames)
-            for dirpath, dirnames, filenames in os.walk(package)
-            if not os.path.exists(os.path.join(dirpath, '__init__.py'))]
-
-    filepaths = []
-    for base, filenames in walk:
-        filepaths.extend([os.path.join(base, filename)
-                          for filename in filenames])
-    return {package: filepaths}
+    paths = []
+    for base, dirs, files in os.walk(root):
+        paths.extend([os.path.join(base, name) for name in files])
+    return paths
 
 
-package_data = get_package_data('wq')
-package_data['wq'].append('app/build/r.js')
+def create_wq_namespace():
+    """
+    Generate the wq namespace package
+    (not checked in, as it technically is the parent of this folder)
+    """
+    if os.path.isdir("wq"):
+        return
+    os.makedirs("wq")
+    init = open(os.path.join("wq", "__init__.py"), 'w')
+    init.write("__import__('pkg_resources').declare_namespace(__name__)")
+    init.close()
+
+
+create_wq_namespace()
+package_data = [os.path.join("build", "r.js")]
+for folder in ['js', 'css', 'scss']:
+    package_data.extend(list_package_data(folder))
 
 setup(
-    name = 'wq.app',
-    version = '0.5.0',
+    name='wq.app',
+    version='0.5.0-dev',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='http://wq.io/wq.app',
     license='MIT',
-    packages=find_packages(),
-    package_data=package_data,
+    packages=['wq', 'wq.app', 'wq.app.build'],
+    package_dir={
+        'wq.app': '.',
+        'wq.app.build': 'build',
+    },
+    package_data={
+        'wq.app': package_data
+    },
     namespace_packages=['wq'],
-    description='JavaScript web apps with RequireJS, jQuery Mobile, Mustache, and Leaflet',
-    long_description=long_description(),
+    description=LONG_DESCRIPTION.strip(),
+    long_description=parse_markdown_readme(),
     install_requires=['pyscss'],
-    scripts=['wq/app/build/wq'],
-    classifiers = [
+    scripts=[os.path.join('build', 'wq')],
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'License :: OSI Approved :: MIT License',
