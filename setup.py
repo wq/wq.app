@@ -69,7 +69,7 @@ setup(
     packages=['wq', 'wq.app', 'wq.app.build'],
     package_dir={
         'wq.app': '.',
-        'wq.app.build': 'build',
+        'wq.app.build': './build',
     },
     package_data={
         'wq.app': package_data
@@ -78,7 +78,7 @@ setup(
     description=LONG_DESCRIPTION.strip(),
     long_description=parse_markdown_readme(),
     install_requires=['pyscss'],
-    scripts=[os.path.join('build', 'wq')],
+    scripts=[os.path.join('.', 'build', 'wq')],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
