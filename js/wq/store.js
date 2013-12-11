@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.5.0-dev - store.js
+ * wq.app 0.5.0 - store.js
  * Locally-persistent, optionally server-populated JSON datastore(s)
  * (c) 2012-2013, S. Andrew Sheppard
  * http://wq.io/license
