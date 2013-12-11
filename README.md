@@ -16,12 +16,12 @@ See [the documentation] for more information.
 
 wq.app's [JavaScript modules] are built on [a number of libraries] including [RequireJS], [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
 
- - [app.js], a high-level application controller that combines `store.js` and `pages.js` into a full configuration-driven CRUD client (intended for use with [wq.db]'s [app.py])
- - [chart.js], configurable d3-based reusable charts, including time series and contour plots
- - [locate.js], Leaflet-powered utilities for requesting and displaying the user's location
- - [map.js], Leaflet integration for showing maps on app.js pages that contain geometry (e.g. GeoJSON or simple lat/long)
- - [pages.js], a PJAX-style `pushState` URL router, template renderer, and page injector
- - [store.js], a robust `localStorage`-cached JSON REST client (with indexing and filtering capabilities for object lists)
+ - [wq/app.js], a high-level application controller that combines `store.js` and `pages.js` into a full configuration-driven CRUD client (intended for use with [wq.db]'s [app.py])
+ - [wq/chart.js], configurable d3-based reusable charts, including time series and contour plots
+ - [wq/locate.js], Leaflet-powered utilities for requesting and displaying the user's location
+ - [wq/map.js], Leaflet integration for showing maps on app.js pages that contain geometry (e.g. GeoJSON or simple lat/long)
+ - [wq/pages.js], a PJAX-style `pushState` URL router, template renderer, and page injector
+ - [wq/store.js], a robust `localStorage`-cached JSON REST client (with indexing and filtering capabilities for object lists)
  - and a number of [other useful utilities]
 
 To facilitate compact deployment, wq.app provides a Python-based [build process] for compiling wq apps: inlining templates, optimizing code (via [r.js]), and generating an application cache manifest.  wq.app also includes [jquery-mobile.scss], a SASS/SCSS stylesheet for generating custom jQuery Mobile themes.
@@ -39,12 +39,12 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [d3]: http://d3js.org
  [Mustache.js]: https://mustache.github.com/
  
- [app.js]: http://wq.io/docs/app-js
- [chart.js]: http://wq.io/docs/chart-js
- [pages.js]: http://wq.io/docs/pages-js
- [locate.js]: http://wq.io/docs/locate-js
- [map.js]: http://wq.io/docs/map-js
- [store.js]: http://wq.io/docs/store-js
+ [wq/app.js]: http://wq.io/docs/app-js
+ [wq/chart.js]: http://wq.io/docs/chart-js
+ [wq/pages.js]: http://wq.io/docs/pages-js
+ [wq/locate.js]: http://wq.io/docs/locate-js
+ [wq/map.js]: http://wq.io/docs/map-js
+ [wq/store.js]: http://wq.io/docs/store-js
  [other useful utilities]: http://wq.io/docs/sup
  
  
@@ -52,4 +52,4 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [build process]: http://wq.io/docs/build
  
  [wq.db]: http://wq.io/wq.db
- [app.py]: http://wq.io/docs/rest
+ [app.py]: http://wq.io/docs/app.py
