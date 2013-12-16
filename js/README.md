@@ -20,6 +20,7 @@ Library                 |  Version  |  Notes
 [mustache.js]           |    0.7.3  |  
 [proj4]                 |    2.0.0  |  
 [proj4leaflet]          |    0.7.0  |  
+[rbush]                 |      1.3  |
 [requirejs], [r.js]     |    2.1.9  |  r.js is in /build
 
 [d3.js]:                 https://github.com/mbostock/d3
@@ -35,5 +36,6 @@ Library                 |  Version  |  Notes
 [mustache.js]:           https://github.com/janl/mustache.js
 [proj4]:                 https://github.com/proj4js/proj4js
 [proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
+[rbush]:                 https://github.com/mourner/rbush
 [requirejs]:             https://github.com/jrburke/requirejs
 [r.js]:                  https://github.com/jrburke/r.js
