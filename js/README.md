@@ -21,7 +21,7 @@ Library                 |  Version  |  Notes
 [proj4]                 |    2.0.0  |  
 [proj4leaflet]          |    0.7.0  |  
 [rbush]                 |      1.3  |
-[requirejs], [r.js]     |    2.1.9  |  r.js is in /build
+[requirejs], [r.js]     |    2.1.9  |  [#588], r.js is in /build
 
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
@@ -38,4 +38,5 @@ Library                 |  Version  |  Notes
 [proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
 [rbush]:                 https://github.com/mourner/rbush
 [requirejs]:             https://github.com/jrburke/requirejs
+[#588]:                  https://github.com/jrburke/r.js/pull/588
 [r.js]:                  https://github.com/jrburke/r.js

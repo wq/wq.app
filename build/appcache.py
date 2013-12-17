@@ -70,7 +70,7 @@ def _parse_css_urls(path, filename):
     base = os.path.dirname(filename)
 
     def parse_url(url):
-        if url.startswith('data:'):
+        if url.startswith('data:') or url.startswith('#'):
             return None
         if url.startswith('http://') or url.startswith('https://'):
             return url
