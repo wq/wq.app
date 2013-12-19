@@ -77,7 +77,7 @@ setup(
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=parse_markdown_readme(),
-    install_requires=['pyscss'],
+    install_requires=['pyscss==1.1.5'],
     scripts=[os.path.join('.', 'build', 'wq')],
     classifiers=[
         'Development Status :: 4 - Beta',
