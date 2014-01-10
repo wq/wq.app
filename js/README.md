@@ -1,13 +1,13 @@
 Third party libraries
 =====================
 
-These are the dependencies of various wq.app modules as well as some other useful libraries.  Some of these have been patched as AMD modules to support better integration without shimming.
+These are the dependencies of various wq.app modules as well as some other useful libraries.  An ever-shrinking minority of these have been patched to add missing AMD definitions.  Except where noted, the vendored libraries are equivalent to the official upstream version.
 
 ## Library versions
 
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
-[d3.js]                 |   3.3.10  |  wrapped as AMD module
+[d3.js]                 |      3.4  |  
 [es5-shim.js]           |    2.1.0  |  
 [highlight.js]          |      7.5  |  tools/build.py -n -tamd bash css javascript markdown python scss xml
 [jquery]                |    1.9.1  |  
@@ -21,7 +21,7 @@ Library                 |  Version  |  Notes
 [proj4]                 |    2.0.0  |  
 [proj4leaflet]          |    0.7.0  |  
 [rbush]                 |      1.3  |
-[requirejs], [r.js]     |    2.1.9  |  [#588], r.js is in /build
+[requirejs], [r.js]     |   2.1.10  |  r.js is in /build
 
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
@@ -38,5 +38,4 @@ Library                 |  Version  |  Notes
 [proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
 [rbush]:                 https://github.com/mourner/rbush
 [requirejs]:             https://github.com/jrburke/requirejs
-[#588]:                  https://github.com/jrburke/r.js/pull/588
 [r.js]:                  https://github.com/jrburke/r.js
