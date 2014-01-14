@@ -3,6 +3,36 @@ Third party libraries
 
 These are the dependencies of various wq.app modules as well as some other useful libraries.  An ever-shrinking minority of these have been patched to add missing AMD definitions.  Except where noted, the vendored libraries are equivalent to the official upstream version.
 
+Note that the actual wq.app modules are in [./wq].  The purpose behind this organization is to minimize paths configuration by allowing this js folder to be used as the `baseUrl` in an AMD project.  So, rather than:
+
+```javascript
+// Bad, don't do this
+require.config({
+    'baseUrl': 'my/js',
+    'paths': {
+        'jquery': 'path/to/jquery',
+        'jquery.mobile': 'path/to/jquery.mobile',
+        'leaflet': 'path/to/leaflet',
+        'd3': 'path/to/d3',
+        'wq': 'path/to/wq.app',
+        // ...
+    }
+})
+```
+
+Users of these libraries can just do this:
+
+```javascript
+require.config({
+    'baseUrl': 'path/to/wq.app/js',
+    'paths': {
+        'app': 'my/js',
+    }
+})
+```
+
+This layout is heavily inspired by the [volojs] project template.
+
 ## Library versions
 
 Library                 |  Version  |  Notes
@@ -23,6 +53,8 @@ Library                 |  Version  |  Notes
 [rbush]                 |      1.3  |
 [requirejs], [r.js]     |   2.1.10  |  r.js is in /build
 
+[./wq]:                   https://github.com/wq/wq.app/tree/master/js/wq
+[volojs]:                http://volojs.org
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
 [highlight.js]:          https://github.com/isagalaev/highlight.js
