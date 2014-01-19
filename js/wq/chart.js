@@ -76,6 +76,15 @@ chart.base = function() {
         /* jshint unused: false */
         throw "yvalue accessor not defined!";
     }
+    function xscaled(d) {
+        return xscale.scale(xvalue(d));
+    }
+    function yscaled(scaleid) {
+        var yscale = yscales[scaleid];
+        return function(d) {
+            return yscale.scale(yvalue(d));
+        };
+    }
 
     // Rendering functions (should be overridden)
     function init(datasets) {
@@ -90,10 +99,10 @@ chart.base = function() {
 
     // Generate translation function xscale + given yscale
     function translate(scaleid) {
-        var yscale = yscales[scaleid];
+        var yfn = yscaled(scaleid);
         return function(d) {
-            var x = xscale.scale(xvalue(d));
-            var y = yscale.scale(yvalue(d));
+            var x = xscaled(d);
+            var y = yfn(d);
             return _trans(x, y);
         };
     }
@@ -281,6 +290,11 @@ chart.base = function() {
         xscalefn = fn;
         return plot;
     };
+    plot.xscaled = function(fn) {
+        if (!arguments.length) return xscaled;
+        xscaled = fn;
+        return plot;
+    };
     plot.xnice = function(val) {
         if (!arguments.length) return xnice;
         xnice = val;
@@ -294,6 +308,11 @@ chart.base = function() {
     plot.yscalefn = function(fn) {
         if (!arguments.length) return yscalefn;
         yscalefn = fn;
+        return plot;
+    };
+    plot.yscaled = function(fn) {
+        if (!arguments.length) return yscaled;
+        yscaled = fn;
         return plot;
     };
 
@@ -435,20 +454,45 @@ chart.scatter = function() {
             d3.select(this).selectAll('circle').attr('fill', cscale(sid));
         };
     }
+    function drawPoints(dataset) {
+        /* jshint unused: false */
+        return true;
+    }
+    function drawLines(dataset){
+        /* jshint unused: false */
+        return false;
+    }
 
     plot.render(function(dataset) {
         var items     = plot.items()(dataset),
             yunits    = plot.yunits()(dataset),
             sid       = plot.id()(dataset),
-            translate = plot.translate();
-        d3.select(this).selectAll('g.data').data(items)
-            .enter()
-            .append('g')
+            translate = plot.translate(),
+            xscaled   = plot.xscaled(),
+            yscaled   = plot.yscaled()(yunits),
+            g = d3.select(this),
+            color, line;
+        if (drawLines(dataset)) {
+            color = cscale(sid);
+            line = d3.svg.line()
+                .x(xscaled)
+                .y(yscaled);
+            g.append('path').datum(items)
                 .attr('class', 'data')
-                .attr('transform', translate(yunits))
-            .call(point(sid))
-            .on('mouseover', pointover(sid))
-            .on('mouseout',  pointout(sid));
+                .attr('d', line)
+                .attr('fill', 'transparent')
+                .attr('stroke', color);
+        }
+        if (drawPoints(dataset)) {
+            g.selectAll('g.data').data(items)
+                .enter()
+                .append('g')
+                    .attr('class', 'data')
+                    .attr('transform', translate(yunits))
+                .call(point(sid))
+                .on('mouseover', pointover(sid))
+                .on('mouseout',  pointout(sid));
+        }
     });
 
     plot.wrapup(function(datasets, opts) {
@@ -501,6 +545,18 @@ chart.scatter = function() {
     plot.cscale = function(fn) {
         if (!arguments.length) return cscale;
         cscale = fn;
+        return plot;
+    };
+
+    plot.drawPoints = function(fn) {
+        if (!arguments.length) return drawPoints;
+        drawPoints = fn;
+        return plot;
+    };
+
+    plot.drawLines = function(fn) {
+        if (!arguments.length) return drawLines;
+        drawLines = fn;
         return plot;
     };
 
