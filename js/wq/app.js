@@ -319,7 +319,7 @@ function _renderList(page, list, ui, params, url, context) {
         // (using built-in jQM loader)
         var jqmurl = '/' + url;
         spin.start();
-        jqm.loadPage(jqmurl).then(function() {
+        jqm.loadPage(jqmurl, {}).then(function() {
             spin.stop();
             var $page = $(":jqmData(url='" + jqmurl + "')");
             if ($page.length > 0)
@@ -403,7 +403,7 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
             // directly from the server (using built-in jQM loader)
             var jqmurl = '/' + url;
             spin.start();
-            jqm.loadPage(jqmurl).then(function() {
+            jqm.loadPage(jqmurl, {}).then(function() {
                 spin.stop();
                 var $page = $(":jqmData(url='" + jqmurl + "')");
                 if ($page.length > 0)
@@ -493,6 +493,8 @@ function _renderOther(page, ui, params, url, context) {
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
     var $form = $(this), $submitVal;
+    if (evt.isDefaultPrevented())
+        return;
     if ($form.data('submit-button-name')) {
         $submitVal = $("<input>")
            .attr("name", $form.data('submit-button-name'))
