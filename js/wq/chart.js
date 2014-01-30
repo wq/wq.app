@@ -22,6 +22,7 @@ function _trans(x, y, off) {
 chart.base = function() {
     var width=700, height=300, padding=7.5,
         margins = {'left': 80, 'right': 10, 'top': 10, 'bottom': 30},
+        renderBackground = false,
         xscale = null,
         xscalefn = d3.scale.linear,
         xnice = null,
@@ -229,6 +230,14 @@ chart.base = function() {
         };
 
         // Render each dataset
+        if (renderBackground) {
+            inner.selectAll('g.dataset-background')
+               .data(datasets(data))
+               .enter()
+                   .append('g')
+                   .attr('class', 'dataset-background')
+                   .each(renderBackground);
+        }
         var series = inner.selectAll('g.dataset')
             .data(datasets(data));
         series.enter()
@@ -379,6 +388,11 @@ chart.base = function() {
         init = fn;
         return plot;
     };
+    plot.renderBackground = function(fn) {
+        if (!arguments.length) return renderBackground;
+        renderBackground = fn;
+        return plot;
+    };
     plot.render = function(fn) {
         if (!arguments.length) return render;
         render = fn;
@@ -431,68 +445,96 @@ chart.scatter = function() {
         }
     });
 
-    function point(sid) {
+    /* To customize points beyond just the color, override these functions */
+    function pointShape(sid) {
+        /* jshint unused: false */
+        return "circle";
+    }
+    function pointStyle(sid) {
         var color = cscale(sid);
         return function(sel) {
-            sel.append('circle')
-                .attr('r', 3)
+            sel.attr('r', 3)
                 .attr('fill', color)
                 .attr('stroke', 'black')
                 .attr('cursor', 'pointer');
         };
     }
 
+    /* To customize lines beyond just the color, override this function */
+    function lineStyle(sid) {
+        var color = cscale(sid);
+        return function(sel) {
+            sel.attr('stroke', color);
+        };
+    }
+
     function pointover(sid) {
         /* jshint unused: false */
         return function(d) {
-            d3.select(this).selectAll('circle').attr('fill', '#9999ff');
+            d3.select(this).selectAll(pointShape(sid))
+                .attr('fill', '#9999ff');
         };
     }
     function pointout(sid) {
         /* jshint unused: false */
         return function(d) {
-            d3.select(this).selectAll('circle').attr('fill', cscale(sid));
+            d3.select(this).selectAll(pointShape(sid))
+               .attr('fill', cscale(sid));
         };
     }
-    function drawPoints(dataset) {
-        /* jshint unused: false */
-        return true;
+    function pointLabel(sid) {
+        var x = plot.xvalue(),
+            y = plot.yvalue();
+        return function(d) {
+            return sid + " at " + x(d) + ": " + y(d);
+        };
     }
-    function drawLines(dataset){
-        /* jshint unused: false */
-        return false;
+    function drawPointsIf(dataset) {
+        var items = plot.items()(dataset);
+        return items && items.length <= 50;
+    }
+    function drawLinesIf(dataset){
+        var items = plot.items()(dataset);
+        return items && items.length > 50;
     }
 
+    // Render lines in background to ensure all points are above them
+    plot.renderBackground(function(dataset) {
+        if (!drawLinesIf(dataset))
+            return;
+        var items   = plot.items()(dataset),
+            yunits  = plot.yunits()(dataset),
+            sid     = plot.id()(dataset),
+            xscaled = plot.xscaled(),
+            yscaled = plot.yscaled()(yunits),
+            g       = d3.select(this),
+            line    = d3.svg.line()
+                        .x(xscaled)
+                        .y(yscaled);
+        g.append('path').datum(items)
+            .attr('class', 'data')
+            .attr('d', line)
+            .attr('fill', 'transparent')
+            .call(lineStyle(sid));
+    });
+
     plot.render(function(dataset) {
+        if (!drawPointsIf(dataset))
+            return;
         var items     = plot.items()(dataset),
             yunits    = plot.yunits()(dataset),
             sid       = plot.id()(dataset),
             translate = plot.translate(),
-            xscaled   = plot.xscaled(),
-            yscaled   = plot.yscaled()(yunits),
-            g = d3.select(this),
-            color, line;
-        if (drawLines(dataset)) {
-            color = cscale(sid);
-            line = d3.svg.line()
-                .x(xscaled)
-                .y(yscaled);
-            g.append('path').datum(items)
+            g         = d3.select(this);
+        var points = g.selectAll('g.data').data(items)
+            .enter()
+            .append('g')
                 .attr('class', 'data')
-                .attr('d', line)
-                .attr('fill', 'transparent')
-                .attr('stroke', color);
-        }
-        if (drawPoints(dataset)) {
-            g.selectAll('g.data').data(items)
-                .enter()
-                .append('g')
-                    .attr('class', 'data')
-                    .attr('transform', translate(yunits))
-                .call(point(sid))
+                .attr('transform', translate(yunits))
                 .on('mouseover', pointover(sid))
                 .on('mouseout',  pointout(sid));
-        }
+        points.append(pointShape(sid)).call(pointStyle(sid));
+        points.append('title').text(pointLabel(sid));
     });
 
     plot.wrapup(function(datasets, opts) {
@@ -534,7 +576,7 @@ chart.scatter = function() {
                             sid = plot.id()(d);
 
                         g.attr('transform', _trans(20, 20 + i * 22));
-                        g.call(point(sid));
+                        g.append(pointShape(sid)).call(pointStyle(sid));
                         g.append('text')
                             .text(label(d))
                             .attr('transform', _trans(10, 5));
@@ -548,15 +590,51 @@ chart.scatter = function() {
         return plot;
     };
 
-    plot.drawPoints = function(fn) {
-        if (!arguments.length) return drawPoints;
-        drawPoints = fn;
+    plot.pointShape = function(fn) {
+        if (!arguments.length) return pointShape;
+        pointShape = fn;
         return plot;
     };
 
-    plot.drawLines = function(fn) {
-        if (!arguments.length) return drawLines;
-        drawLines = fn;
+    plot.pointStyle = function(fn) {
+        if (!arguments.length) return pointStyle;
+        pointStyle = fn;
+        return plot;
+    };
+
+    plot.lineStyle = function(fn) {
+        if (!arguments.length) return lineStyle;
+        lineStyle = fn;
+        return plot;
+    };
+
+    plot.pointover = function(fn) {
+        if (!arguments.length) return pointover;
+        pointover = fn;
+        return plot;
+    };
+
+    plot.pointout = function(fn) {
+        if (!arguments.length) return pointout;
+        pointout = fn;
+        return plot;
+    };
+
+    plot.pointLabel = function(fn) {
+        if (!arguments.length) return pointLabel;
+        pointLabel = fn;
+        return plot;
+    };
+
+    plot.drawPointsIf = function(fn) {
+        if (!arguments.length) return drawPointsIf;
+        drawPointsIf = fn;
+        return plot;
+    };
+
+    plot.drawLinesIf = function(fn) {
+        if (!arguments.length) return drawLinesIf;
+        drawLinesIf = fn;
         return plot;
     };
 
@@ -590,6 +668,13 @@ chart.timeSeries = function() {
     .xnice(d3.time.year)
     .yvalue(function(d) {
         return d.value;
+    })
+    .pointLabel(function(sid) {
+        var x = plot.xvalue(),
+            y = plot.yvalue();
+        return function(d) {
+            return sid + " on " + format(x(d)) + ": " + y(d);
+        };
     });
 
     // Getters/setters for chart configuration
