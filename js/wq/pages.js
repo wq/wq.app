@@ -69,7 +69,7 @@ pages.register = function(path, fn, obj, prevent) {
         // Prevent default changePage behavior?
         if (typeof prevent === 'function' && prevent(match, ui, params))
             evt.preventDefault();
-        else if (prevent)
+        else if (typeof prevent !== 'function' && prevent)
             evt.preventDefault();
 
         fn = (typeof fn == "string" ? obj[fn] : fn);
