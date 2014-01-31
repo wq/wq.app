@@ -257,7 +257,8 @@ chart.base = function() {
 
         // Render each dataset
         if (renderBackground) {
-            var background = inner.selectAll('g.dataset-background')
+            var background = _selectOrAppend(inner, 'g', 'background')
+               .selectAll('g.dataset-background')
                .data(datasets(data), id);
             background.enter()
                 .append('g')
@@ -265,7 +266,8 @@ chart.base = function() {
             background.exit().remove();
             background.each(renderBackground);
         }
-        var series = inner.selectAll('g.dataset')
+        var series = _selectOrAppend(inner, 'g', 'datasets')
+            .selectAll('g.dataset')
             .data(datasets(data), id);
         series.enter()
             .append('g')
