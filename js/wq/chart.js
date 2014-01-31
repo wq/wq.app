@@ -18,6 +18,19 @@ function _trans(x, y, off) {
     return 'translate(' + x + ',' + y + ')';
 }
 
+function _selectOrAppend(sel, name, cls) {
+    var selector = name;
+    if (cls)
+        selector += "." + cls;
+    var elem = sel.select(selector);
+    if (elem.empty()) {
+        elem = sel.append(name);
+        if (cls)
+            elem.attr('class', cls);
+    }
+    return elem;
+}
+
 // General chart configuration
 chart.base = function() {
     var width=700, height=300, padding=7.5,
@@ -86,6 +99,9 @@ chart.base = function() {
             return yscale.scale(yvalue(d));
         };
     }
+    function itemid(d) {
+        return xvalue(d) + "=" + yvalue(d);
+    }
 
     // Rendering functions (should be overridden)
     function init(datasets) {
@@ -125,25 +141,29 @@ chart.base = function() {
         var cbottom = cheight - margins.bottom;
 
         // Clip for inner graphing area
-        svg.append('defs')
-            .append('clipPath')
-                .attr('id', 'clip')
-            .append('rect')
-                .attr('width', gwidth)
-                .attr('height', gheight);
+        var defs = _selectOrAppend(svg, 'defs');
+        var clip = defs.select('#clip'); // Webkit can't select clipPath #83438
+        if (clip.empty()) {
+            clip = defs.append('clipPath').attr('id', 'clip');
+            clip.append('rect');
+        }
+        clip.select('rect')
+            .attr('width', gwidth)
+            .attr('height', gheight);
 
         // Outer chart area (includes legends, axes & actual graph)
-        var outer = svg.append('g');
+        var outer = _selectOrAppend(svg, 'g', 'outer');
         outer.attr('transform', _trans(padding, padding, true));
-        outer.append('rect')
+        _selectOrAppend(outer, 'rect')
             .attr('width', cwidth)
             .attr('height', cheight)
             .attr('fill', '#eee');
 
         // Inner graphing area (clipped)
-        var inner = outer.append('g').attr('clip-path', 'url(#clip)');
-        inner.attr('transform', _trans(margins.left, margins.top));
-        inner.append('rect')
+        var inner = _selectOrAppend(outer, 'g', 'inner')
+            .attr('clip-path', 'url(#clip)')
+            .attr('transform', _trans(margins.left, margins.top));
+        _selectOrAppend(inner, 'rect')
             .attr('width', gwidth)
             .attr('height', gheight)
             .attr('fill', '#ccc');
@@ -156,11 +176,14 @@ chart.base = function() {
             if (!xscale) {
                 xscale = {
                     'xmin': Infinity,
-                    'xmax': -Infinity
+                    'xmax': -Infinity,
+                    'auto': true
                 };
             }
-            xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
-            xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
+            if (xscale.auto) {
+                xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
+                xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
+            }
             if (xscalefn().rangePoints)
                 items(dataset).forEach(function(d){xvals.add(xvalue(d));});
 
@@ -168,7 +191,8 @@ chart.base = function() {
             if (!yscales[scaleid]) {
                 yscales[scaleid] = {
                     'ymin': 0,
-                    'ymax': 0
+                    'ymax': 0,
+                    'auto': true
                 };
             }
             var yscale = yscales[scaleid];
@@ -180,8 +204,10 @@ chart.base = function() {
             if (!yscale.sets)
                 yscale.sets = 0;
             yscale.sets++;
-            yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
-            yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
+            if (yscale.auto) {
+                yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
+                yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
+            }
         });
 
         xscale.scale = xscalefn();
@@ -231,33 +257,35 @@ chart.base = function() {
 
         // Render each dataset
         if (renderBackground) {
-            inner.selectAll('g.dataset-background')
-               .data(datasets(data))
-               .enter()
-                   .append('g')
-                   .attr('class', 'dataset-background')
-                   .each(renderBackground);
+            var background = inner.selectAll('g.dataset-background')
+               .data(datasets(data), id);
+            background.enter()
+                .append('g')
+                .attr('class', 'dataset-background');
+            background.exit().remove();
+            background.each(renderBackground);
         }
         var series = inner.selectAll('g.dataset')
-            .data(datasets(data));
+            .data(datasets(data), id);
         series.enter()
             .append('g')
-            .attr('class', 'dataset')
-            .each(render);
+            .attr('class', 'dataset');
+        series.exit().remove();
+        series.each(render);
 
         // Render axes
-        outer.append('g')
-            .attr('class', 'xaxis')
+        _selectOrAppend(outer, 'g', 'xaxis')
             .attr('transform', _trans(margins.left, cbottom))
             .call(xscale.axis)
             .selectAll('line').attr('stroke', '#000');
 
-        outer.selectAll('g.axis').data(d3.values(yscales, id)).enter()
-            .append('g')
-            .attr('class', 'axis')
-            .attr('transform', function(d) {
+        var yaxes = outer.selectAll('g.axis')
+            .data(d3.keys(yscales), function(s){ return s; });
+        yaxes.enter().append('g').attr('class', 'axis');
+        yaxes.exit().remove();
+        yaxes.attr('transform', function(d) {
                 var x;
-                if (d.orient == 'left')
+                if (yscales[d].orient == 'left')
                     x = margins.left;
                 else
                     x = cwidth - margins.right;
@@ -266,7 +294,7 @@ chart.base = function() {
             })
             .each(function(d) {
                 d3.select(this)
-                   .call(d.axis)
+                   .call(yscales[d].axis)
                    .selectAll('line').attr('stroke', '#000');
             });
 
@@ -381,6 +409,11 @@ chart.base = function() {
         ymax = fn;
         return plot;
     };
+    plot.itemid = function(fn) {
+        if (!arguments.length) return itemid;
+        itemid = fn;
+        return plot;
+    };
 
     // Getters/setters for render functions
     plot.init = function(fn) {
@@ -428,19 +461,21 @@ chart.scatter = function() {
     });
 
     plot.init(function(datasets) {
-        if (plot.legend())
+        if (legend && !legend.auto)
             return;
 
         var rows = datasets.length;
         if (rows > 5) {
             plot.legend({
                 'position': 'right',
-                'size': 200
+                'size': 200,
+                'auto': true
             });
         } else {
             plot.legend({
                 'position': 'bottom',
-                'size': (rows * 22 + 20)
+                'size': (rows * 22 + 20),
+                'auto': true
             });
         }
     });
@@ -508,13 +543,19 @@ chart.scatter = function() {
             xscaled = plot.xscaled(),
             yscaled = plot.yscaled()(yunits),
             g       = d3.select(this),
+            path    = g.select('path.data'),
             line    = d3.svg.line()
                         .x(xscaled)
                         .y(yscaled);
-        g.append('path').datum(items)
-            .attr('class', 'data')
+        // Generate path element for new datasets
+        if (path.empty()) {
+            path = g.append('path')
+                .attr('class', 'data')
+                .attr('fill', 'transparent');
+        }
+        // Update path for new and existing datasets
+        path.datum(items)
             .attr('d', line)
-            .attr('fill', 'transparent')
             .call(lineStyle(sid));
     });
 
@@ -525,23 +566,33 @@ chart.scatter = function() {
             yunits    = plot.yunits()(dataset),
             sid       = plot.id()(dataset),
             translate = plot.translate(),
-            g         = d3.select(this);
-        var points = g.selectAll('g.data').data(items)
-            .enter()
-            .append('g')
-                .attr('class', 'data')
-                .attr('transform', translate(yunits))
-                .on('mouseover', pointover(sid))
-                .on('mouseout',  pointout(sid));
-        points.append(pointShape(sid)).call(pointStyle(sid));
-        points.append('title').text(pointLabel(sid));
+            g         = d3.select(this),
+            points, newpoints;
+
+        points = g.selectAll('g.data').data(items, plot.itemid());
+
+        // Generate elements for new data
+        newpoints = points.enter().append('g')
+            .attr('class', 'data')
+            .on('mouseover', pointover(sid))
+            .on('mouseout',  pointout(sid));
+        newpoints.append(pointShape(sid));
+        newpoints.append('title');
+
+        points.exit().remove();
+
+        // Update elements for new or existing data
+        points.attr('transform', translate(yunits));
+        points.select(pointShape(sid)).call(pointStyle(sid));
+        points.select('title').text(pointLabel(sid));
     });
 
     plot.wrapup(function(datasets, opts) {
         var svg = d3.select(this),
-            outer = svg.select('g'),
+            outer = svg.select('g.outer'),
             margins = plot.margins(),
             label = plot.label(),
+            id = plot.id(),
             legendX, legendY, legendW, legendH;
 
         if (legend.position == 'bottom') {
@@ -556,31 +607,36 @@ chart.scatter = function() {
             legendH = opts.gheight;
         }
 
-        var leg = outer.append('g')
-            .attr('class', 'legend')
+        var leg = _selectOrAppend(outer, 'g', 'legend')
             .attr('transform', _trans(legendX, legendY));
-        leg.append('rect')
+        _selectOrAppend(leg, 'rect')
             .attr('width', legendW)
             .attr('height', legendH)
             .attr('fill', 'white')
             .attr('stroke', '#999');
 
-        leg.selectAll('g.legenditem')
-            .data(datasets)
-            .enter().append('g')
-                .attr('class', 'legenditem')
-                .append('g')
-                    .attr('class', 'data')
-                    .each(function(d, i) {
-                        var g = d3.select(this),
-                            sid = plot.id()(d);
-
-                        g.attr('transform', _trans(20, 20 + i * 22));
-                        g.append(pointShape(sid)).call(pointStyle(sid));
-                        g.append('text')
-                            .text(label(d))
-                            .attr('transform', _trans(10, 5));
-                    });
+        var legitems = leg.selectAll('g.legenditem')
+            .data(datasets, id);
+        var newitems = legitems.enter().append('g')
+            .attr('class', 'legenditem')
+            .append('g')
+                .attr('class', 'data');
+        newitems.each(function(d) {
+            var g = d3.select(this),
+                sid = id(d);
+            g.append(pointShape(sid));
+            g.append('text');
+        });
+        legitems.exit().remove();
+        legitems.each(function(d, i) {
+            var g = d3.select(this).select('g.data'),
+                sid = id(d);
+            g.attr('transform', _trans(20, 20 + i * 22));
+            g.select(pointShape(sid)).call(pointStyle(sid));
+            g.select('text')
+                .text(label(d))
+                .attr('transform', _trans(10, 5));
+        });
     });
 
     // Getters/setters for chart configuration
