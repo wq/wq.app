@@ -725,6 +725,9 @@ chart.timeSeries = function() {
     .yvalue(function(d) {
         return d.value;
     })
+    .yunits(function(d) {
+        return d.units;
+    })
     .pointLabel(function(sid) {
         var x = plot.xvalue(),
             y = plot.yvalue();
