@@ -317,16 +317,7 @@ function _renderList(page, list, ui, params, url, context) {
         // Set max_local_pages to avoid filling up local storage and
         // instead attempt to load HTML directly from the server
         // (using built-in jQM loader)
-        var jqmurl = '/' + url;
-        spin.start();
-        jqm.loadPage(jqmurl, {}).then(function() {
-            spin.stop();
-            var $page = $(":jqmData(url='" + jqmurl + "')");
-            if ($page.length > 0)
-                jqm.changePage($page);
-            else
-                pages.notFound(url);
-        });
+        _loadFromServer(url);
         return;
     }
 
@@ -393,24 +384,15 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
     var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
     if (!item) {
         // Item not found in stored list...
-        if (!conf.partial) {
-            // If partial is not set, locally stored list is assumed to
-            // contain the entire dataset, so the item probably does not exist.
-            pages.notFound(url);
-        } else {
+        if (conf.partial) {
             // Set partial to indicate local list does not represent entire
             // dataset; if an item is not found will attempt to load HTML
             // directly from the server (using built-in jQM loader)
-            var jqmurl = '/' + url;
-            spin.start();
-            jqm.loadPage(jqmurl, {}).then(function() {
-                spin.stop();
-                var $page = $(":jqmData(url='" + jqmurl + "')");
-                if ($page.length > 0)
-                    jqm.changePage($page);
-                else
-                    pages.notFound(url);
-            });
+            _loadFromServer(url);
+        } else {
+            // If partial is not set, locally stored list is assumed to
+            // contain the entire dataset, so the item probably does not exist.
+            pages.notFound(url);
         }
         return;
     }
@@ -444,10 +426,13 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
             itemid, undefined, undefined, conf.max_local_pages
         );
         if (!item) {
-            pages.notFound(url);
+            if (conf.partial)
+                _loadFromServer(url);
+            else
+                pages.notFound(url);
             return;
         }
-        context = $.extend({}, conf, item, context);
+        context = $.extend({}, conf, params, item, context);
         _addLookups(page, context, true, done);
     } else {
         // Create new item
@@ -900,6 +885,19 @@ function _getConfByUrl(url) {
     if (!conf)
         throw 'Configuration for "/' + url + '" not found!';
     return conf;
+}
+
+function _loadFromServer(url) {
+    var jqmurl = '/' + url;
+    spin.start();
+    jqm.loadPage(jqmurl, {}).then(function() {
+        spin.stop();
+        var $page = $(":jqmData(url='" + jqmurl + "')");
+        if ($page.length > 0)
+            jqm.changePage($page);
+        else
+            pages.notFound(url);
+    });
 }
 
 return app;
