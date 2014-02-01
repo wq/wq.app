@@ -769,13 +769,14 @@ chart.contour = function() {
                 return yscale(y(d));
             });
 
-        d3.select(this).selectAll('path.contour')
-           .data(items(dataset))
-           .enter()
-               .append('path')
-               .attr('class', 'contour')
-               .attr('d', path)
-               .attr('fill', cscale(id(dataset)));
+        var contours = d3.select(this).selectAll('path.contour')
+           .data(items(dataset), id);
+        contours.enter()
+           .append('path')
+           .attr('class', 'contour');
+        contours.exit().remove();
+        contours.attr('d', path)
+           .attr('fill', cscale(id(dataset)));
     });
     return plot;
 };
