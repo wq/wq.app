@@ -10,20 +10,52 @@ define(['d3'], function(d3) {
 var pandas = {};
 
 pandas.parse = function(str) {
-    /* Parses a string with the following structure:
+    /* Parses a CSV string with the following structure:
        
-    ,value,value,value
-    site,SITE1,SITE2,SITE3
-    parameter,PARAM1,PARAM1,PARAM2
-    date,,,
-    2014-01-01,0.5,0.5,0.2
-    2014-01-02,0.1,0.5,0.2
+    ,value,value,value              // values header
+    site,SITE1,SITE2,SITE3          // meta header #1 (site)
+    parameter,PARAM1,PARAM1,PARAM2  // meta header #2 (parameter)
+    date,,,                         // id columns header
+    2014-01-01,0.5,0.5,0.2          // data row
+    2014-01-02,0.1,0.5,0.2          // " "
 
-    ...
+    Into an array of datasets with the following structure:
+    [
+        {
+            'site': 'SITE1',
+            'parameter': 'PARAM1',
+            'list': [
+                {'date': '2014-01-01', 'value': 0.5},
+                {'date': '2014-01-02', 'value': 0.1}
+            ]
+        }
+        // etc for SITE2/PARAM1 and SITE3/PARAM2...
+    ]
+
+
+    Also supports multi-valued datasets, e.g.:
+
+    ,val1,val2
+    site,SITE1,SITE1,
+    parameter,PARAM1,PARAM1
+    date,,
+    2014-01-01,0.6,0.3
+
+    Will be parsed into:
+    [
+        {
+            'site': 'SITE1',
+            'parameter': 'PARAM1',
+            'list': [
+                {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3}
+            ]
+        }
+    ]
 
     */
-    var idColumns, datasets = [], data, valuesHeader,
-        rows = d3.csv.parseRows(str);
+
+    var idColumns, metadata = [], datasets = [], col2dataset = [], data,
+        valuesHeader, rows = d3.csv.parseRows(str);
 
     // Parse CSV headers and data
     rows.forEach(function(row, i) {
@@ -35,6 +67,7 @@ pandas.parse = function(str) {
             parseMetaHeader(row);
         } else if (valuesHeader) {
             parseIdHeader(row);
+            findDatasets();
             data = true;
         } else {
             parseSimpleHeader(row);
@@ -44,8 +77,6 @@ pandas.parse = function(str) {
 
     function parseValuesHeader(row) {
         // Blank first column => this row has value column labels
-        // FIXME: currently assuming ,value,value,value,...
-        // should support more than one 'value' field per record
         valuesHeader = row;
     }
 
@@ -54,9 +85,9 @@ pandas.parse = function(str) {
         var metaname = row[0];
         var metaStart = valuesHeader.lastIndexOf("") + 1;
         row.slice(metaStart).forEach(function(d, i) {
-            if (!datasets[i])
-                datasets[i] = {'list':[]};
-            datasets[i][metaname] = d;
+            if (!metadata[i])
+                metadata[i] = {};
+            metadata[i][metaname] = d;
         });
     }
 
@@ -65,16 +96,38 @@ pandas.parse = function(str) {
         if (row.indexOf("") != valuesHeader.lastIndexOf("") + 1)
             throw "Header mismatch!";
         idColumns = row.slice(0, row.indexOf(""));
+        
+    }
+
+    function findDatasets() {
+        // Ensure that datasets[] has only one entry for each dataset, as
+        // datasets that may span multiple columns.  Hash the metadata values
+        // to get a unique key.
+        var datasetIndex = {};
+        metadata.forEach(function(meta, i) {
+            var metaHash = hash(meta);
+            var index = datasetIndex[metaHash];
+            if (index === undefined) {
+                index = datasets.length;
+                datasetIndex[metaHash] = index;
+                meta.list = [];
+                datasets.push(meta);
+            }
+            col2dataset[i] = index;
+        });
     }
 
     function parseSimpleHeader(row) {
-        // No values header found, assume:
-        // - single-row header
+        // No values header found, assume single-row header
         // - first column is row id (i.e. date)
-        // - all other columns represent individual timeseries
+        // - all other columns are individual timeseries
+        // - (if parsing a single multi-valued timeseries, just use d3.csv)
         idColumns = [row[0]];
+        valuesHeader = [];
         row.slice(1).forEach(function(s, i) {
-            datasets[i] = {'name': s, 'list': []};
+            datasets[i] = {'id': s, 'list': []};
+            col2dataset[i] = i;
+            valuesHeader[i + 1] = "value";
         });
     }
 
@@ -84,15 +137,25 @@ pandas.parse = function(str) {
         idColumns.forEach(function(c, i) {
             id[c] = row[i];
         });
+        
+        var rowdata = [];
         row.slice(idColumns.length).forEach(function(d, i) {
-            var c, item = {};
+            var c, item, dsi, valname;
             if (d === "")
                 return;
-            for (c in id)
-                item[c] = id[c];
-            // FIXME: should use valuesHeader
-            item.value = d;
-            datasets[i].list.push(item);
+            dsi = col2dataset[i];
+            valname = valuesHeader[i + idColumns.length];
+            item = rowdata[dsi];
+            if (!item) {
+                item = {};
+                for (c in id)
+                    item[c] = id[c];
+                rowdata[dsi] = item;
+            }
+            item[valname] = isNaN(+d) ? d : +d;
+        });
+        rowdata.forEach(function(d, i) {
+            datasets[i].list.push(d);
         });
     }
     return datasets;
@@ -105,8 +168,16 @@ pandas.get = function(errback, callback) {
     });
 };
 
+function hash(obj) {
+    var str = "";
+    d3.keys(obj).sort().forEach(function(key) {
+        str += key + '=' + obj[key] + '\n';
+    });
+    return str;
+}
+
 d3.pandas = pandas.get;
-d3.parsePandas = pandas.parse;
+d3.pandas.parse = pandas.parse;
 
 return pandas;
 
