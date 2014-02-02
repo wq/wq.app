@@ -84,7 +84,9 @@ chart.base = function() {
                 xvals.add(xvalue(d));
             });
         });
-        return xvals;
+        return xvals.values().map(function(d) {
+            return isNaN(+d) ? d : +d;
+        });
     }
 
     function yunits(dataset) {
@@ -216,7 +218,7 @@ chart.base = function() {
         xscale.scale = xscalefn();
         if (ordinal)
             xscale.scale
-                .domain(xset(data).values().sort())
+                .domain(xset(data).sort(d3.ascending))
                 .rangePoints([0, gwidth], 1);
         else
             xscale.scale
@@ -305,7 +307,7 @@ chart.base = function() {
         if (rows > 5) {
             plot.legend({
                 'position': 'right',
-                'size': 200,
+                'size': 150,
                 'auto': true
             });
         } else {
@@ -720,15 +722,15 @@ chart.scatter = function() {
 
         // Generate elements for new data
         newpoints = points.enter().append('g')
-            .attr('class', 'data')
-            .on('mouseover', pointover(sid))
-            .on('mouseout',  pointout(sid));
+            .attr('class', 'data');
         newpoints.append(pointShape(sid));
         newpoints.append('title');
 
         points.exit().remove();
 
         // Update elements for new or existing data
+        points.on('mouseover', pointover(sid))
+            .on('mouseout',  pointout(sid));
         points.attr('transform', translate(yunits));
         points.select(pointShape(sid)).call(pointStyle(sid));
         points.select('title').text(pointLabel(sid));
@@ -871,7 +873,7 @@ chart.boxplot = function() {
             });
         })
         .init(function(datasets, opts) {
-            var step = plot.xset()(datasets).size(); // Number of x axis labels
+            var step = plot.xset()(datasets).length; // Number of x axis labels
             var slots = step * (datasets.length + 1); // ~How many boxes to fit
             var space = opts.gwidth / slots; // Space available for each box
             r = d3.min([space * 0.8 / 2, 20]); // "radius" of box (use 80%)
