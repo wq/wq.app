@@ -75,6 +75,15 @@ chart.base = function() {
     function xmin(dataset) {
         return d3.min(items(dataset), xvalue);
     }
+    function xset(d) {
+        var xvals = d3.set();
+        datasets(d).forEach(function(dataset) {
+            items(dataset).forEach(function(d) {
+                xvals.add(xvalue(d));
+            });
+        });
+        return xvals;
+    }
 
     function yunits(dataset) {
         return dataset.units;
@@ -109,7 +118,7 @@ chart.base = function() {
     }
 
     // Rendering functions (should be overridden)
-    function init(datasets) {
+    function init(datasets, opts) {
         /* jshint unused: false */
     }
     function render(dataset) {
@@ -152,12 +161,10 @@ chart.base = function() {
 
     // The actual work
     function _plot(data) {
-        init.call(this, datasets(data));
         if (legend === null || legend.auto)
             _positionLegend.call(this, datasets(data));
+        _computeScales(datasets(data));
         var ordinal = xscalefn().rangePoints || false;
-        var xvals = _computeScales(datasets(data), ordinal);
-
         var svg = d3.select(this);
         var cwidth = width - padding - padding;
         var cheight = height - padding - padding;
@@ -165,6 +172,14 @@ chart.base = function() {
         var gwidth = cwidth - margins.left - margins.right;
         var gheight = cheight - margins.top - margins.bottom;
         var cbottom = cheight - margins.bottom;
+        var opts = {
+            'padding': padding,
+            'gwidth': gwidth,
+            'gheight': gheight,
+            'cwidth': cwidth,
+            'cheight': cheight
+        };
+        init.call(this, datasets(data), opts);
 
         // Clip for inner graphing area
         var defs = _selectOrAppend(svg, 'defs');
@@ -199,7 +214,7 @@ chart.base = function() {
         xscale.scale = xscalefn();
         if (ordinal)
             xscale.scale
-                .domain(xvals.values())
+                .domain(xset(data).values().sort())
                 .rangePoints([0, gwidth], 1);
         else
             xscale.scale
@@ -230,15 +245,6 @@ chart.base = function() {
                 .orient(scale.orient)
                 .tickSize(4, 2, 1);
         }
-
-        // Additional processing
-        var opts = {
-            'padding': padding,
-            'gwidth': gwidth,
-            'gheight': gheight,
-            'cwidth': cwidth,
-            'cheight': cheight
-        };
 
         // Render each dataset
         if (renderBackground) {
@@ -309,9 +315,8 @@ chart.base = function() {
 
     // Compute horizontal & vertical scales
     // - may be more than one vertical scale if there are different units
-    function _computeScales(datasets, ordinal) {
+    function _computeScales(datasets) {
         var left = true;
-        var xvals = d3.set();
         datasets.forEach(function(dataset) {
             if (!xscale) {
                 xscale = {
@@ -324,8 +329,6 @@ chart.base = function() {
                 xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
                 xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
             }
-            if (ordinal)
-                items(dataset).forEach(function(d){xvals.add(xvalue(d));});
 
             var scaleid = yunits(dataset);
             if (!yscales[scaleid]) {
@@ -354,7 +357,6 @@ chart.base = function() {
         if (d3.keys(yscales).length > 1)
             ymargin.right = 70;
         plot.setMargin('yaxis', ymargin);
-        return xvals;
     }
     
     function _renderLegend(datasets, opts) {
@@ -510,6 +512,11 @@ chart.base = function() {
     plot.xmax = function(fn) {
         if (!arguments.length) return xmax;
         xmax = fn;
+        return plot;
+    };
+    plot.xset = function(fn) {
+        if (!arguments.length) return xset;
+        xset = fn;
         return plot;
     };
     plot.yvalue = function(fn) {
@@ -843,8 +850,9 @@ chart.contour = function() {
 
 // Box & whiskers (precomputed)
 chart.boxplot = function() {
-    var plot = chart.base()
-        .xscalefn(d3.scale.ordinal)
+    var plot = chart.base(), r, wr, offsets = {};
+    plot.xscalefn(d3.scale.ordinal)
+        .itemid(function(d) { return plot.xvalue()(d); })
         .ymin(function(dataset) {
             var items = plot.items();
             return d3.min(items(dataset), function(d) {
@@ -857,9 +865,21 @@ chart.boxplot = function() {
                 return d.max;
             });
         })
+        .init(function(datasets, opts) {
+            var step = plot.xset()(datasets).size(); // Number of x axis labels
+            var slots = step * (datasets.length + 1); // ~How many boxes to fit
+            var space = opts.gwidth / slots; // Space available for each box
+            r = d3.min([space * 0.8 / 2, 20]); // "radius" of box (use 80%)
+            wr = r / 2; // "radius" of whiskers
+            var width = (datasets.length - 1) * space;
+            datasets.forEach(function(dataset, i) {
+                offsets[plot.id()(dataset)] = i * space - width / 2;
+            });
+        })
         .render(function(dataset) {
             var items     = plot.items()(dataset),
                 yunits    = plot.yunits()(dataset),
+                sid       = plot.id()(dataset),
                 yscales   = plot.yscales(),
                 xscale    = plot.xscale(),
                 xvalue    = plot.xvalue();
@@ -879,11 +899,11 @@ chart.boxplot = function() {
             boxes.enter().append('g').attr('class', 'data');
             boxes.exit().remove();
             boxes.attr('transform', translate(yunits))
-                .each(box(yunits));
+                .each(box(sid, yunits));
         });
 
-    function box(sid) {
-        var yscale = plot.yscales()[sid];
+    function box(sid, yunits) {
+        var yscale = plot.yscales()[yunits];
         var color = plot.cscale()(sid);
         return function(d) {
             if (!d || (!d.median && !d.min && !d.max))
@@ -891,60 +911,65 @@ chart.boxplot = function() {
             function y(val) {
                 return yscale.scale(val) - yscale.scale(0);
             }
-            var box = d3.select(this).append('g')
-                .attr('class', 'box')
-                .attr('transform', _trans(-10, 0));
-            box.append('line')
-               .attr('x1', 0)
-               .attr('x2', 20)
+
+            var box = _selectOrAppend(d3.select(this), 'g', 'box')
+                .attr('transform', _trans(offsets[sid], 0));
+            _selectOrAppend(box, 'line', 'p25')
+               .attr('x1', -r)
+               .attr('x2', r)
                .attr('y1', y(d.p25))
                .attr('y2', y(d.p25))
+               .attr('stroke-width', 2)
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 0)
-               .attr('x2', 20)
+            _selectOrAppend(box, 'line', 'p75')
+               .attr('x1', -r)
+               .attr('x2', r)
                .attr('y1', y(d.p75))
                .attr('y2', y(d.p75))
+               .attr('stroke-width', 2)
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 0)
-               .attr('x2', 20)
+            _selectOrAppend(box, 'line', 'median')
+               .attr('x1', -r)
+               .attr('x2', r)
                .attr('y1', y(d.median))
                .attr('y2', y(d.median))
+               .attr('stroke-width', 2)
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 0)
-               .attr('x2', 0)
+            _selectOrAppend(box, 'line', 'iqr-left')
+               .attr('x1', -r)
+               .attr('x2', -r)
                .attr('y1', y(d.p25))
                .attr('y2', y(d.p75))
+               .attr('stroke-width', 2)
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 20)
-               .attr('x2', 20)
+            _selectOrAppend(box, 'line', 'iqr-right')
+               .attr('x1', r)
+               .attr('x2', r)
                .attr('y1', y(d.p25))
                .attr('y2', y(d.p75))
+               .attr('stroke-width', 2)
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 5)
-               .attr('x2', 15)
+            _selectOrAppend(box, 'line', 'w-top')
+               .attr('x1', -wr)
+               .attr('x2', wr)
                .attr('y1', y(d.max))
                .attr('y2', y(d.max))
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 5)
-               .attr('x2', 15)
+            _selectOrAppend(box, 'line', 'w-bottom')
+               .attr('x1', -wr)
+               .attr('x2', wr)
                .attr('y1', y(d.min))
                .attr('y2', y(d.min))
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 10)
-               .attr('x2', 10)
+            _selectOrAppend(box, 'line', 'w-p75')
+               .attr('x1', 0)
+               .attr('x2', 0)
                .attr('y1', y(d.max))
                .attr('y2', y(d.p75))
                .attr('stroke', color);
-            box.append('line')
-               .attr('x1', 10)
-               .attr('x2', 10)
+            _selectOrAppend(box, 'line', 'w-p25')
+               .attr('x1', 0)
+               .attr('x2', 0)
                .attr('y1', y(d.min))
                .attr('y2', y(d.p25))
                .attr('stroke', color);
