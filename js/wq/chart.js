@@ -45,6 +45,8 @@ chart.base = function() {
         yscales = {},
         yscalefn = d3.scale.linear,
         cscale = d3.scale.category20(),
+        outerFill = '#f3f3f3',
+        innerFill = '#eee',
         legend = null;
 
     // Accessor for entire data object
@@ -198,7 +200,7 @@ chart.base = function() {
         _selectOrAppend(outer, 'rect')
             .attr('width', cwidth)
             .attr('height', cheight)
-            .attr('fill', '#eee');
+            .attr('fill', outerFill);
 
         // Inner graphing area (clipped)
         var inner = _selectOrAppend(outer, 'g', 'inner')
@@ -207,7 +209,7 @@ chart.base = function() {
         _selectOrAppend(inner, 'rect')
             .attr('width', gwidth)
             .attr('height', gheight)
-            .attr('fill', '#ccc');
+            .attr('fill', innerFill);
 
 
         // Create actual scale & axis objects
@@ -293,6 +295,8 @@ chart.base = function() {
 
         if (legend && legend.position)
             _renderLegend.call(this, datasets(data), opts);
+        else
+            outer.select('g.legend').remove();
         wrapup.call(this, datasets(data), opts);
     }
 
@@ -633,6 +637,7 @@ chart.scatter = function() {
             sel.attr('r', 3)
                 .attr('fill', color)
                 .attr('stroke', 'black')
+                .attr('stroke-width', 0.2)
                 .attr('cursor', 'pointer');
         };
     }
