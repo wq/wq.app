@@ -17,10 +17,11 @@ See [the documentation] for more information.
 wq.app's [JavaScript modules] are built on [a number of libraries] including [RequireJS], [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
 
  - [wq/app.js], a high-level application controller that combines `store.js` and `pages.js` into a full configuration-driven CRUD client (intended for use with [wq.db]'s [app.py])
- - [wq/chart.js], configurable d3-based reusable charts, including time series and contour plots
+ - [wq/chart.js], configurable d3-based reusable charts, including time series and box plots
  - [wq/locate.js], Leaflet-powered utilities for requesting and displaying the user's location
  - [wq/map.js], Leaflet integration for showing maps on app.js pages that contain geometry (e.g. GeoJSON or simple lat/long)
  - [wq/pages.js], a PJAX-style `pushState` URL router, template renderer, and page injector
+ - [wq/pandas.js], a tool for loading Pandas DataFrames via CSV
  - [wq/store.js], a robust `localStorage`-cached JSON REST client (with indexing and filtering capabilities for object lists)
  - and a number of [other useful utilities]
 
@@ -42,6 +43,7 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [wq/app.js]: http://wq.io/docs/app-js
  [wq/chart.js]: http://wq.io/docs/chart-js
  [wq/pages.js]: http://wq.io/docs/pages-js
+ [wq/pandas.js]: http://wq.io/docs/pages-js
  [wq/locate.js]: http://wq.io/docs/locate-js
  [wq/map.js]: http://wq.io/docs/map-js
  [wq/store.js]: http://wq.io/docs/store-js
