@@ -43,7 +43,7 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [wq/app.js]: http://wq.io/docs/app-js
  [wq/chart.js]: http://wq.io/docs/chart-js
  [wq/pages.js]: http://wq.io/docs/pages-js
- [wq/pandas.js]: http://wq.io/docs/pages-js
+ [wq/pandas.js]: http://wq.io/docs/pandas-js
  [wq/locate.js]: http://wq.io/docs/locate-js
  [wq/map.js]: http://wq.io/docs/map-js
  [wq/store.js]: http://wq.io/docs/store-js
