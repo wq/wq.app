@@ -23,7 +23,8 @@ map.config = {
             'sticky': true, // Start new maps in same location as old maps
 
             // Settings for fitBounds
-            'maxZoom': 10
+            'maxZoom': 13,
+            'animate': true
         },
 
         // Defaults to simplify creation of new icons of the same dimensions
@@ -80,6 +81,27 @@ function _registerList(page) {
     pages.addRoute(url, 's', function() {
         map.createMap(page);
     });
+
+    // Special handling for /[parent_list_url]/[parent_id]/[url]
+    (mapconf.parents || []).forEach(function(ppage) {
+        var pconf = app.config.pages[ppage];
+        var url = pconf.url;
+        if (url)
+            url += '/';
+        url += '<slug>/' + mapconf.url;
+        pages.addRoute(url, 's', goUrl);
+        pages.addRoute(url + '/', 's', goUrl);
+    });
+
+    function goUrl(match, ui, params) {
+        // Override URL for this map's main layer to enable filter by parent
+        var override = {};
+        var url = match[0].substring(1).split("?")[0];
+        if (params)
+            url += ".geojson" + L.Util.getParamString(params);
+        override[mapconf.name] = {'url': url};
+        map.createMap(page, undefined, override);
+    }
 }
 
 // Register an onshow event for item detail views
@@ -198,7 +220,7 @@ map.renderPopup = function(page) {
 };
 
 // Primary map routine
-map.createMap = function(page, itemid) {
+map.createMap = function(page, itemid, override) {
     var mapid, divid, mapconf, m, defaults,
         layerConfs, remaining, layers,
         basemaps, basemap, div;
@@ -243,7 +265,9 @@ map.createMap = function(page, itemid) {
     layers = {};
     layerConfs = map.getLayerConfs(page, itemid);
     remaining = layerConfs.length;
-    layerConfs.forEach(function(layerconf) {
+    layerConfs.forEach(function(layerconf, i) {
+        layerconf = L.extend({}, layerconf,
+                             override && override[layerconf.name]);
         if (layerconf.cluster && L.MarkerClusterGroup) {
             var options = {};
             if (layerconf.clusterIcon)
@@ -254,6 +278,7 @@ map.createMap = function(page, itemid) {
         }
         loadLayer(layerconf);
         layers[layerconf.name] = layerconf.layer;
+        layerConfs[i] = layerconf;
     });
 
     L.control.layers(basemaps, layers).addTo(m);

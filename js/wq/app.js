@@ -252,6 +252,7 @@ function _registerList(page) {
         app.go(page, ui, params);
     }
 
+    // Special handling for /[parent_list_url]/[parent_id]/[url]
     (conf.parents || []).forEach(function(ppage) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
