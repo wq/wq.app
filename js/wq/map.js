@@ -18,6 +18,13 @@ map.config = {
     'defaults': {
         'zoom': 0,
         'center': [0, 0],
+        'autoZoom': {
+            'wait': 0.5, // How long to wait before triggering autoZoom
+            'sticky': true, // Start new maps in same location as old maps
+
+            // Settings for fitBounds
+            'maxZoom': 10
+        },
 
         // Defaults to simplify creation of new icons of the same dimensions
         // as L.Icon.Default
@@ -192,7 +199,9 @@ map.renderPopup = function(page) {
 
 // Primary map routine
 map.createMap = function(page, itemid) {
-    var mapid, divid, mapconf, m, defaults, layers, basemaps, basemap, div;
+    var mapid, divid, mapconf, m, defaults,
+        layerConfs, remaining, layers,
+        basemaps, basemap, div;
 
     // Load configuration and div id
     mapconf = _getConf(page);
@@ -232,14 +241,16 @@ map.createMap = function(page, itemid) {
 
     // Load layerconfs and add empty layer groups to map
     layers = {};
-    map.getLayerConfs(page, itemid).forEach(function(layerconf) {
+    layerConfs = map.getLayerConfs(page, itemid);
+    remaining = layerConfs.length;
+    layerConfs.forEach(function(layerconf) {
         if (layerconf.cluster && L.MarkerClusterGroup) {
             var options = {};
             if (layerconf.clusterIcon)
                 options.iconCreateFunction = layerconf.clusterIcon;
             layerconf.layer = new L.MarkerClusterGroup(options).addTo(m);
         } else {
-            layerconf.layer = L.layerGroup().addTo(m);
+            layerconf.layer = L.featureGroup().addTo(m);
         }
         loadLayer(layerconf);
         layers[layerconf.name] = layerconf.layer;
@@ -256,6 +267,31 @@ map.createMap = function(page, itemid) {
             if (layerconf.icon)
                 options.pointToLayer = _makeMarker(layerconf.icon);
             map.geoJson(geojson, options).addTo(layerconf.layer);
+            remaining--;
+            if (!remaining)
+                autoZoom();
+        });
+    }
+
+    function autoZoom() {
+        if (mapconf.autoZoom !== undefined && !mapconf.autoZoom)
+            return;
+        if (!map.config.defaults.autoZoom)
+            return;
+        var bounds = layerConfs[0].layer.getBounds();
+        if (layerConfs.length > 1)
+            layerConfs.slice(1).forEach(function(layerconf) {
+                bounds.extend(layerconf.layer.getBounds());
+            });
+        setTimeout(function() {
+            m.fitBounds(bounds, map.config.defaults.autoZoom);
+        }, map.config.defaults.autoZoom.wait * 1000);
+    }
+
+    if (map.config.defaults.autoZoom.sticky) {
+        m.on('moveend', function() {
+            map.config.defaults.zoom = m.getZoom();
+            map.config.defaults.center = m.getCenter();
         });
     }
 
