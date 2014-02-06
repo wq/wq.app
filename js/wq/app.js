@@ -317,11 +317,17 @@ function _renderList(page, list, ui, params, url, context) {
         // Set max_local_pages to avoid filling up local storage and
         // instead attempt to load HTML directly from the server
         // (using built-in jQM loader)
-        _loadFromServer(url);
+        _loadFromServer(url, ui);
         return;
     }
 
     var data = filter ? list.filter(filter) : list.page(pnum);
+    if (conf.partial && !data.length) {
+        // No local filter, but list.page() just returned an empty dataset.
+        // load from server just in case.
+        _loadFromServer(url, ui);
+        return;
+    }
 
     if (pnum > 1) {
         var prevp = {'page': +pnum - 1};
@@ -388,7 +394,7 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
             // Set partial to indicate local list does not represent entire
             // dataset; if an item is not found will attempt to load HTML
             // directly from the server (using built-in jQM loader)
-            _loadFromServer(url);
+            _loadFromServer(url, ui);
         } else {
             // If partial is not set, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
@@ -427,7 +433,7 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
         );
         if (!item) {
             if (conf.partial)
-                _loadFromServer(url);
+                _loadFromServer(url, ui);
             else
                 pages.notFound(url);
             return;
@@ -887,14 +893,14 @@ function _getConfByUrl(url) {
     return conf;
 }
 
-function _loadFromServer(url) {
-    var jqmurl = '/' + url;
+function _loadFromServer(url, ui) {
+    var jqmurl = '/' + url, options = ui && ui.options || {};
     spin.start();
     jqm.loadPage(jqmurl, {}).then(function() {
         spin.stop();
         var $page = $(":jqmData(url='" + jqmurl + "')");
         if ($page.length > 0)
-            jqm.changePage($page);
+            jqm.changePage($page, options);
         else
             pages.notFound(url);
     });
