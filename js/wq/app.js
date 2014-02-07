@@ -188,6 +188,7 @@ app.attachmentTypes = {
     identifier: {
         'predicate': 'identified',
         'type': 'authority',
+        'typeColumn': 'authority_id',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
             return {};
@@ -681,7 +682,9 @@ function _addLookups(page, context, editable, callback) {
             continue;
 
         if (info.type)
-            lookups[info.type] = _parent_lookup(info.type);
+            lookups[info.type] = _parent_lookup(
+                info.type, info.typeColumn || 'type_id'
+            );
         if (editable) {
             if (aconf.choices) {
                 for (field in aconf.choices) {
