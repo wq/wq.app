@@ -899,15 +899,8 @@ function _getConfByUrl(url) {
 
 function _loadFromServer(url, ui) {
     var jqmurl = '/' + url, options = ui && ui.options || {};
-    spin.start();
-    jqm.loadPage(jqmurl, {}).then(function() {
-        spin.stop();
-        var $page = $(":jqmData(url='" + jqmurl + "')");
-        if ($page.length > 0)
-            jqm.changePage($page, options);
-        else
-            pages.notFound(url);
-    });
+    options.wqSkip = true;
+    jqm.changePage(jqmurl, options);
 }
 
 return app;

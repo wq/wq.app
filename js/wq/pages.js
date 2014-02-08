@@ -62,6 +62,10 @@ pages.register = function(path, fn, obj, prevent) {
         if (typeof ui.toPage !== "string")
             return;
         
+        // Don't handle urls that app.js specifically marked for server loading
+        if (ui.options && ui.options.wqSkip)
+            return;
+
         // Avoid interfering with hash updates when popups open & close
         if (curpath == match[0] || curpath + '#' + hash == match[0])
             return;
