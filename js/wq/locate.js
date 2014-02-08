@@ -1,7 +1,7 @@
 /*!
- * wq.app 0.5.1 - locate.js
+ * wq.app 0.6.0-dev - locate.js
  * Geolocation utilities via Leaflet's Map.locate
- * (c) 2013, S. Andrew Sheppard
+ * (c) 2013-2014, S. Andrew Sheppard
  * http://wq.io/license
  */
 
