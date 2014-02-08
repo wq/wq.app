@@ -61,7 +61,7 @@ for folder in ['js', 'css', 'scss']:
 
 setup(
     name='wq.app',
-    version='0.5.1-dev',
+    version='0.5.1',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='http://wq.io/wq.app',
