@@ -38,18 +38,18 @@ This layout is heavily inspired by the [volojs] project template.
 
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
-[d3.js]                 |      3.4  |  
-[es5-shim.js]           |    2.1.0  |  
-[highlight.js]          |      7.5  |  tools/build.py -n -tamd bash css javascript markdown python scss xml
+[d3.js]                 |    3.4.1  |  
+[es5-shim.js]           |    2.3.0  |  
+[highlight.js]          |      8.0  |  `tools/build.py -n -tamd bash css javascript markdown python scss xml`
 [jquery]                |    1.9.1  |  
 [jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.11.1  |  wrapped as AMD module
-[leaflet]               |      0.7  |  
-[leaflet.markercluster] |  8ccd5a3  |  wrapped as AMD module
-[marked]                |   0.2.10  |  
-[mustache.js]           |    0.7.3  |  
-[proj4]                 |    2.0.0  |  
+[leaflet]               |    0.7.2  |  
+[leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
+[marked]                |    0.3.1  |  
+[mustache.js]           |    0.8.1  |  
+[proj4]                 |    2.1.0  |  
 [proj4leaflet]          |    0.7.0  |  
 [rbush]                 |      1.3  |
 [requirejs], [r.js]     |   2.1.10  |  r.js is in /build
