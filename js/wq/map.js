@@ -334,9 +334,12 @@ map.createMap = function(page, itemid, override) {
 function _makeMarker(icon) {
     return function pointToLayer(geojson, latlng) {
         // Define icon as a function to customize per-feature
+        var key;
         if (typeof icon == 'function')
-            icon = icon(geojson.properties);
-        return L.marker(latlng, {'icon': map.icons[icon]});
+            key = icon(geojson.properties);
+        else
+            key = icon;
+        return L.marker(latlng, {'icon': map.icons[key]});
     };
 }
 
