@@ -138,6 +138,9 @@ chart.base = function() {
         return "rect";
     }
     function legendItemStyle(sid) {
+        return rectStyle(sid);
+    }
+    function rectStyle(sid) {
         var color = cscale(sid);
         return function(sel) {
             sel.attr('x', -3)
@@ -147,6 +150,17 @@ chart.base = function() {
                 .attr('fill', color);
         };
     }
+    function circleStyle(sid) {
+        var color = cscale(sid);
+        return function(sel) {
+            sel.attr('r', 3)
+                .attr('fill', color)
+                .attr('stroke', 'black')
+                .attr('stroke-width', 0.2)
+                .attr('cursor', 'pointer');
+        };
+    }
+
 
     // Generate translation function xscale + given yscale
     function translate(scaleid) {
@@ -582,6 +596,17 @@ chart.base = function() {
         legendItemStyle = fn;
         return plot;
     };
+    plot.rectStyle = function(fn) {
+        if (!arguments.length) return rectStyle;
+        rectStyle = fn;
+        return plot;
+    };
+    plot.circleStyle = function(fn) {
+        if (!arguments.length) return circleStyle;
+        circleStyle = fn;
+        return plot;
+    };
+
 
     // Inner margin has separate getter and setter as it is composed of a
     // number of individually-set components
@@ -612,7 +637,7 @@ chart.base = function() {
 
 // Scatter plot
 chart.scatter = function() {
-    var plot = chart.base();
+    var plot = chart.base(), pointStyle = plot.circleStyle();
 
     plot.xvalue(function(d) {
         return d.x;
@@ -633,16 +658,7 @@ chart.scatter = function() {
         /* jshint unused: false */
         return "circle";
     }
-    function pointStyle(sid) {
-        var color = plot.cscale()(sid);
-        return function(sel) {
-            sel.attr('r', 3)
-                .attr('fill', color)
-                .attr('stroke', 'black')
-                .attr('stroke-width', 0.2)
-                .attr('cursor', 'pointer');
-        };
-    }
+    // pointStyle function is initialized above
 
     /* To customize lines beyond just the color, override this function */
     function lineStyle(sid) {
@@ -824,7 +840,15 @@ chart.timeSeries = function() {
 
 // Contours (precomputed)
 chart.contour = function() {
-    var plot = chart.scatter().legend(false);
+    var plot = chart.scatter();
+
+    plot.legendItemShape(function(sid) {
+        /* jshint unused: false */
+        return 'rect';
+    }).legendItemStyle(
+        plot.rectStyle()
+    );
+
     plot.render(function(dataset) {
         var x = plot.xvalue(),
             y = plot.yvalue(),
