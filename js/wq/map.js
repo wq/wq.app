@@ -291,6 +291,8 @@ map.createMap = function(page, itemid, override) {
                 options.onEachFeature = layerconf.oneach;
             if (layerconf.icon)
                 options.pointToLayer = _makeMarker(layerconf.icon);
+            if (layerconf.style)
+                options.style = layerconf.style;
             map.geoJson(geojson, options).addTo(layerconf.layer);
             remaining--;
             if (!remaining)
