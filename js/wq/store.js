@@ -669,7 +669,15 @@ function _Store(name) {
 
     // Merge new/updated items into list
     self.updateList = function(query, data, idcol, opts) {
-        var list = self.get(query);
+        var list;
+
+        // Avoid annoying sync get - if list doesn't exist locally already,
+        // we don't need to update it.
+        if (self.exists(query))
+            list = self.get(query);
+        else
+            list = [];
+
         var extra = [];
         if (!opts) opts = {};
 
@@ -683,7 +691,9 @@ function _Store(name) {
             data = data.reverse();
 
         $.each(data, function(i, obj) {
-            var curobj = self.find(query, obj[idcol], idcol);
+            var curobj;
+            if (list.length)
+                curobj = self.find(query, obj[idcol], idcol);
             if (curobj) {
                 // Object exists in list already; update with new attrs
                 $.extend(curobj, obj);
@@ -697,7 +707,8 @@ function _Store(name) {
                     list.push(obj); // Add to end of list
             }
         });
-        self.set(query, list);
+        if (list.length)
+            self.set(query, list);
         if (opts.updateOnly)
             return extra;
     };
