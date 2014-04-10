@@ -11,7 +11,11 @@ define(['jquery', 'jquery.mobile',
         'es5-shim'],
 function($, jqm, ds, pages, tmpl, spin) {
 
-var app = {};
+var app = {
+    'OFFLINE': 'offline',
+    'FAILURE': 'failure',
+    'ERROR': 'error'
+};
 
 app.init = function(config, templates, baseurl, svc) {
     if (baseurl === undefined)
@@ -174,6 +178,12 @@ app.postsave = function(item, result, conf) {
         app.base_url + '/' + baseurl + '/' + itemid,
         options
     );
+};
+
+app.saveerror = function(item, reason, conf) {
+    /* jshint unused: false */
+    // Save failed for some reason, perhaps due to being offline
+    // (override to customize behavior, e.g. display an outbox)
 };
 
 app.attachmentTypes = {
@@ -542,30 +552,42 @@ function _handleForm(evt) {
     spin.start();
     ds.save(vals, outboxId, function(item, result) {
         spin.stop();
-        if (item && item.saved) {
+
+        if (!item) {
+            // Save failed, probably due to item being saved already
+            return;
+        }
+
+        if (item.saved) {
+            // Save succeeded
             app.postsave(item, result, conf);
             return;
         }
 
-        if (!item || !item.error) {
-            // Save failed for some unknown reason
+        if (!item.error) {
+            // Save failed without server error: probably offline
             showError("Error saving data.");
+            app.saveerror(item, app.OFFLINE, conf);
             return;
         }
 
-        // REST API provided general error information
         if (typeof(item.error) === 'string') {
+            // Save failed and error information is not in JSON format
+            // (likely a 500 server failure)
             showError(item.error);
+            app.saveerror(item, app.FAILURE, conf);
             return;
         }
 
-        // REST API provided per-field error information
+        // Save failed and error information is in JSON format
+        // (likely a 400 bad data error)
         var errs = Object.keys(item.error);
 
-        // General API errors have a single "detail" attribute
         if (errs.length == 1 && errs[0] == 'detail') {
+            // General API errors have a single "detail" attribute
             showError(item.error.detail);
         } else {
+            // REST API provided per-field error information
 
             // Form errors (other than non_field_errors) are keyed by fieldname
             for (var f in item.error) {
@@ -579,6 +601,7 @@ function _handleForm(evt) {
             if (!item.error.non_field_errors)
                 showError('One or more errors were found.');
         }
+        app.saveerror(item, app.ERROR, conf);
 
         function showError(err, field) {
             if (field)
