@@ -402,13 +402,15 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
     var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
     if (!item) {
         // Item not found in stored list...
+        if (params)
+            url += '?' + $.param(params);
         if (conf.partial) {
-            // Set partial to indicate local list does not represent entire
-            // dataset; if an item is not found will attempt to load HTML
-            // directly from the server (using built-in jQM loader)
+            // conf.partial indicates that the local list does not represent
+            // the entire dataset; if an item is not found, attempt to load
+            // HTML directly from the server (using built-in jQM loader)
             _loadFromServer(url, ui);
         } else {
-            // If partial is not set, locally stored list is assumed to
+            // If conf.partial is not set, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
             pages.notFound(url);
         }
@@ -444,6 +446,9 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
             itemid, undefined, undefined, conf.max_local_pages
         );
         if (!item) {
+            // Not found locally (see notes in _renderDetail)
+            if (params)
+                url += '?' + $.param(params);
             if (conf.partial)
                 _loadFromServer(url, ui);
             else
