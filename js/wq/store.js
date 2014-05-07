@@ -61,6 +61,7 @@ function _Store(name) {
             'parseData',
             'applyResult',
             'localStorageFail',
+            'fetchFail',
             'jsonp',
             'debug',
             'formatKeyword'
@@ -626,14 +627,20 @@ function _Store(name) {
                     }
                 } else {
                     delete _callback_queue[key];
-                    throw "Error parsing data!";
+                    self.fetchFail(query, "Error parsing data!");
                 }
             },
             'error': function() {
                 delete _callback_queue[key];
-                throw "Unknown AJAX error!";
+                self.fetchFail(query, "Error parsing data!");
             }
         });
+    };
+    
+    // Callback for fetch() failures - override to inform the user
+    self.fetchFail = function(query, error) {
+        var key = self.toKey(query);
+        console.warn("Error loading " + key + ": " + error);
     };
 
     // Helper function for async requests

@@ -29,6 +29,8 @@ app.init = function(config, templates, baseurl, svc) {
     var dsconf = config.store || {};
     if (!dsconf.applyResult)
         dsconf.applyResult = _applyResult;
+    if (!dsconf.fetchFail)
+        dsconf.fetchFail = _fetchFail;
     ds.init(svc, {'format': 'json'}, dsconf);
     app.service = ds.service;
 
@@ -929,6 +931,14 @@ function _loadFromServer(url, ui) {
     var jqmurl = '/' + url, options = ui && ui.options || {};
     options.wqSkip = true;
     jqm.changePage(jqmurl, options);
+}
+
+function _fetchFail(query, error) {
+    /* jshint unused: false */
+    spin.start("Error Loading Data", 1.5, {
+        "theme": "e",
+        "textonly": true
+    });
 }
 
 return app;
