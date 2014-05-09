@@ -198,18 +198,20 @@ pages.go = function(path, template, context, ui, once, pageid) {
         options = {};
         if (ui && ui.options) {
             options.transition = ui.options.transition;
-            if (ui.options.link && ui.options.link.jqmData('position-to'))
-                options.positionTo = ui.options.link.jqmData('position-to');
-            else
-                options.positionTo = $page.jqmData('position-to');
-            // 'origin' won't work since we're opening the popup manually
-            if (!options.positionTo || options.positionTo == 'origin')
-                options.positionTo = ui.options.link[0];
-            // Remove link highlight *after* popup is closed
-            $page.bind('popupafterclose.resetlink', function() {
-                ui.options.link.removeClass('ui-btn-active');
-                $(this).unbind('popupafterclose.resetlink');
-            });
+            options.positionTo = $page.jqmData('position-to');
+            var link = ui.options.link;
+            if (link) {
+                if (link.jqmData('position-to'))
+                    options.positionTo = link.jqmData('position-to');
+                // 'origin' won't work since we're opening the popup manually
+                if (!options.positionTo || options.positionTo == 'origin')
+                    options.positionTo = link[0];
+                // Remove link highlight *after* popup is closed
+                $page.bind('popupafterclose.resetlink', function() {
+                    link.removeClass('ui-btn-active');
+                    $(this).unbind('popupafterclose.resetlink');
+                });
+            }
         }
         $page.popup('open', options);
     } else if (role == 'panel') {
