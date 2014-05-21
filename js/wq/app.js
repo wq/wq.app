@@ -255,6 +255,8 @@ app.attachmentTypes = {
     }
 };
 
+app.parentFilters = {};
+
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 function _registerList(page) {
@@ -266,7 +268,7 @@ function _registerList(page) {
     }
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
-    (conf.parents || []).forEach(function(ppage) {
+    for (var ppage in _getParents(page)) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
         if (url)
@@ -274,7 +276,7 @@ function _registerList(page) {
         url += '<slug>/' + conf.url;
         pages.register(url, goUrl(ppage, url));
         pages.register(url + '/', goUrl(ppage, url));
-    });
+    }
     function goUrl(ppage, url) {
         return function(match, ui, params) {
             var pconf = _getConf(ppage);
@@ -313,7 +315,8 @@ function _renderList(page, list, ui, params, url, context) {
             for (var key in params || {}) {
                 filter[key] = params[key];
             }
-            (conf.parents || []).forEach(function(ppage) {
+            for (var ppage in _getParents(page)) {
+                // FIXME: leverage field name information (added in #16)
                 var p = ppage;
                 if (p.indexOf(page) === 0)
                     p = p.replace(page, '');
@@ -323,7 +326,7 @@ function _renderList(page, list, ui, params, url, context) {
                 } else if (context && context.parent_page == ppage) {
                     filter[p + '_id'] = context.parent_id;
                 }
-            });
+            }
         }
     }
 
@@ -685,20 +688,11 @@ function _addLookups(page, context, editable, callback) {
             }
         }
     }
-    $.each(conf.parents || [], function(i, v) {
-        var pconf = _getConf(v);
-        var col;
-        if (v.indexOf(page) === 0)
-            col = v.replace(page, '') + '_id';
-        else
-            col = v + '_id';
-        lookups[v] = _parent_lookup(v, col);
-        if (editable) {
-            lookups[v + '_list'] = _parent_dropdown_lookup(v, col);
-            if (pconf.url)
-                lookups[pconf.url] = lookups[v + '_list'];
-        }
-    });
+    // Foreign key lookups
+    var parents = _getParents(page);
+    for (var ppage in parents) {
+        parents[ppage].forEach(_addParentLookup);
+    }
     $.each(conf.children || [], function(i, v) {
         var cconf = _getConf(v);
         lookups[cconf.url] = _children_lookup(page, v);
@@ -746,6 +740,18 @@ function _addLookups(page, context, editable, callback) {
         }
         var key = queue.shift();
         lookups[key](context, key, step);
+    }
+    function _addParentLookup(col) {
+        var pconf;
+        lookups[col] = _parent_lookup(ppage, col + '_id');
+        if (editable) {
+            pconf = _getConf(ppage);
+            lookups[col + '_list'] = _parent_dropdown_lookup(
+                page, ppage, col + '_id'
+            );
+            if (pconf.url && col == ppage)
+                lookups[pconf.url] = lookups[col + '_list'];
+        }
     }
 }
 
@@ -850,11 +856,16 @@ function _parent_lookup(page, column) {
 }
 
 // List of all potential foreign key values (useful for generating dropdowns)
-function _parent_dropdown_lookup(page, column) {
-    if (!column) column = page + '_id';
-    return _make_lookup(page, function(list) {
+function _parent_dropdown_lookup(cpage, ppage, column) {
+    if (!column) column = ppage + '_id';
+    return _make_lookup(ppage, function(list, context) {
         return function() {
             var parents = [];
+            if (app.parentFilters[column]) {
+                list = list.filter(
+                    app.parentFilters[column](ppage, cpage, context)
+                );
+            }
             list.forEach(function(v) {
                 var item = $.extend({}, v);
                 if (item.id == this[column])
@@ -911,6 +922,27 @@ function _getConf(page, silentFail) {
     if (conf.alias)
         return _getConf(conf.alias);
     return $.extend({'page': page}, conf);
+}
+
+// Normalize structure of app.config.pages[page].parents
+function _getParents(page) {
+    var conf = _getConf(page), parents = {};
+    if (!conf.parents) {
+        /* jshint noempty: false */
+        // conf.parents is empty; return empty object
+    } else if (conf.parents.length !== undefined) {
+        // conf.parents is an array; foreign keys have the same name as the
+        // parent they point to.
+        parents = {};
+        conf.parents.forEach(function(p) {
+            parents[p] = [p];
+        });
+    } else {
+        // conf.parents is an object: keys are parents, values are arrays with
+        // names of one or more foreign key fields.
+        parents = conf.parents;
+    }
+    return parents;
 }
 
 // Helper to load configuration based on URL
