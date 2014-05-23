@@ -257,6 +257,27 @@ app.attachmentTypes = {
 
 app.parentFilters = {};
 
+// Normalize structure of app.config.pages[page].parents
+app.getParents = function(page) {
+    var conf = _getConf(page), parents = {};
+    if (!conf.parents) {
+        /* jshint noempty: false */
+        // conf.parents is empty; return empty object
+    } else if (conf.parents.length !== undefined) {
+        // conf.parents is an array; foreign keys have the same name as the
+        // parent they point to.
+        parents = {};
+        conf.parents.forEach(function(p) {
+            parents[p] = [p];
+        });
+    } else {
+        // conf.parents is an object: keys are parents, values are arrays with
+        // names of one or more foreign key fields.
+        parents = conf.parents;
+    }
+    return parents;
+};
+
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 function _registerList(page) {
@@ -268,7 +289,7 @@ function _registerList(page) {
     }
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
-    for (var ppage in _getParents(page)) {
+    for (var ppage in app.getParents(page)) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
         if (url)
@@ -315,7 +336,7 @@ function _renderList(page, list, ui, params, url, context) {
             for (var key in params || {}) {
                 filter[key] = params[key];
             }
-            for (var ppage in _getParents(page)) {
+            for (var ppage in app.getParents(page)) {
                 // FIXME: leverage field name information (added in #16)
                 var p = ppage;
                 if (p.indexOf(page) === 0)
@@ -689,7 +710,7 @@ function _addLookups(page, context, editable, callback) {
         }
     }
     // Foreign key lookups
-    var parents = _getParents(page);
+    var parents = app.getParents(page);
     for (var ppage in parents) {
         parents[ppage].forEach(_addParentLookup);
     }
@@ -922,27 +943,6 @@ function _getConf(page, silentFail) {
     if (conf.alias)
         return _getConf(conf.alias);
     return $.extend({'page': page}, conf);
-}
-
-// Normalize structure of app.config.pages[page].parents
-function _getParents(page) {
-    var conf = _getConf(page), parents = {};
-    if (!conf.parents) {
-        /* jshint noempty: false */
-        // conf.parents is empty; return empty object
-    } else if (conf.parents.length !== undefined) {
-        // conf.parents is an array; foreign keys have the same name as the
-        // parent they point to.
-        parents = {};
-        conf.parents.forEach(function(p) {
-            parents[p] = [p];
-        });
-    } else {
-        // conf.parents is an object: keys are parents, values are arrays with
-        // names of one or more foreign key fields.
-        parents = conf.parents;
-    }
-    return parents;
 }
 
 // Helper to load configuration based on URL

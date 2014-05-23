@@ -83,15 +83,15 @@ function _registerList(page) {
     });
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
-    (mapconf.parents || []).forEach(function(ppage) {
+    for (var ppage in app.getParents(page)) {
         var pconf = app.config.pages[ppage];
-        var url = pconf.url;
+        var purl = pconf.url;
         if (url)
-            url += '/';
-        url += '<slug>/' + mapconf.url;
-        pages.addRoute(url, 's', goUrl);
-        pages.addRoute(url + '/', 's', goUrl);
-    });
+            purl += '/';
+        purl += '<slug>/' + mapconf.url;
+        pages.addRoute(purl, 's', goUrl);
+        pages.addRoute(purl + '/', 's', goUrl);
+    }
 
     function goUrl(match, ui, params) {
         // Override URL for this map's main layer to enable filter by parent
