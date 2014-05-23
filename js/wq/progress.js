@@ -14,6 +14,7 @@ var progress = {
 
 // Internal setInterval ids
 var _timers = {};
+var _last = {};
 
 // Optionally initialize wq/progress with a page path to auto start polling
 progress.init = function(path, onComplete) {
@@ -72,11 +73,17 @@ progress.timer = function($progress, url) {
                 $progress.html('Loading...');
             } else {
                 // Set to progress level
-                $progress.attr('value', data.current);
-                $progress.attr('max', data.total);
+                if (_last[url] && data.current < _last[url]) {
+                    // Assume out-of order response; no update
+                    /* jshint noempty: false */
+                } else {
+                    _last[url] = data.current;
+                    $progress.attr('value', data.current);
+                    $progress.attr('max', data.total);
 
-                // Fallback for old browsers
-                $progress.html(data.current / data.total * 100 + "%");
+                    // Fallback for old browsers
+                    $progress.html(data.current / data.total * 100 + "%");
+                }
 
                 // Check for completion
                 if (data.current == data.total || data.status == "SUCCESS")
