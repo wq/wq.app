@@ -888,9 +888,9 @@ function _parent_dropdown_lookup(cpage, ppage, column) {
     if (!column) column = ppage + '_id';
     return _make_lookup(ppage, function(list, context) {
         return function() {
-            var parents = [];
+            var parents = [], choices = list;
             if (app.parentFilters[column]) {
-                list = list.filter(
+                choices = list.filter(
                     app.parentFilters[column](ppage, cpage, context)
                 );
             }
