@@ -205,7 +205,8 @@ app.attachmentTypes = {
             /* jshint unused: false */
             return {};
         },
-        'getDefaults': function(type) {
+        'getDefaults': function(type, context) {
+            /* jshint unused: false */
             return {
                 'authority_id': type.id,
                 'authority_label': type.label,
@@ -224,14 +225,16 @@ app.attachmentTypes = {
             /* jshint unused: false */
             return {'from_type': page};
         },
-        'getChoiceList': function(type) {
+        'getChoiceList': function(type, context) {
+            /* jshint unused: false */
             return type.to_type;
         },
-        'getChoiceListFilter': function(type) {
+        'getChoiceListFilter': function(type, context) {
             /* jshint unused: false */
             return {};
         },
-        'getDefaults': function(type) {
+        'getDefaults': function(type, context) {
+            /* jshint unused: false */
             return {'type_label': type.name};
         }
     },
@@ -242,14 +245,16 @@ app.attachmentTypes = {
             /* jshint unused: false */
             return {'to_type': page};
         },
-        'getChoiceList': function(type) {
+        'getChoiceList': function(type, context) {
+            /* jshint unused: false */
             return type.from_type;
         },
-        'getChoiceListFilter': function(type) {
+        'getChoiceListFilter': function(type, context) {
             /* jshint unused: false */
             return {};
         },
-        'getDefaults': function(type) {
+        'getDefaults': function(type, context) {
+            /* jshint unused: false */
             return {'type_label': type.inverse_name};
         }
     }
@@ -825,9 +830,11 @@ function _item_choice_lookup(page, aname) {
         var tconf = _getConf(info.type);
         ds.getList({'url': tconf.url}, function(types) {
             var lists = [], listLookup = {};
-            types.filter(info.getTypeFilter(page)).forEach(function(type) {
-                lists.push(info.getChoiceList(type));
-            });
+            types.filter(info.getTypeFilter(page, context)).forEach(
+                function(type) {
+                    lists.push(info.getChoiceList(type, context));
+                }
+            );
             if (!lists.length)
                 callback(context);
             else
@@ -837,7 +844,7 @@ function _item_choice_lookup(page, aname) {
                 ds.getList({'url': lconf.url}, function(list) {
                     listLookup[lists[index]] = function(type) {
                         var items = list.filter(
-                            info.getChoiceListFilter(type)
+                            info.getChoiceListFilter(type, context)
                         );
                         items.forEach(function(item, i) {
                             if (item.id == this.item_id) {
@@ -854,7 +861,7 @@ function _item_choice_lookup(page, aname) {
                         context[key] = function() {
                             if (this.type_id) {
                                 var type = types.find(this.type_id);
-                                var listid = info.getChoiceList(type);
+                                var listid = info.getChoiceList(type, context);
                                 return listLookup[listid].call(this, type);
                             }
                         };
@@ -924,7 +931,7 @@ function _default_attachments(ppage, apage) {
         types.forEach(function(t) {
             var obj = {};
             if (info.getDefaults)
-                obj = info.getDefaults(t);
+                obj = info.getDefaults(t, context);
             obj.type_id = t.id;
             attachments.push(obj);
         });
