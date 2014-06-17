@@ -1026,12 +1026,27 @@ function _Store(name) {
     };
 
     // Clear local caches
-    self.reset = function() {
+    self.reset = function(all) {
         _cache = {};
         _index_cache = {};
         _group_cache = {};
-        if (_ls)
-            _ls.clear(); // FIXME: what about other stores?!
+        if (_ls) {
+            if (all) {
+                // Clear out everything - will affect other stores!
+                _ls.clear();
+            } else {
+                // Only clear items matching this store's key prefix
+                var keys = [];
+                for (var i = 0; i < _ls.length; i++) {
+                    var key = _ls.key(i);
+                    if (key.indexOf(_lsp) === 0)
+                        keys.push(key);
+                }
+                keys.forEach(function(key) {
+                    _ls.removeItem(key);
+                });
+            }
+        }
     };
 
 }
