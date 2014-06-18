@@ -365,9 +365,10 @@ function _renderList(page, list, ui, params, url, context) {
     }
 
     var data = filter ? list.filter(filter) : list.page(pnum);
-    if (conf.partial && !data.length) {
-        // No local filter, but list.page() just returned an empty dataset.
-        // load from server just in case.
+    if (conf.partial && !data.length && list.info.count) {
+        // No local filter, but list.page() just returned an empty dataset even
+        // though list info indicates there is at least some data in the list.
+        // Try loading from server.
         _loadFromServer(url, ui);
         return;
     }
