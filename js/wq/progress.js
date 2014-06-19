@@ -17,11 +17,12 @@ var _timers = {};
 var _last = {};
 
 // Optionally initialize wq/progress with a page path to auto start polling
-progress.init = function(path, onComplete, onFail) {
+progress.init = function(path, onComplete, onFail, onProgress) {
     pages.addRoute(path, 's', _startProgress);
     pages.addRoute(path, 'h', _stopProgress);
     progress.onComplete = onComplete;
     progress.onFail = onFail;
+    progress.onProgress = onProgress;
 
     function _startProgress(match, ui, params, hash, evt, $page) {
         progress.start($page.find('progress'));
@@ -71,10 +72,11 @@ progress.fail = function($progress, data) {
 progress.timer = function($progress, url) {
     return function() {
         json.get(url, function(data) {
+            var done = false;
             if (!data.total) {
                 // Set to "intermediate" state
-                $progress.prop('total', null);
-                $progress.prop('value', null);
+                $progress.attr('value', null);
+                $progress.attr('max', null);
 
                 // Fallback for old browsers
                 $progress.html('Loading...');
@@ -85,19 +87,25 @@ progress.timer = function($progress, url) {
                     /* jshint noempty: false */
                 } else {
                     _last[url] = data.current;
-                    $progress.prop('value', data.current);
-                    $progress.prop('max', data.total);
+                    $progress.attr('value', data.current);
+                    $progress.attr('max', data.total);
 
                     // Fallback for old browsers
                     $progress.html(data.current / data.total * 100 + "%");
                 }
 
                 // Check for completion
-                if (data.current == data.total || data.status == "SUCCESS")
+                if (data.current == data.total || data.status == "SUCCESS") {
                     progress.complete($progress, data);
+                    done = true;
+                }
             }
-            if (data.status == "FAILURE")
+            if (data.status == "FAILURE") {
+                $progress.attr('value', 0);
                 progress.fail($progress, data);
+            } else if (!done && progress.onProgress) {
+                progress.onProgress($progress, data);
+            }
         });
     };
 };
