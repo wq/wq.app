@@ -895,7 +895,7 @@ function _parent_dropdown_lookup(cpage, ppage, column) {
                     app.parentFilters[column](ppage, cpage, context)
                 );
             }
-            list.forEach(function(v) {
+            choices.forEach(function(v) {
                 var item = $.extend({}, v);
                 if (item.id == this[column])
                     item.selected = true; // Currently selected item
