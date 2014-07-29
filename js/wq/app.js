@@ -235,7 +235,10 @@ app.attachmentTypes = {
         },
         'getDefaults': function(type, context) {
             /* jshint unused: false */
-            return {'type_label': type.name};
+            return {
+                'type_label': type.name,
+                'to_type': type.to_type
+            };
         }
     },
     inverserelationship: {
@@ -255,7 +258,10 @@ app.attachmentTypes = {
         },
         'getDefaults': function(type, context) {
             /* jshint unused: false */
-            return {'type_label': type.inverse_name};
+            return {
+                'type_label': type.inverse_name,
+                'from_type': type.from_type
+            };
         }
     }
 };
