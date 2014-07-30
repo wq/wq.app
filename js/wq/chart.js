@@ -42,6 +42,7 @@ chart.base = function() {
         xscale = null,
         xscalefn = d3.scale.linear,
         xnice = null,
+        xticks = null,
         yscales = {},
         yscalefn = d3.scale.linear,
         cscale = d3.scale.category20(),
@@ -245,6 +246,8 @@ chart.base = function() {
             .scale(xscale.scale)
             .orient('bottom')
             .tickSize(4, 2, 1);
+        if (xticks)
+            xscale.axis.ticks(xticks);
 
         for (var scaleid in yscales) {
             var scale = yscales[scaleid];
@@ -470,6 +473,11 @@ chart.base = function() {
     plot.xnice = function(val) {
         if (!arguments.length) return xnice;
         xnice = val;
+        return plot;
+    };
+    plot.xticks = function(val) {
+        if (!arguments.length) return xticks;
+        xticks = val;
         return plot;
     };
     plot.yscales = function(val) {
