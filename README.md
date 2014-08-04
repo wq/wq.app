@@ -1,6 +1,6 @@
 [![wq.app](https://raw.github.com/wq/wq/master/images/256/wq.app.png)](http://wq.io/wq.app)
 
-[wq.app](http://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens on the server *or* on the client depending on project needs, network connectivity, and `localStorage` availability.
+[wq.app](http://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens [on the server or on the client] depending on project needs, network connectivity, and `localStorage` availability.
 
 ## Getting Started
 
@@ -47,7 +47,7 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [wq/locate.js]: http://wq.io/docs/locate-js
  [wq/map.js]: http://wq.io/docs/map-js
  [wq/store.js]: http://wq.io/docs/store-js
- [other useful utilities]: http://wq.io/docs/sup
+ [other useful utilities]: http://wq.io/docs/other-modules
  
  
  [jquery-mobile.scss]: http://wq.io/docs/jquery-mobile-scss-themes
@@ -55,3 +55,4 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  
  [wq.db]: http://wq.io/wq.db
  [app.py]: http://wq.io/docs/app.py
+ [on the server or on the client]: http://wq.io/docs/templates
