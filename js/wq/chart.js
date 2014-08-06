@@ -50,11 +50,14 @@ chart.base = function() {
         innerFill = '#eee',
         legend = null;
 
-    // Accessor for entire data object
+    // Accessors for entire data object
     function datasets(d) {
         if (d.data)
             return d.data;
         return d;
+    }
+    function legendItems(d) {
+        return datasets(d);
     }
 
     // Accessors for individual datasets
@@ -66,6 +69,12 @@ chart.base = function() {
     }
     function items(dataset) {
         return dataset.list;
+    }
+    function legendItemId(d) {
+        return id(d);
+    }
+    function legendItemLabel(d) {
+        return label(d);
     }
 
     function xunits(dataset) {
@@ -181,7 +190,7 @@ chart.base = function() {
     // The actual work
     function _plot(data) {
         if (legend === null || legend.auto)
-            _positionLegend.call(this, datasets(data));
+            _positionLegend.call(this, legendItems(data));
         _computeScales(datasets(data));
         var ordinal = xscalefn().rangePoints || false;
         var svg = d3.select(this);
@@ -313,14 +322,14 @@ chart.base = function() {
             });
 
         if (legend && legend.position)
-            _renderLegend.call(this, datasets(data), opts);
+            _renderLegend.call(this, legendItems(data), opts);
         else
             outer.select('g.legend').remove();
         wrapup.call(this, datasets(data), opts);
     }
 
-    function _positionLegend(datasets) {
-        var rows = datasets.length;
+    function _positionLegend(items) {
+        var rows = items.length;
         if (rows > 5) {
             plot.legend({
                 'position': 'right',
@@ -382,7 +391,7 @@ chart.base = function() {
         plot.setMargin('yaxis', ymargin);
     }
     
-    function _renderLegend(datasets, opts) {
+    function _renderLegend(items, opts) {
         var svg = d3.select(this),
             outer = svg.select('g.outer'),
             margins = plot.getMargins(),
@@ -409,25 +418,25 @@ chart.base = function() {
             .attr('stroke', '#999');
 
         var legitems = leg.selectAll('g.legenditem')
-            .data(datasets, id);
+            .data(items, legendItemId);
         var newitems = legitems.enter().append('g')
             .attr('class', 'legenditem')
             .append('g')
                 .attr('class', 'data');
         newitems.each(function(d) {
             var g = d3.select(this),
-                sid = id(d);
+                sid = legendItemId(d);
             g.append(legendItemShape(sid));
             g.append('text');
         });
         legitems.exit().remove();
         legitems.each(function(d, i) {
             var g = d3.select(this).select('g.data'),
-                sid = id(d);
+                sid = legendItemId(d);
             g.attr('transform', _trans(20, 20 + i * 22));
             g.select(legendItemShape(sid)).call(legendItemStyle(sid));
             g.select('text')
-                .text(label(d))
+                .text(legendItemLabel(d))
                 .attr('transform', _trans(10, 5));
         });
     }
@@ -502,6 +511,11 @@ chart.base = function() {
     };
 
     // Getters/setters for accessors
+    plot.datasets = function(fn) {
+        if (!arguments.length) return datasets;
+        datasets = fn;
+        return plot;
+    };
     plot.id = function(fn) {
         if (!arguments.length) return id;
         id = fn;
@@ -510,6 +524,21 @@ chart.base = function() {
     plot.label = function(fn) {
         if (!arguments.length) return label;
         label = fn;
+        return plot;
+    };
+    plot.legendItems = function(fn) {
+        if (!arguments.length) return legendItems;
+        legendItems = fn;
+        return plot;
+    };
+    plot.legendItemId = function(fn) {
+        if (!arguments.length) return legendItemId;
+        legendItemId = fn;
+        return plot;
+    };
+    plot.legendItemLabel = function(fn) {
+        if (!arguments.length) return legendItemLabel;
+        legendItemLabel = fn;
         return plot;
     };
     plot.items = function(fn) {
