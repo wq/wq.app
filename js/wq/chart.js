@@ -48,7 +48,8 @@ chart.base = function() {
         cscale = d3.scale.category20(),
         outerFill = '#f3f3f3',
         innerFill = '#eee',
-        legend = null;
+        legend = null,
+        leftYAxis = true;
 
     // Accessors for entire data object
     function datasets(d) {
@@ -348,7 +349,6 @@ chart.base = function() {
     // Compute horizontal & vertical scales
     // - may be more than one vertical scale if there are different units
     function _computeScales(datasets) {
-        var left = true;
         datasets.forEach(function(dataset) {
             if (!xscale) {
                 xscale = {
@@ -374,8 +374,8 @@ chart.base = function() {
             if (!yscale.id)
                 yscale.id = scaleid;
             if (!yscale.orient) {
-                yscale.orient = left ? 'left' : 'right';
-                left = !left;
+                yscale.orient = leftYAxis ? 'left' : 'right';
+                leftYAxis = !leftYAxis;
             }
             if (!yscale.sets)
                 yscale.sets = 0;
