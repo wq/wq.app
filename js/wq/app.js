@@ -51,10 +51,21 @@ app.init = function(config, templates, baseurl, svc) {
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
 
+    // Option to submit forms in the background rather than wait for each post
+    var seconds;
+    if (config.backgroundSync) {
+        seconds = config.backgroundSync;
+        if (seconds === true)
+            seconds = 30;
+        app._syncInterval = setInterval(app.sync, seconds * 1000);
+    }
+
     // Option to override various hooks
     [
+        'postsubmit',
         'postsave',
         'saveerror',
+        'postsync',
         'parentFilters'
     ].forEach(function(hook) {
         if (config[hook]) {
@@ -157,6 +168,21 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
     });
 };
 
+// Sync outbox and handle result
+app.sync = function() {
+    if (app.syncing || !ds.unsaved())
+        return;
+    app.syncing = true;
+    app.presync();
+    ds.sendAll(function(result) {
+        app.syncing = false;
+        app.postsync(result);
+    });
+};
+
+// Hooks for form submissions sent immediately (non-backgroundSync)
+
+// Hook for handling navigation after server response to form submission
 app.postsave = function(item, result, conf) {
     // Save was successful, redirect to next screen
     var options = {'reverse': true, 'transition': _saveTransition};
@@ -188,6 +214,41 @@ app.saveerror = function(item, reason, conf) {
     // (override to customize behavior, e.g. display an outbox)
     if (app.config.debug) {
         console.warn("Could not save: " + reason);
+    }
+};
+
+// Hooks for background sync
+
+// Hook for handling navigation after form submission with backgroundSync on
+app.postsubmit = function(item, conf) {
+    /* jshint unused: false */
+    // (override to customize behavior, e.g. return to a list view)
+};
+
+// Hook for handling alerts before a background sync event
+app.presync = function() {
+    /* jshint unused: false */
+    if (app.config.debug) {
+        console.log("Syncing...");
+    }
+};
+
+// Hook for handling alerts after a background sync event
+app.postsync = function(result) {
+    /* jshint unused: false */
+    // Called after every sync with result from ds.sendAll().
+    // (override to customize behavior, e.g. update a status icon)
+    var msg;
+    if (app.config.debug) {
+        if (result) {
+            console.log("Successfully synced.");
+        } else {
+            if (result === false)
+                msg = "Sync error!";
+            else
+                msg = "Sync failed!";
+            console.warn(msg + " " + ds.unsaved() + " items remain unsaved");
+        }
     }
 };
 
@@ -544,7 +605,7 @@ function _renderOther(page, ui, params, url, context) {
 
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
-    var $form = $(this), $submitVal;
+    var $form = $(this), $submitVal, item, backgroundSync;
     if (evt.isDefaultPrevented())
         return;
     if ($form.data('submit-button-name')) {
@@ -555,6 +616,11 @@ function _handleForm(evt) {
     }
     if ($form.data('json') !== undefined && !$form.data('json'))
         return; // Defer to default (HTML-based) handler
+    
+    if ($form.data('background-sync') !== undefined)
+        backgroundSync = $form.data('background-sync');
+    else
+        backgroundSync = app.config.backgroundSync;
 
     var outboxId = $form.data('outbox-id');
     var url = $form.attr('action').substring(1);
@@ -598,11 +664,18 @@ function _handleForm(evt) {
     vals.csrftoken = ds.get('csrftoken');
 
     $('.error').html('');
-    spin.start();
-    ds.save(vals, outboxId, function(item, result) {
-        spin.stop();
-        _onSendItem(item, result, $form);
-    });
+    outboxId = ds.save(vals, outboxId);
+    item = ds.find('outbox', outboxId);
+    if (backgroundSync) {
+        app.postsubmit(item, conf);
+        app.sync();
+    } else {
+        spin.start();
+        ds.sendItem(outboxId, function(item, result) {
+            spin.stop();
+            _onSendItem(item, result, $form);
+        });
+    }
 }
 
 function _onSendItem(item, result, $form) {
