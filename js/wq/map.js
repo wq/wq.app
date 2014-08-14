@@ -208,6 +208,10 @@ map.createBaseMaps = function() {
     };
 };
 
+map.createLayerControl = function(basemaps, layers) {
+    return L.control.layers(basemaps, layers);
+};
+
 // Default popup renderer for items - override to customize
 // (assumes template called [page]_popup)
 map.renderPopup = function(page) {
@@ -281,7 +285,7 @@ map.createMap = function(page, itemid, override) {
         layerConfs[i] = layerconf;
     });
 
-    L.control.layers(basemaps, layers).addTo(m);
+    map.createLayerControl(basemaps, layers).addTo(m);
 
     // Async-load geojson for layers and add to layergroups
     function loadLayer(layerconf) {
