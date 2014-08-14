@@ -22,7 +22,9 @@ app.init = function(config, templates, baseurl, svc) {
         baseurl = '';
     if (svc === undefined)
         svc = baseurl;
-    app.config = app.default_config = config;
+    app.config = config;
+    app.wq_config = {'pages': config.pages};
+
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
 
@@ -49,6 +51,28 @@ app.init = function(config, templates, baseurl, svc) {
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
 
+    // Option to override various hooks
+    [
+        'postsave',
+        'saveerror',
+        'parentFilters'
+    ].forEach(function(hook) {
+        if (config[hook]) {
+            app[hook] = config[hook];
+        }
+    });
+
+    // Option to update attachmentTypes configuration
+    var aname;
+    if (config.attachmentTypes) {
+        for (aname in config.attachmentTypes) {
+            app.attachmentTypes[aname] = $.extend(
+                app.attachmentTypes[aname] || {},
+                config.attachmentTypes[aname]
+            );
+        }
+    }
+
     // Initialize authentication, if applicable
     if (app.can_login) {
         var user = ds.get('user');
@@ -58,11 +82,11 @@ app.init = function(config, templates, baseurl, svc) {
             tmpl.setDefault('user', user);
             tmpl.setDefault('is_authenticated', true);
             tmpl.setDefault('csrftoken', csrftoken);
-            app.config = ds.get({'url': 'config'});
-            tmpl.setDefault('app_config', app.config);
+            app.wq_config = ds.get({'url': 'config'});
+            tmpl.setDefault('wq_config', app.wq_config);
             $('body').trigger('login');
         }
-        app.check_login();
+        _checkLogin();
         pages.register('logout\/?', app.logout);
     }
 
@@ -79,7 +103,7 @@ app.init = function(config, templates, baseurl, svc) {
     }
 
     // Register routes with wq/pages.js
-    for (var page in app.config.pages) {
+    for (var page in app.wq_config.pages) {
         var conf = _getConf(page);
         if (conf.list) {
             _registerList(page);
@@ -102,52 +126,14 @@ app.logout = function() {
     ds.set('user', null);
     tmpl.setDefault('user', null);
     tmpl.setDefault('is_authenticated', false);
-    app.config = app.default_config;
-    tmpl.setDefault('app_config', app.config);
+    app.wq_config = {'pages': app.config.pages};
+    tmpl.setDefault('wq_config', app.wq_config);
     ds.fetch({'url': 'logout'}, true, function(result) {
         tmpl.setDefault('csrftoken', result.csrftoken);
         ds.set('csrftoken', result.csrftoken);
     }, true);
     $('body').trigger('logout');
 };
-
-app.save_login = function(result) {
-    var config = result.config,
-        user = result.user,
-        csrftoken = result.csrftoken;
-    if (!app.can_login)
-        return;
-    app.config = config;
-    ds.set({'url': 'config'}, config);
-    tmpl.setDefault('app_config', config);
-    app.user = user;
-    tmpl.setDefault('user', user);
-    tmpl.setDefault('is_authenticated', true);
-    tmpl.setDefault('csrftoken', csrftoken);
-    ds.set('user', user);
-    ds.set('csrftoken', csrftoken);
-    $('body').trigger('login');
-};
-
-app.check_login = function() {
-    if (!app.can_login)
-        return;
-    ds.fetch({'url': 'login'}, true, function(result) {
-        if (result && result.user && result.config) {
-            app.save_login(result);
-        } else if (result && app.user) {
-            app.logout();
-        } else if (result && result.csrftoken) {
-            tmpl.setDefault('csrftoken', result.csrftoken);
-            ds.set('csrftoken', result.csrftoken);
-        }
-    }, true);
-};
-
-// Internal variables and functions
-var _saveTransition = "none";
-
-// Wrappers for pages.register & pages.go to handle common use cases
 
 // Determine appropriate context & template for pages.go
 app.go = function(page, ui, params, itemid, edit, url, context) {
@@ -285,7 +271,7 @@ app.attachmentTypes = {
 
 app.parentFilters = {};
 
-// Normalize structure of app.config.pages[page].parents
+// Normalize structure of app.wq_config.pages[page].parents
 app.getParents = function(page) {
     var conf = _getConf(page), parents = {};
     if (!conf.parents) {
@@ -305,6 +291,9 @@ app.getParents = function(page) {
     }
     return parents;
 };
+
+// Internal variables and functions
+var _saveTransition = "none";
 
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
@@ -437,8 +426,8 @@ function _registerDetail(page) {
         url += "/";
     } else {
         // This list is bound to root URL, don't mistake other lists for items
-        for (var key in app.config.pages)
-            reserved.push(app.config.pages[key].url);
+        for (var key in app.wq_config.pages)
+            reserved.push(app.wq_config.pages[key].url);
     }
     pages.register(url + '<slug>', function(match, ui, params) {
         if (reserved.indexOf(match[1]) > -1)
@@ -612,66 +601,71 @@ function _handleForm(evt) {
     spin.start();
     ds.save(vals, outboxId, function(item, result) {
         spin.stop();
-
-        if (!item) {
-            // Save failed, probably due to item being saved already
-            return;
-        }
-
-        if (item.saved) {
-            // Save succeeded
-            app.postsave(item, result, conf);
-            return;
-        }
-
-        if (!item.error) {
-            // Save failed without server error: probably offline
-            showError("Error saving data.");
-            app.saveerror(item, app.OFFLINE, conf);
-            return;
-        }
-
-        if (typeof(item.error) === 'string') {
-            // Save failed and error information is not in JSON format
-            // (likely a 500 server failure)
-            showError(item.error);
-            app.saveerror(item, app.FAILURE, conf);
-            return;
-        }
-
-        // Save failed and error information is in JSON format
-        // (likely a 400 bad data error)
-        var errs = Object.keys(item.error);
-
-        if (errs.length == 1 && errs[0] == 'detail') {
-            // General API errors have a single "detail" attribute
-            showError(item.error.detail);
-        } else {
-            // REST API provided per-field error information
-
-            // Form errors (other than non_field_errors) are keyed by fieldname
-            for (var f in item.error) {
-                // FIXME: there may be multiple errors per field
-                var err = item.error[f][0];
-                if (f == 'non_field_errors')
-                    showError(err);
-                else
-                    showError(err, f);
-            }
-            if (!item.error.non_field_errors)
-                showError('One or more errors were found.');
-        }
-        app.saveerror(item, app.ERROR, conf);
-
-        function showError(err, field) {
-            if (field)
-                field = field + '-';
-            else
-                field = '';
-            var sel = '.' + conf.page + '-' + field + 'errors';
-            $form.find(sel).html(err);
-        }
+        _onSendItem(item, result, $form);
     });
+}
+
+function _onSendItem(item, result, $form) {
+    var conf = _getConfByUrl(item.listQuery.url);
+
+    if (!item) {
+        // Save failed, probably due to item being saved already
+        return;
+    }
+
+    if (item.saved) {
+        // Save succeeded
+        app.postsave(item, result, conf);
+        return;
+    }
+
+    if (!item.error) {
+        // Save failed without server error: probably offline
+        showError("Error saving data.");
+        app.saveerror(item, app.OFFLINE, conf);
+        return;
+    }
+
+    if (typeof(item.error) === 'string') {
+        // Save failed and error information is not in JSON format
+        // (likely a 500 server failure)
+        showError(item.error);
+        app.saveerror(item, app.FAILURE, conf);
+        return;
+    }
+
+    // Save failed and error information is in JSON format
+    // (likely a 400 bad data error)
+    var errs = Object.keys(item.error);
+
+    if (errs.length == 1 && errs[0] == 'detail') {
+        // General API errors have a single "detail" attribute
+        showError(item.error.detail);
+    } else {
+        // REST API provided per-field error information
+
+        // Form errors (other than non_field_errors) are keyed by fieldname
+        for (var f in item.error) {
+            // FIXME: there may be multiple errors per field
+            var err = item.error[f][0];
+            if (f == 'non_field_errors')
+                showError(err);
+            else
+                showError(err, f);
+        }
+        if (!item.error.non_field_errors)
+            showError('One or more errors were found.');
+    }
+    app.saveerror(item, app.ERROR, conf);
+
+    function showError(err, field) {
+        if (field)
+            field = field + '-';
+        else
+            field = '';
+        var sel = '.' + conf.page + '-' + field + 'errors';
+        $form.find(sel).html(err);
+    }
 }
 
 // Remember which submit button was clicked (and its value)
@@ -700,7 +694,7 @@ function _applyResult(item, result) {
             list.update([res], 'id', conf.reversed);
         });
     } else if (app.can_login && result && result.user && result.config) {
-        app.save_login(result);
+        _saveLogin(result);
         item.saved = true;
     }
 }
@@ -718,6 +712,39 @@ function _updateAttachments(conf, res, aname) {
         list.update(attachments, 'id');
     });
     delete res[aconf.url];
+}
+
+function _saveLogin(result) {
+    var config = result.config,
+        user = result.user,
+        csrftoken = result.csrftoken;
+    if (!app.can_login)
+        return;
+    app.wq_config = config;
+    ds.set({'url': 'config'}, config);
+    tmpl.setDefault('wq_config', config);
+    app.user = user;
+    tmpl.setDefault('user', user);
+    tmpl.setDefault('is_authenticated', true);
+    tmpl.setDefault('csrftoken', csrftoken);
+    ds.set('user', user);
+    ds.set('csrftoken', csrftoken);
+    $('body').trigger('login');
+}
+
+function _checkLogin() {
+    if (!app.can_login)
+        return;
+    ds.fetch({'url': 'login'}, true, function(result) {
+        if (result && result.user && result.config) {
+            _saveLogin(result);
+        } else if (result && app.user) {
+            app.logout();
+        } else if (result && result.csrftoken) {
+            tmpl.setDefault('csrftoken', result.csrftoken);
+            ds.set('csrftoken', result.csrftoken);
+        }
+    }, true);
 }
 
 // Add various callback functions to context object to automate foreign key
@@ -965,7 +992,7 @@ function _default_attachments(ppage, apage) {
 
 // Load configuration based on page id
 function _getConf(page, silentFail) {
-    var conf = app.config.pages[page];
+    var conf = app.wq_config.pages[page];
     if (!conf)
         if (silentFail)
             return;
@@ -980,10 +1007,10 @@ function _getConf(page, silentFail) {
 function _getConfByUrl(url) {
     var parts = url.split('/');
     var conf;
-    for (var p in app.config.pages)
-        if (app.config.pages[p].url == parts[0]) {
-            conf = $.extend({}, app.config.pages[p]);
-            conf.page = p;
+    for (var p in app.wq_config.pages)
+        if (app.wq_config.pages[p].url == parts[0]) {
+            conf = $.extend({}, app.wq_config.pages[p]);
+            conf.page = p; // Same as 'name'?
         }
     if (!conf)
         throw 'Configuration for "/' + url + '" not found!';
