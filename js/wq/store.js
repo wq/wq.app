@@ -25,6 +25,11 @@ store.getStore = function(name) {
 // Internal variables and functions
 var _ls = 'localStorage' in window && window.localStorage;
 var _stores;
+var _verbosity = {
+    'Network': 1,
+    'Lookup': 2,
+    'Values': 3
+};
 
 function _Store(name) {
     if (!_stores)
@@ -70,6 +75,12 @@ function _Store(name) {
             if (opts.hasOwnProperty(opt))
                 self[opt] = opts[opt];
         });
+        if (self.debug) {
+            for (var level in _verbosity) {
+                if (self.debug >= _verbosity[level])
+                    self['debug' + level] = true;
+            }
+        }
 
         if (opts.batchService) {
             self.batchService = opts.batchService;
@@ -101,12 +112,12 @@ function _Store(name) {
         if (useservice !== undefined)
             usesvc = (useservice ? 'always' : 'never');
 
-        if (self.debug)
+        if (self.debugLookup)
             console.log('looking up ' + key);
 
         // First check JSON cache
         if (_cache[key] && usesvc != 'always') {
-            if (self.debug)
+            if (self.debugLookup)
                 console.log('in memory');
             return _cache[key];
         }
@@ -116,9 +127,10 @@ function _Store(name) {
             var item = _ls.getItem(_lsp + key);
             if (item) {
                 _cache[key] = JSON.parse(item);
-                if (self.debug) {
+                if (self.debugLookup) {
                     console.log('in localStorage');
-                    console.log(_cache[key]);
+                    if (self.debugValues)
+                        console.log(_cache[key]);
                 }
                 return _cache[key];
             }
@@ -126,22 +138,18 @@ function _Store(name) {
 
         // Search ends here if query is a simple string
         if (typeof query == "string") {
-            if (self.debug)
+            if (self.debugLookup)
                 console.log('not found');
             return null;
         }
 
         // More complex queries are assumed to be server requests
         if (self.service !== undefined && usesvc != 'never') {
-            if (self.debug)
-                console.log('on server');
             self.fetch(query);
-            if (self.debug)
-                console.log(_cache[key]);
             return _cache[key];
         }
 
-        if (self.debug)
+        if (self.debugLookup)
             console.log('not found');
         return null;
     };
@@ -404,9 +412,10 @@ function _Store(name) {
     self.set = function(query, value, memonly) {
         var key = self.toKey(query);
         if (value !== null) {
-            if (self.debug) {
+            if (self.debugLookup) {
                 console.log('saving new value for ' + key);
-                console.log(value);
+                if (self.debugValues)
+                    console.log(value);
             }
             _cache[key] = value;
             if (_ls && !memonly) {
@@ -428,7 +437,7 @@ function _Store(name) {
                 }
             }
         } else {
-            if (self.debug)
+            if (self.debugLookup)
                 console.log('deleting ' + key);
             delete _cache[key];
             if (_ls && !memonly)
@@ -546,7 +555,7 @@ function _Store(name) {
         if (!attr) attr = 'id';
         var ilist = self.getIndex(query, attr, usesvc);
         var key = self.toKey(query);
-        if (self.debug)
+        if (self.debugLookup)
             console.log('finding item in ' + key +
                         ' where ' + attr + '=' + value);
         if (ilist && ilist[value])
@@ -596,6 +605,9 @@ function _Store(name) {
         if (queued)
             return;
 
+        if (self.debugNetwork)
+            console.log("fetching " + key);
+
         $.ajax(url, {
             'data': data,
             'dataType': self.jsonp ? "jsonp" : "json",
@@ -604,9 +616,11 @@ function _Store(name) {
             'success': function(result) {
                 var data = self.parseData(result);
                 if (data) {
-                    if (async)
-                        if (self.debug)
-                            console.log("received async result");
+                    if (self.debugNetwork) {
+                        console.log("received result for " + key);
+                        if (self.debugValues)
+                            console.log(data);
+                    }
                     if (!nocache) {
                         if (self.setPageInfo(query, data)) {
                             data = data.list;
@@ -645,8 +659,6 @@ function _Store(name) {
 
     // Helper function for async requests
     self.prefetch = function(query, callback) {
-        if (self.debug)
-            console.log("prefetching " + self.toKey(query));
         self.fetch(query, true, callback);
     };
 
@@ -842,6 +854,12 @@ function _Store(name) {
             contenttype = processdata = false;
         }
         
+        if (self.debugNetwork) {
+            console.log("Sending item to " + url);
+            if (self.debugValues)
+                console.log(data);
+        }
+
         if (data.fileupload) {
             var opts = new FileUploadOptions();
             opts.fileKey  = data.fileupload;
@@ -876,6 +894,9 @@ function _Store(name) {
         }
 
         function success(result) {
+            if (self.debugNetwork) {
+                console.log("Item successfully sent to " + url);
+            }
             self.applyResult(item, result);
             // Re-save outbox to update caches
             self.set('outbox', self.get('outbox'));
@@ -884,6 +905,9 @@ function _Store(name) {
         }
 
         function error(jqxhr, status) {
+            if (self.debugNetwork) {
+                console.warn("Error sending item to " + url);
+            }
             if (jqxhr.responseText) {
                 try {
                     item.error = JSON.parse(jqxhr.responseText);

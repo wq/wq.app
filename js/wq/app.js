@@ -7,9 +7,9 @@
  */
 
 define(['jquery', 'jquery.mobile',
-        './store', './pages', './template', './spinner',
+        './store', './pages', './template', './spinner', './console',
         'es5-shim'],
-function($, jqm, ds, pages, tmpl, spin) {
+function($, jqm, ds, pages, tmpl, spin, console) {
 
 var app = {
     'OFFLINE': 'offline',
@@ -26,7 +26,10 @@ app.init = function(config, templates, baseurl, svc) {
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
 
+    // Initialize wq/store.js
     var dsconf = config.store || {};
+    if (config.debug)
+        dsconf.debug = config.debug;
     if (!dsconf.applyResult)
         dsconf.applyResult = _applyResult;
     if (!dsconf.fetchFail)
@@ -34,13 +37,19 @@ app.init = function(config, templates, baseurl, svc) {
     ds.init(svc, {'format': 'json'}, dsconf);
     app.service = ds.service;
 
-    pages.init(baseurl);
+    // Initialize wq/pages.js
+    var pagesconf = {};
+    if (config.debug)
+        pagesconf.debug = config.debug;
+    pages.init(baseurl, pagesconf);
     app.base_url = pages.info.base_url;
 
+    // Initialize wq/template.js
     tmpl.init(templates, templates.partials, config.defaults);
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
 
+    // Initialize authentication, if applicable
     if (app.can_login) {
         var user = ds.get('user');
         var csrftoken = ds.get('csrftoken');
@@ -57,6 +66,7 @@ app.init = function(config, templates, baseurl, svc) {
         pages.register('logout\/?', app.logout);
     }
 
+    // Configure jQuery Mobile transitions
     if (config.transitions) {
         var def = "default";
         if (config.transitions[def])
@@ -68,6 +78,7 @@ app.init = function(config, templates, baseurl, svc) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
+    // Register routes with wq/pages.js
     for (var page in app.config.pages) {
         var conf = _getConf(page);
         if (conf.list) {
@@ -79,6 +90,7 @@ app.init = function(config, templates, baseurl, svc) {
         }
     }
 
+    // Handle form events
     $(document).on('submit', 'form', _handleForm);
     $(document).on('click', 'form [type=submit]', _submitClick);
 };
@@ -162,7 +174,7 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 app.postsave = function(item, result, conf) {
     // Save was successful, redirect to next screen
     var options = {'reverse': true, 'transition': _saveTransition};
-    var baseurl, itemid, pconf;
+    var baseurl, itemid, pconf, url;
     if (conf.postsave && conf.postsave != conf.page) {
         // Optional: return to detail view for a parent model
         pconf = _getConf(conf.postsave, true);
@@ -176,16 +188,21 @@ app.postsave = function(item, result, conf) {
         baseurl = conf.url;
         itemid = conf.list ? item.newid : "";
     }
-    jqm.changePage(
-        app.base_url + '/' + baseurl + '/' + itemid,
-        options
-    );
+    url = app.base_url + '/' + baseurl + '/' + itemid;
+    if (app.config.debug) {
+        console.log("Successfully saved; continuing to " + url);
+    }
+    jqm.changePage(url, options);
 };
 
+// Hook for handling navigation / alerts after a submission error
 app.saveerror = function(item, reason, conf) {
     /* jshint unused: false */
     // Save failed for some reason, perhaps due to being offline
     // (override to customize behavior, e.g. display an outbox)
+    if (app.config.debug) {
+        console.warn("Could not save: " + reason);
+    }
 };
 
 app.attachmentTypes = {
@@ -976,6 +993,8 @@ function _getConfByUrl(url) {
 function _loadFromServer(url, ui) {
     var jqmurl = '/' + url, options = ui && ui.options || {};
     options.wqSkip = true;
+    if (app.config.debug)
+        console.log("Loading " + url + " from server");
     jqm.changePage(jqmurl, options);
 }
 

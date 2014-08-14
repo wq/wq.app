@@ -5,14 +5,16 @@
  * http://wq.io/license
  */
 
-define(['jquery', 'jquery.mobile', './router', './template'],
-function($, jqm, router, tmpl) {
+define(['jquery', 'jquery.mobile', './router', './template', './console'],
+function($, jqm, router, tmpl, console) {
 
 // Exported module object
 var pages = {
     'slug': '([^/?#]+)',
     'query': '(?:[?](.*))?(?:[#](.*))?$'
 };
+
+var _debug = false;
 
 // Configuration
 pages.init = function(baseurl, opts) {
@@ -30,6 +32,10 @@ pages.init = function(baseurl, opts) {
     // Re-use rendered templates
     if (opts.injectOnce)
         _injectOnce = opts.injectOnce;
+
+    // Debug
+    if (opts.debug)
+        _debug = opts.debug;
 };
 
 // Register URL patterns to override default JQM behavior and inject pages
@@ -178,6 +184,15 @@ pages.injectOnce = function(path, template, context, id) {
 
 // Inject and display page
 pages.go = function(path, template, context, ui, once, pageid) {
+    if (_debug) {
+        console.log(
+            "Rendering " + pages.info.base_url + '/' + path +
+            " with template '" + template +
+            "' and context:"
+        );
+        console.log(context);
+        pages.info.context = context;
+    }
     var $page, role, options;
     once = once || _injectOnce;
     if (once)
