@@ -73,7 +73,8 @@ pages.register = function(path, fn, obj, prevent) {
             return;
 
         // Avoid interfering with hash updates when popups open & close
-        if (curpath == match[0] || curpath + '#' + hash == match[0])
+        if ((curpath == match[0] || curpath + '#' + hash == match[0]) &&
+               !ui.options.allowSamePageTransition)
             return;
         
         // Prevent default changePage behavior?
