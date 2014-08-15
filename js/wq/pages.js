@@ -10,32 +10,27 @@ function($, jqm, router, tmpl, console) {
 
 // Exported module object
 var pages = {
+    'config': {
+        'tmpl404': 404,
+        'injectOnce': false,
+        'debug': false
+    },
     'slug': '([^/?#]+)',
     'query': '(?:[?](.*))?(?:[#](.*))?$'
 };
 
-var _debug = false;
-
 // Configuration
-pages.init = function(baseurl, opts) {
+pages.init = function(baseurl, config) {
     // Define baseurl (without trailing slash) if it is not /
     if (baseurl)
         pages.info.base_url = baseurl;
 
-    if (!opts)
-        return;
+    pages.config = $.extend(pages.config, config || {});
 
-    // Define tmpl404 if there is not a template named '404'
-    if (opts.tmpl404)
-        _404 = opts.tmpl404;
-
-    // Re-use rendered templates
-    if (opts.injectOnce)
-        _injectOnce = opts.injectOnce;
-
-    // Debug
-    if (opts.debug)
-        _debug = opts.debug;
+    // Configuration options:
+    // Define `tmpl404` if there is not a template named '404'
+    // Set `injectOnce`to true to re-use rendered templates
+    // Set `debug` to true to log template & context information
 };
 
 // Register URL patterns to override default JQM behavior and inject pages
@@ -109,7 +104,7 @@ pages.addRoute = function(path, events, fn, obj) {
 };
 
 // Render page and inject it into DOM (replace existing page if it exists)
-pages.inject = function(path, template, context, pageid) {
+function _inject(path, template, context, pageid) {
     _updateInfo(path);
     var html  = tmpl.render(template, context);
     if (!html.match(/<div/))
@@ -162,16 +157,16 @@ pages.inject = function(path, template, context, pageid) {
         $page.page();
     }
     return $page;
-};
+}
 
 // Render template only once
-pages.injectOnce = function(path, template, context, id) {
+function _injectOnce(path, template, context, id) {
     if(!id)
         id = template + "-page";
     var $page = $('#' + id);
     if (!$page.length) {
         // Initial render, use context if available
-        $page = pages.inject(path, template, context);
+        $page = _inject(path, template, context);
         $page.attr("id", id);
     } else {
         // Template was already rendered; ignore context but update URL
@@ -181,11 +176,11 @@ pages.injectOnce = function(path, template, context, id) {
         $page.jqmData("url", pages.info.full_path);
     }
     return $page;
-};
+}
 
 // Inject and display page
 pages.go = function(path, template, context, ui, once, pageid) {
-    if (_debug) {
+    if (pages.config.debug) {
         console.log(
             "Rendering " + pages.info.base_url + '/' + path +
             " with template '" + template +
@@ -195,13 +190,13 @@ pages.go = function(path, template, context, ui, once, pageid) {
         pages.info.context = context;
     }
     var $page, role, options;
-    once = once || _injectOnce;
+    once = once || pages.config.injectOnce;
     if (once)
         // Only render the template once
-        $page = pages.injectOnce(path, template, context, pageid);
+        $page = _injectOnce(path, template, context, pageid);
     else
         // Default: render the template every time the page is loaded
-        $page = pages.inject(path, template, context, pageid);
+        $page = _inject(path, template, context, pageid);
 
     role = $page.jqmData('role');
     if (role == 'page') {
@@ -239,7 +234,7 @@ pages.go = function(path, template, context, ui, once, pageid) {
 // Simple 404 page helper
 pages.notFound = function(url, ui) {
     var context  = {'url': url};
-    pages.go(url, _404, context, ui);
+    pages.go(url, pages.config.tmpl404, context, ui);
 };
 
 // Context variable (accessible in templates via pages_info)
@@ -253,9 +248,6 @@ function _updateInfo(path) {
     pages.info.full_path = pages.info.base_url + "/" + path;
     tmpl.setDefault('pages_info', pages.info);
 }
-
-var _404  = "404";
-var _injectOnce = false;
 
 return pages;
 
