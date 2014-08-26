@@ -627,7 +627,7 @@ function _handleForm(evt) {
         backgroundSync = app.config.backgroundSync;
 
     var outboxId = $form.data('outbox-id');
-    var url = $form.attr('action').substring(1);
+    var url = $form.attr('action').replace(app.base_url + "/", "");
     var conf = _getConfByUrl(url);
 
     var vals = {};
