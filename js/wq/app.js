@@ -190,8 +190,12 @@ app.postsave = function(item, result, conf) {
     if (conf.postsave && conf.postsave != conf.page) {
         // Optional: return to detail view for a parent model
         pconf = _getConf(conf.postsave, true);
-        // If conf.postsave is not a page name, assume it's a valid URL
-        baseurl = pconf && pconf.url || conf.postsave;
+        if (pconf && pconf.url !== undefined) {
+            baseurl = pconf.url;
+        } else {
+            // If conf.postsave is not a page name, assume it's a valid URL
+            baseurl = conf.postsave;
+        }
         itemid = result[conf.postsave + '_id'] || "";
     } else {
         // Default:
