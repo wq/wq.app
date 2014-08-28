@@ -65,10 +65,11 @@ locate.locate = function(success, error, high, watch, opts) {
 // Interactive GPS & map-based locator tool
 // map should be an L.map; fields should be an map of keys to jQuery-wrapped
 // <input>s
-locate.Locator = function(map, fields) {
+locate.Locator = function(map, fields, opts) {
     var self = this;
 
     if (!fields) fields = {};
+    if (!opts) opts = {};
 
     var _mode, _marker, _circle, _locate;
 
@@ -79,6 +80,8 @@ locate.Locator = function(map, fields) {
         self.stop();
         _mode = mode;
         self.start();
+        if (opts.onSetMode)
+            opts.onSetMode(mode);
     };
 
     self.start = function() {
@@ -156,14 +159,15 @@ locate.Locator = function(map, fields) {
         }
 
         // User-defined callback (FIXME: make event?)
-        if (self.onupdate)
-            self.onupdate(loc, accuracy);
+        if (opts.onUpdate)
+            opts.onUpdate(loc, accuracy);
     };
 
     self.onerror = function(evt) {
-        /* jshint unused: false */
         if (window.console)
             window.console.log("Error retrieving coordinates!");
+        if (opts.onError)
+            opts.onError(evt);
     };
 
     // Respond to map clicks in interactive mode
@@ -219,8 +223,8 @@ locate.Locator = function(map, fields) {
 };
 
 // Leaflet-style generator function
-locate.locator = function(map, fields) {
-    return new locate.Locator(map, fields);
+locate.locator = function(map, fields, opts) {
+    return new locate.Locator(map, fields, opts);
 };
 
 return locate;
