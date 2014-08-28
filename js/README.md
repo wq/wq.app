@@ -1,7 +1,7 @@
 Third party libraries
 =====================
 
-This directory contains the dependencies of various wq.app modules, as well as some other useful libraries.  An ever-shrinking minority of these have been patched to add missing AMD definitions.  Except where noted, the vendored libraries are equivalent to the official upstream version.
+This directory contains the dependencies of various wq.app modules, as well as some other useful libraries.  A couple of these have been patched with AMD wrappers.  Except where noted, the vendored libraries are equivalent to the official upstream version.
 
 Note that the actual [wq.app modules] are in the subfolder [lib/wq].  The purpose behind this organization is to minimize paths configuration by allowing this js folder to be used as the `baseUrl` in an AMD project.  So, rather than:
 
@@ -41,10 +41,10 @@ Library                 |  Version  |  Notes
 [d3.js]                 |    3.4.1  |  
 [es5-shim.js]           |    2.3.0  |  
 [highlight.js]          |      8.0  |  `tools/build.py -n -tamd bash css javascript markdown python scss xml`
-[jquery]                |    1.9.1  |  
-[jquery.mobile]         |    1.3.2  |  custom deps to ensure router loads first
+[jquery]                |   1.11.1  |  
+[jquery.mobile]         | 1.5.0-pre |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  
-[jquery.validate]       |   1.11.1  |  wrapped as AMD module
+[jquery.validate]       |   1.13.0  |
 [leaflet]               |    0.7.2  |  
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [marked]                |    0.3.1  |  
