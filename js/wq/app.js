@@ -65,6 +65,7 @@ app.init = function(config, templates, baseurl, svc) {
         'postsubmit',
         'postsave',
         'saveerror',
+        'presync',
         'postsync',
         'parentFilters'
     ].forEach(function(hook) {
