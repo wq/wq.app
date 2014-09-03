@@ -44,6 +44,7 @@ function _Store(name) {
     self.service     = undefined;
     self.saveMethod  = 'POST';
     self.debug       = false;
+    self.maxRetries  = 3;
 
     // Default parameters (e.g f=json)
     self.defaults    = {};
@@ -69,6 +70,7 @@ function _Store(name) {
             'fetchFail',
             'jsonp',
             'debug',
+            'maxRetries',
             'formatKeyword'
         ];
         optlist.forEach(function(opt) {
@@ -518,7 +520,7 @@ function _Store(name) {
 
             for (attr in filter) {
                 group = self.getGroup(query, attr, filter[attr], usesvc);
-                // Note: might duplicate objects matching more than one filter 
+                // Note: might duplicate objects matching more than one filter
                 result = result.concat(group);
             }
             return result;
@@ -657,7 +659,7 @@ function _Store(name) {
             }
         });
     };
-    
+
     // Callback for fetch() failures - override to inform the user
     self.fetchFail = function(query, error) {
         var key = self.toKey(query);
@@ -792,10 +794,12 @@ function _Store(name) {
         if (id)
             item = self.find('outbox', id);
 
-        if (item && !item.saved)
+        if (item && !item.saved) {
             // reuse existing item
             item.data = data;
-        else {
+            delete item.retryCount;
+            delete item.error;
+        } else {
             // create new item
             item = {
                 data:  data,
@@ -860,7 +864,7 @@ function _Store(name) {
             data = data.data;
             contenttype = processdata = false;
         }
-        
+
         if (self.debugNetwork) {
             console.log("Sending item to " + url);
             if (self.debugValues)
@@ -930,8 +934,8 @@ function _Store(name) {
     };
 
     // Send all unsaved items to a batch service on the server
-    self.sendBatch = function(callback) {
-        var items = self.filter('outbox', {'saved': false});
+    self.sendBatch = function(callback, retryAll) {
+        var items = retryAll ? self.unsavedItems() : self.pendingItems();
         if (!items.length) {
             callback(true);
             return;
@@ -962,9 +966,13 @@ function _Store(name) {
 
                 // Apply save results to individual items
                 $.each(results, function(i) {
-                    self.applyResult(items[i], results[i]);
-                    if (!items[i].saved)
+                    var item = items[i];
+                    self.applyResult(item, results[i]);
+                    if (!item.saved) {
                         success = false;
+                        item.retryCount = item.retryCount || 0;
+                        item.retryCount++;
+                    }
                 });
                 // Re-save outbox to update caches
                 self.set('outbox', self.get('outbox'));
@@ -978,7 +986,7 @@ function _Store(name) {
     };
 
     // Send all unsaved items, using batch service if available
-    self.sendAll = function(callback) {
+    self.sendAll = function(callback, retryAll) {
         var outbox = self.get('outbox');
         if (!outbox) {
             if (callback) callback(true);
@@ -992,13 +1000,14 @@ function _Store(name) {
 
         // Utilize batch service if it exists
         if (self.batchService) {
-            self.sendBatch(callback);
+            self.sendBatch(callback, retryAll);
             return;
         }
 
         // No batch service; emulate batch mode by sending each item to
         // the server and summarizing the result
-        var items = self.filter('outbox', {'saved': false});
+        var items = retryAll ? self.unsavedItems() : self.pendingItems();
+
         var remain = items.length;
         if (!remain) {
             callback(true);
@@ -1008,10 +1017,16 @@ function _Store(name) {
         var success = true;
         $.each(items, function(i, item) {
             self.sendItem(item.id, function(item) {
-                if (!item)
-                    success = null; // sendItem failed
-                else if (success && !item.saved)
-                    success = false; // sendItem did not result in save
+                if (!item) {
+                    // sendItem failed
+                    success = null;
+                } else if (!item.saved) {
+                    // sendItem did not result in save
+                    if (success)
+                        success = false;
+                    item.retryCount = item.retryCount || 0;
+                    item.retryCount++;
+                }
                 remain--;
                 if (!remain) {
                     // After last sendItem is complete, wrap up
@@ -1054,6 +1069,17 @@ function _Store(name) {
                     return false;
             return true;
         });
+    };
+
+    // Unsaved items that have been sent less than maxRetries times
+    self.pendingItems = function(listQuery) {
+        var items = [];
+        self.unsavedItems(listQuery).forEach(function(item) {
+            if (!self.maxRetries || !item.retryCount ||
+                    item.retryCount < self.maxRetries)
+                items.push(item);
+        });
+        return items;
     };
 
     // Clear local caches
