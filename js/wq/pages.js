@@ -11,7 +11,7 @@ function($, jqm, router, tmpl, console) {
 // Exported module object
 var pages = {
     'config': {
-        'tmpl404': 404,
+        'tmpl404': "404",
         'injectOnce': false,
         'debug': false
     },

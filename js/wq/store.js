@@ -226,11 +226,13 @@ function _Store(name) {
             };
 
             // Update list, across all pages
-            list.update = function(items, key, prepend) {
+            list.update = function(items, key, prepend, max_pages) {
                 var query, opts;
+                if (!max_pages || max_pages > pageinfo.pages)
+                    max_pages = pageinfo.pages;
 
                 // Only update existing items found in each page
-                for (var p = 1; p < pageinfo.pages; p++) {
+                for (var p = 1; p <= max_pages; p++) {
                     query = list.getQuery(p);
                     items = self.updateList(
                         query, items, key, {'updateOnly': true}
@@ -244,6 +246,9 @@ function _Store(name) {
                     if (prepend) {
                         query = list.getQuery(1);
                         opts = {'prepend': true};
+                    } else if (max_pages < pageinfo.pages) {
+                        // Last page is not local; discard remaining items
+                        return items;
                     } else {
                         query = list.getQuery(pageinfo.pages);
                         opts = {};
@@ -305,7 +310,9 @@ function _Store(name) {
                 };
                 return result;
             };
-            list.update = function(items, key, opts) {
+            list.update = function(items, key, prepend, max_pages) {
+                /* jshint unused: false */
+                var opts = {'prepend': prepend};
                 self.updateList(basequery, items, key, opts);
             };
             list.prefetch = function(callback) {

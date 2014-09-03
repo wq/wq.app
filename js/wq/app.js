@@ -769,7 +769,7 @@ function _applyResult(item, result) {
             var res = $.extend({}, result);
             for (var aname in app.attachmentTypes)
                 _updateAttachments(conf, res, aname);
-            list.update([res], 'id', conf.reversed);
+            list.update([res], 'id', conf.reversed, conf.max_local_pages);
         });
     } else if (app.can_login && result && result.user && result.config) {
         _saveLogin(result);
@@ -787,7 +787,7 @@ function _updateAttachments(conf, res, aname) {
         a[conf.page + '_id'] = res.id;
     });
     ds.getList({'url': aconf.url}, function(list) {
-        list.update(attachments, 'id');
+        list.update(attachments, 'id', aconf.reversed, aconf.max_local_pages);
     });
     delete res[aconf.url];
 }
