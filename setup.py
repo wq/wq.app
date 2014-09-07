@@ -61,7 +61,7 @@ for folder in ['js', 'css', 'scss']:
 
 setup(
     name='wq.app',
-    version='0.6.2-dev',
+    version='0.6.2',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='http://wq.io/wq.app',
@@ -80,7 +80,7 @@ setup(
     install_requires=['pyscss==1.1.5'],
     scripts=[os.path.join('.', 'build', 'wq')],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',

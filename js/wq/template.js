@@ -1,5 +1,5 @@
 /*
- * wq.app 0.6.2-dev - template.js
+ * wq.app 0.6.2 - template.js
  * Convenience wrapper for mustache.js
  * (c) 2012-2014, S. Andrew Sheppard
  * http://wq.io/license
