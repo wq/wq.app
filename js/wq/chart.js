@@ -215,7 +215,10 @@ chart.base = function() {
         // Clip for inner graphing area
         var clipId = "clip" + uid;
         var defs = _selectOrAppend(svg, 'defs');
-        var clip = defs.select('#' + clipId); // Webkit can't select clipPath #83438
+
+        // Webkit can't select clipPath #83438
+        var clip = defs.select('#' + clipId);
+
         if (clip.empty()) {
             clip = defs.append('clipPath').attr('id', clipId);
             clip.append('rect');
