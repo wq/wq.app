@@ -1,9 +1,19 @@
-Third party libraries
+---
+order: 9
+---
+
+Third Party Libraries
 =====================
 
-This directory contains the dependencies of various wq.app modules, as well as some other useful libraries.  An ever-shrinking minority of these have been patched to add missing AMD definitions.  Except where noted, the vendored libraries are equivalent to the official upstream version.
+[wq.app/js]
 
-Note that the actual [wq.app modules] are in the subfolder [lib/wq].  The purpose behind this organization is to minimize paths configuration by allowing this js folder to be used as the `baseUrl` in an AMD project.  So, rather than:
+**wq.app/js** contains a number of JavaScript libraries that are utilized by the main [wq.app modules], or are otherwise useful in general.  An ever-shrinking minority of these libraries have been patched to add missing AMD definitions.  Except where noted, the vendored libraries are equivalent to the official upstream version.  The included libraries are listed below.
+
+Note that the actual wq.app modules are in the subfolder [wq.app/js/wq].  The purpose behind this directory organization is to minimize the need for an extensive AMD "paths" configuration.  This layout is heavily inspired by the [volojs] project template.
+
+## Usage
+
+To take advantage of this layout, you can make wq.app/js the `baseUrl` in your [AMD] project.  So, rather than:
 
 ```javascript
 // Bad, don't do this
@@ -18,23 +28,40 @@ require.config({
         // ...
     }
 })
+require(["main"], function(main) {
+    main.go();
+});
 ```
 
-Users of these libraries can just do this:
+You can just do this:
 
 ```javascript
-// my/js/app.js
+// baseUrl pointing to libs, with paths pointing to app code
 require.config({
     'baseUrl': 'path/to/wq.app/js' // (or my/js/lib symlinked to wq.app/js)
     'paths': {
         'app': 'my/js/app',
     }
 })
+require(["app/main"], function(main) {
+    main.go();
+});
 ```
 
-This layout is heavily inspired by the [volojs] project template.
+... and all of the included dependencies will be available by their usual names:
 
-## Library versions
+```javascript
+// app/main.js
+define(['d3', 'jquery', 'leaflet', ...],
+function(d3, $, L)(
+    function go() {
+        // Do cool stuff here
+    }
+    return {'go': go};
+});
+```
+
+## Library Versions
 
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
@@ -54,9 +81,11 @@ Library                 |  Version  |  Notes
 [rbush]                 |      1.3  |
 [requirejs], [r.js]     |   2.1.10  |  r.js is in /build
 
+[wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
 [wq.app modules]:        http://wq.io/docs/app
-[lib/wq]:                https://github.com/wq/wq.app/tree/master/js/wq
+[wq.app/js/wq]:          https://github.com/wq/wq.app/blob/master/js/wq
 [volojs]:                http://volojs.org
+[AMD]:                   http://wq.io/docs/amd
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
 [highlight.js]:          https://github.com/isagalaev/highlight.js
