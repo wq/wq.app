@@ -195,6 +195,8 @@ chart.base = function() {
         _computeScales(datasets(data));
         var ordinal = xscalefn().rangePoints || false;
         var svg = d3.select(this);
+        var uid = svg.attr('data-uid') || Math.round(Math.random() * 1000000);
+        svg.attr('data-uid', uid);
         var cwidth = width - padding - padding;
         var cheight = height - padding - padding;
         var margins = plot.getMargins();
@@ -211,10 +213,11 @@ chart.base = function() {
         init.call(this, datasets(data), opts);
 
         // Clip for inner graphing area
+        var clipId = "clip" + uid;
         var defs = _selectOrAppend(svg, 'defs');
-        var clip = defs.select('#clip'); // Webkit can't select clipPath #83438
+        var clip = defs.select('#' + clipId); // Webkit can't select clipPath #83438
         if (clip.empty()) {
-            clip = defs.append('clipPath').attr('id', 'clip');
+            clip = defs.append('clipPath').attr('id', clipId);
             clip.append('rect');
         }
         clip.select('rect')
@@ -231,7 +234,7 @@ chart.base = function() {
 
         // Inner graphing area (clipped)
         var inner = _selectOrAppend(outer, 'g', 'inner')
-            .attr('clip-path', 'url(#clip)')
+            .attr('clip-path', 'url(#' + clipId + ')')
             .attr('transform', _trans(margins.left, margins.top));
         _selectOrAppend(inner, 'rect')
             .attr('width', gwidth)
@@ -390,7 +393,7 @@ chart.base = function() {
             ymargin.right = 70;
         plot.setMargin('yaxis', ymargin);
     }
-    
+
     function _renderLegend(items, opts) {
         var svg = d3.select(this),
             outer = svg.select('g.outer'),
