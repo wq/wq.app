@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import json
 try:
@@ -40,7 +42,7 @@ def readfiles(basedir, ftype=None, fext=None):
                 try:
                     o[name] = NEST[ftype].load(data)
                 except ValueError:
-                    print "Could not parse %s!" % name
+                    print("Could not parse %s!" % name)
                     raise
             else:
                 o[name] = data.read()
@@ -74,9 +76,9 @@ def collectjson(conf, directory):
     else:
         json.dump(obj, outfile, **opts)
 
-    print '%s: %s objects collected from %s' % (
+    print('%s: %s objects collected from %s' % (
         conf['output'], len(obj), ', '.join(conf['paths'])
-    )
+    ))
 
     outfile.close()
     os.chdir(cur)

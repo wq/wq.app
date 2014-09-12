@@ -77,7 +77,6 @@ setup(
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=parse_markdown_readme(),
-    install_requires=['pyscss==1.1.5'],
     scripts=[os.path.join('.', 'build', 'wq')],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -85,7 +84,10 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: JavaScript',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Text Processing :: Markup :: HTML',
         'Topic :: Scientific/Engineering :: GIS',

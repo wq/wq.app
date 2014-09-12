@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 
 
@@ -19,9 +21,9 @@ def setversion(conf, indir):
         vjs = open(indir + '/' + conf['jsout'], 'w')
         vjs.write(VERSIONJS_TMPL % version)
         vjs.close()
-        print '%s: %s' % (conf['jsout'], version)
+        print('%s: %s' % (conf['jsout'], version))
     else:
-        print 'Application version: %s' % version
+        print('Application version: %s' % version)
 
     return version
 

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import re
 
@@ -44,8 +46,8 @@ def appcache(conf, indir, outdir, version):
     })
     s_ac.close()
     b_ac.close()
-    print "%s: %s items" % (s_acpath, len(source_cache + network + fallback))
-    print "%s: %s items" % (b_acpath, len(built_cache + network + fallback))
+    print("%s: %s items" % (s_acpath, len(source_cache + network + fallback)))
+    print("%s: %s items" % (b_acpath, len(built_cache + network + fallback)))
 
 
 def _parse_js_buildfile(filename):

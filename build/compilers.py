@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import subprocess
 import random
@@ -13,14 +15,14 @@ def optimize(conf, indir, outdir):
     bjs.close()
 
     # Defer to r.js for actual processing
-    print '#' * 20
-    print "Optimizing with r.js"
+    print('#' * 20)
+    print("Optimizing with r.js")
     rjs = os.path.dirname(__file__) + "/r.js"
     subprocess.call(["node", rjs, "-o", bfile])
     os.remove(bfile)
     os.remove(outdir + '/' + bfile)
-    print "Optimization complete"
-    print '#' * 20
+    print("Optimization complete")
+    print('#' * 20)
 
 
 def scss(conf):
@@ -38,9 +40,9 @@ def scss(conf):
     if 'indir' in conf and 'outdir' in conf:
         files = readfiles(conf['indir'], "scss")
         scss.config.LOAD_PATHS = conf['indir']
-        for name, source in files.iteritems():
+        for name, source in files.items():
             if isinstance(source, dict):
                 continue
             path = "%s/%s.css" % (conf['outdir'], name)
             compile(path, source)
-            print "%s compiled from %s/%s.scss" % (path, conf['indir'], name)
+            print("%s compiled from %s/%s.scss" % (path, conf['indir'], name))

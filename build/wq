@@ -1,10 +1,12 @@
 #!/usr/bin/python
+from __future__ import print_function
+
 import sys
 from wq.app.build import Builder
 
 
 def usage():
-    print """Usage: wq [command] [version] [configfile]
+    print("""Usage: wq [command] [version] [configfile]
 
 Valid commands:
    appcache
@@ -14,7 +16,7 @@ Valid commands:
    optimize
    scss
    setversion
-"""
+""")
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
