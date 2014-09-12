@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.6.2-dev - app.js
+ * wq.app 0.7.0-dev - app.js
  * Utilizes store and pages to dynamically load and render
  * content from a wq.db-compatible REST service
  * (c) 2012-2014, S. Andrew Sheppard
@@ -57,7 +57,9 @@ app.init = function(config, templates, baseurl, svc) {
         seconds = config.backgroundSync;
         if (seconds === true)
             seconds = 30;
-        app._syncInterval = setInterval(app.sync, seconds * 1000);
+        app._syncInterval = setInterval(function() {
+            app.sync();
+        }, seconds * 1000);
     }
 
     // Option to override various hooks
@@ -65,6 +67,7 @@ app.init = function(config, templates, baseurl, svc) {
         'postsubmit',
         'postsave',
         'saveerror',
+        'presync',
         'postsync',
         'parentFilters'
     ].forEach(function(hook) {
@@ -169,7 +172,7 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 };
 
 // Sync outbox and handle result
-app.sync = function() {
+app.sync = function(retryAll) {
     if (app.syncing || !ds.unsaved())
         return;
     app.syncing = true;
@@ -177,7 +180,7 @@ app.sync = function() {
     ds.sendAll(function(result) {
         app.syncing = false;
         app.postsync(result);
-    });
+    }, retryAll);
 };
 
 // Hooks for form submissions sent immediately (non-backgroundSync)
@@ -620,7 +623,7 @@ function _handleForm(evt) {
     }
     if ($form.data('json') !== undefined && !$form.data('json'))
         return; // Defer to default (HTML-based) handler
-    
+
     if ($form.data('background-sync') !== undefined)
         backgroundSync = $form.data('background-sync');
     else
@@ -768,7 +771,7 @@ function _applyResult(item, result) {
             var res = $.extend({}, result);
             for (var aname in app.attachmentTypes)
                 _updateAttachments(conf, res, aname);
-            list.update([res], 'id', conf.reversed);
+            list.update([res], 'id', conf.reversed, conf.max_local_pages);
         });
     } else if (app.can_login && result && result.user && result.config) {
         _saveLogin(result);
@@ -786,7 +789,7 @@ function _updateAttachments(conf, res, aname) {
         a[conf.page + '_id'] = res.id;
     });
     ds.getList({'url': aconf.url}, function(list) {
-        list.update(attachments, 'id');
+        list.update(attachments, 'id', aconf.reversed, aconf.max_local_pages);
     });
     delete res[aconf.url];
 }

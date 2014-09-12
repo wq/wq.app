@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.6.2-dev - pages.js
+ * wq.app 0.7.0-dev - pages.js
  * Dynamically generate jQuery Mobile pages for specified URLs
  * (c) 2012-2014, S. Andrew Sheppard
  * http://wq.io/license
@@ -11,7 +11,7 @@ function($, jqm, router, tmpl, console) {
 // Exported module object
 var pages = {
     'config': {
-        'tmpl404': 404,
+        'tmpl404': "404",
         'injectOnce': false,
         'debug': false
     },
