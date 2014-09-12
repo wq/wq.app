@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.6.2 - app.js
+ * wq.app 0.7.0-dev - app.js
  * Utilizes store and pages to dynamically load and render
  * content from a wq.db-compatible REST service
  * (c) 2012-2014, S. Andrew Sheppard

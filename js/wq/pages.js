@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.6.2 - pages.js
+ * wq.app 0.7.0-dev - pages.js
  * Dynamically generate jQuery Mobile pages for specified URLs
  * (c) 2012-2014, S. Andrew Sheppard
  * http://wq.io/license
