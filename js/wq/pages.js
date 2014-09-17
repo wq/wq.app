@@ -114,6 +114,21 @@ function _inject(path, template, context, pageid) {
     if (body)
         html = body;
     var $page = $(html.trim());
+
+    // Check for <div data-role=page>, in case it is not the only element in
+    // the selection (due to an external footer or something)
+    var $rolePage = $page.filter(":jqmData(role='page')");
+    if ($rolePage.length > 0) {
+        if (pages.config.debug && $rolePage.length != $page.length) {
+            console.warn(
+                "Warning: " +
+                ($page.length - $rolePage.length) +
+                " extra element(s) ignored."
+            );
+        }
+        $page = $rolePage;
+    }
+
     var role = $page.jqmData('role');
     var url   = pages.info.full_path;
     var $oldpage;
