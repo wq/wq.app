@@ -1,616 +1,463 @@
 /*
  * wq.app - jquery-mobile.scss
  * SASS/SCSS mixins for building custom jQuery Mobile themes
- * (c) 2012 S. Andrew Sheppard
+ * (c) 2012-2014 S. Andrew Sheppard
  * http://wq.io/license
  */
 
 /* Styles adapted from jquery.mobile.theme.css.
  *
- * jQuery Mobile 1.3.2
+ * jQuery Mobile 1.4.4
  * http://jquerymobile.com
  *
- * Copyright 2010, 2013 jQuery Foundation, Inc. and other contributors
+ * Copyright 2010, 2014 jQuery Foundation, Inc. and othercontributors
  * Released under the MIT license.
  * http://jquery.org/license
  */
 
 @import "compass/css3";
 
-@mixin jquery-mobile-block(
-  $border: #aaa,
-  $bg:     #f9f9f9,
-  $bg1:    false,
-  $bg2:    #eee,
-  $text:   #333,
-  $weight: normal,
-  $shadow: #fff
-){
-  @if not $bg1 {
-    $bg1: $bg;
-  }
-  @if $border {
-    border: 1px solid $border;
-  } @else {
-    border: none;
-  }
-  background: $bg;
-  font-weight: $weight;
-  color: $text;
-  @if $shadow {
-    text-shadow: 0 1px 0 $shadow;
-  } @else {
-    text-shadow: none;
-  }
-  @include background-image(linear-gradient($bg1, $bg2));
-}
-
 @mixin jquery-mobile-theme(
   $theme:        a,
-  $font:         false,
 
-  $bar-border:   #b3b3b3,
-  $bar-bg:       #eee,
-  $bar-bg1:      #f0f0f0,
-  $bar-bg2:      #ddd,
-  $bar-text:     #3e3e3e,
-  $bar-shadow:   #fff,
-  $bar-link:     #7cc4e7,
-  $bar-link-alt: #2489ce,
+  $page-text:    #333,
+  $page-shadow:  #f3f3f3,
+  $page-bg:      #f9f9f9,
+  $page-border:  #bbb,
 
-  $body-border:  #aaa,
-  $body-bg:      #f9f9f9,
-  $body-bg1:     false,
-  $body-bg2:     #eee,
+  $bar-text:     #333,
+  $bar-shadow:   #eee,
+  $bar-bg:       #e9e9e9,
+  $bar-border:   #ddd,
+
   $body-text:    #333,
-  $body-shadow:  #fff,
-  $body-link:    #2489ce,
+  $body-shadow:  #f3f3f3,
+  $body-bg:      #fff,
+  $body-border:  #ddd,
 
-  $up-border:    #ccc,
-  $up-bg:        #eee,
-  $up-bg1:       #fff,
-  $up-bg2:       #f1f1f1,
-  $up-text:      #2f3e46,
-  $up-shadow:    #fff,
+  $link:         #38c,
+  $link-visited: #38c,
+  $link-hover:   #059,
+  $link-active:  #059,
 
-  $down-border:  #bbb,
-  $down-bg:      #d6d6d6,
-  $down-bg1:     #d0d0d0,
-  $down-bg2:     #dfdfdf,
-  $down-text:    #2f3e46,
-  $down-shadow:  #fff,
+  $up-text:      #333,
+  $up-shadow:    #f3f3f3,
+  $up-bg:        #f6f6f6,
+  $up-border:    #ddd,
 
-  $hover-border: #bbb,
-  $hover-bg:     #dfdfdf,
-  $hover-bg1:    #f6f6f6,
-  $hover-bg2:    #e0e0e0,
-  $hover-text:   #2f3e46,
-  $hover-shadow: #fff
+  $hover-text:   #333,
+  $hover-shadow: #f3f3f3,
+  $hover-bg:     #ededed,
+  $hover-border: #ddd,
 
+  $down-text:    #333,
+  $down-shadow:  #f3f3f3,
+  $down-bg:      #e8e8e8,
+  $down-border:  #ddd,
+
+  $active-text:   #fff,
+  $active-shadow: #059,
+  $active-bg:     #38c,
+  $active-border: #38c
 ) {
 
-@if not $font {
-   $font: Helvetica, Arial, sans-serif;
+/* Swatch $theme
+-----------------------------------------------------------------------------------------------------------*/
+/* Bar: Toolbars, dividers, slider track */
+.ui-bar-$theme,
+.ui-page-theme-$theme .ui-bar-inherit,
+html .ui-bar-$theme .ui-bar-inherit,
+html .ui-body-$theme .ui-bar-inherit,
+html body .ui-group-theme-$theme .ui-bar-inherit {
+	background-color: $bar-bg;
+	border-color: $bar-border;
+	color: $bar-text;
+	text-shadow: 0 1px 0 $bar-shadow;
+	font-weight: bold;
 }
-@if not $bar-link-alt {
-   $bar-link-alt: $bar-link;
-}
-
-/* Header bars */
 .ui-bar-$theme {
-  @include jquery-mobile-block(
-    $border: $bar-border,
-    $bg:     $bar-bg,
-    $bg1:    $bar-bg1,
-    $bg2:    $bar-bg2,
-    $text:   $bar-text,
-    $weight: bold,
-    $shadow: $bar-shadow
-  );
-
-  font-family: $font;
-
-  input, select, textarea, button {
-    font-family: $font;
-  }
-
-  .ui-link-inherit {
-    color: $bar-text;
-  }
-
-  a.ui-link {
-    color: $bar-link;
-    font-weight: bold;
-  }
-
-  a.ui-link:visited {
-    color: $bar-link-alt;
-  }
-
-  a.ui-link:hover {
-    color: $bar-link-alt;
-  }
-
-  a.ui-link:active {
-    color: $bar-link-alt;
-  }
+	border-width: 1px;
+	border-style: solid;
 }
-
-/* Content */
+/* Page and overlay */
+.ui-overlay-$theme,
+.ui-page-theme-$theme,
+.ui-page-theme-$theme .ui-panel-wrapper {
+	background-color: $page-bg;
+	border-color: $page-border;
+	color: $page-text;
+	text-shadow: 0 1px 0 $page-shadow;
+}
+/* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-$theme,
-.ui-overlay-$theme {
-  @include jquery-mobile-block(
-    $border: $body-border,
-    $bg:     $body-bg,
-    $bg1:    $body-bg1,
-    $bg2:    $body-bg2,
-    $text:   $body-text,
-    $weight: normal,
-    $shadow: $body-shadow
-  );
+.ui-page-theme-$theme .ui-body-inherit,
+html .ui-bar-$theme .ui-body-inherit,
+html .ui-body-$theme .ui-body-inherit,
+html body .ui-group-theme-$theme .ui-body-inherit,
+html .ui-panel-page-container-$theme {
+	background-color: $body-bg;
+	border-color: $body-border;
+	color: $body-text;
+	text-shadow: 0 1px 0 $body-shadow;
 }
-
-.ui-overlay-$theme {
-   background-image: none;
-   border-width: 0;
-}
-
 .ui-body-$theme {
-  font-family: $font;
-
-  input, select, textarea, button {
-    font-family: $font;
-  }
-
-  .ui-link-inherit {
-    color: $body-text;
-  }
-
-  .ui-link {
-    color: $body-link;
-    font-weight: bold;
-  }
-
-  .ui-link:visited {
-    color: $body-link;
-  }
-
-  .ui-link:hover {
-    color: $body-link;
-  }
-
-  .ui-body-$theme .ui-link:active {
-    color: $body-link;
-  }
+	border-width: 1px;
+	border-style: solid;
 }
-
-/* Buttons */
-
-.ui-btn-up-$theme {
-  @include jquery-mobile-block(
-    $border: $up-border,
-    $bg:     $up-bg,
-    $bg1:    $up-bg1,
-    $bg2:    $up-bg2,
-    $text:   $up-text,
-    $weight: bold,
-    $shadow: $up-shadow
-  );
+/* Links */
+.ui-page-theme-$theme a,
+html .ui-bar-$theme a,
+html .ui-body-$theme a,
+html body .ui-group-theme-$theme a {
+	color: $link;
+	font-weight: bold;
 }
-
-.ui-btn-up-$theme:visited,
-.ui-btn-up-$theme a.ui-link-inherit {
-  color: $up-text;
+.ui-page-theme-$theme a:visited,
+html .ui-bar-$theme a:visited,
+html .ui-body-$theme a:visited,
+html body .ui-group-theme-$theme a:visited {
+	color: $link-visited;
 }
-
-.ui-btn-hover-$theme {
-  @include jquery-mobile-block(
-    $border: $hover-border,
-    $bg:     $hover-bg,
-    $bg1:    $hover-bg1,
-    $bg2:    $hover-bg2,
-    $text:   $hover-text,
-    $weight: bold,
-    $shadow: $hover-shadow
-  );
+.ui-page-theme-$theme a:hover,
+html .ui-bar-$theme a:hover,
+html .ui-body-$theme a:hover,
+html body .ui-group-theme-$theme a:hover {
+	color: $link-hover;
 }
-.ui-btn-hover-$theme:visited,
-.ui-btn-hover-$theme:hover,
-.ui-btn-hover-$theme a.ui-link-inherit {
-  color: $hover-text;
+.ui-page-theme-$theme a:active,
+html .ui-bar-$theme a:active,
+html .ui-body-$theme a:active,
+html body .ui-group-theme-$theme a:active {
+	color: $link-active;
 }
-
-.ui-btn-down-$theme {
-  @include jquery-mobile-block(
-    $border: $down-border,
-    $bg:     $down-bg,
-    $bg1:    $down-bg1,
-    $bg2:    $down-bg2,
-    $text:   $down-text,
-    $weight: bold,
-    $shadow: $down-shadow
-  );
+/* Button up */
+.ui-page-theme-$theme .ui-btn,
+html .ui-bar-$theme .ui-btn,
+html .ui-body-$theme .ui-btn,
+html body .ui-group-theme-$theme .ui-btn,
+html head + body .ui-btn.ui-btn-$theme,
+/* Button visited */
+.ui-page-theme-$theme .ui-btn:visited,
+html .ui-bar-$theme .ui-btn:visited,
+html .ui-body-$theme .ui-btn:visited,
+html body .ui-group-theme-$theme .ui-btn:visited,
+html head + body .ui-btn.ui-btn-$theme:visited {
+	background-color: $up-bg;
+	border-color: $up-border;
+	color: $up-text;
+	text-shadow: 0 1px 0 $up-shadow;
 }
-
-.ui-btn-down-$theme:visited,
-.ui-btn-down-$theme:hover,
-.ui-btn-down-$theme a.ui-link-inherit {
-  color: $down-text;
+/* Button hover */
+.ui-page-theme-$theme .ui-btn:hover,
+html .ui-bar-$theme .ui-btn:hover,
+html .ui-body-$theme .ui-btn:hover,
+html body .ui-group-theme-$theme .ui-btn:hover,
+html head + body .ui-btn.ui-btn-$theme:hover {
+	background-color: $hover-bg;
+	border-color: $hover-border;
+	color: $hover-text;
+	text-shadow: 0 1px 0 $hover-shadow;
 }
-
-.ui-btn-up-$theme,
-.ui-btn-hover-$theme,
-.ui-btn-down-$theme {
-  font-family: $font;
-  text-decoration: none;
+/* Button down */
+.ui-page-theme-$theme .ui-btn:active,
+html .ui-bar-$theme .ui-btn:active,
+html .ui-body-$theme .ui-btn:active,
+html body .ui-group-theme-$theme .ui-btn:active,
+html head + body .ui-btn.ui-btn-$theme:active {
+	background-color: $down-bg;
+	border-color: $down-border;
+	color: $down-text;
+	text-shadow: 0 1px 0 $down-shadow;
+}
+/* Active button */
+.ui-page-theme-$theme .ui-btn.ui-btn-active,
+html .ui-bar-$theme .ui-btn.ui-btn-active,
+html .ui-body-$theme .ui-btn.ui-btn-active,
+html body .ui-group-theme-$theme .ui-btn.ui-btn-active,
+html head + body .ui-btn.ui-btn-$theme.ui-btn-active,
+/* Active checkbox icon */
+.ui-page-theme-$theme .ui-checkbox-on:after,
+html .ui-bar-$theme .ui-checkbox-on:after,
+html .ui-body-$theme .ui-checkbox-on:after,
+html body .ui-group-theme-$theme .ui-checkbox-on:after,
+.ui-btn.ui-checkbox-on.ui-btn-$theme:after,
+/* Active flipswitch background */
+.ui-page-theme-$theme .ui-flipswitch-active,
+html .ui-bar-$theme .ui-flipswitch-active,
+html .ui-body-$theme .ui-flipswitch-active,
+html body .ui-group-theme-$theme .ui-flipswitch-active,
+html body .ui-flipswitch.ui-bar-$theme.ui-flipswitch-active,
+/* Active slider track */
+.ui-page-theme-$theme .ui-slider-track .ui-btn-active,
+html .ui-bar-$theme .ui-slider-track .ui-btn-active,
+html .ui-body-$theme .ui-slider-track .ui-btn-active,
+html body .ui-group-theme-$theme .ui-slider-track .ui-btn-active,
+html body div.ui-slider-track.ui-body-$theme .ui-btn-active {
+	background-color: $active-bg;
+	border-color: $active-border;
+	color: $active-text;
+	text-shadow: 0 1px 0 $active-shadow;
+}
+/* Active radio button icon */
+.ui-page-theme-$theme .ui-radio-on:after,
+html .ui-bar-$theme .ui-radio-on:after,
+html .ui-body-$theme .ui-radio-on:after,
+html body .ui-group-theme-$theme .ui-radio-on:after,
+.ui-btn.ui-radio-on.ui-btn-$theme:after {
+	border-color: $active-bg;
+}
+/* Focus */
+.ui-page-theme-$theme .ui-btn:focus,
+html .ui-bar-$theme .ui-btn:focus,
+html .ui-body-$theme .ui-btn:focus,
+html body .ui-group-theme-$theme .ui-btn:focus,
+html head + body .ui-btn.ui-btn-$theme:focus,
+/* Focus buttons and text inputs with div wrap */
+.ui-page-theme-$theme .ui-focus,
+html .ui-bar-$theme .ui-focus,
+html .ui-body-$theme .ui-focus,
+html body .ui-group-theme-$theme .ui-focus,
+html head + body .ui-btn-$theme.ui-focus,
+html head + body .ui-body-$theme.ui-focus {
+        @include box-shadow(0 0 12px $active-bg);
 }
 
 }
 
 @mixin jquery-mobile-global(
-  $font:      false,
+  $font:      sans-serif,
   $round:     .6em,
-  $btn-round: 1em,
-  $inner:     #fff,
-
-  $active-border: #2373a5,
-  $active-bg:     #387bbe,
-  $active-bg1:    #5393c5,
-  $active-bg2:    #6facd5,
-  $active-text:   #fff,
-  $active-shadow: #3373a5
+  $btn-round: .3125em,
 )
 {
 
-@if not $font {
-   $font: Helvetica, Arial, sans-serif;
+/* Globals */
+/* Font
+-----------------------------------------------------------------------------------------------------------*/
+html {
+	font-size: 100%;
 }
-
-a.ui-link-inherit {
-  text-decoration: none !important;
+body,
+input,
+select,
+textarea,
+button,
+.ui-btn {
+	font-size: 1em;
+	line-height: 1.3;
+	font-family: $font;
 }
-
-/* Active buttons */
-
+legend,
+.ui-input-text input,
+.ui-input-search input {
+	color: inherit;
+	text-shadow: inherit;
+}
+/* Form labels (overrides font-weight bold in bars, and mini font-size) */
+.ui-mobile label,
+div.ui-controlgroup-label {
+	font-weight: normal;
+	font-size: 16px;
+}
+/* Separators
+-----------------------------------------------------------------------------------------------------------*/
+/* Field contain separator (< 28em) */
+.ui-field-contain {
+	border-bottom-color: #828282;
+	border-bottom-color: rgba(0,0,0,.15);
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+/* Table opt-in classes: strokes between each row, and alternating row stripes */
+/* Classes table-stroke and table-stripe are deprecated in 1.4. */
+.table-stroke thead th,
+.table-stripe thead th,
+.table-stripe tbody tr:last-child {
+	border-bottom: 1px solid #d6d6d6; /* non-RGBA fallback */
+	border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.table-stroke tbody th,
+.table-stroke tbody td {
+	border-bottom: 1px solid #e6e6e6; /* non-RGBA fallback  */
+	border-bottom: 1px solid rgba(0,0,0,.05);
+}
+.table-stripe.table-stroke tbody tr:last-child th,
+.table-stripe.table-stroke tbody tr:last-child td {
+	border-bottom: 0;
+}
+.table-stripe tbody tr:nth-child(odd) td,
+.table-stripe tbody tr:nth-child(odd) th {
+	background-color: #eeeeee; /* non-RGBA fallback  */
+	background-color: rgba(0,0,0,.04);
+}
+/* Buttons
+-----------------------------------------------------------------------------------------------------------*/
+.ui-btn,
+label.ui-btn {
+	font-weight: bold;
+	border-width: 1px;
+	border-style: solid;
+}
+.ui-btn {
+	text-decoration: none !important;
+}
 .ui-btn-active {
-  @include jquery-mobile-block(
-    $border: $active-border,
-    $bg:     $active-bg,
-    $bg1:    $active-bg1,
-    $bg2:    $active-bg2,
-    $text:   $active-text,
-    $weight: bold,
-    $shadow: $active-shadow
-  );
-  cursor: pointer;
-  text-decoration: none;
-  font-family: $font;
+	cursor: pointer;
 }
-
-.ui-btn-active:visited,
-.ui-btn-active:hover,
-.ui-btn-active a.ui-link-inherit {
-  color: $active-text;
-}
-
-/* Button inner highlight */
-.ui-btn-inner {
-  @if ($inner) {
-    border-top: 1px solid $inner;
-    border-color: rgba($inner, .3);
-  }
-}
-
-/* Corners */
-@if $round {
+/* Corner rounding
+-----------------------------------------------------------------------------------------------------------*/
+/* Class ui-btn-corner-all deprecated in 1.4 */
 .ui-corner-all {
-  @include border-radius($round);
+        @include border-radius($round);
 }
+/* Buttons */
+.ui-btn-corner-all,
+.ui-btn.ui-corner-all,
+/* Slider track */
+.ui-slider-track.ui-corner-all,
+/* Flipswitch */
+.ui-flipswitch.ui-corner-all,
+/* Count bubble */
+.ui-li-count {
+        @include border-radius($btn-round);
 }
-
-/* Form styles */
-.ui-br {
-  border-color: rgb(130,130,130);
-  border-color: rgba(130,130,130,.3);
-  border-style: solid;
+/* Icon-only buttons */
+.ui-btn-icon-notext.ui-btn-corner-all,
+.ui-btn-icon-notext.ui-corner-all {
+        @include border-radius(1em);
 }
-
-.ui-disabled {
-  @include opacity(.3);
-  zoom: 1;
+/* Radius clip workaround for cleaning up corner trapping */
+.ui-btn-corner-all,
+.ui-corner-all {
+        @include background-clip();
 }
-.ui-disabled,
-.ui-disabled a {
-  cursor: default !important;
-  pointer-events: none;
+/* Popup arrow */
+.ui-popup.ui-corner-all > .ui-popup-arrow-guide {
+	left: $round /*{global-radii-blocks}*/;
+	right: $round /*{global-radii-blocks}*/;
+	top: $round /*{global-radii-blocks}*/;
+	bottom: $round /*{global-radii-blocks}*/;
 }
-
-.ui-checkbox .ui-icon,
-.ui-selectmenu-list .ui-icon {
-  @include border-radius(3px);
-}
-.ui-icon-checkbox-off,
-.ui-icon-radio-off {
-  background-color: transparent;
-}
-.ui-checkbox-on .ui-icon,
-.ui-radio-on .ui-icon {
-  background-color: $active-bg;
-}
-
-/* Button corners */
-@if $btn-round {
-.ui-btn-corner-all {
-  @include border-radius($btn-round);
-}
-}
-
-/* Radius clip */
-.ui-corner-all,
-.ui-btn-corner-all {
-  @include background-clip();
-}
-
-/* Shadows */
-.ui-overlay {
-  background: #666;
-  @include opacity(0.5);
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-.ui-overlay-shadow {
-  @include box-shadow(0 0 12px rgba(0,0,0,.6));
-}
+/* Shadow
+-----------------------------------------------------------------------------------------------------------*/
 .ui-shadow {
-  @include box-shadow(0 1px 3px rgba(0,0,0,.2));
-}
-.ui-bar-a .ui-shadow,
-.ui-bar-b .ui-shadow ,
-.ui-bar-c .ui-shadow  {
-  @include box-shadow(0 1px 0 rgba(255,255,255,.3));
+        @include box-shadow(0 1px 3px rgba(0,0,0,.15));
 }
 .ui-shadow-inset {
-  @include box-shadow(inset 0 1px 4px rgba(0,0,0,.2));
+        @include box-shadow(inset 0 1px 3px rgba(0,0,0,.2));
 }
-.ui-icon-shadow {
-  @include box-shadow(0 1px 0 rgba(255,255,255,.4));
+.ui-overlay-shadow {
+        @include box-shadow(0 0 12px rgba(0,0,0,.6));
 }
-
-/* Focus */
-.ui-btn:focus, .ui-link-inherit:focus {
-  outline: 0;
+/* Icons
+-----------------------------------------------------------------------------------------------------------*/
+.ui-btn-icon-left:after,
+.ui-btn-icon-right:after,
+.ui-btn-icon-top:after,
+.ui-btn-icon-bottom:after,
+.ui-btn-icon-notext:after {
+	background-color: 					#666 /*{global-icon-color}*/;
+	background-color: 					rgba(0,0,0,.3) /*{global-icon-disc}*/;
+	background-position: center center;
+	background-repeat: no-repeat;
+        @include border-radius(1em);
 }
-.ui-btn.ui-focus {
-  z-index: 1;
+/* Alt icons */
+.ui-alt-icon.ui-btn:after,
+.ui-alt-icon .ui-btn:after,
+html .ui-alt-icon.ui-checkbox-off:after,
+html .ui-alt-icon.ui-radio-off:after,
+html .ui-alt-icon .ui-checkbox-off:after,
+html .ui-alt-icon .ui-radio-off:after {
+	background-color: 					#666 /*{global-icon-color}*/;
+	background-color: 					rgba(0,0,0,.15) /*{global-icon-disc}*/;
 }
-.ui-focus,
-.ui-btn:focus {
-  @include box-shadow(inset 0 0 3px $active-bg 0 0 9px $active-bg);
+/* No disc */
+.ui-nodisc-icon.ui-btn:after,
+.ui-nodisc-icon .ui-btn:after {
+	background-color: transparent;
 }
-.ui-input-text.ui-focus,
-.ui-input-search.ui-focus {
-  @include box-shadow(0 0 12px $active-bg);
+/* Icon shadow */
+.ui-shadow-icon.ui-btn:after,
+.ui-shadow-icon .ui-btn:after {
+        @include box-shadow(0 1px 0 rgba(255,255,255,.3));
 }
-
-.ui-mobile-nosupport-boxshadow * {
-  @include box-shadow(none !important);
-
-  .ui-focus,
-  .ui-btn:focus,
-  .ui-link-inherit:focus {
-    outline-width: 1px;
-    outline-style: auto;
-  }
+/* Checkbox and radio */
+.ui-btn.ui-checkbox-off:after,
+.ui-btn.ui-checkbox-on:after,
+.ui-btn.ui-radio-off:after,
+.ui-btn.ui-radio-on:after {
+	display: block;
+	width: 18px;
+	height: 18px;
+	margin: -9px 2px 0 2px;
 }
-
+.ui-checkbox-off:after,
+.ui-btn.ui-radio-off:after {
+	filter: Alpha(Opacity=30);
+	opacity: .3;
 }
-
-/* Default Icon set */
-@mixin jquery-mobile-icons(
-  $url: 'images',
-  $disc: rgba(0,0,0,.4)
-){
-
-.ui-icon,
-.ui-icon-searchfield:after {
-  @if $disc {
-    background: $disc;
-  }
-  @include border-radius(9px);
-  background-image: url(#{$url + "/icons-18-white.png"});
-  background-repeat: no-repeat;
+.ui-btn.ui-checkbox-off:after,
+.ui-btn.ui-checkbox-on:after {
+        @include border-radius(.1875em);
 }
-
-.ui-icon-alt .ui-icon,
-.ui-icon-alt .ui-icon-searchfield:after {
-  background-color: #fff;
-  background-color: rgba(255,255,255,.3);
-  background-image: url(#{$url + "/icons-18-black.png"});
-  background-repeat: no-repeat;
+.ui-btn.ui-checkbox-off:after {
+	background-color: #666;
+	background-color: rgba(0,0,0,.3);
 }
-
-.ui-icon-nodisc .ui-icon,
-.ui-icon-nodisc .ui-icon-searchfield:after,
-.ui-icon-nodisc .ui-icon-alt .ui-icon,
-.ui-icon-nodisc .ui-icon-alt .ui-icon-searchfield:after {
-  background-color: transparent;
+.ui-radio .ui-btn.ui-radio-on:after {
+	background-image: none;
+	background-color: #fff;
+	width: 8px;
+	height: 8px;
+	border-width: 5px;
+	border-style: solid; 
 }
-
-.ui-icon-plus {
-  background-position: -1px -1px;
+.ui-alt-icon.ui-btn.ui-radio-on:after,
+.ui-alt-icon .ui-btn.ui-radio-on:after {
+	background-color: #000;
 }
-.ui-icon-minus {
-  background-position: -37px -1px;
-}
-.ui-icon-delete {
-  background-position: -73px -1px;
-}
-.ui-icon-arrow-r {
-  background-position: -108px -1px;
-}
-.ui-icon-arrow-l {
-  background-position: -144px -1px;
-}
-.ui-icon-arrow-u {
-  background-position: -180px -1px;
-}
-.ui-icon-arrow-d {
-  background-position: -216px -1px;
-}
-.ui-icon-check {
-  background-position: -252px -1px;
-}
-.ui-icon-gear {
-  background-position: -288px -1px;
-}
-.ui-icon-refresh {
-  background-position: -323px -1px;
-}
-.ui-icon-forward {
-  background-position: -360px -1px;
-}
-.ui-icon-back {
-  background-position: -396px -1px;
-}
-.ui-icon-grid {
-  background-position: -432px -1px;
-}
-.ui-icon-star {
-  background-position: -467px -1px;
-}
-.ui-icon-alert {
-  background-position: -503px -1px;
-}
-.ui-icon-info {
-  background-position: -539px -1px;
-}
-.ui-icon-home {
-  background-position: -575px -1px;
-}
-.ui-icon-search,
-.ui-icon-searchfield:after {
-  background-position: -611px -1px;
-}
-.ui-icon-checkbox-on {
-  background-position: -647px -1px;
-}
-.ui-icon-checkbox-off {
-  background-position: -683px -1px;
-}
-.ui-icon-radio-on {
-  background-position: -718px -1px;
-}
-.ui-icon-radio-off {
-  background-position: -754px -1px;
-}
-.ui-icon-bars {
-  background-position: -788px -1px;
-
-}
-.ui-icon-edit {
-  background-position: -824px -1px;
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio: 1.3),
-       only screen and (min--moz-device-pixel-ratio: 1.3),
-       only screen and (min-resolution: 200dpi) {
-
-  .ui-icon-plus, .ui-icon-minus, .ui-icon-delete, .ui-icon-arrow-r,
-  .ui-icon-arrow-l, .ui-icon-arrow-u, .ui-icon-arrow-d, .ui-icon-check,
-  .ui-icon-gear, .ui-icon-refresh, .ui-icon-forward, .ui-icon-back,
-  .ui-icon-grid, .ui-icon-star, .ui-icon-alert, .ui-icon-info, .ui-icon-home, .ui-icon-bars, .ui-icon-edit,
-  .ui-icon-search, .ui-icon-searchfield:after,
-  .ui-icon-checkbox-off, .ui-icon-checkbox-on, .ui-icon-radio-off, .ui-icon-radio-on {
-    background-image: url(#{$url + "/icons-36-white.png"});
-    -moz-background-size: 864px 18px;
-    -o-background-size: 864px 18px;
-    -webkit-background-size: 864px 18px;
-    background-size: 864px 18px;
-  }
-
-  .ui-icon-alt .ui-icon {
-    background-image: url(#{$url + "/icons-36-black.png"});
-  }
-
-  .ui-icon-plus {
-    background-position: 0 50%;
-  }
-  .ui-icon-minus {
-    background-position: -36px 50%;
-  }
-  .ui-icon-delete {
-    background-position: -72px 50%;
-  }
-  .ui-icon-arrow-r {
-    background-position: -108px 50%;
-  }
-  .ui-icon-arrow-l {
-    background-position: -144px 50%;
-  }
-  .ui-icon-arrow-u {
-    background-position: -179px 50%;
-  }
-  .ui-icon-arrow-d {
-    background-position: -215px 50%;
-  }
-  .ui-icon-check {
-    background-position: -252px 50%;
-  }
-  .ui-icon-gear {
-    background-position: -287px 50%;
-  }
-  .ui-icon-refresh {
-    background-position: -323px 50%;
-  }
-  .ui-icon-forward {
-    background-position: -360px 50%;
-  }
-  .ui-icon-back {
-    background-position: -395px 50%;
-  }
-  .ui-icon-grid {
-    background-position: -431px 50%;
-  }
-  .ui-icon-star {
-    background-position: -467px 50%;
-  }
-  .ui-icon-alert {
-    background-position: -503px 50%;
-  }
-  .ui-icon-info {
-    background-position: -538px 50%;
-  }
-  .ui-icon-home {
-    background-position: -575px 50%;
-  }
-  .ui-icon-search,
-  .ui-icon-searchfield:after {
-    background-position: -611px 50%;
-  }
-  .ui-icon-checkbox-on {
-    background-position: -647px 50%;
-  }
-  .ui-icon-checkbox-off {
-    background-position: -683px 50%;
-  }
-  .ui-icon-radio-on {
-    background-position: -718px 50%;
-  }
-  .ui-icon-radio-off {
-    background-position: -754px 50%;
-  }
-  .ui-icon-bars {
-    background-position: -788px 50%;
-  }
-  .ui-icon-edit {
-    background-position: -824px 50%;
-  }
-}
-
+/* Loader */
 .ui-icon-loading {
-  background: url(#{$url + "/ajax-loader.gif"});
-  background-size: 46px 46px;
+	background: url("images/ajax-loader.gif");
+	background-size: 2.875em 2.875em;
+}
+
+/* Structure */
+/* Disabled
+-----------------------------------------------------------------------------------------------------------*/
+/* Class ui-disabled deprecated in 1.4. :disabled not supported by IE8 so we use [disabled] */
+.ui-disabled,
+.ui-state-disabled,
+button[disabled],
+.ui-select .ui-btn.ui-state-disabled {
+	filter: Alpha(Opacity=30);
+	opacity: .3;
+	cursor: default !important;
+	pointer-events: none;
+}
+/* Focus state outline
+-----------------------------------------------------------------------------------------------------------*/
+.ui-btn:focus,
+.ui-btn.ui-focus {
+	outline: 0;
+}
+/* Unset box-shadow in browsers that don't do it right */
+.ui-noboxshadow .ui-shadow,
+.ui-noboxshadow .ui-shadow-inset,
+.ui-noboxshadow .ui-overlay-shadow,
+.ui-noboxshadow .ui-shadow-icon.ui-btn:after,
+.ui-noboxshadow .ui-shadow-icon .ui-btn:after,
+.ui-noboxshadow .ui-focus,
+.ui-noboxshadow .ui-btn:focus,
+.ui-noboxshadow  input:focus,
+.ui-noboxshadow .ui-panel {
+        @include box-shadow(none !important);
+}
+.ui-noboxshadow .ui-btn:focus,
+.ui-noboxshadow .ui-focus {
+	outline-width: 1px;
+	outline-style: auto;
 }
 
 }
