@@ -5,18 +5,13 @@
  * http://wq.io/license
  */
 
-define(['jquery.mobile', './console'],
-function(jqm, console) {
+define(['jquery.mobile'],
+function(jqm) {
 
 // Exported module object
 var spin = {};
 
 spin.start = function(msg, duration, opts) {
-    if (!jqm.loaderWidget) {
-        console.warn('Not ready to spin!');
-        return;
-    }
-
     if (!opts) opts = {};
     if (msg) {
         opts.text = msg;

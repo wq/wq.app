@@ -614,8 +614,15 @@ function _Store(name) {
         if (queued)
             return;
 
-        if (self.debugNetwork)
+        if (self.debugNetwork) {
             console.log("fetching " + key);
+            if (!async) {
+                console.warn(
+                    "Sync AJAX is not recommended" +
+                    " and will be removed in future versions!"
+                );
+            }
+        }
 
         $.ajax(url, {
             'data': data,

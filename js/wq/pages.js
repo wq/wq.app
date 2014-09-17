@@ -120,8 +120,7 @@ function _inject(path, template, context, pageid) {
     var $rolePage = $page.filter(":jqmData(role='page')");
     if ($rolePage.length > 0) {
         if (pages.config.debug && $rolePage.length != $page.length) {
-            console.warn(
-                "Warning: " +
+            console.info(
                 ($page.length - $rolePage.length) +
                 " extra element(s) ignored."
             );
