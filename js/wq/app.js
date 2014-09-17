@@ -289,6 +289,14 @@ app.attachmentTypes = {
         'predicate': 'located',
         'type': null
     },
+    markdown: {
+        'predicate': 'marked',
+        'type': 'markdowntype',
+        'getTypeFilter': function(page, context) {
+            /* jshint unused: false */
+            return {};
+        }
+    },
     relationship: {
         'predicate': 'related',
         'type': 'relationshiptype',
