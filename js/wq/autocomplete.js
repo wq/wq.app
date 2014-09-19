@@ -33,7 +33,12 @@ auto.register = function($datalist, $scope) {
     if (!$scope)
         $scope = $datalist.parents('body');
     $input = $scope.find('input[list="' + $datalist.attr('id') + '"]');
-    $input.on('input', _update);
+    if (!$input.length || $input.data('registered')) {
+        return;
+    } else {
+        $input.on('input.autocomplete', _update);
+        $input.data('registered', true);
+    }
 
     function _update() {
         auto.update($datalist, $input.val());
