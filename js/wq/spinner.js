@@ -24,8 +24,6 @@ spin.start = function(msg, duration, opts) {
 };
 
 spin.stop = function() {
-    if (!jqm.loaderWidget)
-        return;
     jqm.loading('hide');
 };
 
