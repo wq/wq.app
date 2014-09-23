@@ -12,6 +12,13 @@ function($) {
 // (acts as a singleton Router object)
 var router = {};
 
+// Disable automatic page initialization to allow time for registering page
+// show events that affect the first page.
+// Use pages.jqmInit() or app.jqmInit() to trigger initialization.
+$(document).on('mobileinit', function() {
+    $.mobile.autoInitializePage = false;
+});
+
 // Mimics new Router()
 router.init = function(routedefs, handlers, opts) {
     if (_router) {

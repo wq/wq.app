@@ -131,7 +131,13 @@ app.init = function(config, templates, baseurl, svc) {
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
     $(document).on('click', 'form [type=submit]', _submitClick);
+
+    if (app.config.jqmInit) {
+        app.jqmInit();
+    }
 };
+
+app.jqmInit = pages.jqmInit;
 
 app.logout = function() {
     if (!app.can_login)

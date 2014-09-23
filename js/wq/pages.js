@@ -33,6 +33,8 @@ pages.init = function(baseurl, config) {
     // Set `debug` to true to log template & context information
 };
 
+pages.jqmInit = jqm.initializePage;
+
 // Register URL patterns to override default JQM behavior and inject pages
 // Callback fn should call pages.go() with desired template
 pages.register = function(path, fn, obj, prevent) {
