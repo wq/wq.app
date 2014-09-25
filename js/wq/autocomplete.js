@@ -49,7 +49,10 @@ var _cache = {};
 auto.update = function($datalist, value) {
     var url = $datalist.data('url'),
         param = $datalist.data('query') || 'q',
-        min = $datalist.data('min') || 3;
+        min = $datalist.data('min') || 3,
+        exists = $datalist.find(
+            'option[value="' + value.replace('"', "'") + '"]'
+        ).length;
 
     // Only continue if a long enough value is present
     if (!value || value.length < min) {
@@ -65,9 +68,11 @@ auto.update = function($datalist, value) {
     }
 
     // Load results via AJAX
-    spin.start();
+    if (!exists)
+        spin.start();
     json.get(url, function(result) {
-        spin.stop();
+        if (!exists)
+            spin.stop();
         if (!result.list)
             result = {'list': result};
         result.count = result.count || result.list.length;
