@@ -5,9 +5,9 @@
  * http://wq.io/license
  */
 
-define(['leaflet', './app', './pages', './json', './spinner',
+define(['leaflet', 'jquery', './app', './pages', './json', './spinner',
         './template', './console', 'es5-shim'],
-function(L, app, pages, json, spin, tmpl, console) {
+function(L, $, app, pages, json, spin, tmpl, console) {
 
 // module variable
 var map = {};
@@ -254,7 +254,11 @@ map.createMap = function(page, itemid, override) {
     if (div._leaflet) {
         // This is probably an onshow event for a page that was rendered
         // and then went offscreen before coming back; refresh layout.
-        map.maps[mapid].invalidateSize();
+        m = map.maps[mapid];
+        m.invalidateSize();
+        if (defaults.autoZoom.sticky) {
+            m.setView(defaults.center, defaults.zoom);
+        }
         return;
     }
 
@@ -331,8 +335,13 @@ map.createMap = function(page, itemid, override) {
         m.invalidateSize();
     }, 100);
 
+    // Try to ensure no Leaflet widgets are enhanced by jQuery Mobile
+    var $controls = $(div).find(".leaflet-control-container");
+    $controls.find("input").attr("data-role", "none");
+
     if (mapconf.onshow)
         mapconf.onshow(m);
+
     return m;
 };
 
