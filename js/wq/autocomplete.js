@@ -70,6 +70,8 @@ auto.update = function($datalist, value) {
         spin.stop();
         if (!result.list)
             result = {'list': result};
+        result.count = result.count || result.list.length;
+        result.multi = result.count > 1;
         _cache[url] = result;
         auto.render($datalist, result);
     });
