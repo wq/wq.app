@@ -1100,17 +1100,24 @@ function _Store(name) {
                 _ls.clear();
             } else {
                 // Only clear items matching this store's key prefix
-                var keys = [];
-                for (var i = 0; i < _ls.length; i++) {
-                    var key = _ls.key(i);
-                    if (key.indexOf(_lsp) === 0)
-                        keys.push(key);
-                }
-                keys.forEach(function(key) {
-                    _ls.removeItem(key);
+                self.keys().forEach(function(key) {
+                    _ls.removeItem(_lsp + key);
                 });
             }
         }
+    };
+
+    // List localStorage keys matching this store's key prefix
+    self.keys = function() {
+        if (!_ls)
+            return [];
+        var keys = [];
+        for (var i = 0; i < _ls.length; i++) {
+            var key = _ls.key(i);
+            if (key.indexOf(_lsp) === 0)
+                keys.push(key.replace(_lsp, ""));
+        }
+        return keys;
     };
 
 }
