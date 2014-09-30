@@ -109,6 +109,18 @@ owl.sync = function sync(key) {
             'async': owl.config.async,
             'data': JSON.stringify(queue),
             'contentType': "application/json",
+            'beforeSend': function(xhr) {
+                var cookie = document.cookie.split(';');
+                var csrftoken = null;
+                cookie.forEach(function(c) {
+                    var vals = c.trim().split('=');
+                    if (vals[0].trim() == "csrftoken")
+                        csrftoken = vals[1].trim();
+                });
+                if (!csrftoken)
+                    return;
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            },
             'success': function success() {
                 _syncing[key] = false;
                 owl.ds.set(key, null);
