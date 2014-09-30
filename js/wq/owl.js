@@ -6,7 +6,7 @@
  */
 
 define(['wq/store', 'jquery', 'jquery.mobile'],
-function(ds, $, jqm) {
+function(ds, $) {
 
 // Module object is main logging function
 function owl(action, data, path) {
@@ -22,8 +22,8 @@ function owl(action, data, path) {
         "path": path,
         "action": action,
         "client_date": Date.now() / 1000,
-        "referer": document.referrer,
-    }
+        "referer": document.referrer
+    };
     if (data) {
         post.data = JSON.stringify(data);
     }
@@ -43,15 +43,20 @@ owl.init = function init(config) {
         'ping': 30,
         'sync': 1,
         'scroll': true,
-        'async': true,
         'maxFailures': 5,
         'wait': 60
     }, config);
-    owl("init");
+    owl("init", owl.stats());
     owl.syncAll();
+
     $('body').on('pagecontainershow', function() {
         owl("view");
     });
+
+    $('body').on('click', 'a[rel="external"]', function(evt) {
+        owl("link", {'url': evt.target.href});
+    });
+
     Object.keys(owl.events).forEach(function(evt) {
         $(window).on(evt, function() {
             var data;
@@ -59,6 +64,11 @@ owl.init = function init(config) {
                 data = owl.events[evt]();
             owl("event:" + evt, data);
         });
+    });
+
+    $(window).on('unload', function() {
+        owl('event:unload');
+        owl.sync(owl.config.key, true);
     });
 
     if (owl.config.sync) {
@@ -69,12 +79,12 @@ owl.init = function init(config) {
             owl("ping");
         }, owl.config.ping * 1000);
     }
-}
+};
 
 // Sync log to server (with logic to handle errors & prevent simultaneous sync)
 var _syncing = {};
 var _waiting = {};
-owl.sync = function sync(key) {
+owl.sync = function sync(key, forceSync) {
     if (!key) {
         key = owl.config.key;
     }
@@ -84,93 +94,119 @@ owl.sync = function sync(key) {
     if (!owl.config.url) {
         throw "Missing server URL (hint: try owl.init)!";
     }
-    if (_syncing[key])
+
+    if (_syncing[key] && !forceSync) {
         return;
-    _syncing[key] = true;
-    var failkey = key + '-fail';
-    var queue = owl.ds.get(key);
-    if (queue && queue.length) {
-        queue.forEach(function(d) {
-            d.client_key = key
-        });
-        var failures = owl.ds.get(failkey) || 0;
-        if (failures > owl.config.maxFailures) {
-            _syncing[key] = false;
-            if (!_waiting[key]) {
-                _waiting[key] = setTimeout(function() {
-                    owl.ds.set(failkey, 0);
-                    _waiting[key] = false;
-                }, owl.config.wait * 1000);
-            }
-            return;
-        }
-        $.ajax(owl.config.url, {
-            'type': 'POST',
-            'async': owl.config.async,
-            'data': JSON.stringify(queue),
-            'contentType': "application/json",
-            'beforeSend': function(xhr) {
-                var cookie = document.cookie.split(';');
-                var csrftoken = null;
-                cookie.forEach(function(c) {
-                    var vals = c.trim().split('=');
-                    if (vals[0].trim() == "csrftoken")
-                        csrftoken = vals[1].trim();
-                });
-                if (!csrftoken)
-                    return;
-                xhr.setRequestHeader('X-CSRFToken', csrftoken);
-            },
-            'success': function success() {
-                _syncing[key] = false;
-                owl.ds.set(key, null);
-                owl.ds.set(failkey, 0);
-            },
-            'error': function error(jqxhr, text, err) {
-                _syncing[key] = false;
-                owl('sendfail', text + ' ' + err);
-                failures++;
-                owl.ds.set(failkey, failures);
-            }
-        });
     }
+
+    var queue = owl.ds.get(key);
+    if (!queue || !queue.length) {
+        return;
+    }
+
+    var failkey = key + '-fail';
+    var failures = owl.ds.get(failkey) || 0;
+    if (failures > owl.config.maxFailures && !forceSync) {
+        if (!_waiting[key]) {
+            _waiting[key] = setTimeout(function() {
+                owl.ds.set(failkey, 0);
+                _waiting[key] = false;
+            }, owl.config.wait * 1000);
+        }
+        return;
+    }
+
+    _syncing[key] = true;
+    queue.forEach(function(d) {
+        d.client_key = key;
+    });
+
+    var async = !forceSync;
+
+    $.ajax(owl.config.url, {
+        'type': 'POST',
+        'async': async,
+        'data': JSON.stringify(queue),
+        'contentType': "application/json",
+        'beforeSend': function(xhr) {
+            var cookie = document.cookie.split(';');
+            var csrftoken = null;
+            cookie.forEach(function(c) {
+                var vals = c.trim().split('=');
+                if (vals[0].trim() == "csrftoken")
+                    csrftoken = vals[1].trim();
+            });
+            if (!csrftoken)
+                return;
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+        },
+        'success': function success() {
+            _syncing[key] = false;
+            owl.ds.set(key, null);
+            owl.ds.set(failkey, 0);
+        },
+        'error': function error(jqxhr, text, err) {
+            _syncing[key] = false;
+            owl('sendfail', {
+                'message': text,
+                'error': err
+            });
+            failures++;
+            owl.ds.set(failkey, failures);
+        }
+    });
 };
 
 owl.syncAll = function() {
-    owl.ds.keys().forEach(owl.sync);
-}
+    owl.ds.keys().forEach(function(key){
+        if (key.indexOf('-fail') == -1)
+            owl.sync(key);
+    });
+};
 
-// Log events
-function _closing() {
-    owl.config.async = false;
-    return null;
-}
 
 owl.events = {
-    'pagehide': _closing,
-    'unload': _closing,
     'throttledresize': function() {
         var $win = $(window);
         return {
             'width': $win.width(),
             'height': $win.height()
-        }
+        };
     },
     'scrollstop': function() {
         var $win = $(window);
         return {
             'top': $win.scrollTop(),
             'left': $win.scrollLeft()
-        }
+        };
     }
-}
+};
 
 // Utility to get the current URL path
 owl.getPath = function getPath() {
     // $('.ui-page-active').data("url");
     var loc = window.location;
     return loc.pathname; // + loc.search
-}
+};
+
+// Utility to get various browser & app information
+owl.stats = function() {
+    return {
+        // App info
+        'version': owl.config.version,
+
+        // Browser info
+        'standalone': navigator.standalone,
+        'size': owl.events.throttledresize(),
+        'scroll': owl.events.scrollstop(),
+
+        // Cache status
+        'localstorage': ds.localStorageUsage(),
+        'appcache': (
+            window.applicationCache ? window.applicationCache.status : null
+        )
+    };
+};
 
 return owl;
 
