@@ -9,6 +9,8 @@ define(['leaflet', 'jquery', './app', './pages', './json', './spinner',
         './template', './console', 'es5-shim'],
 function(L, $, app, pages, json, spin, tmpl, console) {
 
+/* global require */
+
 // module variable
 var map = {};
 
@@ -35,7 +37,9 @@ map.config = {
             'popupAnchor': [1, -34],
             'shadowSize':  [41, 41],
             'shadowUrl':  L.Icon.Default.imagePath + '/marker-shadow.png'
-        }
+        },
+
+        'owl': false
     }
 };
 
@@ -215,11 +219,17 @@ map.createLayerControl = function(basemaps, layers) {
 // Default popup renderer for items - override to customize
 // (assumes template called [page]_popup)
 map.renderPopup = function(page) {
+    var owl = map.config.defaults.owl && require('wq/owl');
     return function(feat, layer) {
         var attrs = L.extend({'id': feat.id}, feat.properties);
         layer.bindPopup(
             tmpl.render(page + '_popup', attrs)
         );
+        if (owl) {
+            layer.on('click', function() {
+                owl('map:layerclick', {'page': page, 'id': feat.id});
+            });
+        }
     };
 };
 
@@ -227,11 +237,13 @@ map.renderPopup = function(page) {
 map.createMap = function(page, itemid, override) {
     var mapid, divid, mapconf, m, defaults,
         layerConfs, remaining, layers,
-        basemaps, basemap, div;
+        basemaps, basemap, div, owl;
 
     // Load configuration and div id
     mapconf = _getConf(page);
     defaults = map.config.defaults;
+    // If defaults.owl, assume wq/owl has been async-loaded already
+    owl = defaults.owl && require('wq/owl');
 
     if (mapconf.list && itemid)
         mapid = page + '-' + itemid;
@@ -291,6 +303,7 @@ map.createMap = function(page, itemid, override) {
 
     map.createLayerControl(basemaps, layers).addTo(m);
 
+
     // Async-load geojson for layers and add to layergroups
     function loadLayer(layerconf) {
         map.loadLayer(layerconf.url, function(geojson) {
@@ -327,6 +340,25 @@ map.createMap = function(page, itemid, override) {
         m.on('moveend', function() {
             map.config.defaults.zoom = m.getZoom();
             map.config.defaults.center = m.getCenter();
+        });
+    }
+    if (owl) {
+        m.on('moveend', function() {
+            owl('map:moveend', {
+                'zoom': m.getZoom(),
+                'center': m.getCenter(),
+                'bounds': m.getBounds()
+            });
+        });
+        [
+            'baselayerchange',
+            'overlayadd',
+            'overlayremove'
+        ].forEach(_layerEvent);
+    }
+    function _layerEvent(name) {
+        m.on(name, function(evt) {
+            owl('map:' + name, {'layer': evt.name});
         });
     }
 
