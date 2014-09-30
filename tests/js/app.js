@@ -7,8 +7,10 @@ requirejs.config({
 
 var baseurl = window.location.pathname.replace(/\/$/,'');
 
-require(['wq/app', 'wq/map', 'app/config', 'app/templates'],
-function(app, map, config, templates) {
+require(['wq/app', 'wq/map', 'wq/owl','app/config', 'app/templates'],
+function(app, map, owl, config, templates) {
     app.init(config, templates, baseurl);
     map.init(config.map);
+    owl.init();
+    app.jqmInit();
 });

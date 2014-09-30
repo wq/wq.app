@@ -16,6 +16,7 @@ define({
     },
     'map': {
         'zoom': 13,
-        'center': [44.98, -93.27]
+        'center': [44.98, -93.27],
+        'owl': true
     }
 });
