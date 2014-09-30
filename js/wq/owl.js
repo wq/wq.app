@@ -8,6 +8,8 @@
 define(['wq/store', 'jquery', 'jquery.mobile'],
 function(ds, $) {
 
+var _referer = document.referrer;
+
 // Module object is main logging function
 function owl(action, data, path) {
     if (!owl.config.key)
@@ -21,9 +23,14 @@ function owl(action, data, path) {
     var post = {
         "path": path,
         "action": action,
-        "client_date": Date.now() / 1000,
-        "referer": document.referrer
+        "client_date": Date.now() / 1000
     };
+    if (action == "view" || action == "init") {
+        post.referer = _referer;
+        if (action == "view") {
+            _referer = document.location.href;
+        }
+    }
     if (data) {
         post.data = JSON.stringify(data);
     }
@@ -142,7 +149,10 @@ owl.sync = function sync(key, forceSync) {
         },
         'success': function success() {
             _syncing[key] = false;
-            owl.ds.set(key, null);
+            var newqueue = owl.ds.get(key).filter(function(d){
+                return !d.client_key;
+            });
+            owl.ds.set(key, newqueue);
             owl.ds.set(failkey, 0);
         },
         'error': function error(jqxhr, text, err) {
