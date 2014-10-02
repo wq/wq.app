@@ -327,10 +327,14 @@ map.createMap = function(page, itemid, override) {
         if (!map.config.defaults.autoZoom)
             return;
         var bounds = layerConfs[0].layer.getBounds();
-        if (layerConfs.length > 1)
+        if (layerConfs.length > 1) {
             layerConfs.slice(1).forEach(function(layerconf) {
                 bounds.extend(layerconf.layer.getBounds());
             });
+        }
+        if (mapconf.minBounds) {
+            bounds.extend(mapconf.minBounds);
+        }
         setTimeout(function() {
             m.fitBounds(bounds, map.config.defaults.autoZoom);
         }, map.config.defaults.autoZoom.wait * 1000);
