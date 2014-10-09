@@ -743,8 +743,6 @@ chart.scatter = function() {
 
     // Render lines in background to ensure all points are above them
     plot.renderBackground(function(dataset) {
-        if (!drawLinesIf(dataset))
-            return;
         var items   = plot.items()(dataset),
             yunits  = plot.yunits()(dataset),
             sid     = plot.id()(dataset),
@@ -755,6 +753,10 @@ chart.scatter = function() {
             line    = d3.svg.line()
                         .x(xscaled)
                         .y(yscaled);
+        if (!drawLinesIf(dataset)) {
+            path.remove();
+            return;
+        }
         // Generate path element for new datasets
         if (path.empty()) {
             path = g.append('path')
@@ -768,8 +770,6 @@ chart.scatter = function() {
     });
 
     plot.render(function(dataset) {
-        if (!drawPointsIf(dataset))
-            return;
         var items     = plot.items()(dataset),
             yunits    = plot.yunits()(dataset),
             sid       = plot.id()(dataset),
@@ -777,6 +777,10 @@ chart.scatter = function() {
             g         = d3.select(this),
             points, newpoints;
 
+        if (!drawPointsIf(dataset)) {
+            g.selectAll('g.data').remove();
+            return;
+        }
         points = g.selectAll('g.data').data(items, plot.itemid());
 
         // Generate elements for new data
