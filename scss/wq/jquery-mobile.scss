@@ -276,7 +276,9 @@ html body .ui-group-theme-$theme .ui-bar-inherit {
 	background-color: $bar-bg;
 	border-color: $bar-border;
 	color: $bar-text;
+        @if ($bar-shadow) {
 	text-shadow: 0 1px 0 $bar-shadow;
+        }
 	font-weight: bold;
 }
 .ui-bar-$theme {
@@ -290,7 +292,9 @@ html body .ui-group-theme-$theme .ui-bar-inherit {
 	background-color: $page-bg;
 	border-color: $page-border;
 	color: $page-text;
+        @if ($page-shadow) {
 	text-shadow: 0 1px 0 $page-shadow;
+        }
 }
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-$theme,
@@ -302,7 +306,9 @@ html .ui-panel-page-container-$theme {
 	background-color: $body-bg;
 	border-color: $body-border;
 	color: $body-text;
+        @if ($body-shadow) {
 	text-shadow: 0 1px 0 $body-shadow;
+        }
 }
 .ui-body-$theme {
 	border-width: 1px;
@@ -349,7 +355,9 @@ html head + body .ui-btn.ui-btn-$theme:visited {
 	background-color: $up-bg;
 	border-color: $up-border;
 	color: $up-text;
+        @if ($up-shadow) {
 	text-shadow: 0 1px 0 $up-shadow;
+        }
 }
 /* Button hover */
 .ui-page-theme-$theme .ui-btn:hover,
@@ -360,7 +368,9 @@ html head + body .ui-btn.ui-btn-$theme:hover {
 	background-color: $hover-bg;
 	border-color: $hover-border;
 	color: $hover-text;
+        @if ($hover-shadow) {
 	text-shadow: 0 1px 0 $hover-shadow;
+        }
 }
 /* Button down */
 .ui-page-theme-$theme .ui-btn:active,
@@ -371,7 +381,9 @@ html head + body .ui-btn.ui-btn-$theme:active {
 	background-color: $down-bg;
 	border-color: $down-border;
 	color: $down-text;
+        @if ($down-shadow) {
 	text-shadow: 0 1px 0 $down-shadow;
+        }
 }
 /* Active button */
 .ui-page-theme-$theme .ui-btn.ui-btn-active,
@@ -400,7 +412,9 @@ html body div.ui-slider-track.ui-body-$theme .ui-btn-active {
 	background-color: $active-bg;
 	border-color: $active-border;
 	color: $active-text;
+        @if ($active-shadow) {
 	text-shadow: 0 1px 0 $active-shadow;
+        }
 }
 /* Active radio button icon */
 .ui-page-theme-$theme .ui-radio-on:after,
