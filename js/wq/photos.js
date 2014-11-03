@@ -1,5 +1,5 @@
 /*
- * wq.app 0.7.0-dev - photos.js
+ * wq.app 0.7.0 - wq/photos.js
  * Helpers for working with Cordova photo library
  * (c) 2012-2014, S. Andrew Sheppard
  * http://wq.io/license
