@@ -5,9 +5,9 @@
 ## Getting Started
 
 ```bash
-pip install wq.app
+pip3 install wq.app
 # Or, if using together with wq.db
-pip install wq
+pip3 install wq
 ```
 
 See [the documentation] for more information.
@@ -16,7 +16,7 @@ See [the documentation] for more information.
 
 wq.app's [JavaScript modules] are built on [a number of libraries] including [RequireJS], [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
 
- * [wq/app.js], a high-level application controller that combines **wq/store.js** and **wq/pages.js** into a full configuration-driven CRUD client (intended for use with [wq.db]'s [app.py])
+ * [wq/app.js], a high-level application controller that combines **wq/store.js** and **wq/pages.js** into a full configuration-driven CRUD client (optimized for use with [wq.db]'s [app.py])
  * [wq/chart.js], configurable d3-based reusable charts, including time series and boxplots
  * [wq/locate.js], utilities for requesting and displaying the user's location
  * [wq/map.js], Leaflet integration for **wq/app.js** pages that contain geometry (loaded via GeoJSON)
@@ -31,7 +31,7 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [recommended project layout]: https://github.com/wq/django-wq-template
  [a number of libraries]: http://wq.io/docs/third-party
 
- [the documentation]: http://wq.io/docs/
+ [the documentation]: http://wq.io/docs/setup
  [JavaScript modules]: http://wq.io/docs/app
  [RequireJS]: http://requirejs.org
  [r.js]: https://github.com/jrburke/r.js
