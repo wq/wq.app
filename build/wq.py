@@ -1,3 +1,2 @@
-#!/usr/bin/python
 from wq.app.build import tool
 tool.run()

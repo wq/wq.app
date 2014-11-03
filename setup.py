@@ -1,4 +1,5 @@
 import os
+import sys
 from setuptools import setup, find_packages
 
 LONG_DESCRIPTION = """
@@ -59,6 +60,11 @@ package_data = [os.path.join("build", "r.js")]
 for folder in ['js', 'css', 'scss']:
     package_data.extend(list_package_data(folder))
 
+if sys.platform == "win32":
+    script_name = "wq.py"
+else:
+    script_name = "wq"
+
 setup(
     name='wq.app',
     version='0.7.0-dev',
@@ -77,7 +83,7 @@ setup(
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=parse_markdown_readme(),
-    scripts=[os.path.join('.', 'build', 'wq')],
+    scripts=[os.path.join('.', 'build', script_name)],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
