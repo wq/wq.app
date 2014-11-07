@@ -1,5 +1,8 @@
 define({
     'about': "{{>header}}<p>Test</p>{{>footer}}",
+    'version': "<div data-role='popup' data-position-to='page' class='ui-content'>\
+        wq.app test v{{version}}\
+     </div>",
     'item_detail': "{{>header}}<p>{{label}}{{>footer}}",
     'item_popup': "<a href='{{pages_info.base_url}}/items/{{id}}'>{{label}}</a>",
     'item_list': "{{>header}}\

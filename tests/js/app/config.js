@@ -7,6 +7,9 @@ define({
             'url': 'about',
             'label': 'About'
         },
+        'version': {
+            'url': 'version',
+        },
         'item': {
             'url': 'items',
             'label': 'Items',
@@ -18,5 +21,8 @@ define({
         'zoom': 13,
         'center': [44.98, -93.27],
         'owl': true
+    },
+    'defaults': {
+        'version': '0.0.0'
     }
 });

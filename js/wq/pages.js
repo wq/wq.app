@@ -147,24 +147,10 @@ function _inject(path, template, context, pageid) {
         else
             $page.panel();
         $page.trigger('create');
-    } else if ($oldpage.length) {
-        $oldpage.jqmData('title', title);
-        if (pageid)
-            $oldpage.jqmData('url', url);
-
-        var header = ":jqmData(role='header')";
-        var $header = $page.find(header).find("h1,h2,h3");
-        var $oldheader = $oldpage.find(header).find("h1,h2,h3");
-        $oldheader.html($header.html());
-
-        var content = "[role='main'], :jqmData(role='content')";
-        var $content = $page.find(content);
-        var $oldcontent = $oldpage.find(content);
-        $oldcontent.html($content.html());
-
-        $oldpage.trigger('create');
-        $page = $oldpage;
     } else {
+        if ($oldpage.length) {
+            $oldpage.remove();
+        }
         $page.attr("data-" + jqm.ns + "url", url);
         $page.attr("data-" + jqm.ns + "title", title);
         if (pageid)
