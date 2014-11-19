@@ -44,6 +44,7 @@ function _Store(name) {
     self.service     = undefined;
     self.saveMethod  = 'POST';
     self.debug       = false;
+    self.cleanOutbox = true;
     self.maxRetries  = 3;
 
     // Default parameters (e.g f=json)
@@ -70,6 +71,7 @@ function _Store(name) {
             'fetchFail',
             'jsonp',
             'debug',
+            'cleanOutbox',
             'maxRetries',
             'formatKeyword'
         ];
@@ -82,6 +84,10 @@ function _Store(name) {
                 if (self.debug >= _verbosity[level])
                     self['debug' + level] = true;
             }
+        }
+        if (self.cleanOutbox) {
+            // Clear out successfully saved items from previous runs, if any
+            self.set('outbox', self.unsavedItems());
         }
 
         if (opts.batchService) {
@@ -472,7 +478,9 @@ function _Store(name) {
             return null;
         var usage = 0;
         for (var key in _ls) {
-            usage += _ls.getItem(key).length;
+            if (_ls.hasOwnProperty(key)) {
+                usage += _ls.getItem(key).length;
+            }
         }
         // UTF-16 means two bytes per character in storage - at least on webkit
         return usage * 2;

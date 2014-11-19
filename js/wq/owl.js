@@ -107,11 +107,20 @@ owl.sync = function sync(key, forceSync) {
     }
 
     var queue = owl.ds.get(key);
-    if (!queue || !queue.length) {
+    if (!queue) {
         return;
     }
 
     var failkey = key + '-fail';
+    var isOldQueue = (key != owl.config.key);
+    if (!queue.length) {
+        if (isOldQueue) {
+            owl.ds.set(key, null);
+            owl.ds.set(failkey, null);
+        }
+        return;
+    }
+
     var failures = owl.ds.get(failkey) || 0;
     if (failures > owl.config.maxFailures && !forceSync) {
         if (!_waiting[key]) {
@@ -149,11 +158,19 @@ owl.sync = function sync(key, forceSync) {
         },
         'success': function success() {
             _syncing[key] = false;
+            // Don't wipe out newly queued items that haven't been synced yet
             var newqueue = owl.ds.get(key).filter(function(d){
                 return !d.client_key;
             });
-            owl.ds.set(key, newqueue);
-            owl.ds.set(failkey, 0);
+
+            if (!newqueue.length && isOldQueue) {
+                // Delete old queues when they are no longer needed
+                owl.ds.set(key, null);
+                owl.ds.set(failkey, null);
+            } else {
+                owl.ds.set(key, newqueue);
+                owl.ds.set(failkey, 0);
+            }
         },
         'error': function error(jqxhr, text, err) {
             _syncing[key] = false;
