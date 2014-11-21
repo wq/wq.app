@@ -195,25 +195,65 @@ app.sync = function(retryAll) {
 app.postsave = function(item, result, conf) {
     // Save was successful, redirect to next screen
     var options = {'reverse': true, 'transition': _saveTransition};
-    var baseurl, itemid, pconf, url;
-    if (conf.postsave && conf.postsave != conf.page) {
-        // Optional: return to detail view for a parent model
-        pconf = _getConf(conf.postsave, true);
-        if (pconf && pconf.url !== undefined) {
-            baseurl = pconf.url;
-        } else {
-            // If conf.postsave is not a page name, assume it's a valid URL
-            baseurl = conf.postsave;
-        }
-        itemid = result[conf.postsave + '_id'] || "";
-    } else {
-        // Default:
-        // List pages - redirect to detail view for item
-        // Other pages - return to page
-        baseurl = conf.url;
-        itemid = conf.list ? item.newid : "";
+    var postsave, pconf, match, mode, url, itemid;
+
+    // conf.postsave can be set redirect to another page
+    postsave = conf.postsave;
+    if (!postsave) {
+        // Otherwise, default is to return the page for the item just saved
+        postsave = conf.page;
     }
-    url = app.base_url + '/' + baseurl + '/' + itemid;
+
+    // conf.postsave can explicitly indicate which template mode to use
+    match = postsave.match(/^(.+)_([^_]+)$/);
+    if (match) {
+        postsave = match[1];
+        mode = match[2];
+        if (mode != 'list' && mode != 'detail' && mode != 'edit') {
+            throw "Unknown template mode!";
+        }
+        // Otherwise, default is 'detail' for list pages (see below).
+    }
+
+    // Retrieve configuration for postsave page, if any
+    pconf = _getConf(postsave, true);
+
+    // Compute URL
+    if (!pconf || !pconf.url || !pconf.list) {
+        // If conf.postsave is not the name of a list page, assume it's a
+        // simple page or a URL
+        url = app.base_url + '/' + postsave;
+    } else {
+        // For list pages, the url can differ depending on the mode
+        url = app.base_url + '/' + pconf.url + '/';
+
+        // Default mode is to return to the detail view
+        if (!mode) {
+            mode = 'detail';
+        }
+
+        if (mode != 'list') {
+            // Detail or edit view; determine item id and add to url
+
+            // If postsave page is the same as the item's page, use the new id
+            if (postsave == conf.page) {
+                itemid = item.newid;
+            } else {
+                // Otherwise, look for a foreign key reference
+                // FIXME: what if the foreign key has a different name?
+                itemid = result[postsave + '_id'];
+            }
+            if (!itemid) {
+                throw "Could not find " + postsave + " id in result!";
+            }
+            url += itemid;
+            if (mode == "edit") {
+                url += "/edit";
+            }
+        }
+    }
+
+    // Navigate to computed URL
     if (app.config.debug) {
         console.log("Successfully saved; continuing to " + url);
     }
