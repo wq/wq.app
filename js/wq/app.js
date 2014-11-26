@@ -194,7 +194,11 @@ app.sync = function(retryAll) {
 // Hook for handling navigation after server response to form submission
 app.postsave = function(item, result, conf) {
     // Save was successful, redirect to next screen
-    var options = {'reverse': true, 'transition': _saveTransition};
+    var options = {
+        'reverse': true,
+        'transition': _saveTransition,
+        'allowSamePageTransition': true
+    };
     var postsave, pconf, match, mode, url, itemid;
 
     // conf.postsave can be set redirect to another page
