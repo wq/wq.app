@@ -247,7 +247,9 @@ pages.info = {
 function _updateInfo(path) {
     pages.info.prev_path = pages.info.path;
     pages.info.path = path;
+    pages.info.path_enc = escape(path);
     pages.info.full_path = pages.info.base_url + "/" + path;
+    pages.info.full_path_enc = escape(pages.info.full_path);
     pages.info.params = router.getParams(path);
     tmpl.setDefault('pages_info', pages.info);
 }
