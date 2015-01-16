@@ -38,6 +38,8 @@ chart.base = function() {
             'padding': {'left': 10, 'right': 10, 'top': 10, 'bottom': 10},
             'xaxis': {'bottom': 20}
         },
+        viewBox=true,
+        nestedSvg=false,
         renderBackground = false,
         xscale = null,
         xscalefn = d3.scale.linear,
@@ -185,6 +187,9 @@ chart.base = function() {
 
     // Plot using given selection (usually one object, but wrapped as array)
     function plot(sel) {
+        if (nestedSvg) {
+            sel = _selectOrAppend(sel, 'svg', nestedSvg);
+        }
         sel.each(_plot);
     }
 
@@ -197,6 +202,15 @@ chart.base = function() {
         var svg = d3.select(this);
         var uid = svg.attr('data-uid') || Math.round(Math.random() * 1000000);
         svg.attr('data-uid', uid);
+        var vbstr;
+        if (viewBox) {
+            if (viewBox === true) {
+                vbstr = "0 0 " + width + " " + height;
+            } else {
+                vbstr = viewBox;
+            }
+            svg.attr("viewBox", vbstr);
+        }
         var cwidth = width - padding - padding;
         var cheight = height - padding - padding;
         var margins = plot.getMargins();
@@ -456,6 +470,26 @@ chart.base = function() {
     plot.height = function(val) {
         if (!arguments.length) return height;
         height = val;
+        return plot;
+    };
+    plot.viewBox = function(val) {
+        if (!arguments.length) return viewBox;
+        viewBox = val;
+        return plot;
+    };
+    plot.nestedSvg = function(val) {
+        if (!arguments.length) return nestedSvg;
+        nestedSvg = val;
+        return plot;
+    };
+    plot.outerFill = function(val) {
+        if (!arguments.length) return outerFill;
+        outerFill = val;
+        return plot;
+    };
+    plot.innerFill = function(val) {
+        if (!arguments.length) return innerFill;
+        innerFill = val;
         return plot;
     };
     plot.legend = function(val) {
