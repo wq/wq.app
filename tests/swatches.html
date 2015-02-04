@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' type='text/css' href='css/themes.css'>
+    <link rel='stylesheet' type='text/css' href='../css/jquery.mobile.icons.css'>
+    <link rel='stylesheet' type='text/css' href='../css/jquery.mobile.structure.css'>
+    <script src='../js/require.js' data-main='js/swatches'></script>
+  </head>
+  <body>
+    <div data-role="header">
+      <div data-role="navbar">
+        <ul>
+          <li><button data-theme="a">A</a></li>
+          <li><button data-theme="b">B</a></li>
+          <li><button data-theme="c">C</a></li>
+          <li><button data-theme="d">D</a></li>
+          <li><button data-theme="e">E</a></li>
+        </ul>
+      </div>
+      <div data-role="navbar">
+        <ul>
+          <li><button data-theme="black">Black</a></li>
+          <li><button data-theme="blue">Blue</a></li>
+          <li><button data-theme="gray">Gray</a></li>
+          <li><button data-theme="yellow">Yellow</a></li>
+        </ul>
+      </div>
+    </div>
+    <div data-role='page' class='ui-page' data-theme="a" id="theme-a">
+      <!--
+        Derived from:
+        https://github.com/jquery/themeroller.jquerymobile.com/blob/master/jqm/1.4.5/preview.html
+      -->
+      <div class="ui-header-inherit" data-form="ui-bar-a" data-role="header" role="banner">
+        <a class="ui-btn-left ui-btn ui-btn-icon-notext ui-icon-home ui-btn-corner-all ui-shadow" title=" Home " data-form="ui-icon"> Home </a>
+        <h1 class="ui-title" tabindex="0" role="heading" aria-level="1">Swatch Test</h1>
+        <a class="ui-btn-right ui-btn ui-btn-icon-notext ui-icon-grid ui-btn-corner-all ui-shadow" title=" Navigation " data-form="ui-icon"> Navigation </a>
+      </div>
+      <div class="ui-content ui-page-theme-inherit" data-form="ui-page-theme-inherit" role="main">
+        <div data-form="ui-body-a" class="ui-body ui-body-inherit ui-corner-all">
+          <p>Body</p>
+          <p>
+            Sample text and <a data-form="ui-link-a" href="#">links</a>.
+          </p>
+        </div>
+        <ul data-role="listview" data-inset="true">
+          <li data-role="list-divider" data-form="ui-bar-a">List Header</li>
+          <li data-form="ui-body-a">Read-only list item</li>
+          <li><a class="ui-btn-inherit ui-btn ui-btn-icon-right ui-icon-carat-r" data-form="ui-btn-up-a" href="#">Linked list item</a></li>
+        </ul>
+        <div data-role="fieldcontain">
+          <fieldset data-role="controlgroup">
+            <input type="radio" name="radio-choice-a" id="radio-choice-1-a" value="choice-1" checked="checked" />
+            <label for="radio-choice-1-a" data-form="ui-btn-up-a">Radio</label>
+            <input type="checkbox" name="checkbox-a" id="checkbox-a" checked="checked" />
+            <label for="checkbox-a" data-form="ui-btn-up-a">Checkbox</label>
+          </fieldset>
+        </div>
+        <div data-role="fieldcontain">
+          <fieldset data-role="controlgroup" data-type="horizontal">
+            <input type="radio" name="radio-view-a" id="radio-view-a-a" value="list" checked="checked"/>
+            <label for="radio-view-a-a" data-form="ui-btn-up-a">On</label>
+            <input type="radio" name="radio-view-a" id="radio-view-b-a" value="grid" />
+            <label for="radio-view-b-a" data-form="ui-btn-up-a">Off</label>
+          </fieldset>
+        </div>
+        <div data-role="fieldcontain">
+          <select name="select-choice" id="select-choice-a" data-native-menu="false" data-form="ui-btn-up-a">
+            <option value="standard">Option 1</option>
+            <option value="rush">Option 2</option>
+            <option value="express">Option 3</option>
+            <option value="overnight">Option 4</option>
+          </select>
+        </div>
+        <input type="text" value="Text Input" class="input" data-form="ui-body-a" />
+        <div data-role="fieldcontain">
+          <input type="range" name="slider" value="50" min="0" max="100" data-form="ui-body-a" data-highlight="true" />
+        </div>
+        <button data-icon="star" data-form="ui-btn-up-a">Button</button>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "optimize": {
+        "appDir": ".",
+        "dir": "../tests-build"
+    },
+    "scss": {
+        "indir": "scss",
+        "outdir": "css"
+    }
+}

@@ -1166,7 +1166,7 @@ function _loadFromServer(url, ui) {
 function _fetchFail(query, error) {
     /* jshint unused: false */
     spin.start("Error Loading Data", 1.5, {
-        "theme": "e",
+        "theme": jqm.pageLoadErrorMessageTheme,
         "textonly": true
     });
 }

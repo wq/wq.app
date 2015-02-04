@@ -1,7 +1,7 @@
 /*
- * wq.app - jquery-mobile.scss
+ * wq.app - wq/jquery-mobile.scss
  * SASS/SCSS mixins for building custom jQuery Mobile themes
- * (c) 2012-2014 S. Andrew Sheppard
+ * (c) 2012-2015 S. Andrew Sheppard
  * http://wq.io/license
  *
  * Styles adapted almost verbatim from jquery.mobile.theme.css
@@ -262,7 +262,7 @@ html .ui-alt-icon .ui-radio-off:after {
   $active-text:   #fff,
   $active-shadow: #059,
   $active-bg:     #38c,
-  $active-border: #38c
+  $active-border: #1c4a70
 ) {
 
 /* Swatch $theme

@@ -1,0 +1,11 @@
+@import "wq/jquery-mobile";
+@import "wq/swatches";
+
+@include jquery-mobile-classic-themes();
+
+@include jquery-mobile-black-theme();
+@include jquery-mobile-blue-theme();
+@include jquery-mobile-gray-theme();
+@include jquery-mobile-yellow-theme();
+
+@include jquery-mobile-global();

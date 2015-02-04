@@ -1,0 +1,237 @@
+/*
+ * wq.app - wq/swatches.scss
+ * Sample swatch definitions for use with wq/jquery-mobile.scss
+ * (c) 2015 S. Andrew Sheppard
+ * http://wq.io/license
+ */
+
+@import "./jquery-mobile";
+
+/* Swatches that match jQM 1.4's default theme */
+@mixin jquery-mobile-default-themes() {
+    @include jquery-mobile-gray-theme($theme: a);
+    @include jquery-mobile-black-theme($theme: b);
+}
+
+/* Rough approximation of the "classic" (jQM 1.3 and earlier) default theme */
+/* Note: only the "b" swatch uses actual 1.3 colors, others are approximate */
+/* These swatches would typically be used with the following settings:
+    $.mobile.pageLoadErrorMessageTheme = "e";
+    $.mobile.page.prototype.options.theme = "c";
+    $.mobile.listview.prototype.options.dividerTheme = "b";
+    $.mobile.toolbar.prototype.options.theme = "a";
+*/
+@mixin jquery-mobile-classic-themes() {
+    @include jquery-mobile-black-theme($theme: a);
+    @include jquery-mobile-classic-b-theme();
+    @include jquery-mobile-gray-theme($theme: c);
+    @include jquery-mobile-gray-theme($theme: d);
+    @include jquery-mobile-yellow-theme($theme: e);
+}
+
+/* Black swatch (approximates 1.3's "a", matches 1.4's "b") */
+/* (Colors extracted from jQM themeroller) */
+@mixin jquery-mobile-black-theme(
+  $theme: black
+) {
+  @include jquery-mobile-theme(
+    $theme: $theme,
+
+    $page-text:    #fff,
+    $page-shadow:  #111,
+    $page-bg:      #252525,
+    $page-border:  #454545,
+
+    $bar-text:     #fff,
+    $bar-shadow:   #111,
+    $bar-bg:       #1d1d1d,
+    $bar-border:   #1b1b1b,
+
+    $body-text:    #fff,
+    $body-shadow:  #111,
+    $body-bg:      #2a2a2a,
+    $body-border:  #1d1d1d,
+
+    $link:         #2ad,
+    $link-visited: #2ad,
+    $link-hover:   #08b,
+    $link-active:  #08b,
+
+    $up-text:      #fff,
+    $up-shadow:    #111,
+    $up-bg:        #333,
+    $up-border:    #1f1f1f,
+
+    $hover-text:   #fff,
+    $hover-shadow: #111,
+    $hover-bg:     #373737,
+    $hover-border: #1f1f1f,
+
+    $down-text:    #fff,
+    $down-shadow:  #111,
+    $down-bg:      #373737,
+    $down-border:  #1f1f1f,
+
+    $active-text:   #fff,
+    $active-shadow: #08b,
+    $active-bg:     #2ad,
+    $active-border: #125d79
+  );
+}
+
+/* Theme that matches 1.3's "b" swatch (blue bars, gray content) */
+/* (Colors extracted from jQM themeroller) */
+@mixin jquery-mobile-classic-b-theme(
+  $theme: b
+) {
+  @include jquery-mobile-theme(
+    $theme:        $theme,
+
+    $page-text:    #333,
+    $page-shadow:  #fff,
+    $page-bg:      #f3f3f3,
+    $page-border:  #999,
+
+    $bar-text:     #fff,
+    $bar-shadow:   #3e6790,
+    $bar-bg:       #5e87b0,
+    $bar-border:   #456f9a,
+
+    $body-text:    #333,
+    $body-shadow:  #fff,
+    $body-bg:      #f3f3f3,
+    $body-border:  #999,
+
+    $link:         #38c,
+    $link-visited: #38c,
+    $link-hover:   #059,
+    $link-active:  #059,
+
+    $up-text:      #fff,
+    $up-shadow:    #194b7e,
+    $up-bg:        #396b9e,
+    $up-border:    #044062,
+
+    $hover-text:   #fff,
+    $hover-shadow: #194b7e,
+    $hover-bg:     #4b88b6,
+    $hover-border: #00415e,
+
+    $down-text:    #fff,
+    $down-shadow:  #194b7e,
+    $down-bg:      #4e89c5,
+    $down-border:  #225377,
+
+    $active-text:   #fff,
+    $active-shadow: #059,
+    $active-bg:     #38c,
+    $active-border: #1c4a70
+  );
+}
+
+/* Gray swatch (approximates 1.3's "c" & "d", matches 1.4's "a") */
+/* (Colors extracted from jQM themeroller) */
+@mixin jquery-mobile-gray-theme(
+  $theme: gray
+){
+  @include jquery-mobile-theme($theme: $theme);
+}
+
+/* Yellow swatch (approximates 1.3's "e" swatch) */
+@mixin jquery-mobile-yellow-theme(
+  $theme: yellow
+){
+  @include jquery-mobile-theme(
+    $theme: $theme,
+
+    $page-text:    #333,
+    $page-shadow:  #f3f3f3,
+    $page-bg:      #ffe,
+    $page-border:  #ff6,
+
+    $bar-text:     #333,
+    $bar-shadow:   #eee,
+    $bar-bg:       #ffc,
+    $bar-border:   #ff2,
+
+    $body-text:    #333,
+    $body-shadow:  #f3f3f3,
+    $body-bg:      #ffe,
+    $body-border:  #ff6,
+
+    $link:         #38c,
+    $link-visited: #38c,
+    $link-hover:   #059,
+    $link-active:  #059,
+
+    $up-text:      #333,
+    $up-shadow:    #f3f3f3,
+    $up-bg:        #ffc,
+    $up-border:    #ff2,
+
+    $hover-text:   #333,
+    $hover-shadow: #f3f3f3,
+    $hover-bg:     #ffe,
+    $hover-border: #ff6,
+
+    $down-text:    #333,
+    $down-shadow:  #f3f3f3,
+    $down-bg:      #ff9,
+    $down-border:  #ee0,
+
+    $active-text:   #fff,
+    $active-shadow: #ddd,
+    $active-bg:     #cc3,
+    $active-border: #990
+
+  );
+}
+
+/* Blue swatch */
+@mixin jquery-mobile-blue-theme(
+  $theme: blue
+) {
+  @include jquery-mobile-theme(
+    $theme:        $theme,
+
+    $page-text:    #fff,
+    $page-shadow:  #111,
+    $page-bg:      #447,
+    $page-border:  #aae,
+
+    $bar-text:     #fff,
+    $bar-shadow:   #111,
+    $bar-bg:       #339,
+    $bar-border:   #99f,
+
+    $body-text:    #fff,
+    $body-shadow:  #111,
+    $body-bg:      #447,
+    $body-border:  #aae,
+
+    $link:         #2ad,
+    $link-visited: #2ad,
+    $link-hover:   #08b,
+    $link-active:  #08b,
+
+    $up-text:      #fff,
+    $up-shadow:    #111,
+    $up-bg:        #339,
+    $up-border:    #99f,
+
+    $hover-text:   #fff,
+    $hover-shadow: #111,
+    $hover-bg:     #66a,
+    $hover-border: #ccf,
+
+    $down-text:    #fff,
+    $down-shadow:  #111,
+    $down-bg:      #113,
+    $down-border:  #339,
+
+    $active-text:   #fff,
+    $active-shadow: #08b,
+    $active-bg:     #66a,
+    $active-border: #aae
+  );
+}
