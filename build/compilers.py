@@ -39,7 +39,10 @@ def scss(conf):
 
     if 'indir' in conf and 'outdir' in conf:
         files = readfiles(conf['indir'], "scss")
-        scss.config.LOAD_PATHS = conf['indir']
+        scss.config.LOAD_PATHS = [
+            conf['indir'],
+            os.path.join(conf['indir'], 'lib'),
+        ]
         for name, source in files.items():
             if isinstance(source, dict):
                 continue

@@ -191,7 +191,7 @@ html .ui-alt-icon .ui-radio-off:after {
 }
 .ui-checkbox-off:after,
 .ui-btn.ui-radio-off:after {
-	filter: Alpha(Opacity=30);
+	filter: unquote("Alpha(Opacity=30)");
 	opacity: .3;
 }
 .ui-btn.ui-checkbox-off:after,
@@ -453,7 +453,7 @@ html head + body .ui-body-$theme.ui-focus {
 .ui-state-disabled,
 button[disabled],
 .ui-select .ui-btn.ui-state-disabled {
-	filter: Alpha(Opacity=30);
+	filter: unquote("Alpha(Opacity=30)");
 	opacity: .3;
 	cursor: default !important;
 	pointer-events: none;

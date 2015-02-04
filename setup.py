@@ -80,6 +80,10 @@ setup(
     package_data={
         'wq.app': package_data
     },
+    install_requires=[
+        'pyScss>=1.3',
+        'compass-stylesheets==0.12.6',
+    ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=parse_markdown_readme(),
