@@ -83,6 +83,7 @@ setup(
     install_requires=[
         'pyScss>=1.3',
         'compass-stylesheets==0.12.6',
+        'PyYAML',
     ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
