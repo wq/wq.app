@@ -2,7 +2,7 @@
  * wq.app 0.7.2-dev - wq/locate.js
  * Geolocation utilities via Leaflet's Map.locate
  * (c) 2013-2015, S. Andrew Sheppard
- * http://wq.io/license
+ * https://wq.io/license
  */
 
 define(['leaflet', './spinner'],

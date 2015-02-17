@@ -2,7 +2,7 @@
  * wq.app 0.7.2-dev - wq/chart.js
  * Reusable SVG charts for analyzing time-series data.
  * (c) 2013-2015, S. Andrew Sheppard
- * http://wq.io/license
+ * https://wq.io/license
  */
 
 define(["d3"],

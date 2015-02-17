@@ -1,6 +1,6 @@
-[![wq.app](https://raw.github.com/wq/wq/master/images/256/wq.app.png)](http://wq.io/wq.app)
+[![wq.app](https://raw.github.com/wq/wq/master/images/256/wq.app.png)](https://wq.io/wq.app)
 
-[wq.app](http://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens [on the server or on the client] depending on project needs, network connectivity, and `localStorage` availability.
+[wq.app](https://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens [on the server or on the client] depending on project needs, network connectivity, and `localStorage` availability.
 
 ## Getting Started
 
@@ -27,12 +27,12 @@ wq.app's [JavaScript modules] are built on [a number of libraries] including [Re
 
 To facilitate compact deployment, wq.app provides a Python-based [build process] for compiling wq apps: inlining templates, optimizing code (via [r.js]), and generating an application cache manifest.  wq.app also includes [jquery-mobile.scss], a SASS/SCSS stylesheet for generating custom jQuery Mobile themes.
 
- [wq framework]: http://wq.io
+ [wq framework]: https://wq.io
  [recommended project layout]: https://github.com/wq/django-wq-template
- [a number of libraries]: http://wq.io/docs/third-party
+ [a number of libraries]: https://wq.io/docs/third-party
 
- [the documentation]: http://wq.io/docs/setup
- [JavaScript modules]: http://wq.io/docs/app
+ [the documentation]: https://wq.io/docs/setup
+ [JavaScript modules]: https://wq.io/docs/app
  [RequireJS]: http://requirejs.org
  [r.js]: https://github.com/jrburke/r.js
  [jQuery Mobile]: http://jquerymobile.com
@@ -40,19 +40,19 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [d3]: http://d3js.org
  [Mustache.js]: https://mustache.github.com/
  
- [wq/app.js]: http://wq.io/docs/app-js
- [wq/chart.js]: http://wq.io/docs/chart-js
- [wq/pages.js]: http://wq.io/docs/pages-js
- [wq/pandas.js]: http://wq.io/docs/pandas-js
- [wq/locate.js]: http://wq.io/docs/locate-js
- [wq/map.js]: http://wq.io/docs/map-js
- [wq/store.js]: http://wq.io/docs/store-js
- [other useful utilities]: http://wq.io/docs/other-modules
+ [wq/app.js]: https://wq.io/docs/app-js
+ [wq/chart.js]: https://wq.io/docs/chart-js
+ [wq/pages.js]: https://wq.io/docs/pages-js
+ [wq/pandas.js]: https://wq.io/docs/pandas-js
+ [wq/locate.js]: https://wq.io/docs/locate-js
+ [wq/map.js]: https://wq.io/docs/map-js
+ [wq/store.js]: https://wq.io/docs/store-js
+ [other useful utilities]: https://wq.io/docs/other-modules
  
  
- [jquery-mobile.scss]: http://wq.io/docs/jquery-mobile-scss-themes
- [build process]: http://wq.io/docs/build
+ [jquery-mobile.scss]: https://wq.io/docs/jquery-mobile-scss-themes
+ [build process]: https://wq.io/docs/build
  
- [wq.db]: http://wq.io/wq.db
- [app.py]: http://wq.io/docs/app.py
- [on the server or on the client]: http://wq.io/docs/templates
+ [wq.db]: https://wq.io/wq.db
+ [app.py]: https://wq.io/docs/app.py
+ [on the server or on the client]: https://wq.io/docs/templates

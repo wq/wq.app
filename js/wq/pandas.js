@@ -2,7 +2,7 @@
  * wq.app 0.7.2-dev - wq/pandas.js
  * Load and parse CSV with complex headers (e.g. from pandas DataFrames)
  * (c) 2014-2015, S. Andrew Sheppard
- * http://wq.io/license
+ * https://wq.io/license
  */
 
 define(['d3'], function(d3) {

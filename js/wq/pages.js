@@ -2,7 +2,7 @@
  * wq.app 0.7.2-dev - wq/pages.js
  * Dynamically generate jQuery Mobile pages for specified URLs
  * (c) 2012-2015, S. Andrew Sheppard
- * http://wq.io/license
+ * https://wq.io/license
  */
 
 define(['jquery', 'jquery.mobile', './router', './template', './console'],

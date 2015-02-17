@@ -82,10 +82,10 @@ Library                 |  Version  |  Notes
 [requirejs], [r.js]     |   2.1.10  |  r.js is in /build
 
 [wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
-[wq.app modules]:        http://wq.io/docs/app
+[wq.app modules]:        https://wq.io/docs/app
 [wq.app/js/wq]:          https://github.com/wq/wq.app/blob/master/js/wq
 [volojs]:                http://volojs.org
-[AMD]:                   http://wq.io/docs/amd
+[AMD]:                   https://wq.io/docs/amd
 [d3.js]:                 https://github.com/mbostock/d3
 [es5-shim.js]:           https://github.com/kriskowal/es5-shim
 [highlight.js]:          https://github.com/isagalaev/highlight.js
