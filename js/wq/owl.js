@@ -1,5 +1,5 @@
 /*
- * wq.app 0.7.2 - wq/owl.js
+ * wq.app 0.7.3-dev - wq/owl.js
  * Client for the Offline Web Log service.
  * (c) 2014-2015, S. Andrew Sheppard
  * https://wq.io/license
