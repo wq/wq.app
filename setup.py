@@ -67,7 +67,7 @@ else:
 
 setup(
     name='wq.app',
-    version='0.7.2-dev',
+    version='0.7.2',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='http://wq.io/wq.app',
