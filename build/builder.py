@@ -5,7 +5,7 @@ import sys
 from .collect import collectjson
 from .setversion import setversion
 from .appcache import appcache
-from .compilers import optimize, scss
+from .compilers import optimize, scss, mustache
 from .init import init
 
 
@@ -19,6 +19,7 @@ class Builder(object):
         'init': init,
         'collectjson': collectjson,
         'scss': scss,
+        'mustache': mustache,
     }
 
     def __init__(self, version=None, config="wq.yml"):
@@ -52,7 +53,7 @@ class Builder(object):
         if 'setversion' in self.conf or self.version != "":
             self.setversion()
 
-        for command in ('init', 'collectjson', 'scss'):
+        for command in ('init', 'collectjson', 'scss', 'mustache'):
             if command in self.conf:
                 self.run(command)
 

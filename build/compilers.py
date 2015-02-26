@@ -49,3 +49,30 @@ def scss(conf, indir=None):
             path = "%s/%s.css" % (conf['outdir'], name)
             compile(path, source)
             print("%s compiled from %s/%s.scss" % (path, conf['indir'], name))
+
+
+def mustache(conf, indir=None):
+    import pystache
+    template = conf.get("template", None)
+    if template is None:
+        return
+    if os.sep in template or template.endswith(".html"):
+        template = open(template).read()
+
+    context = conf.get("context", {})
+    if not isinstance(context, dict):
+        path = context
+        context = readfiles(path, "yaml", "yml")
+        context.update(**readfiles(path, "json"))
+
+    partials = conf.get("partials", {})
+    if not isinstance(partials, dict):
+        partials = readfiles(partials, "html")
+
+    output = conf.get("output", "output.html")
+    print("Generating %s from %s" % (output, conf['template']))
+    renderer = pystache.Renderer(partials=partials)
+    html = renderer.render(template, context)
+    f = open(output, 'w')
+    f.write(html)
+    f.close()

@@ -12,6 +12,7 @@ Valid commands:
    build
    collectjson
    init
+   mustache
    optimize
    scss
    setversion
