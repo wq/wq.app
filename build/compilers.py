@@ -25,7 +25,7 @@ def optimize(conf, indir, outdir):
     print('#' * 20)
 
 
-def scss(conf):
+def scss(conf, indir=None):
     import scss
     import logging
     compiler = scss.Scss(scss_opts={'compress': 0})

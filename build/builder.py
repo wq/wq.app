@@ -1,4 +1,6 @@
 import json
+import yaml
+import sys
 
 from .collect import collectjson
 from .setversion import setversion
@@ -13,9 +15,27 @@ class Builder(object):
     outdir = None
     version = ""
 
-    def __init__(self, version=None, config="app.build.json"):
+    COMMANDS = {
+        'init': init,
+        'collectjson': collectjson,
+        'scss': scss,
+    }
+
+    def __init__(self, version=None, config="wq.yml"):
         # Load configuration file
-        self.conf = json.load(open(config))
+        try:
+            self.conf = yaml.load(open(config))
+        except (OSError, IOError):
+            try:
+                self.conf = json.load(open("app.build.json"))
+            except (OSError, IOError):
+                raise Exception("Could not find configuration file.")
+            else:
+                sys.stderr.write(
+                    "Warning: Converted app.build.json to wq.yml\n"
+                )
+                yaml.dump(self.conf, open("wq.yml", 'w'))
+
         if 'optimize' not in self.conf:
             raise Exception("No optimize section in conf file!")
 
@@ -25,24 +45,16 @@ class Builder(object):
         if version is not None:
             self.version = version
 
-    def init(self, conf=None):
-        if conf is None:
-            conf = self.conf.get('init', {})
-        init(conf, self.indir)
-
     def build(self):
-        self.init()
+        self.run('init')
 
         # Save version information
         if 'setversion' in self.conf or self.version != "":
             self.setversion()
 
-        # Collect files into JSON(P) objects
-        if 'collectjson' in self.conf:
-            self.collectjson()
-
-        if 'scss' in self.conf:
-            self.scss()
+        for command in ('init', 'collectjson', 'scss'):
+            if command in self.conf:
+                self.run(command)
 
         # Compile Javascript / CSS (using r.js)
         self.optimize()
@@ -50,6 +62,19 @@ class Builder(object):
         # Generate HTML5 Cache manifests
         if 'appcache' in self.conf:
             self.appcache()
+
+    def run(self, command, directory=None, conf=None):
+        if directory is None:
+            directory = self.indir
+        if conf is None:
+            conf = self.conf.get(command, {})
+
+        fn = self.COMMANDS[command]
+        if isinstance(conf, dict):
+            fn(conf, directory)
+        else:
+            for c in conf:
+                fn(c, directory)
 
     def setversion(self, directory=None, conf=None):
         if directory is None:
@@ -59,29 +84,6 @@ class Builder(object):
         if self.version != '':
             conf['version'] = self.version
         self.version = setversion(conf, directory)
-
-    def collectjson(self, directory=None, conf=None):
-        """Collect files into JSON dictionaries"""
-        if directory is None:
-            directory = self.indir
-        if conf is None:
-            conf = self.conf.get('collectjson', {})
-
-        if isinstance(conf, dict):
-            collectjson(conf, directory)
-        else:
-            # Assume multiple collectjson configurations
-            for c in conf:
-                collectjson(c, directory)
-
-    def scss(self, conf=None):
-        if conf is None:
-            conf = self.conf.get('scss', {})
-        if isinstance(conf, dict):
-            scss(conf)
-        else:
-            for c in conf:
-                scss(cs)
 
     def optimize(self, conf=None):
         "Combine and optimize Javascript and CSS files"

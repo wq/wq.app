@@ -29,8 +29,11 @@ def run():
         exit()
 
     builder = Builder(*args)
-    fn = getattr(builder, cmd, None)
-    if fn is not None:
-        fn()
+    if cmd in builder.COMMANDS:
+        builder.run(cmd)
     else:
-        usage()
+        fn = getattr(builder, cmd, None)
+        if fn is not None:
+            fn()
+        else:
+            usage()
