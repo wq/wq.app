@@ -23,7 +23,14 @@ store.getStore = function(name) {
 };
 
 // Internal variables and functions
-var _ls = 'localStorage' in window && window.localStorage;
+var _ls;
+try {
+    if ('localStorage' in window && window.localStorage) {
+        _ls = window.localStorage;
+    }
+} catch (e) {
+    console.log("Error checking localStorage");
+}
 var _stores;
 var _verbosity = {
     'Network': 1,
