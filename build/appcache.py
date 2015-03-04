@@ -14,10 +14,12 @@ def appcache(conf, indir, outdir, version):
 
     # Start in source directory - read @imports from main CSS file
     s_css = [conf['css']]
-    s_css.extend(_parse_css_urls(indir, conf['css']))
+    s_css.extend(_parse_css_urls(
+        indir, conf['css'], conf.get('css-ignore', None)
+    ))
 
     # Built CSS file contains image URLs from the @import-ed CSS files above
-    images = _parse_css_urls(outdir, conf['css'])
+    images = _parse_css_urls(outdir, conf['css'], conf.get('css-ignore', None))
 
     # build.txt contains a list of built javascript files and their sources
     s_js, b_js = _parse_js_buildfile(outdir + '/build.txt')
@@ -65,21 +67,27 @@ def _parse_js_buildfile(filename):
     return sources, built
 
 
-def _parse_css_urls(path, filename):
+def _parse_css_urls(path, filename, ignore=None):
     cur = os.getcwd()
     os.chdir(path)
     text = open(filename).read()
     base = os.path.dirname(filename)
+    if ignore:
+        ignore_re = re.compile(ignore)
 
     def parse_url(url):
         if url.startswith('data:') or url.startswith('#'):
             return None
         if url.startswith('http://') or url.startswith('https://'):
             return url
+        if ignore and ignore_re.match(url):
+            return None
 
         url = os.path.normpath(base + '/' + url)
         if os.sep != '/':
             url = url.replace(os.sep, '/')
+        if ignore and ignore_re.match(url):
+            return None
         return url
 
     urls = []
