@@ -1,5 +1,5 @@
 /*
- * wq.app 0.7.3 - wq/json.js
+ * wq.app 0.7.4-dev - wq/json.js
  * Simple wrapper around jQuery.ajax
  * (so projects can supply non-jQuery implementations if needed.)
  * (c) 2013-2015, S. Andrew Sheppard
