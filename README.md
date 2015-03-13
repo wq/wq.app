@@ -2,7 +2,7 @@
 
 [wq.app](https://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens [on the server or on the client] depending on project needs, network connectivity, and `localStorage` availability.
 
-[**Release Notes**](https://github.com/wq/wq.app/releases) | [**Installation**](https://wq.io/docs/setup) | [**Documentation**](https://wq.io/wq.app)
+[**Release Notes**](https://github.com/wq/wq.app/releases) | [**Installation**](https://wq.io/docs/setup) | [**Documentation**](https://wq.io/wq.app) | [**Issue Tracker**](https://github.com/wq/wq.app/issues)
 
 [![PyPI Package](https://pypip.in/version/wq.app/badge.svg?style=flat)](https://pypi.python.org/pypi/wq.app)
 
