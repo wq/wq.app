@@ -1100,7 +1100,13 @@ function _children_lookup(ppage, cpage) {
         return function() {
             var filter = {};
             filter[ppage + '_id'] = this.id;
-            return list.filter(filter);
+            var result = list.filter(filter);
+            result.forEach(function(item, i) {
+                item = $.extend({}, item);
+                item['@index'] = i;
+                result[i] = item;
+            });
+            return result;
         };
     });
 }
@@ -1117,11 +1123,12 @@ function _default_attachments(ppage, apage) {
         var filter = info.getTypeFilter(ppage, context);
         var types = list.filter(filter);
         var attachments = [];
-        types.forEach(function(t) {
+        types.forEach(function(t, i) {
             var obj = {};
             if (info.getDefaults)
                 obj = info.getDefaults(t, context);
             obj.type_id = t.id;
+            obj['@index'] = i;
             attachments.push(obj);
         });
         return attachments;
