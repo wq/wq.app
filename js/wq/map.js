@@ -169,21 +169,21 @@ map.getLayerConfs = function(page, itemid) {
 };
 
 // Internal layer loading function - override to customize
-var _cache = {};
+map.cache = {};
 map.loadLayer = function(url, callback) {
     url = app.service + '/' + url;
     if (url.indexOf('.geojson') == -1)
         url += '.geojson';
-    if (_cache[url]) {
+    if (map.cache[url]) {
         setTimeout(function() {
-            callback(_cache[url]);
+            callback(map.cache[url]);
         }, 100);
         return;
     }
     spin.start();
     json.get(url, function(geojson) {
         spin.stop();
-        _cache[url] = geojson;
+        map.cache[url] = geojson;
         callback(geojson);
     });
 };
