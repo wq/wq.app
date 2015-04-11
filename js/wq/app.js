@@ -96,6 +96,7 @@ app.init = function(config, templates, baseurl, svc) {
             tmpl.setDefault('user', user);
             tmpl.setDefault('is_authenticated', true);
             tmpl.setDefault('csrftoken', csrftoken);
+            tmpl.setDefault('csrf_token', csrftoken);
             app.wq_config = ds.get({'url': 'config'});
             tmpl.setDefault('wq_config', app.wq_config);
             $('body').trigger('login');
@@ -150,6 +151,7 @@ app.logout = function() {
     tmpl.setDefault('wq_config', app.wq_config);
     ds.fetch({'url': 'logout'}, true, function(result) {
         tmpl.setDefault('csrftoken', result.csrftoken);
+        tmpl.setDefault('csrf_token', result.csrftoken);
         ds.set('csrftoken', result.csrftoken);
     }, true);
     $('body').trigger('logout');
