@@ -523,7 +523,10 @@ function _renderList(page, list, ui, params, url, context) {
         next = conf.url + '/?' + $.param(nextp);
     }
 
+    // page_config is a nested key for forward compatibility with wq 0.8.
+    // In wq.app 0.8, conf values are not added to the top level context.
     context = $.extend({}, conf, {
+        'page_config': conf,
         'list':     data,
         'page':     pnum,
         'pages':    data.info.pages,
@@ -588,7 +591,7 @@ function _renderDetail(page, list, ui, params, itemid, url, context) {
         }
         return;
     }
-    context = $.extend({}, conf, item, context);
+    context = $.extend({'page_config': conf}, conf, item, context);
     _addLookups(page, context, false, function(context) {
         pages.go(url, page + '_detail', context, ui, conf.once ? true : false);
     });
@@ -627,11 +630,13 @@ function _renderEdit(page, list, ui, params, itemid, url, context) {
                 pages.notFound(url);
             return;
         }
-        context = $.extend({}, conf, params, item, context);
+        context = $.extend({'page_config': conf}, conf, params, item, context);
         _addLookups(page, context, true, done);
     } else {
         // Create new item
-        context = $.extend({}, conf.defaults, conf, params, context);
+        context = $.extend(
+            {'page_config': conf}, conf.defaults, conf, params, context
+        );
         if (url === undefined) {
             url = conf.url;
             if (url)
@@ -666,7 +671,7 @@ function _renderOther(page, ui, params, url, context) {
     var conf = _getConf(page);
     if (url === undefined)
         url = conf.url;
-    context = $.extend({}, conf, params, context);
+    context = $.extend({'page_config': conf}, conf, params, context);
     pages.go(url, page, context, ui, conf.once ? true : false);
 }
 
