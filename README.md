@@ -20,7 +20,7 @@ See [the documentation] for more information.
 
 wq.app's [JavaScript modules] are built on [a number of libraries] including [RequireJS], [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
 
- * [wq/app.js], a high-level application controller that combines **wq/store.js** and **wq/pages.js** into a full configuration-driven CRUD client (optimized for use with [wq.db]'s [app.py])
+ * [wq/app.js], a high-level application controller that combines **wq/store.js** and **wq/pages.js** into a full configuration-driven CRUD client (optimized for use with [wq.db.rest])
  * [wq/chart.js], configurable d3-based reusable charts, including time series and boxplots
  * [wq/locate.js], utilities for requesting and displaying the user's location
  * [wq/map.js], Leaflet integration for **wq/app.js** pages that contain geometry (loaded via GeoJSON)
@@ -58,5 +58,5 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [build process]: https://wq.io/docs/build
  
  [wq.db]: https://wq.io/wq.db
- [app.py]: https://wq.io/docs/app.py
+ [wq.db.rest]: https://wq.io/docs/about-rest
  [on the server or on the client]: https://wq.io/docs/templates
