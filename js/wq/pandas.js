@@ -1,5 +1,5 @@
 /*
- * wq.app 0.7.4-dev - wq/pandas.js
+ * wq.app 0.7.4 - wq/pandas.js
  * Load and parse CSV with complex headers (e.g. from pandas DataFrames)
  * (c) 2014-2015, S. Andrew Sheppard
  * https://wq.io/license

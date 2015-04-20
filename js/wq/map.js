@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.7.4-dev - wq/map.js
+ * wq.app 0.7.4 - wq/map.js
  * Leaflet integration for app.js list & detail views
  * (c) 2013-2015, S. Andrew Sheppard
  * https://wq.io/license
