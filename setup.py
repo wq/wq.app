@@ -1,6 +1,5 @@
 import os
-import sys
-from setuptools import setup, find_packages
+from setuptools import setup
 
 LONG_DESCRIPTION = """
 JavaScript web apps with RequireJS, jQuery Mobile, Mustache, and Leaflet
@@ -59,11 +58,6 @@ create_wq_namespace()
 package_data = [os.path.join("build", "r.js")]
 for folder in ['js', 'css', 'scss']:
     package_data.extend(list_package_data(folder))
-
-if sys.platform == "win32":
-    script_name = "wq.py"
-else:
-    script_name = "wq"
 
 setup(
     name='wq.app',

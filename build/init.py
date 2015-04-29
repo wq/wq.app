@@ -1,10 +1,26 @@
+import click
+from wq.core import wq
 from os.path import exists, join, dirname
 from os import symlink, mkdir
 
 
-def init(conf, indir):
+@wq.command()
+@click.option(
+    '--js', default='js', type=click.Path(), help='Path to JS folder'
+)
+@click.option(
+    '--css', default='css', type=click.Path(), help='Path to CSS folder'
+)
+@click.option(
+    '--scss', default='scss', type=click.Path(),
+    help='Path to SCSS/SASS folder'
+)
+def init(**conf):
+    """
+    Link js, css, and scss to wq.app libs
+    """
     for name in ('js', 'css', 'scss'):
-        basedir = join(indir, conf.get(name, name))
+        basedir = conf[name]
         if not exists(basedir):
             continue
 
@@ -24,6 +40,7 @@ def init(conf, indir):
             # e.g myapp/js/lib/wq -> wq.app/js/wq
             symlink(join(wqpath, 'wq'), join(projpath, 'wq'))
         if name == "scss" and not exists(join(projpath, 'compass')):
+            # myapp/scss/lib/compass -> compass_stylesheets/stylesheets/compass
             import pkg_resources
             compass = pkg_resources.resource_filename(
                 'compass_stylesheets',

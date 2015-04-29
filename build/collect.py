@@ -1,14 +1,8 @@
-from __future__ import print_function
-
 import os
 import json
+import yaml
 from wq.core import wq
 import click
-
-try:
-    import yaml
-except:
-    yaml = None
 
 NEST = {
     'json': json,
@@ -41,11 +35,11 @@ def readfiles(basedir, ftype=None, fext=None):
 
             fpath = path + name
             data = open(basedir + os.sep + fpath + ext)
-            if NEST.get(ftype, None):
+            if ftype in NEST:
                 try:
                     o[name] = NEST[ftype].load(data)
                 except ValueError:
-                    print("Could not parse %s!" % name)
+                    click.echo("Could not parse %s!" % name)
                     raise
             else:
                 o[name] = data.read()
@@ -57,27 +51,21 @@ def readfiles(basedir, ftype=None, fext=None):
 
 
 @wq.command()
-@click.option('--type', help="Source file type (e.g. json, yaml)")
+@click.option(
+    '--type', default='json', help="Source file type (e.g. json, yaml)"
+)
 @click.option('--extension', help="Source file extension (e.g. json, yml)")
-@click.option('--output', help="Destination JSON file")
-@click.argument('paths', nargs=-1)
-@click.pass_obj
-def collectjson(config, **kwargs):
-    "Collect files and dump the result into a JSON object"
-    conf = {
-        'type': 'json',
-        'extension': None,
-        'output': 'output.json',
-        'paths': ['.'],
-        'json': {'indent': 4},
-    }
-    conf.update(config.get('collectjson', {}))
-    for key, val in kwargs.items():
-        if val:
-            conf[key] = val
+@click.option('--output', default='output.json', help="Destination JSON file")
+@click.option('--indent', default=4, help="JSON Indentation")
+@click.option('--jsonp', help="Wrap as JSONP")
+@click.argument('paths', type=click.Path(exists=True), nargs=-1)
+def collectjson(**conf):
+    "Collect directory contents into a JSON object"
 
     if not conf['extension']:
         conf['extension'] = conf['type']
+    if not conf['paths']:
+        conf['paths'] = ['.']
 
     obj = {}
     for d in conf['paths']:
@@ -85,19 +73,18 @@ def collectjson(config, **kwargs):
 
     outfile = open(conf['output'], 'w')
 
-    opts = dict([
-        (str(key), value)
-        for key, value in conf['json'].items()
-    ])
+    opts = {}
+    if conf['indent']:
+        opts['indent'] = conf['indent']
 
-    if 'jsonp' in conf:
+    if conf['jsonp']:
         txt = json.dumps(obj, **opts)
         txt = '%s(%s);' % (conf['jsonp'], txt)
         outfile.write(txt)
     else:
         json.dump(obj, outfile, **opts)
 
-    print('%s: %s objects collected from %s' % (
+    click.echo('%s: %s objects collected from %s' % (
         conf['output'], len(obj), ', '.join(conf['paths'])
     ))
 

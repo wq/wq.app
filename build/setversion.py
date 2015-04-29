@@ -1,29 +1,38 @@
-from __future__ import print_function
-
 import os
+from wq.core import wq
+import click
 
 
-def setversion(conf, indir):
-    filename = conf.get('filename', indir + '/version.txt')
-    if (conf.get('version', None) is None):
-        if os.path.exists(filename):
-            version = open(filename).read().strip()
+@wq.command()
+@click.option(
+    '--filename', '-f', default='version.txt',
+    help="Name of text file (default is version.txt)"
+)
+@click.option('--jsout', help="Name of an AMD module (e.g. myapp/version.js)")
+@click.argument('version')
+def setversion(**conf):
+    """
+    Update version.txt (and version.js)
+    """
+    if conf['version'] is None:
+        if os.path.exists(conf['filename']):
+            version = open(conf['filename']).read().strip()
         else:
             version = ""
     else:
         version = conf['version']
-        vtxt = open(filename, 'w')
+        vtxt = open(conf['filename'], 'w')
         vtxt.write(version)
         vtxt.close()
 
-    if 'jsout' in conf:
+    if conf['jsout']:
         # Update version.js
-        vjs = open(indir + '/' + conf['jsout'], 'w')
+        vjs = open(conf['jsout'], 'w')
         vjs.write(VERSIONJS_TMPL % version)
         vjs.close()
-        print('%s: %s' % (conf['jsout'], version))
+        click.echo('%s: %s' % (conf['jsout'], version))
     else:
-        print('Application version: %s' % version)
+        click.echo('Application version: %s' % version)
 
     return version
 
