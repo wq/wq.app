@@ -88,7 +88,7 @@ setup(
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=parse_markdown_readme(),
-    scripts=[os.path.join('.', 'build', script_name)],
+    entry_points={'wq': 'wq.app=wq.app.build'},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

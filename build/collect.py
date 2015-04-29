@@ -2,6 +2,9 @@ from __future__ import print_function
 
 import os
 import json
+from wq.core import wq
+import click
+
 try:
     import yaml
 except:
@@ -53,20 +56,38 @@ def readfiles(basedir, ftype=None, fext=None):
     return obj
 
 
-def collectjson(conf, directory):
+@wq.command()
+@click.option('--type', help="Source file type (e.g. json, yaml)")
+@click.option('--extension', help="Source file extension (e.g. json, yml)")
+@click.option('--output', help="Destination JSON file")
+@click.argument('paths', nargs=-1)
+@click.pass_obj
+def collectjson(config, **kwargs):
     "Collect files and dump the result into a JSON object"
-    obj = {}
-    cur = os.getcwd()
-    os.chdir(directory)
+    conf = {
+        'type': 'json',
+        'extension': None,
+        'output': 'output.json',
+        'paths': ['.'],
+        'json': {'indent': 4},
+    }
+    conf.update(config.get('collectjson', {}))
+    for key, val in kwargs.items():
+        if val:
+            conf[key] = val
 
+    if not conf['extension']:
+        conf['extension'] = conf['type']
+
+    obj = {}
     for d in conf['paths']:
-        obj.update(readfiles(d, conf['type'], conf.get('extension', None)))
+        obj.update(readfiles(d, conf['type'], conf['extension']))
 
     outfile = open(conf['output'], 'w')
 
     opts = dict([
         (str(key), value)
-        for key, value in conf.get('json', {'indent': 4}).items()
+        for key, value in conf['json'].items()
     ])
 
     if 'jsonp' in conf:
@@ -81,4 +102,3 @@ def collectjson(conf, directory):
     ))
 
     outfile.close()
-    os.chdir(cur)
