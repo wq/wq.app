@@ -77,7 +77,7 @@ Library                 |  Version  |  Notes
 [marked]                |    0.3.1  |  
 [mustache.js]           |    0.8.1  |  
 [proj4]                 |    2.1.0  |  
-[proj4leaflet]          |    0.7.0  |  
+[proj4leaflet]          |    0.7.1  |  
 [rbush]                 |    1.4.0  |
 [requirejs], [r.js]     |   2.1.17  |  r.js is in /build
 
