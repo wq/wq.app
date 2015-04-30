@@ -1,10 +1,23 @@
-from __future__ import print_function
-
+from wq.core import wq
+import click
 import os
 import re
 
 
-def appcache(conf, indir, outdir, version):
+@wq.command()
+@click.argument('version')
+@wq.pass_config
+def appcache(config, version):
+    if 'appcache' not in config:
+        click.echo("appcache section not found in %s" % config.filename)
+        return
+    if 'optimize' not in config:
+        click.echo("optimize section not found in %s" % config.filename)
+        return
+
+    conf = config['appcache']
+    indir = config['optimize']['appDir']
+    outdir = config['optimize']['dir']
 
     # Open output files
     s_acpath = indir + '/' + conf['name']
