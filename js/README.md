@@ -78,7 +78,7 @@ Library                 |  Version  |  Notes
 [mustache.js]           |    0.8.1  |  
 [proj4]                 |    2.1.0  |  
 [proj4leaflet]          |    0.7.0  |  
-[rbush]                 |      1.3  |
+[rbush]                 |    1.4.0  |
 [requirejs], [r.js]     |   2.1.17  |  r.js is in /build
 
 [wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
