@@ -13,12 +13,16 @@ from .collect import readfiles
 @wq.pass_config
 def optimize(config):
     """
-    Use r.js to optimize JS and CSS assets
+    Use r.js to optimize JS and CSS assets.  This command requires an
+    "optimize" section in your configuration file, which will be passed as-is
+    to r.js for compilation.  See http://requirejs.org/docs/optimization.html
+    for available configuration options.
     """
     conf = config.get('optimize', None)
     if not conf:
-        click.echo("optimize section not found in %s" % config.filename)
-        return
+        raise click.UsageError(
+            "optimize section not found in %s" % config.filename
+        )
     outdir = conf.get('dir', None)
 
     bfile = "rjsconf%s" % (random.random() * 10000)
@@ -49,7 +53,9 @@ def optimize(config):
 )
 def scss(**conf):
     """
-    Render all SCSS/SASS files into CSS
+    Render all SCSS/SASS files into CSS.  The input directory will be searched
+    for *.scss files, which will be compiled to corresponding *.css files in
+    the output directory.
     """
     import scss
     import logging
@@ -85,14 +91,37 @@ def scss(**conf):
 )
 def mustache(**conf):
     """
-    Render a mustache template into static HTML
+    Render a mustache template into static HTML.  The template context can be
+    provided via a nexted object in wq.yml, or by pointing to a folder
+    containing JSON or YAML files.  Similarly, the partials can be defined as a
+    nested object in wq.yml or by a folder path.
+
+    Example YAML configuration:
+
+    \b
+    mustache:
+        template: "<html><body>{{>header}}{{>footer}}</body></html>"
+        partials:
+            header: "<h3>{{title}}</h3>"
+            footer: "<a href='mailto:{{email}}'>{{email}}</a>"
+        context:
+            title: "Example"
+            email: "email@example.com"
+        output: index.html
+
+    Example command line configuration:
+
+    wq mustache --template tmpl.html --partials partials/ --context conf/
     """
     import pystache
     template = conf['template']
     if template is None:
         return
-    if os.sep in template or template.endswith(".html"):
-        template = open(template).read()
+    if os.path.exists(template) or template.endswith('.html'):
+        try:
+            template = open(template).read()
+        except IOError as e:
+            raise click.FileError(template, hint=e)
 
     context = conf["context"] or {}
     if not isinstance(context, dict):

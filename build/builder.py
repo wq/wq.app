@@ -13,9 +13,23 @@ from .init import init
 @click.pass_context
 @click.argument('version')
 def build(ctx, config, version):
+    """
+    Compile and optimize an application.
+
+    \b
+    Runs the following in order:
+        wq init
+        wq setversion
+        wq collectjson (if configured)
+        wq scss        (if configured)
+        wq mustache    (if configured)
+        wq optimize
+        wq appcache    (if configured)
+    """
     if 'optimize' not in config:
-        click.echo("optimize section not found in %s" % config.filename)
-        return
+        raise click.UsageError(
+            "optimize section not found in %s" % config.filename
+        )
 
     def run(command, **kwargs):
         confs = config.get(command.name, {})

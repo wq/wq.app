@@ -38,9 +38,10 @@ def readfiles(basedir, ftype=None, fext=None):
             if ftype in NEST:
                 try:
                     o[name] = NEST[ftype].load(data)
-                except ValueError:
-                    click.echo("Could not parse %s!" % name)
-                    raise
+                except ValueError as e:
+                    raise click.ClickException(
+                        "Could not parse %s; %s" % (fpath + ext, e)
+                    )
             else:
                 o[name] = data.read()
 
@@ -60,7 +61,19 @@ def readfiles(basedir, ftype=None, fext=None):
 @click.option('--jsonp', help="Wrap as JSONP")
 @click.argument('paths', type=click.Path(exists=True), nargs=-1)
 def collectjson(**conf):
-    "Collect directory contents into a JSON object"
+    """
+    Load directory files into a JSON object.  The filenames will become the
+    keys and the contents will become the values.  The most common use for this
+    tool is to collect a group of Mustache templates into an AMD module, e.g.:
+
+    wq collectjson --type html --output templates.js --jsonp define templates/
+
+    This tool can also be used to collect existing JSON or YAML configuration
+    files into a single object.  In that case, the file contents will be
+    embeded as full JSON objects instead of strings.
+
+    wq collectjson --type json --output config.json config/
+    """
 
     if not conf['extension']:
         conf['extension'] = conf['type']

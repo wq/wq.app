@@ -12,7 +12,9 @@ import click
 @click.argument('version')
 def setversion(**conf):
     """
-    Update version.txt (and version.js)
+    Update version.txt (and version.js).  Useful for keeping track of which
+    version has been deployed.  The version.js AMD module can be referenced
+    within your application to notify users.
     """
     if conf['version'] is None:
         if os.path.exists(conf['filename']):

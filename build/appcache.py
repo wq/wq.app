@@ -8,12 +8,22 @@ import re
 @click.argument('version')
 @wq.pass_config
 def appcache(config, version):
+    """
+    Generate an HTML5 appcache manifest.  Should be run after wq optimize, as
+    some of the manifest entries will be inferred from the build log.
+
+    A manifest will be created for both the source directory and the build
+    directory, so you can test offline capabilities even when running off of
+    the source AMD files.
+    """
     if 'appcache' not in config:
-        click.echo("appcache section not found in %s" % config.filename)
-        return
+        raise click.UsageError(
+            "appcache section not found in %s" % config.filename
+        )
     if 'optimize' not in config:
-        click.echo("optimize section not found in %s" % config.filename)
-        return
+        raise click.UsageError(
+            "optimize section not found in %s" % config.filename
+        )
 
     conf = config['appcache']
     indir = config['optimize']['appDir']
