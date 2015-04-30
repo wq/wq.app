@@ -75,6 +75,7 @@ setup(
         'wq.app': package_data
     },
     install_requires=[
+        'wq.core',
         'pyScss>=1.3',
         'compass-stylesheets==0.12.6',
         'PyYAML',

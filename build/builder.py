@@ -7,41 +7,32 @@ from .appcache import appcache
 from .compilers import optimize, scss, mustache
 from .init import init
 
-COMMANDS = {
-    'collectjson': collectjson,
-    'init': init,
-    'mustache': mustache,
-    'scss': scss,
-    'setversion': setversion,
-}
-
 
 @wq.command()
-@click.argument('version')
 @wq.pass_config
 @click.pass_context
+@click.argument('version')
 def build(ctx, config, version):
     if 'optimize' not in config:
         click.echo("optimize section not found in %s" % config.filename)
         return
 
-    def run(name, **kwargs):
-        confs = config.get(name, {})
-        command = COMMANDS[name]
+    def run(command, **kwargs):
+        confs = config.get(command.name, {})
         if not isinstance(confs, list):
             confs = [confs]
         for conf in confs:
             conf.update(kwargs)
             ctx.invoke(command, **conf)
 
-    run('init')
+    run(init)
 
     # Save version information
-    run('setversion', version=version)
+    run(setversion, version=version)
 
-    for name in ('collectjson', 'scss', 'mustache'):
-        if name in config:
-            run(name)
+    for command in (collectjson, scss, mustache):
+        if command.name in config:
+            run(command)
 
     # Compile Javascript / CSS (using r.js)
     ctx.invoke(optimize)
