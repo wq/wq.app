@@ -1,6 +1,5 @@
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.proj4=e():"undefined"!=typeof global?global.proj4=e():"undefined"!=typeof self&&(self.proj4=e())}(function(){var define,module,exports;
-return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var mgrs = require('mgrs');
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.proj4=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+var mgrs = _dereq_('mgrs');
 
 function Point(x, y, z) {
   if (!(this instanceof Point)) {
@@ -25,30 +24,7 @@ function Point(x, y, z) {
     this.y = y;
     this.z = z || 0.0;
   }
-  this.clone = function() {
-    return new Point(this.x, this.y, this.z);
-  };
-  this.toArray = function(){
-    if(this.z){
-      return [this.x,this.y, this.z];
-    }else{
-      return [this.x,this.y];
-    }
-  };
-  this.toString = function() {
-    if(this.z){
-      return "x=" + this.x + ",y=" + this.y + ",z="+this.z;
-    }else{
-      return "x=" + this.x + ",y=" + this.y;
-    }
-  };
-  this.toShortString = function() {
-    if(this.z){
-      return this.x + "," + this.y+ "," + this.z;
-    }else{
-      return this.x + "," + this.y;
-    }
-  };
+  console.warn('proj4.Point will be removed in version 3, use proj4.toPoint');
 }
 
 Point.fromMGRS = function(mgrsStr) {
@@ -58,11 +34,11 @@ Point.prototype.toMGRS = function(accuracy) {
   return mgrs.forward([this.x, this.y], accuracy);
 };
 module.exports = Point;
-},{"mgrs":66}],2:[function(require,module,exports){
-var parseCode = require("./parseCode");
-var extend = require('./extend');
-var projections = require('./projections');
-var deriveConstants = require('./deriveConstants');
+},{"mgrs":67}],2:[function(_dereq_,module,exports){
+var parseCode = _dereq_("./parseCode");
+var extend = _dereq_('./extend');
+var projections = _dereq_('./projections');
+var deriveConstants = _dereq_('./deriveConstants');
 
 function Projection(srsCode,callback) {
   if (!(this instanceof Projection)) {
@@ -93,7 +69,7 @@ Projection.projections = projections;
 Projection.projections.start();
 module.exports = Projection;
 
-},{"./deriveConstants":31,"./extend":32,"./parseCode":35,"./projections":37}],3:[function(require,module,exports){
+},{"./deriveConstants":33,"./extend":34,"./parseCode":37,"./projections":39}],3:[function(_dereq_,module,exports){
 module.exports = function(crs, denorm, point) {
   var xin = point.x,
     yin = point.y,
@@ -146,49 +122,54 @@ module.exports = function(crs, denorm, point) {
   return point;
 };
 
-},{}],4:[function(require,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
-var sign = require('./sign');
+var sign = _dereq_('./sign');
 
 module.exports = function(x) {
   return (Math.abs(x) < HALF_PI) ? x : (x - (sign(x) * Math.PI));
 };
-},{"./sign":21}],5:[function(require,module,exports){
+},{"./sign":21}],5:[function(_dereq_,module,exports){
 var TWO_PI = Math.PI * 2;
-var sign = require('./sign');
+// SPI is slightly greater than Math.PI, so values that exceed the -180..180
+// degree range by a tiny amount don't get wrapped. This prevents points that
+// have drifted from their original location along the 180th meridian (due to
+// floating point error) from changing their sign.
+var SPI = 3.14159265359;
+var sign = _dereq_('./sign');
 
 module.exports = function(x) {
-  return (Math.abs(x) < Math.PI) ? x : (x - (sign(x) * TWO_PI));
+  return (Math.abs(x) <= SPI) ? x : (x - (sign(x) * TWO_PI));
 };
-},{"./sign":21}],6:[function(require,module,exports){
+},{"./sign":21}],6:[function(_dereq_,module,exports){
 module.exports = function(x) {
   if (Math.abs(x) > 1) {
     x = (x > 1) ? 1 : -1;
   }
   return Math.asin(x);
 };
-},{}],7:[function(require,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 module.exports = function(x) {
   return (1 - 0.25 * x * (1 + x / 16 * (3 + 1.25 * x)));
 };
-},{}],8:[function(require,module,exports){
+},{}],8:[function(_dereq_,module,exports){
 module.exports = function(x) {
   return (0.375 * x * (1 + 0.25 * x * (1 + 0.46875 * x)));
 };
-},{}],9:[function(require,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 module.exports = function(x) {
   return (0.05859375 * x * x * (1 + 0.75 * x));
 };
-},{}],10:[function(require,module,exports){
+},{}],10:[function(_dereq_,module,exports){
 module.exports = function(x) {
   return (x * x * x * (35 / 3072));
 };
-},{}],11:[function(require,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 module.exports = function(a, e, sinphi) {
   var temp = e * sinphi;
   return a / Math.sqrt(1 - temp * temp);
 };
-},{}],12:[function(require,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 module.exports = function(ml, e0, e1, e2, e3) {
   var phi;
   var dphi;
@@ -205,7 +186,7 @@ module.exports = function(ml, e0, e1, e2, e3) {
   //..reportError("IMLFN-CONV:Latitude failed to converge after 15 iterations");
   return NaN;
 };
-},{}],13:[function(require,module,exports){
+},{}],13:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
 
 module.exports = function(eccent, q) {
@@ -238,16 +219,16 @@ module.exports = function(eccent, q) {
   //console.log("IQSFN-CONV:Latitude failed to converge after 30 iterations");
   return NaN;
 };
-},{}],14:[function(require,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 module.exports = function(e0, e1, e2, e3, phi) {
   return (e0 * phi - e1 * Math.sin(2 * phi) + e2 * Math.sin(4 * phi) - e3 * Math.sin(6 * phi));
 };
-},{}],15:[function(require,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 module.exports = function(eccent, sinphi, cosphi) {
   var con = eccent * sinphi;
   return cosphi / (Math.sqrt(1 - con * con));
 };
-},{}],16:[function(require,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
 module.exports = function(eccent, ts) {
   var eccnth = 0.5 * eccent;
@@ -264,7 +245,7 @@ module.exports = function(eccent, ts) {
   //console.log("phi2z has NoConvergence");
   return -9999;
 };
-},{}],17:[function(require,module,exports){
+},{}],17:[function(_dereq_,module,exports){
 var C00 = 1;
 var C02 = 0.25;
 var C04 = 0.046875;
@@ -289,8 +270,8 @@ module.exports = function(es) {
   en[4] = t * es * C88;
   return en;
 };
-},{}],18:[function(require,module,exports){
-var pj_mlfn = require("./pj_mlfn");
+},{}],18:[function(_dereq_,module,exports){
+var pj_mlfn = _dereq_("./pj_mlfn");
 var EPSLN = 1.0e-10;
 var MAX_ITER = 20;
 module.exports = function(arg, es, en) {
@@ -310,13 +291,13 @@ module.exports = function(arg, es, en) {
   //..reportError("cass:pj_inv_mlfn: Convergence error");
   return phi;
 };
-},{"./pj_mlfn":19}],19:[function(require,module,exports){
+},{"./pj_mlfn":19}],19:[function(_dereq_,module,exports){
 module.exports = function(phi, sphi, cphi, en) {
   cphi *= sphi;
   sphi *= sphi;
   return (en[0] * phi - cphi * (en[1] + sphi * (en[2] + sphi * (en[3] + sphi * en[4]))));
 };
-},{}],20:[function(require,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 module.exports = function(eccent, sinphi) {
   var con;
   if (eccent > 1.0e-7) {
@@ -327,15 +308,29 @@ module.exports = function(eccent, sinphi) {
     return (2 * sinphi);
   }
 };
-},{}],21:[function(require,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 module.exports = function(x) {
   return x<0 ? -1 : 1;
 };
-},{}],22:[function(require,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 module.exports = function(esinp, exp) {
   return (Math.pow((1 - esinp) / (1 + esinp), exp));
 };
-},{}],23:[function(require,module,exports){
+},{}],23:[function(_dereq_,module,exports){
+module.exports = function (array){
+  var out = {
+    x: array[0],
+    y: array[1]
+  };
+  if (array.length>2) {
+    out.z = array[2];
+  }
+  if (array.length>3) {
+    out.m = array[3];
+  }
+  return out;
+};
+},{}],24:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
 
 module.exports = function(eccent, phi, sinphi) {
@@ -344,7 +339,7 @@ module.exports = function(eccent, phi, sinphi) {
   con = Math.pow(((1 - con) / (1 + con)), com);
   return (Math.tan(0.5 * (HALF_PI - phi)) / con);
 };
-},{}],24:[function(require,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 exports.wgs84 = {
   towgs84: "0,0,0",
   ellipse: "WGS84",
@@ -420,7 +415,12 @@ exports.gunung_segara = {
   ellipse: 'bessel',
   datumName: 'Gunung Segara Jakarta'
 };
-},{}],25:[function(require,module,exports){
+exports.rnb72 = {
+  towgs84: "106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1",
+  ellipse: "intl",
+  datumName: "Reseau National Belge 1972"
+};
+},{}],26:[function(_dereq_,module,exports){
 exports.MERIT = {
   a: 6378137.0,
   rf: 298.257,
@@ -636,7 +636,7 @@ exports.sphere = {
   b: 6370997.0,
   ellipseName: "Normal Sphere (r=6370997)"
 };
-},{}],26:[function(require,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 exports.greenwich = 0.0; //"0dE",
 exports.lisbon = -9.131906111111; //"9d07'54.862\"W",
 exports.paris = 2.337229166667; //"2d20'14.025\"E",
@@ -650,16 +650,19 @@ exports.brussels = 4.367975; //"4d22'4.71\"E",
 exports.stockholm = 18.058277777778; //"18d3'29.8\"E",
 exports.athens = 23.7163375; //"23d42'58.815\"E",
 exports.oslo = 10.722916666667; //"10d43'22.5\"E"
-},{}],27:[function(require,module,exports){
-var point = require('./Point');
-var proj = require('./Proj');
-var transform = require('./transform');
+},{}],28:[function(_dereq_,module,exports){
+exports.ft = {to_meter: 0.3048};
+exports['us-ft'] = {to_meter: 1200 / 3937};
+
+},{}],29:[function(_dereq_,module,exports){
+var proj = _dereq_('./Proj');
+var transform = _dereq_('./transform');
 var wgs84 = proj('WGS84');
 
 function transformer(from, to, coords) {
   var transformedArray;
   if (Array.isArray(coords)) {
-    transformedArray = transform(from, to, point(coords));
+    transformedArray = transform(from, to, coords);
     if (coords.length === 3) {
       return [transformedArray.x, transformedArray.y, transformedArray.z];
     }
@@ -716,7 +719,7 @@ function proj4(fromProj, toProj, coord) {
   }
 }
 module.exports = proj4;
-},{"./Point":1,"./Proj":2,"./transform":63}],28:[function(require,module,exports){
+},{"./Proj":2,"./transform":65}],30:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
 var PJD_3PARAM = 1;
 var PJD_7PARAM = 2;
@@ -1122,7 +1125,7 @@ datum.prototype = {
 */
 module.exports = datum;
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(_dereq_,module,exports){
 var PJD_3PARAM = 1;
 var PJD_7PARAM = 2;
 var PJD_GRIDSHIFT = 3;
@@ -1223,20 +1226,25 @@ module.exports = function(source, dest, point) {
 };
 
 
-},{}],30:[function(require,module,exports){
-var globals = require('./global');
-var parseProj = require('./projString');
-var wkt = require('./wkt');
+},{}],32:[function(_dereq_,module,exports){
+var globals = _dereq_('./global');
+var parseProj = _dereq_('./projString');
+var wkt = _dereq_('./wkt');
 
 function defs(name) {
   /*global console*/
   var that = this;
   if (arguments.length === 2) {
-    if (arguments[1][0] === '+') {
-      defs[name] = parseProj(arguments[1]);
-    }
-    else {
-      defs[name] = wkt(arguments[1]);
+    var def = arguments[1];
+    if (typeof def === 'string') {
+      if (def.charAt(0) === '+') {
+        defs[name] = parseProj(arguments[1]);
+      }
+      else {
+        defs[name] = wkt(arguments[1]);
+      }
+    } else {
+      defs[name] = def;
     }
   }
   else if (arguments.length === 1) {
@@ -1251,7 +1259,9 @@ function defs(name) {
       });
     }
     else if (typeof name === 'string') {
-
+      if (name in defs) {
+        return defs[name];
+      }
     }
     else if ('EPSG' in name) {
       defs['EPSG:' + name.EPSG] = name;
@@ -1273,11 +1283,11 @@ function defs(name) {
 globals(defs);
 module.exports = defs;
 
-},{"./global":33,"./projString":36,"./wkt":65}],31:[function(require,module,exports){
-var Datum = require('./constants/Datum');
-var Ellipsoid = require('./constants/Ellipsoid');
-var extend = require('./extend');
-var datum = require('./datum');
+},{"./global":35,"./projString":38,"./wkt":66}],33:[function(_dereq_,module,exports){
+var Datum = _dereq_('./constants/Datum');
+var Ellipsoid = _dereq_('./constants/Ellipsoid');
+var extend = _dereq_('./extend');
+var datum = _dereq_('./datum');
 var EPSLN = 1.0e-10;
 // ellipoid pj_set_ell.c
 var SIXTH = 0.1666666666666666667;
@@ -1325,10 +1335,13 @@ module.exports = function(json) {
     json.axis = "enu";
   }
 
-  json.datum = datum(json);
+  if (!json.datum) {
+    json.datum = datum(json);
+  }
   return json;
 };
-},{"./constants/Datum":24,"./constants/Ellipsoid":25,"./datum":28,"./extend":32}],32:[function(require,module,exports){
+
+},{"./constants/Datum":25,"./constants/Ellipsoid":26,"./datum":30,"./extend":34}],34:[function(_dereq_,module,exports){
 module.exports = function(destination, source) {
   destination = destination || {};
   var value, property;
@@ -1344,35 +1357,36 @@ module.exports = function(destination, source) {
   return destination;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 module.exports = function(defs) {
-  defs('WGS84', "+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees");
   defs('EPSG:4326', "+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees");
   defs('EPSG:4269', "+title=NAD83 (long/lat) +proj=longlat +a=6378137.0 +b=6356752.31414036 +ellps=GRS80 +datum=NAD83 +units=degrees");
   defs('EPSG:3857', "+title=WGS 84 / Pseudo-Mercator +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs");
 
+  defs.WGS84 = defs['EPSG:4326'];
   defs['EPSG:3785'] = defs['EPSG:3857']; // maintain backward compat, official code is 3857
   defs.GOOGLE = defs['EPSG:3857'];
   defs['EPSG:900913'] = defs['EPSG:3857'];
   defs['EPSG:102113'] = defs['EPSG:3857'];
 };
 
-},{}],34:[function(require,module,exports){
-var proj4 = require('./core');
+},{}],36:[function(_dereq_,module,exports){
+var proj4 = _dereq_('./core');
 proj4.defaultDatum = 'WGS84'; //default datum
-proj4.Proj = require('./Proj');
+proj4.Proj = _dereq_('./Proj');
 proj4.WGS84 = new proj4.Proj('WGS84');
-proj4.Point = require('./Point');
-proj4.defs = require('./defs');
-proj4.transform = require('./transform');
-proj4.mgrs = require('mgrs');
-proj4.version = require('./version');
-require('./includedProjections')(proj4);
+proj4.Point = _dereq_('./Point');
+proj4.toPoint = _dereq_("./common/toPoint");
+proj4.defs = _dereq_('./defs');
+proj4.transform = _dereq_('./transform');
+proj4.mgrs = _dereq_('mgrs');
+proj4.version = _dereq_('../package.json').version;
+_dereq_('./includedProjections')(proj4);
 module.exports = proj4;
-},{"./Point":1,"./Proj":2,"./core":27,"./defs":30,"./includedProjections":"gWUPNW","./transform":63,"./version":64,"mgrs":66}],35:[function(require,module,exports){
-var defs = require('./defs');
-var wkt = require('./wkt');
-var projStr = require('./projString');
+},{"../package.json":68,"./Point":1,"./Proj":2,"./common/toPoint":23,"./core":29,"./defs":32,"./includedProjections":"hTEDpn","./transform":65,"mgrs":67}],37:[function(_dereq_,module,exports){
+var defs = _dereq_('./defs');
+var wkt = _dereq_('./wkt');
+var projStr = _dereq_('./projString');
 function testObj(code){
   return typeof code === 'string';
 }
@@ -1406,12 +1420,13 @@ function parse(code){
 }
 
 module.exports = parse;
-},{"./defs":30,"./projString":36,"./wkt":65}],36:[function(require,module,exports){
+},{"./defs":32,"./projString":38,"./wkt":66}],38:[function(_dereq_,module,exports){
 var D2R = 0.01745329251994329577;
-var PrimeMeridian = require('./constants/PrimeMeridian');
+var PrimeMeridian = _dereq_('./constants/PrimeMeridian');
+var units = _dereq_('./constants/units');
+
 module.exports = function(defData) {
   var self = {};
-
   var paramObj = {};
   defData.split("+").map(function(v) {
     return v.trim();
@@ -1427,7 +1442,7 @@ module.exports = function(defData) {
     proj: 'projName',
     datum: 'datumCode',
     rf: function(v) {
-      self.rf = parseFloat(v, 10);
+      self.rf = parseFloat(v);
     },
     lat_0: function(v) {
       self.lat0 = v * D2R;
@@ -1457,16 +1472,22 @@ module.exports = function(defData) {
       self.longc = v * D2R;
     },
     x_0: function(v) {
-      self.x0 = parseFloat(v, 10);
+      self.x0 = parseFloat(v);
     },
     y_0: function(v) {
-      self.y0 = parseFloat(v, 10);
+      self.y0 = parseFloat(v);
     },
     k_0: function(v) {
-      self.k0 = parseFloat(v, 10);
+      self.k0 = parseFloat(v);
     },
     k: function(v) {
-      self.k0 = parseFloat(v, 10);
+      self.k0 = parseFloat(v);
+    },
+    a: function(v) {
+      self.a = parseFloat(v);
+    },
+    b: function(v) {
+      self.b = parseFloat(v);
     },
     r_a: function() {
       self.R_A = true;
@@ -1479,17 +1500,23 @@ module.exports = function(defData) {
     },
     towgs84: function(v) {
       self.datum_params = v.split(",").map(function(a) {
-        return parseFloat(a, 10);
+        return parseFloat(a);
       });
     },
     to_meter: function(v) {
-      self.to_meter = parseFloat(v, 10);
+      self.to_meter = parseFloat(v);
+    },
+    units: function(v) {
+      self.units = v;
+      if (units[v]) {
+        self.to_meter = units[v].to_meter;
+      }
     },
     from_greenwich: function(v) {
       self.from_greenwich = v * D2R;
     },
     pm: function(v) {
-      self.from_greenwich = (PrimeMeridian[v] ? PrimeMeridian[v] : parseFloat(v, 10)) * D2R;
+      self.from_greenwich = (PrimeMeridian[v] ? PrimeMeridian[v] : parseFloat(v)) * D2R;
     },
     nadgrids: function(v) {
       if (v === '@null') {
@@ -1521,13 +1548,16 @@ module.exports = function(defData) {
       self[paramName] = paramVal;
     }
   }
+  if(typeof self.datumCode === 'string' && self.datumCode !== "WGS84"){
+    self.datumCode = self.datumCode.toLowerCase();
+  }
   return self;
 };
 
-},{"./constants/PrimeMeridian":26}],37:[function(require,module,exports){
+},{"./constants/PrimeMeridian":27,"./constants/units":28}],39:[function(_dereq_,module,exports){
 var projs = [
-  require('./projections/merc'),
-  require('./projections/longlat')
+  _dereq_('./projections/merc'),
+  _dereq_('./projections/longlat')
 ];
 var names = {};
 var projStore = [];
@@ -1560,12 +1590,12 @@ exports.start = function() {
   projs.forEach(add);
 };
 
-},{"./projections/longlat":49,"./projections/merc":50}],38:[function(require,module,exports){
+},{"./projections/longlat":51,"./projections/merc":52}],40:[function(_dereq_,module,exports){
 var EPSLN = 1.0e-10;
-var msfnz = require('../common/msfnz');
-var qsfnz = require('../common/qsfnz');
-var adjust_lon = require('../common/adjust_lon');
-var asinz = require('../common/asinz');
+var msfnz = _dereq_('../common/msfnz');
+var qsfnz = _dereq_('../common/qsfnz');
+var adjust_lon = _dereq_('../common/adjust_lon');
+var asinz = _dereq_('../common/asinz');
 exports.init = function() {
 
   if (Math.abs(this.lat1 + this.lat2) < EPSLN) {
@@ -1683,18 +1713,18 @@ exports.phi1z = function(eccent, qs) {
 };
 exports.names = ["Albers_Conic_Equal_Area", "Albers", "aea"];
 
-},{"../common/adjust_lon":5,"../common/asinz":6,"../common/msfnz":15,"../common/qsfnz":20}],39:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
+},{"../common/adjust_lon":5,"../common/asinz":6,"../common/msfnz":15,"../common/qsfnz":20}],41:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
-var mlfn = require('../common/mlfn');
-var e0fn = require('../common/e0fn');
-var e1fn = require('../common/e1fn');
-var e2fn = require('../common/e2fn');
-var e3fn = require('../common/e3fn');
-var gN = require('../common/gN');
-var asinz = require('../common/asinz');
-var imlfn = require('../common/imlfn');
+var mlfn = _dereq_('../common/mlfn');
+var e0fn = _dereq_('../common/e0fn');
+var e1fn = _dereq_('../common/e1fn');
+var e2fn = _dereq_('../common/e2fn');
+var e3fn = _dereq_('../common/e3fn');
+var gN = _dereq_('../common/gN');
+var asinz = _dereq_('../common/asinz');
+var imlfn = _dereq_('../common/imlfn');
 exports.init = function() {
   this.sin_p12 = Math.sin(this.lat0);
   this.cos_p12 = Math.cos(this.lat0);
@@ -1882,16 +1912,16 @@ exports.inverse = function(p) {
 };
 exports.names = ["Azimuthal_Equidistant", "aeqd"];
 
-},{"../common/adjust_lon":5,"../common/asinz":6,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/gN":11,"../common/imlfn":12,"../common/mlfn":14}],40:[function(require,module,exports){
-var mlfn = require('../common/mlfn');
-var e0fn = require('../common/e0fn');
-var e1fn = require('../common/e1fn');
-var e2fn = require('../common/e2fn');
-var e3fn = require('../common/e3fn');
-var gN = require('../common/gN');
-var adjust_lon = require('../common/adjust_lon');
-var adjust_lat = require('../common/adjust_lat');
-var imlfn = require('../common/imlfn');
+},{"../common/adjust_lon":5,"../common/asinz":6,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/gN":11,"../common/imlfn":12,"../common/mlfn":14}],42:[function(_dereq_,module,exports){
+var mlfn = _dereq_('../common/mlfn');
+var e0fn = _dereq_('../common/e0fn');
+var e1fn = _dereq_('../common/e1fn');
+var e2fn = _dereq_('../common/e2fn');
+var e3fn = _dereq_('../common/e3fn');
+var gN = _dereq_('../common/gN');
+var adjust_lon = _dereq_('../common/adjust_lon');
+var adjust_lat = _dereq_('../common/adjust_lat');
+var imlfn = _dereq_('../common/imlfn');
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
 exports.init = function() {
@@ -1986,11 +2016,11 @@ exports.inverse = function(p) {
 
 };
 exports.names = ["Cassini", "Cassini_Soldner", "cass"];
-},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/gN":11,"../common/imlfn":12,"../common/mlfn":14}],41:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
-var qsfnz = require('../common/qsfnz');
-var msfnz = require('../common/msfnz');
-var iqsfnz = require('../common/iqsfnz');
+},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/gN":11,"../common/imlfn":12,"../common/mlfn":14}],43:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
+var qsfnz = _dereq_('../common/qsfnz');
+var msfnz = _dereq_('../common/msfnz');
+var iqsfnz = _dereq_('../common/iqsfnz');
 /*
   reference:  
     "Cartographic Projection Procedures for the UNIX Environment-
@@ -2051,9 +2081,9 @@ exports.inverse = function(p) {
 };
 exports.names = ["cea"];
 
-},{"../common/adjust_lon":5,"../common/iqsfnz":13,"../common/msfnz":15,"../common/qsfnz":20}],42:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
-var adjust_lat = require('../common/adjust_lat');
+},{"../common/adjust_lon":5,"../common/iqsfnz":13,"../common/msfnz":15,"../common/qsfnz":20}],44:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
+var adjust_lat = _dereq_('../common/adjust_lat');
 exports.init = function() {
 
   this.x0 = this.x0 || 0;
@@ -2094,16 +2124,16 @@ exports.inverse = function(p) {
 };
 exports.names = ["Equirectangular", "Equidistant_Cylindrical", "eqc"];
 
-},{"../common/adjust_lat":4,"../common/adjust_lon":5}],43:[function(require,module,exports){
-var e0fn = require('../common/e0fn');
-var e1fn = require('../common/e1fn');
-var e2fn = require('../common/e2fn');
-var e3fn = require('../common/e3fn');
-var msfnz = require('../common/msfnz');
-var mlfn = require('../common/mlfn');
-var adjust_lon = require('../common/adjust_lon');
-var adjust_lat = require('../common/adjust_lat');
-var imlfn = require('../common/imlfn');
+},{"../common/adjust_lat":4,"../common/adjust_lon":5}],45:[function(_dereq_,module,exports){
+var e0fn = _dereq_('../common/e0fn');
+var e1fn = _dereq_('../common/e1fn');
+var e2fn = _dereq_('../common/e2fn');
+var e3fn = _dereq_('../common/e3fn');
+var msfnz = _dereq_('../common/msfnz');
+var mlfn = _dereq_('../common/mlfn');
+var adjust_lon = _dereq_('../common/adjust_lon');
+var adjust_lat = _dereq_('../common/adjust_lat');
+var imlfn = _dereq_('../common/imlfn');
 var EPSLN = 1.0e-10;
 exports.init = function() {
 
@@ -2206,9 +2236,9 @@ exports.inverse = function(p) {
 };
 exports.names = ["Equidistant_Conic", "eqdc"];
 
-},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/imlfn":12,"../common/mlfn":14,"../common/msfnz":15}],44:[function(require,module,exports){
+},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/imlfn":12,"../common/mlfn":14,"../common/msfnz":15}],46:[function(_dereq_,module,exports){
 var FORTPI = Math.PI/4;
-var srat = require('../common/srat');
+var srat = _dereq_('../common/srat');
 var HALF_PI = Math.PI/2;
 var MAX_ITER = 20;
 exports.init = function() {
@@ -2253,10 +2283,10 @@ exports.inverse = function(p) {
 };
 exports.names = ["gauss"];
 
-},{"../common/srat":22}],45:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
+},{"../common/srat":22}],47:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
 var EPSLN = 1.0e-10;
-var asinz = require('../common/asinz');
+var asinz = _dereq_('../common/asinz');
 
 /*
   reference:
@@ -2354,8 +2384,8 @@ exports.inverse = function(p) {
 };
 exports.names = ["gnom"];
 
-},{"../common/adjust_lon":5,"../common/asinz":6}],46:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
+},{"../common/adjust_lon":5,"../common/asinz":6}],48:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
 exports.init = function() {
   this.a = 6377397.155;
   this.es = 0.006674372230614;
@@ -2454,12 +2484,12 @@ exports.inverse = function(p) {
 };
 exports.names = ["Krovak", "krovak"];
 
-},{"../common/adjust_lon":5}],47:[function(require,module,exports){
+},{"../common/adjust_lon":5}],49:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
 var FORTPI = Math.PI/4;
 var EPSLN = 1.0e-10;
-var qsfnz = require('../common/qsfnz');
-var adjust_lon = require('../common/adjust_lon');
+var qsfnz = _dereq_('../common/qsfnz');
+var adjust_lon = _dereq_('../common/adjust_lon');
 /*
   reference
     "New Equal-Area Map Projections for Noncircular Regions", John P. Snyder,
@@ -2744,14 +2774,14 @@ exports.authlat = function(beta, APA) {
 };
 exports.names = ["Lambert Azimuthal Equal Area", "Lambert_Azimuthal_Equal_Area", "laea"];
 
-},{"../common/adjust_lon":5,"../common/qsfnz":20}],48:[function(require,module,exports){
+},{"../common/adjust_lon":5,"../common/qsfnz":20}],50:[function(_dereq_,module,exports){
 var EPSLN = 1.0e-10;
-var msfnz = require('../common/msfnz');
-var tsfnz = require('../common/tsfnz');
+var msfnz = _dereq_('../common/msfnz');
+var tsfnz = _dereq_('../common/tsfnz');
 var HALF_PI = Math.PI/2;
-var sign = require('../common/sign');
-var adjust_lon = require('../common/adjust_lon');
-var phi2z = require('../common/phi2z');
+var sign = _dereq_('../common/sign');
+var adjust_lon = _dereq_('../common/adjust_lon');
+var phi2z = _dereq_('../common/phi2z');
 exports.init = function() {
 
   // array of:  r_maj,r_min,lat1,lat2,c_lon,c_lat,false_east,false_north
@@ -2770,7 +2800,8 @@ exports.init = function() {
   if (!this.k0) {
     this.k0 = 1;
   }
-
+  this.x0 = this.x0 || 0;
+  this.y0 = this.y0 || 0;
   // Standard Parallels cannot be equal and on opposite sides of the equator
   if (Math.abs(this.lat1 + this.lat2) < EPSLN) {
     return;
@@ -2880,7 +2911,7 @@ exports.inverse = function(p) {
 
 exports.names = ["Lambert Tangential Conformal Conic Projection", "Lambert_Conformal_Conic", "Lambert_Conformal_Conic_2SP", "lcc"];
 
-},{"../common/adjust_lon":5,"../common/msfnz":15,"../common/phi2z":16,"../common/sign":21,"../common/tsfnz":23}],49:[function(require,module,exports){
+},{"../common/adjust_lon":5,"../common/msfnz":15,"../common/phi2z":16,"../common/sign":21,"../common/tsfnz":24}],51:[function(_dereq_,module,exports){
 exports.init = function() {
   //no-op for longlat
 };
@@ -2892,15 +2923,15 @@ exports.forward = identity;
 exports.inverse = identity;
 exports.names = ["longlat", "identity"];
 
-},{}],50:[function(require,module,exports){
-var msfnz = require('../common/msfnz');
+},{}],52:[function(_dereq_,module,exports){
+var msfnz = _dereq_('../common/msfnz');
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
 var R2D = 57.29577951308232088;
-var adjust_lon = require('../common/adjust_lon');
+var adjust_lon = _dereq_('../common/adjust_lon');
 var FORTPI = Math.PI/4;
-var tsfnz = require('../common/tsfnz');
-var phi2z = require('../common/phi2z');
+var tsfnz = _dereq_('../common/tsfnz');
+var phi2z = _dereq_('../common/phi2z');
 exports.init = function() {
   var con = this.b / this.a;
   this.es = 1 - con * con;
@@ -2991,8 +3022,8 @@ exports.inverse = function(p) {
 
 exports.names = ["Mercator", "Popular Visualisation Pseudo Mercator", "Mercator_1SP", "Mercator_Auxiliary_Sphere", "merc"];
 
-},{"../common/adjust_lon":5,"../common/msfnz":15,"../common/phi2z":16,"../common/tsfnz":23}],51:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
+},{"../common/adjust_lon":5,"../common/msfnz":15,"../common/phi2z":16,"../common/tsfnz":24}],53:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
 /*
   reference
     "New Equal-Area Map Projections for Noncircular Regions", John P. Snyder,
@@ -3038,8 +3069,8 @@ exports.inverse = function(p) {
 };
 exports.names = ["Miller_Cylindrical", "mill"];
 
-},{"../common/adjust_lon":5}],52:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
+},{"../common/adjust_lon":5}],54:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
 var EPSLN = 1.0e-10;
 exports.init = function() {};
 
@@ -3117,7 +3148,7 @@ exports.inverse = function(p) {
 };
 exports.names = ["Mollweide", "moll"];
 
-},{"../common/adjust_lon":5}],53:[function(require,module,exports){
+},{"../common/adjust_lon":5}],55:[function(_dereq_,module,exports){
 var SEC_TO_RAD = 4.84813681109535993589914102357e-6;
 /*
   reference
@@ -3337,10 +3368,10 @@ exports.inverse = function(p) {
   return p;
 };
 exports.names = ["New_Zealand_Map_Grid", "nzmg"];
-},{}],54:[function(require,module,exports){
-var tsfnz = require('../common/tsfnz');
-var adjust_lon = require('../common/adjust_lon');
-var phi2z = require('../common/phi2z');
+},{}],56:[function(_dereq_,module,exports){
+var tsfnz = _dereq_('../common/tsfnz');
+var adjust_lon = _dereq_('../common/adjust_lon');
+var phi2z = _dereq_('../common/phi2z');
 var HALF_PI = Math.PI/2;
 var FORTPI = Math.PI/4;
 var EPSLN = 1.0e-10;
@@ -3506,16 +3537,16 @@ exports.inverse = function(p) {
 };
 
 exports.names = ["Hotine_Oblique_Mercator", "Hotine Oblique Mercator", "Hotine_Oblique_Mercator_Azimuth_Natural_Origin", "Hotine_Oblique_Mercator_Azimuth_Center", "omerc"];
-},{"../common/adjust_lon":5,"../common/phi2z":16,"../common/tsfnz":23}],55:[function(require,module,exports){
-var e0fn = require('../common/e0fn');
-var e1fn = require('../common/e1fn');
-var e2fn = require('../common/e2fn');
-var e3fn = require('../common/e3fn');
-var adjust_lon = require('../common/adjust_lon');
-var adjust_lat = require('../common/adjust_lat');
-var mlfn = require('../common/mlfn');
+},{"../common/adjust_lon":5,"../common/phi2z":16,"../common/tsfnz":24}],57:[function(_dereq_,module,exports){
+var e0fn = _dereq_('../common/e0fn');
+var e1fn = _dereq_('../common/e1fn');
+var e2fn = _dereq_('../common/e2fn');
+var e3fn = _dereq_('../common/e3fn');
+var adjust_lon = _dereq_('../common/adjust_lon');
+var adjust_lat = _dereq_('../common/adjust_lat');
+var mlfn = _dereq_('../common/mlfn');
 var EPSLN = 1.0e-10;
-var gN = require('../common/gN');
+var gN = _dereq_('../common/gN');
 var MAX_ITER = 20;
 exports.init = function() {
   /* Place parameters in static storage for common use
@@ -3635,16 +3666,16 @@ exports.inverse = function(p) {
   return p;
 };
 exports.names = ["Polyconic", "poly"];
-},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/gN":11,"../common/mlfn":14}],56:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
-var adjust_lat = require('../common/adjust_lat');
-var pj_enfn = require('../common/pj_enfn');
+},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/gN":11,"../common/mlfn":14}],58:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
+var adjust_lat = _dereq_('../common/adjust_lat');
+var pj_enfn = _dereq_('../common/pj_enfn');
 var MAX_ITER = 20;
-var pj_mlfn = require('../common/pj_mlfn');
-var pj_inv_mlfn = require('../common/pj_inv_mlfn');
+var pj_mlfn = _dereq_('../common/pj_mlfn');
+var pj_inv_mlfn = _dereq_('../common/pj_inv_mlfn');
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
-var asinz = require('../common/asinz');
+var asinz = _dereq_('../common/asinz');
 exports.init = function() {
   /* Place parameters in static storage for common use
     -------------------------------------------------*/
@@ -3742,7 +3773,7 @@ exports.inverse = function(p) {
   return p;
 };
 exports.names = ["Sinusoidal", "sinu"];
-},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/asinz":6,"../common/pj_enfn":17,"../common/pj_inv_mlfn":18,"../common/pj_mlfn":19}],57:[function(require,module,exports){
+},{"../common/adjust_lat":4,"../common/adjust_lon":5,"../common/asinz":6,"../common/pj_enfn":17,"../common/pj_inv_mlfn":18,"../common/pj_mlfn":19}],59:[function(_dereq_,module,exports){
 /*
   references:
     Formules et constantes pour le Calcul pour la
@@ -3824,14 +3855,14 @@ exports.inverse = function(p) {
 
 exports.names = ["somerc"];
 
-},{}],58:[function(require,module,exports){
+},{}],60:[function(_dereq_,module,exports){
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
-var sign = require('../common/sign');
-var msfnz = require('../common/msfnz');
-var tsfnz = require('../common/tsfnz');
-var phi2z = require('../common/phi2z');
-var adjust_lon = require('../common/adjust_lon');
+var sign = _dereq_('../common/sign');
+var msfnz = _dereq_('../common/msfnz');
+var tsfnz = _dereq_('../common/tsfnz');
+var phi2z = _dereq_('../common/phi2z');
+var adjust_lon = _dereq_('../common/adjust_lon');
 exports.ssfn_ = function(phit, sinphi, eccen) {
   sinphi *= eccen;
   return (Math.tan(0.5 * (HALF_PI + phit)) * Math.pow((1 - sinphi) / (1 + sinphi), 0.5 * eccen));
@@ -3990,10 +4021,11 @@ exports.inverse = function(p) {
   return p;
 
 };
-exports.names = ["stere"];
-},{"../common/adjust_lon":5,"../common/msfnz":15,"../common/phi2z":16,"../common/sign":21,"../common/tsfnz":23}],59:[function(require,module,exports){
-var gauss = require('./gauss');
-var adjust_lon = require('../common/adjust_lon');
+exports.names = ["stere", "Stereographic_South_Pole", "Polar Stereographic (variant B)"];
+
+},{"../common/adjust_lon":5,"../common/msfnz":15,"../common/phi2z":16,"../common/sign":21,"../common/tsfnz":24}],61:[function(_dereq_,module,exports){
+var gauss = _dereq_('./gauss');
+var adjust_lon = _dereq_('../common/adjust_lon');
 exports.init = function() {
   gauss.init.apply(this);
   if (!this.rc) {
@@ -4050,17 +4082,17 @@ exports.inverse = function(p) {
 
 exports.names = ["Stereographic_North_Pole", "Oblique_Stereographic", "Polar_Stereographic", "sterea","Oblique Stereographic Alternative"];
 
-},{"../common/adjust_lon":5,"./gauss":44}],60:[function(require,module,exports){
-var e0fn = require('../common/e0fn');
-var e1fn = require('../common/e1fn');
-var e2fn = require('../common/e2fn');
-var e3fn = require('../common/e3fn');
-var mlfn = require('../common/mlfn');
-var adjust_lon = require('../common/adjust_lon');
+},{"../common/adjust_lon":5,"./gauss":46}],62:[function(_dereq_,module,exports){
+var e0fn = _dereq_('../common/e0fn');
+var e1fn = _dereq_('../common/e1fn');
+var e2fn = _dereq_('../common/e2fn');
+var e3fn = _dereq_('../common/e3fn');
+var mlfn = _dereq_('../common/mlfn');
+var adjust_lon = _dereq_('../common/adjust_lon');
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
-var sign = require('../common/sign');
-var asinz = require('../common/asinz');
+var sign = _dereq_('../common/sign');
+var asinz = _dereq_('../common/asinz');
 
 exports.init = function() {
   this.e0 = e0fn(this.es);
@@ -4187,9 +4219,9 @@ exports.inverse = function(p) {
 };
 exports.names = ["Transverse_Mercator", "Transverse Mercator", "tmerc"];
 
-},{"../common/adjust_lon":5,"../common/asinz":6,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/mlfn":14,"../common/sign":21}],61:[function(require,module,exports){
+},{"../common/adjust_lon":5,"../common/asinz":6,"../common/e0fn":7,"../common/e1fn":8,"../common/e2fn":9,"../common/e3fn":10,"../common/mlfn":14,"../common/sign":21}],63:[function(_dereq_,module,exports){
 var D2R = 0.01745329251994329577;
-var tmerc = require('./tmerc');
+var tmerc = _dereq_('./tmerc');
 exports.dependsOn = 'tmerc';
 exports.init = function() {
   if (!this.zone) {
@@ -4207,11 +4239,11 @@ exports.init = function() {
 };
 exports.names = ["Universal Transverse Mercator System", "utm"];
 
-},{"./tmerc":60}],62:[function(require,module,exports){
-var adjust_lon = require('../common/adjust_lon');
+},{"./tmerc":62}],64:[function(_dereq_,module,exports){
+var adjust_lon = _dereq_('../common/adjust_lon');
 var HALF_PI = Math.PI/2;
 var EPSLN = 1.0e-10;
-var asinz = require('../common/asinz');
+var asinz = _dereq_('../common/asinz');
 /* Initialize the Van Der Grinten projection
   ----------------------------------------*/
 exports.init = function() {
@@ -4328,17 +4360,20 @@ exports.inverse = function(p) {
   return p;
 };
 exports.names = ["Van_der_Grinten_I", "VanDerGrinten", "vandg"];
-},{"../common/adjust_lon":5,"../common/asinz":6}],63:[function(require,module,exports){
+},{"../common/adjust_lon":5,"../common/asinz":6}],65:[function(_dereq_,module,exports){
 var D2R = 0.01745329251994329577;
 var R2D = 57.29577951308232088;
 var PJD_3PARAM = 1;
 var PJD_7PARAM = 2;
-var datum_transform = require('./datum_transform');
-var adjust_axis = require('./adjust_axis');
-var proj = require('./Proj');
+var datum_transform = _dereq_('./datum_transform');
+var adjust_axis = _dereq_('./adjust_axis');
+var proj = _dereq_('./Proj');
+var toPoint = _dereq_('./common/toPoint');
 module.exports = function transform(source, dest, point) {
   var wgs84;
-
+  if (Array.isArray(point)) {
+    point = toPoint(point);
+  }
   function checkNotWGS(source, dest) {
     return ((source.datum.datum_type === PJD_3PARAM || source.datum.datum_type === PJD_7PARAM) && dest.datumCode !== "WGS84");
   }
@@ -4398,11 +4433,9 @@ module.exports = function transform(source, dest, point) {
 
   return point;
 };
-},{"./Proj":2,"./adjust_axis":3,"./datum_transform":29}],64:[function(require,module,exports){
-module.exports = '2.1.0';
-},{}],65:[function(require,module,exports){
+},{"./Proj":2,"./adjust_axis":3,"./common/toPoint":23,"./datum_transform":31}],66:[function(_dereq_,module,exports){
 var D2R = 0.01745329251994329577;
-var extend = require('./extend');
+var extend = _dereq_('./extend');
 
 function mapit(obj, key, v) {
   obj[key] = v.map(function(aa) {
@@ -4546,6 +4579,9 @@ function cleanWKT(wkt) {
     if (wkt.datumCode.slice(-8) === '_jakarta') {
       wkt.datumCode = wkt.datumCode.slice(0, - 8);
     }
+    if (~wkt.datumCode.indexOf('belge')) {
+      wkt.datumCode = "rnb72";
+    }
     if (wkt.GEOGCS.DATUM && wkt.GEOGCS.DATUM.SPHEROID) {
       wkt.ellps = wkt.GEOGCS.DATUM.SPHEROID.name.replace('_19', '').replace(/[Cc]larke\_18/, 'clrk');
       if (wkt.ellps.toLowerCase().slice(0, 13) === "international") {
@@ -4554,6 +4590,9 @@ function cleanWKT(wkt) {
 
       wkt.a = wkt.GEOGCS.DATUM.SPHEROID.a;
       wkt.rf = parseFloat(wkt.GEOGCS.DATUM.SPHEROID.rf, 10);
+    }
+    if (~wkt.datumCode.indexOf('osgb_1936')) {
+      wkt.datumCode = "osgb36";
     }
   }
   if (wkt.b && !isFinite(wkt.b)) {
@@ -4574,6 +4613,7 @@ function cleanWKT(wkt) {
     ['false_northing', 'False_Northing'],
     ['central_meridian', 'Central_Meridian'],
     ['latitude_of_origin', 'Latitude_Of_Origin'],
+    ['latitude_of_origin', 'Central_Parallel'],
     ['scale_factor', 'Scale_Factor'],
     ['k0', 'scale_factor'],
     ['latitude_of_center', 'Latitude_of_center'],
@@ -4591,12 +4631,16 @@ function cleanWKT(wkt) {
     ['srsCode', 'name']
   ];
   list.forEach(renamer);
-  if (!wkt.long0 && wkt.longc && (wkt.PROJECTION === 'Albers_Conic_Equal_Area' || wkt.PROJECTION === "Lambert_Azimuthal_Equal_Area")) {
+  if (!wkt.long0 && wkt.longc && (wkt.projName === 'Albers_Conic_Equal_Area' || wkt.projName === "Lambert_Azimuthal_Equal_Area")) {
     wkt.long0 = wkt.longc;
+  }
+  if (!wkt.lat_ts && wkt.lat1 && (wkt.projName === 'Stereographic_South_Pole' || wkt.projName === 'Polar Stereographic (variant B)')) {
+    wkt.lat0 = d2r(wkt.lat1 > 0 ? 90 : -90);
+    wkt.lat_ts = wkt.lat1;
   }
 }
 module.exports = function(wkt, self) {
-  var lisp = JSON.parse(("," + wkt).replace(/\s*\,\s*([A-Z_0-9]+?)(\[)/g, ',["$1",').slice(1).replace(/\s*\,\s*([A-Z_0-9]+?)\]/g, ',"$1"]'));
+  var lisp = JSON.parse(("," + wkt).replace(/\s*\,\s*([A-Z_0-9]+?)(\[)/g, ',["$1",').slice(1).replace(/\s*\,\s*([A-Z_0-9]+?)\]/g, ',"$1"]').replace(/,\["VERTCS".+/,''));
   var type = lisp.shift();
   var name = lisp.shift();
   lisp.unshift(['name', name]);
@@ -4608,7 +4652,7 @@ module.exports = function(wkt, self) {
   return extend(self, obj.output);
 };
 
-},{"./extend":32}],66:[function(require,module,exports){
+},{"./extend":34}],67:[function(_dereq_,module,exports){
 
 
 
@@ -5345,39 +5389,86 @@ function getMinNorthing(zoneLetter) {
 
 }
 
-},{}],"./includedProjections":[function(require,module,exports){
-module.exports=require('gWUPNW');
-},{}],"gWUPNW":[function(require,module,exports){
+},{}],68:[function(_dereq_,module,exports){
+module.exports={
+  "name": "proj4",
+  "version": "2.3.6",
+  "description": "Proj4js is a JavaScript library to transform point coordinates from one coordinate system to another, including datum transformations.",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test",
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/proj4js/proj4js.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "jam": {
+    "main": "dist/proj4.js",
+    "include": [
+      "dist/proj4.js",
+      "README.md",
+      "AUTHORS",
+      "LICENSE.md"
+    ]
+  },
+  "devDependencies": {
+    "grunt-cli": "~0.1.13",
+    "grunt": "~0.4.2",
+    "grunt-contrib-connect": "~0.6.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "chai": "~1.8.1",
+    "mocha": "~1.17.1",
+    "grunt-mocha-phantomjs": "~0.4.0",
+    "browserify": "~3.24.5",
+    "grunt-browserify": "~1.3.0",
+    "grunt-contrib-uglify": "~0.3.2",
+    "curl": "git://github.com/cujojs/curl.git",
+    "istanbul": "~0.2.4",
+    "tin": "~0.4.0"
+  },
+  "dependencies": {
+    "mgrs": "0.0.0"
+  }
+}
+
+},{}],"./includedProjections":[function(_dereq_,module,exports){
+module.exports=_dereq_('hTEDpn');
+},{}],"hTEDpn":[function(_dereq_,module,exports){
 var projs = [
- require('./lib/projections/tmerc'),
-	require('./lib/projections/utm'),
-	require('./lib/projections/sterea'),
-	require('./lib/projections/stere'),
-	require('./lib/projections/somerc'),
-	require('./lib/projections/omerc'),
-	require('./lib/projections/lcc'),
-	require('./lib/projections/krovak'),
-	require('./lib/projections/cass'),
-	require('./lib/projections/laea'),
-	require('./lib/projections/aea'),
-	require('./lib/projections/gnom'),
-	require('./lib/projections/cea'),
-	require('./lib/projections/eqc'),
-	require('./lib/projections/poly'),
-	require('./lib/projections/nzmg'),
-	require('./lib/projections/mill'),
-	require('./lib/projections/sinu'),
-	require('./lib/projections/moll'),
-	require('./lib/projections/eqdc'),
-	require('./lib/projections/vandg'),
-	require('./lib/projections/aeqd')
+ _dereq_('./lib/projections/tmerc'),
+	_dereq_('./lib/projections/utm'),
+	_dereq_('./lib/projections/sterea'),
+	_dereq_('./lib/projections/stere'),
+	_dereq_('./lib/projections/somerc'),
+	_dereq_('./lib/projections/omerc'),
+	_dereq_('./lib/projections/lcc'),
+	_dereq_('./lib/projections/krovak'),
+	_dereq_('./lib/projections/cass'),
+	_dereq_('./lib/projections/laea'),
+	_dereq_('./lib/projections/aea'),
+	_dereq_('./lib/projections/gnom'),
+	_dereq_('./lib/projections/cea'),
+	_dereq_('./lib/projections/eqc'),
+	_dereq_('./lib/projections/poly'),
+	_dereq_('./lib/projections/nzmg'),
+	_dereq_('./lib/projections/mill'),
+	_dereq_('./lib/projections/sinu'),
+	_dereq_('./lib/projections/moll'),
+	_dereq_('./lib/projections/eqdc'),
+	_dereq_('./lib/projections/vandg'),
+	_dereq_('./lib/projections/aeqd')
 ];
 module.exports = function(proj4){
  projs.forEach(function(proj){
    proj4.Proj.projections.add(proj);
  });
 }
-},{"./lib/projections/aea":38,"./lib/projections/aeqd":39,"./lib/projections/cass":40,"./lib/projections/cea":41,"./lib/projections/eqc":42,"./lib/projections/eqdc":43,"./lib/projections/gnom":45,"./lib/projections/krovak":46,"./lib/projections/laea":47,"./lib/projections/lcc":48,"./lib/projections/mill":51,"./lib/projections/moll":52,"./lib/projections/nzmg":53,"./lib/projections/omerc":54,"./lib/projections/poly":55,"./lib/projections/sinu":56,"./lib/projections/somerc":57,"./lib/projections/stere":58,"./lib/projections/sterea":59,"./lib/projections/tmerc":60,"./lib/projections/utm":61,"./lib/projections/vandg":62}]},{},[34])
-(34)
+},{"./lib/projections/aea":40,"./lib/projections/aeqd":41,"./lib/projections/cass":42,"./lib/projections/cea":43,"./lib/projections/eqc":44,"./lib/projections/eqdc":45,"./lib/projections/gnom":47,"./lib/projections/krovak":48,"./lib/projections/laea":49,"./lib/projections/lcc":50,"./lib/projections/mill":53,"./lib/projections/moll":54,"./lib/projections/nzmg":55,"./lib/projections/omerc":56,"./lib/projections/poly":57,"./lib/projections/sinu":58,"./lib/projections/somerc":59,"./lib/projections/stere":60,"./lib/projections/sterea":61,"./lib/projections/tmerc":62,"./lib/projections/utm":63,"./lib/projections/vandg":64}]},{},[36])
+(36)
 });
-;
