@@ -66,7 +66,7 @@ function(d3, $, L)(
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
 [d3.js]                 |    3.4.1  |  
-[es5-shim.js]           |    2.3.0  |  
+[es5-shim.js]           |    4.1.1  |  
 [highlight.js]          |      8.5  |  `node tools/build.js -t amd -n bash css javascript markdown python scss xml`
 [jquery]                |   1.11.3  |  
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first
@@ -87,7 +87,7 @@ Library                 |  Version  |  Notes
 [volojs]:                http://volojs.org
 [AMD]:                   https://wq.io/docs/amd
 [d3.js]:                 https://github.com/mbostock/d3
-[es5-shim.js]:           https://github.com/kriskowal/es5-shim
+[es5-shim.js]:           https://github.com/es-shims/es5-shim
 [highlight.js]:          https://github.com/isagalaev/highlight.js
 [jquery]:                https://github.com/jquery/jquery
 [jquery.mobile]:         https://github.com/jquery/jquery-mobile
