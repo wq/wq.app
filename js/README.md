@@ -65,7 +65,7 @@ function(d3, $, L)(
 
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
-[d3.js]                 |    3.4.1  |  
+[d3.js]                 |    3.5.5  |  
 [es5-shim.js]           |    4.1.1  |  
 [highlight.js]          |      8.5  |  `node tools/build.js -t amd -n bash css javascript markdown python scss xml`
 [jquery]                |   1.11.3  |  
