@@ -73,6 +73,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.13.1  |
 [leaflet]               |    0.7.3  |  
+[leaflet.draw]          |    0.2.4  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [marked]                |    0.3.3  |  
 [mustache.js]           |    2.0.0  |  
@@ -94,6 +95,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
 [jquery.validate]:       https://github.com/jzaefferer/jquery-validation
 [leaflet]:               https://github.com/Leaflet/Leaflet
+[leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
 [marked]:                https://github.com/chjj/marked
 [mustache.js]:           https://github.com/janl/mustache.js
