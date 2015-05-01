@@ -71,7 +71,7 @@ Library                 |  Version  |  Notes
 [jquery]                |   1.11.1  |  
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first
 [jquery.mobile.router]  |  443d352  |  
-[jquery.validate]       |   1.13.0  |
+[jquery.validate]       |   1.13.1  |
 [leaflet]               |    0.7.3  |  
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [marked]                |    0.3.3  |  
