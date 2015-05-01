@@ -121,7 +121,7 @@ def mustache(**conf):
         try:
             template = open(template).read()
         except IOError as e:
-            raise click.FileError(template, hint=e)
+            raise click.FileError(template, hint=str(e))
 
     context = conf["context"] or {}
     if not isinstance(context, dict):
