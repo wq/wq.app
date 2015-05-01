@@ -75,7 +75,7 @@ Library                 |  Version  |  Notes
 [leaflet]               |    0.7.2  |  
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [marked]                |    0.3.1  |  
-[mustache.js]           |    0.8.1  |  
+[mustache.js]           |    2.0.0  |  
 [proj4]                 |    2.3.6  |  
 [proj4leaflet]          |    0.7.1  |  
 [rbush]                 |    1.4.0  |
