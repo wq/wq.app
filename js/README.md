@@ -74,7 +74,7 @@ Library                 |  Version  |  Notes
 [jquery.validate]       |   1.13.0  |
 [leaflet]               |    0.7.2  |  
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
-[marked]                |    0.3.1  |  
+[marked]                |    0.3.3  |  
 [mustache.js]           |    2.0.0  |  
 [proj4]                 |    2.3.6  |  
 [proj4leaflet]          |    0.7.1  |  
