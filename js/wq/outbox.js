@@ -1,95 +1,131 @@
 /*!
  * wq.app 0.8.0-dev - wq/outbox.js
- * Queue saved forms for posting to the server
+ * Queue synced forms for posting to the server
  * (c) 2012-2015, S. Andrew Sheppard
  * https://wq.io/license
  */
 
 /* global FileUploadOptions */
 /* global FileTransfer */
+/* global Promise */
 
-define(['./store', './model'], function(ds, model) {
+define(['jquery', './store', './model', './online', './json', './console'],
+function($, ds, model, ol, json, console) {
 
+var _outboxes = {};
 var outbox = new _Outbox(ds);
 
 outbox.getOutbox = function(store) {
-    return new _Outbox(store);
+    if (_outboxes[store.name]) {
+        return _outboxes[store.name];
+    } else {
+        return new _Outbox(store);
+    }
 };
 
 return outbox;
 
 function _Outbox(store) {
-    var self = this;
+    var self = _outboxes[store.name] = this;
+
+    self.store = store;
     self.model = model({'query': 'outbox', 'store': store});
-    self.saveMethod = 'POST';
+    self.syncMethod = 'POST';
     self.cleanOutbox = true;
     self.maxRetries = 3;
 
-    self.init = function(options) {
+    self.init = function(opts) {
+
+        var optlist = [
+            // Default to store values but allow overriding
+            'service',
+            'formatKeyword',
+            'defaults',
+            'debugNetwork',
+            'debugValues',
+
+            // Outbox-specific options
+            'syncMethod',
+            'cleanOutbox',
+            'maxRetries',
+            'batchService',
+
+            // Outbox functions
+            'applyResult',
+            'updateModels',
+            'parseBatchResult'
+        ];
+        optlist.forEach(function(opt) {
+            if (self.store.hasOwnProperty(opt)) {
+                self[opt] = self.store[opt];
+            }
+            if (opts && opts.hasOwnProperty(opt)) {
+                self[opt] = opts[opt];
+            }
+        });
+
         if (self.cleanOutbox) {
-            // Clear out successfully saved items from previous runs, if any
-            self.set('outbox', self.unsavedItems());
+            // Clear out successfully synced items from previous runs, if any
+            // FIXME: should we hold up init until this is done?
+            self.unsyncedItems().then(self.model.overwrite);
         }
 
-        if (opts.batchService) {
-            self.batchService = opts.batchService;
-            if (opts.parseBatchResult)
-                self.parseBatchResult = opts.parseBatchResult;
-            else
-                self.parseBatchResult = self.parseData;
+        if (self.batchService && !self.parseBatchResult) {
+            self.parseBatchResult = self.store.parseData;
         }
     };
 
-    // Queue data for server use; use outbox to cache unsaved items
-    self.save = function(data, id, callback) {
-        var outbox = self.get('outbox');
-        if (!outbox)
-            outbox = [];
-
-        var item;
-        if (id)
-            item = self.find('outbox', id);
-
-        if (item && !item.saved) {
-            // reuse existing item
-            item.data = data;
-            delete item.retryCount;
-            delete item.error;
-        } else {
-            // create new item
-            item = {
-                data:  data,
-                saved: false,
-                id:    outbox.length + 1
-            };
-            if (data.listQuery) {
-                item.listQuery = data.listQuery;
-                delete data.listQuery;
+    // Queue data for server use; use outbox to cache unsynced items
+    self.save = function(data, id, noSend) {
+        return self.model.load().then(function(outbox) {
+            var item;
+            if (id) {
+                outbox.list.forEach(function(obj) {
+                    if (obj.id == id) {
+                        item = obj;
+                    }
+                });
             }
-            outbox.push(item);
-        }
-        self.set('outbox', outbox);
 
-        if (callback)
-            self.sendItem(item.id, callback);
-        else
-            return item.id;
+            if (item && !item.synced) {
+                // reuse existing item
+                item.data = data;
+                delete item.retryCount;
+                delete item.error;
+            } else {
+                // create new item
+                item = {
+                    data: data,
+                    synced: false,
+                    id: outbox.count + 1
+                };
+                if (data.modelConf) {
+                    item.modelConf = data.modelConf;
+                    delete data.modelConf;
+                }
+            }
+
+            return self.model.update([item]).then(function() {
+                if (noSend) {
+                    return item;
+                } else {
+                    return self.sendItem(item);
+                }
+            });
+        });
     };
 
     // Send a single item from the outbox to the server
-    self.sendItem = function(id, callback) {
-        var item = self.find('outbox', id);
-        if (!item || item.saved) {
-            if (callback) callback(null);
-            return;
+    self.sendItem = function(item) {
+        if (!item || item.synced) {
+            return Promise.resolve(null);
         } else if (!ol.online) {
-            if (callback) callback(item);
-            return;
+            return Promise.resolve(item);
         }
 
         var url = self.service;
-        var method = self.saveMethod;
-        var data = $.extend({}, item.data);
+        var method = self.syncMethod;
+        var data = json.extend({}, item.data);
         var contenttype;
         var processdata;
         var headers = {};
@@ -106,14 +142,14 @@ function _Outbox(store) {
             delete data.csrftoken;
         }
 
-        var defaults = $.extend({}, self.defaults);
+        var defaults = json.extend({}, self.defaults);
         if (defaults.format && !self.formatKeyword) {
             url = url.replace(/\/$/, '');
             url += '.' + defaults.format;
             delete defaults.format;
         }
-        if ($.param(defaults)) {
-            url += '?' + $.param(defaults);
+        if (json.param(defaults)) {
+            url += '?' + json.param(defaults);
         }
 
         if (data.data) {
@@ -123,41 +159,44 @@ function _Outbox(store) {
 
         if (self.debugNetwork) {
             console.log("Sending item to " + url);
-            if (self.debugValues)
+            if (self.debugValues) {
                 console.log(data);
+            } 
         }
 
         if (data.fileupload) {
             var opts = new FileUploadOptions();
-            opts.fileKey  = data.fileupload;
+            opts.fileKey = data.fileupload;
             opts.fileName = data[data.fileupload];
             delete data[data.fileupload];
             delete data.fileupload;
             opts.params = data;
             var ft = new FileTransfer();
-            ft.upload(opts.fileName, url,
-                function(res) {
-                    var response = JSON.parse(
-                        decodeURIComponent(res.response)
-                    );
-                    success(response);
-                },
-                function(res) {
-                    error({responseText: 'Error uploading file: ' + res.code});
-                }, opts
-            );
+            return Promise(function(resolve) {
+                ft.upload(opts.fileName, url,
+                    function(res) {
+                        var response = JSON.parse(
+                            decodeURIComponent(res.response)
+                        );
+                        resolve(success(response));
+                    },
+                    function(res) {
+                        resolve(error(
+                            {responseText: 'Error uploading file: ' + res.code}
+                        ));
+                    }, opts
+                );
+            });
         } else {
-            $.ajax(url, {
+            return Promise.resolve($.ajax(url, {
                 data: data,
                 type: method,
                 dataType: "json",
                 contentType: contenttype,
                 processData: processdata,
                 async: true,
-                success: success,
-                error: error,
                 headers: headers
-            });
+            })).then(success, error);
         }
 
         function success(result) {
@@ -165,13 +204,14 @@ function _Outbox(store) {
                 console.log("Item successfully sent to " + url);
             }
             self.applyResult(item, result);
-            // Re-save outbox to update caches
-            self.set('outbox', self.get('outbox'));
-
-            if (callback) callback(item, result);
+            return self.updateModels(item, result).then(function() {
+                return self.model.update([item]).then(function() {
+                    return item;
+                });
+            });
         }
 
-        function error(jqxhr, status) {
+        function error(jqxhr) {
             if (self.debugNetwork) {
                 console.warn("Error sending item to " + url);
             }
@@ -182,160 +222,176 @@ function _Outbox(store) {
                     item.error = jqxhr.responseText;
                 }
             } else {
-                item.error = status;
+                item.error = jqxhr.statusCode;
             }
-            self.set('outbox', self.get('outbox'));
-            if (callback) callback(item);
+            return self.model.update([item]).then(function() {
+                return item;
+            });
         }
     };
 
-    // Send all unsaved items to a batch service on the server
-    self.sendBatch = function(callback, retryAll) {
-        var items = retryAll ? self.unsavedItems() : self.pendingItems();
+    // Send all unsynced items, using batch service if available
+    self.sendAll = function(retryAll) {
+
+        var result = retryAll ? self.unsyncedItems() : self.pendingItems();
+
+        // Utilize batch service if it exists
+        if (self.batchService) {
+            return result.then(self.sendBatch);
+        } else {
+            return result.then(self.sendItems);
+        }
+    };
+
+    // Send items to a batch service on the server
+    self.sendBatch = function(items) {
         if (!items.length) {
-            callback(true);
-            return;
+            return Promise.resolve(true);
         }
         if (!ol.online) {
-            callback(false);
-            return;
+            return Promise.resolve(false);
         }
 
-        var data   = [];
-        $.each(items, function(i, item) {
+        var data = [];
+        items.forEach(function(item) {
             data.push(item.data);
         });
 
-        var success = true;
-        $.ajax(self.batchService, {
+        return Promise.resolve($.ajax(self.batchService, {
             data: JSON.stringify(data),
             type: "POST",
             dataType: "json",
             contentType: "application/json",
-            async: true,
-            success: function(r) {
-                var results = self.parseBatchResult(r);
-                if (!results || results.length != items.length) {
-                    if (callback) callback(null);
-                    return;
-                }
-
-                // Apply save results to individual items
-                $.each(results, function(i) {
-                    var item = items[i];
-                    self.applyResult(item, results[i]);
-                    if (!item.saved) {
-                        success = false;
-                        item.retryCount = item.retryCount || 0;
-                        item.retryCount++;
-                    }
-                });
-                // Re-save outbox to update caches
-                self.set('outbox', self.get('outbox'));
-
-                if (callback) callback(success);
-            },
-            error: function() {
-                if (callback) callback(null);
+            async: true
+        })).then(function(r) {
+            var results = self.parseBatchResult(r);
+            if (!results || results.length != items.length) {
+                return null;
             }
-        });
-    };
 
-    // Send all unsaved items, using batch service if available
-    self.sendAll = function(callback, retryAll) {
-        var outbox = self.get('outbox');
-        if (!outbox) {
-            if (callback) callback(true);
-            return;
-        }
-
-        if (!ol.online) {
-            if (callback) callback(false);
-            return;
-        }
-
-        // Utilize batch service if it exists
-        if (self.batchService) {
-            self.sendBatch(callback, retryAll);
-            return;
-        }
-
-        // No batch service; emulate batch mode by sending each item to
-        // the server and summarizing the result
-        var items = retryAll ? self.unsavedItems() : self.pendingItems();
-
-        var remain = items.length;
-        if (!remain) {
-            callback(true);
-            return;
-        }
-
-        var success = true;
-        $.each(items, function(i, item) {
-            self.sendItem(item.id, function(item) {
-                if (!item) {
-                    // sendItem failed
-                    success = null;
-                } else if (!item.saved) {
-                    // sendItem did not result in save
-                    if (success)
-                        success = false;
+            // Apply sync results to individual items
+            var success = true;
+            results.forEach(function(result, i) {
+                var item = items[i];
+                self.applyResult(item, result);
+                if (!item.synced) {
+                    success = false;
                     item.retryCount = item.retryCount || 0;
                     item.retryCount++;
                 }
-                remain--;
-                if (!remain) {
-                    // After last sendItem is complete, wrap up
-                    // (this should always execute, since sendItem calls back
-                    //  even after an error)
-                    callback(success);
+            });
+
+            return self.model.update(items).then(function() {
+                return success;
+            });
+
+        }, function() {
+            return null;
+        });
+    };
+
+    self.sendItems = function(items) {
+        // No batch service; emulate batch mode by sending each item to
+        // the server and summarizing the result
+
+        if (!items.length) {
+            return Promise.resolve(true);
+        }
+        if (!ol.online) {
+            return Promise.resolve(false);
+        }
+
+        var results = items.map(function(item) {
+            return self.sendItem(item);
+        });
+
+        return Promise.all(results).then(function(items) {
+            var success = true;
+            items.forEach(function(item) {
+                if (!item) {
+                    // sendItem failed
+                    success = null;
+                } else if (!item.synced) {
+                    // sendItem did not result in sync
+                    if (success) {
+                        success = false;
+                    }
+                    item.retryCount = item.retryCount || 0;
+                    item.retryCount++;
                 }
-            }, true);
+            });
+            return self.model.update(items).then(function() {
+                return success;
+            });
         });
     };
 
     // Process service send() results
     // (override to apply additional result attributes to item,
-    //  but be sure to set item.saved)
+    //  but be sure to set item.synced)
     self.applyResult = function(item, result) {
-        // Default: assume non-empty result means the save was successful
-        if (result)
-            item.saved = true;
+        // Default: assume non-empty result means the sync was successful
+        if (result) {
+            item.synced = true;
+        }
     };
 
-    // Count of pending outbox items (never saved, or save was unsuccessful)
-    self.unsaved = function(listQuery) {
-        return self.unsavedItems(listQuery).length;
+    // Update any corresponding models with synced data
+    self.updateModels = function(item, result) {
+        if (item.modelConf && item.synced) {
+            var conf = json.extend({'store': self.store}, item.modelConf);
+            return model(conf).update([result]).then(function() {
+                return result;
+            });
+        } else {
+            return Promise.resolve();
+        }
     };
 
-    // Actual unsaved items
-    self.unsavedItems = function(listQuery) {
-        var items = self.filter('outbox', {'saved': false});
+    // Count of unsynced outbox items (never synced, or sync was unsuccessful)
+    self.unsynced = function(modelConf) {
+        return self.unsyncedItems(modelConf).then(function(items) {
+            return items.length;
+        });
+    };
 
-        // Return all unsaved items by default
-        if (!listQuery)
-            return items;
+    // Actual unsynced items
+    self.unsyncedItems = function(modelConf) {
+        var result = self.model.filter({'synced': false});
+
+        // Return all unsynced items by default
+        if (!modelConf) {
+            return result;
+        }
 
         // Otherwise, only match items corresponding to the specified list
-        return items.filter(function(item) {
-            if (!item.listQuery)
-                return false;
-            for (var key in listQuery)
-                if (item.listQuery[key] != listQuery[key])
+        return result.then(function(items) {
+            return items.filter(function(item) {
+                if (!item.modelConf) {
                     return false;
-            return true;
+                }
+                for (var key in modelConf) {
+                    if (item.modelConf[key] != modelConf[key]) {
+                        return false;
+                    }
+                }
+                return true;
+            });
         });
     };
 
-    // Unsaved items that have been sent less than maxRetries times
-    self.pendingItems = function(listQuery) {
-        var items = [];
-        self.unsavedItems(listQuery).forEach(function(item) {
-            if (!self.maxRetries || !item.retryCount ||
-                    item.retryCount < self.maxRetries)
-                items.push(item);
+    // Unsynced items that have been sent less than maxRetries times
+    self.pendingItems = function(modelConf) {
+        return self.unsyncedItems(modelConf).then(function(unsynced) {
+            var items = [];
+            unsynced.forEach(function(item) {
+                if (!self.maxRetries || !item.retryCount ||
+                        item.retryCount < self.maxRetries) {
+                    items.push(item);
+                }
+            });
+            return items;
         });
-        return items;
     };
 }
 

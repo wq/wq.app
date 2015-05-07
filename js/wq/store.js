@@ -7,36 +7,39 @@
 
 /* global Promise */
 
-define(['jquery', './online', './console', 'localforage', 'es5-shim'],
-function($, ol, console, lf) {
+define(['localforage', './json', './console', 'es5-shim'],
+function(lf, json, console) {
+
+var _stores = {};
 
 // Hybrid module object provides/is a singleton instance...
 var store = new _Store('main');
 
 // ... and a way to retrieve/autoinit other stores
 store.getStore = function(name) {
-    if (_stores[name])
+    if (_stores[name]) {
         return _stores[name];
-    else
+    } else {
         return new _Store(name);
+    }
 };
 
 // Internal variables and functions
-var _stores;
 var _verbosity = {
     'Network': 1,
     'Lookup': 2,
     'Values': 3
 };
 
-function _Store(name) {
-    if (!_stores)
-        _stores = {};
+return store;
 
-    if (_stores[name])
+function _Store(name) {
+    if (_stores[name]) {
         throw name + ' store already exists!';
+    }
 
     var self = _stores[name] = this;
+    self.name = name;
 
     // Base URL of web service
     self.service = undefined;
@@ -49,7 +52,7 @@ function _Store(name) {
     var _promises = {}; // Save promises to prevent redundant fetches
 
     self.init = function(opts) {
-        if (typeof opts == "string") {
+        if (typeof opts == "string" || arguments.length > 1) {
             throw "ds.init() now takes a single configuration argument";
         }
         var optlist = [
@@ -63,31 +66,31 @@ function _Store(name) {
             'formatKeyword'
         ];
         optlist.forEach(function(opt) {
-            if (opts.hasOwnProperty(opt))
+            if (opts.hasOwnProperty(opt)) {
                 self[opt] = opts[opt];
+            }
         });
         if (self.debug) {
             for (var level in _verbosity) {
-                if (self.debug >= _verbosity[level])
+                if (self.debug >= _verbosity[level]) {
                     self['debug' + level] = true;
+                }
             }
         }
-
-        //if (!_ls)
-        //   self.storageFail();
     };
 
     // Get value from datastore
     self.get = function(query) {
-        if ($.isArray(query)) {
+        if (json.isArray(query)) {
             var promises = query.map(self.get);
             return Promise.all(promises);
         }
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
 
-        if (self.debugLookup)
+        if (self.debugLookup) {
             console.log('looking up ' + key);
+        }
 
         // If that fails, check storage (if available)
         var promise = lf.getItem(_prefix + key).then(function(result) {
@@ -105,8 +108,9 @@ function _Store(name) {
         function fetchData() {
             // Search ends here if query is a simple string
             if (typeof query == "string") {
-                if (self.debugLookup)
+                if (self.debugLookup) {
                     console.log('not found');
+                }
                 return null;
             }
 
@@ -121,14 +125,16 @@ function _Store(name) {
     self.set = function(query, value) {
         var key = self.toKey(query);
         if (value === null) {
-            if (self.debugLookup)
+            if (self.debugLookup) {
                 console.log('deleting ' + key);
+            }
             return lf.removeItem(_prefix + key);
         } else {
             if (self.debugLookup) {
                 console.log('saving new value for ' + key);
-                if (self.debugValues)
+                if (self.debugValues) {
                     console.log(value);
+                }
             }
             return lf.setItem(_prefix + key, value).then(function(d) {
                 return d;
@@ -141,24 +147,34 @@ function _Store(name) {
     // Callback for localStorage failure - override to inform the user
     self.storageFail = function(item, error) {
         /* jshint unused: false */
-        if (self.storageUsage() > 0)
-            console.warn("localStorage appears to be full.");
-        else
-            console.warn("localStorage appears to be disabled.");
+        self.storageUsage().then(function(usage) {
+            if (usage > 0) {
+                console.warn("Storage appears to be full.");
+            } else {
+                console.warn("Storage appears to be disabled.");
+            }
+        });
     };
 
     // Simple computation for quota usage
     self.storageUsage = function() {
-        if (!_ls)
-            return null;
-        var usage = 0;
-        for (var key in _ls) {
-            if (_ls.hasOwnProperty(key)) {
-                usage += _ls.getItem(key).length;
-            }
-        }
-        // UTF-16 means two bytes per character in storage - at least on webkit
-        return usage * 2;
+        return lf.keys().then(function(keys) {
+            var results = keys.map(function(key) {
+                return lf.getItem(key).then(function(item) {
+                    // FIXME: This won't handle binary values
+                    return JSON.stringify(item).length;
+                });
+            });
+            return Promise.all(results).then(function(lengths) {
+                var usage = 0;
+                lengths.forEach(function(l) {
+                    usage += l;
+                });
+                // UTF-16 means two bytes per character in storage
+                // (at least on webkit)
+                return usage * 2;
+            });
+        });
     };
 
     // Convert "/url" to {'url': "url"} (simplify common use case)
@@ -171,12 +187,14 @@ function _Store(name) {
 
     // Helper to allow simple objects to be used as keys
     self.toKey = function(query) {
-        if (!query)
+        if (!query) {
             throw "Invalid query!";
-        if (typeof query == "string")
+        }
+        if (typeof query == "string") {
             return query;
-         else
-            return $.param(query);
+        } else {
+            return json.param(query);
+        }
     };
 
     // Helper to check existence of a key without loading the object
@@ -185,8 +203,9 @@ function _Store(name) {
         return self.keys().then(function(keys) {
             var found = false;
             keys.forEach(function(k) {
-                if (k === key)
+                if (k === key) {
                     found = true;
+                }
             });
             return found;
         });
@@ -199,7 +218,7 @@ function _Store(name) {
 
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
-        var data = $.extend({}, self.defaults, query);
+        var data = json.extend({}, self.defaults, query);
         var url = self.service;
         if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
@@ -210,19 +229,15 @@ function _Store(name) {
             delete data.format;
         }
 
-        if (_promises[key])
+        if (_promises[key]) {
             return _promises[key];
+        }
 
         if (self.debugNetwork) {
             console.log("fetching " + key);
         }
 
-        var promise = Promise.resolve($.ajax(url, {
-            'data': data,
-            'dataType': self.jsonp ? "jsonp" : "json",
-            'cache': false,
-            'async': true
-        }));
+        var promise = json.get(url, data, self.jsonp);
         _promises[key] = promise.then(function(result) {
             var data = self.parseData(result);
             delete _promises[key];
@@ -232,13 +247,15 @@ function _Store(name) {
             }
             if (self.debugNetwork) {
                 console.log("received result for " + key);
-                if (self.debugValues)
+                if (self.debugValues) {
                     console.log(data);
+                }
             }
-            if (!cache)
+            if (cache) {
+                return self.set(query, data);
+            } else {
                 return data;
-
-            return self.set(query, data);
+            }
         },
         function() {
             delete _promises[key];
@@ -254,7 +271,7 @@ function _Store(name) {
     };
 
     // Helper function for prefetching data
-    self.prefetch = function(query, callback) {
+    self.prefetch = function(query) {
         return self.fetch(query, true);
     };
 
@@ -292,7 +309,5 @@ function _Store(name) {
     };
 
 }
-
-return store;
 
 });

@@ -9,7 +9,9 @@
     "nonew": true,
     "unused": true,
     "undef": true,
+    "curly": true,
     "globals": {
-        "define": false
+        "define": false,
+        "require": false
     }
 }

@@ -5,7 +5,9 @@
  * https://wq.io/license
  */
 
-define(['./store'], function(ds) {
+/* global Promise */
+
+define(['./store', './json', './console'], function(ds, json, console) {
 
 function model(config) {
     return new Model(config);
@@ -48,17 +50,36 @@ function Model(config) {
     var _group_cache = {}; // Cache for list grouped by e.g. foreign key
 
     function getPage(page_num, fn) {
-        var query = {};
-        for (var key in self.query) {
-            query[key] = self.query[key];
+        var query;
+        if (typeof self.query == "string") {
+            query = self.query;
+        } else {
+            query = json.extend({}, self.query);
+            if (page_num > 1) {
+                query.page = page_num;
+            }
         }
-        if (page_num > 1) {
-            query.page = page_num;
-        }
-        if (!fn) {
-            fn = self.store.get;
-        }
-        return fn(query);
+        return fn(query).then(function(data) {
+            if (!data) {
+                data = [];
+            }
+            if (json.isArray(data)) {
+                data = {'list': data};
+            }
+            if (!data.pages) {
+                data.pages = 1;
+            }
+            if (!data.count) {
+                data.count = data.list.length;
+            }
+            if (!data.per_page) {
+                data.per_page = data.list.length;
+            }
+            if (!data.page) {
+                data.page = page_num;
+            }
+            return data;
+        });
     }
 
     function resetCaches() {
@@ -67,24 +88,7 @@ function Model(config) {
     }
 
     self.load = function() {
-        return getPage(1).then(function(data) {
-            if (!data) {
-                data = [];
-            }
-            if ($.isArray(data)) {
-                data = {'list': data};
-            }
-            if (!data.pages) {
-                data.pages = 1;
-            }
-            if (!data.per_page) {
-                data.per_page = data.length;
-            }
-            if (!data.count) {
-                data.count = data.length;
-            }
-            return data;
-        });
+        return getPage(1, self.store.get);
     };
 
     self.info = function() {
@@ -141,64 +145,80 @@ function Model(config) {
     };
 
     // Filter an array of objects by one or more attributes
-    self.filter = function(query, filter, any, usesvc) {
-        var result = [], group, attr;
-        if (!filter) {
+    self.filter = function(filter, any, localOnly) {
+
+        // If partial list, we can never be 100% sure all filter matches are
+        // stored locally. In that case, run query on server.
+        if (!localOnly && config.partial && config.url) {
+            // FIXME: won't work as expected if any == true
+            var query = json.extend({'url': config.url}, filter);
+            return self.store.fetch(query);
+        }
+
+        if (!filter || !Object.keys(filter).length) {
             // No filter: return unmodified list directly
-            return self.get(query, usesvc);
+            return self.load();
 
         } else if (any) {
             // any=true: Match on any of the provided filter attributes
-
-            for (attr in filter) {
-                group = self.getGroup(query, attr, filter[attr], usesvc);
+            var results = Object.keys(filter).map(function(attr) {
+                return self.getGroup(attr, filter[attr]);
+            });
+            return Promise.all(results).then(function(groups) {
+                var result = [];
                 // Note: might duplicate objects matching more than one filter
-                result = result.concat(group);
-            }
-            return result;
-
+                groups.forEach(function(group) {
+                    result = result.concat(group);
+                });
+                return result;
+            });
         } else {
             // Default: require match on all filter attributes
 
             // Convert to array for convenience
             var afilter = [];
-            for (attr in filter)
+            for (var attr in filter) {
                 afilter.push({'name': attr, 'value': filter[attr]});
-
-            // Empty filter: return unmodified list directly
-            if (!afilter.length)
-                return self.get(query, usesvc);
+            }
 
             // Use getGroup to filter list on first given attribute
             var f = afilter.shift();
-            group = self.getGroup(query, f.name, f.value, usesvc);
+            return self.getGroup(f.name, f.value).then(function(group) {
+                // If only one filter attribute was given, return group as-is
+                if (!afilter.length) {
+                    return group;
+                }
 
-            // If only one filter attribute was given return the group as is
-            if (!afilter.length)
-                return group;
-
-            // Otherwise continue to filter using the remaining attributes
-            $.each(group, function(i, obj) {
-                var match = true;
-                $.each(afilter, function(i, f) {
-                    if (f.value != obj[f.name])
-                        match = false;
+                var result = [];
+                // Otherwise continue to filter using the remaining attributes
+                group.forEach(function(obj) {
+                    var match = true;
+                    afilter.forEach(function(f) {
+                        // FIXME: What about multi-valued filters?
+                        if (f.value != obj[f.name]) {
+                            match = false;
+                        }
+                    });
+                    if (match) {
+                        result.push(obj);
+                    }
                 });
-                if (match)
-                    result.push(obj);
+                return result;
             });
-            return result;
         }
     };
 
     // Merge new/updated items into list
     self.update = function(update, idcol) {
-        if (!$.isArray(update))
+        if (!json.isArray(update)) {
             throw "Data is not an array!";
-        if (!idcol)
+        }
+        if (!idcol) {
             idcol = 'id';
-        if (config.reversed)
+        }
+        if (config.reversed) {
             update = update.reverse();
+        }
         var updateById = {};
         update.forEach(function(obj) {
             updateById[obj[idcol]] = obj;
@@ -207,7 +227,7 @@ function Model(config) {
             data.list.forEach(function(obj) {
                 var id = obj[idcol];
                 if (updateById[id]) {
-                    $.extend(obj, updateById[id]);
+                    json.extend(obj, updateById[id]);
                     delete updateById[id];
                 }
             });
@@ -221,15 +241,16 @@ function Model(config) {
                     data.list.push(obj);
                 }
             });
-            return self.overwrite(data).then(function() {
-                return data.list;
-            });
+            return self.overwrite(data);
         });
     };
 
     // Overwrite entire list
     self.overwrite = function(data) {
         resetCaches();
+        if (data.pages == 1 && data.list) {
+            data.count = data.per_page = data.list.length;
+        }
         return self.store.set(self.query, data);
     };
 
@@ -244,7 +265,7 @@ function Model(config) {
     // items from server; idcol should be a unique identifier for the list
     self.fetchUpdate = function(params, idcol) {
         // Update local list with recent items from server
-        var q = $.extend({}, self.query, params);
+        var q = json.extend({}, self.query, params);
         return self.store.fetch(q).then(function(data) {
             return self.update(data, idcol);
         });
@@ -252,93 +273,91 @@ function Model(config) {
 
     // Unsaved form items related to this list
     self.unsavedItems = function() {
-        return require('./outbox').unsavedItems(self.query);
+        // Note: wq/outbox needs to have already been loaded for this to work
+        return require('./outbox').getOutbox(
+            self.store
+        ).unsavedItems(self.query);
     };
 
     // Apply a predefined function to a retreived item
     self.compute = function(fn, item) {
-        if (self.functions[fn])
+        if (self.functions[fn]) {
             return self.functions[fn](item);
-        else
+        } else {
             return null;
+        }
     };
 
     // Get list from datastore, index by a unique attribute (e.g. primary key)
     self.getIndex = function(attr) {
         return self.load().then(function(data) {
-            if (!_index_cache[attr]) {
-                _index_cache[attr] = {};
-                data.list.forEach(function(obj) {
-                    var id = obj[attr];
-                    if (id === undefined && self.functions[attr])
-                        id = self.compute(attr, obj);
-                    if (id !== undefined)
-                        _index_cache[attr][id] = obj;
-                });
+            if (_index_cache[attr]) {
+                return _index_cache[attr];
             }
+            _index_cache[attr] = {};
+            data.list.forEach(function(obj) {
+                var id = obj[attr];
+                if (id === undefined && self.functions[attr]) {
+                    id = self.compute(attr, obj);
+                }
+                if (id !== undefined) {
+                    _index_cache[attr][id] = obj;
+                }
+            });
             return _index_cache[attr];
         });
     };
 
     // Get list from datastore, grouped by an attribute (e.g. foreign key)
     self.getGroups = function(attr) {
-        query = self.normalizeQuery(query);
-        var key = self.toKey(query);
-
-        if (!_group_cache[key] || !_group_cache[key][attr] || usesvc) {
-            var list = self.get(query, usesvc);
-            if (!list || !$.isArray(list))
-                return null;
-
-            if (!_group_cache[key])
-                _group_cache[key] = {};
-
-            if (!_group_cache[key][attr]) {
-                _group_cache[key][attr] = {};
-                $.each(list, function (i, obj) {
-                    var value = obj[attr];
-                    if (value === undefined && _functions[attr])
-                        value = self.compute(attr, obj);
-
-                    if ($.isArray(value))
-                        // Assume multivalued attribute (e.g. M2M relationship)
-                        $.each(value, function(i, v) {
-                            _addToCache(key, attr, v, obj);
-                        });
-                    else
-                        _addToCache(key, attr, value, obj);
-
-                });
+        return self.load().then(function(data) {
+            if (_group_cache[attr]) {
+                return _group_cache[attr];
             }
+            _group_cache[attr] = {};
+            data.list.forEach(function(obj) {
+                var value = obj[attr];
+                if (value === undefined && self.functions[attr]) {
+                    value = self.compute(attr, obj);
+                }
 
-        }
-
-        return _group_cache[key][attr];
-
-        // Internal function
-        function _addToCache(key, attr, val, obj) {
-            if (!_group_cache[key][attr][val])
-                _group_cache[key][attr][val] = [];
-            _group_cache[key][attr][val].push(obj);
-        }
+                // Allow multivalued attribute (e.g. M2M relationship)
+                if (!json.isArray(value)) {
+                    value = [value];
+                }
+                value.forEach(function(v) {
+                    if (!_group_cache[attr][v]) {
+                        _group_cache[attr][v] = [];
+                    }
+                    _group_cache[attr][v].push(obj);
+                });
+            });
+            return _group_cache[attr];
+        });
     };
 
     // Get individual subset from grouped list
-    self.getGroup = function(query, attr, value, usesvc) {
-        if ($.isArray(value)) {
+    self.getGroup = function(attr, value) {
+        if (json.isArray(value)) {
             // Assume multivalued query, return all matching groups
-            var result = [];
-            $.each(value, function(i, v) {
-                var group = self.getGroup(query, attr, v, usesvc);
-                result = result.concat(group);
+            var results = value.map(function(v) {
+                return self.getGroup(v);
             });
-            return result;
+            return Promise.all(results).then(function(groups) {
+                var result = [];
+                groups.forEach(function(group) {
+                    result = result.concat(group);
+                });
+                return result;
+            });
         }
-        var groups = self.getGroups(query, attr, usesvc);
-        if (groups && groups[value] && groups[value].length > 0)
-            return groups[value];
-        else
-            return [];
+        return self.getGroups(attr).then(function(groups) {
+            if (groups && groups[value] && groups[value].length > 0) {
+                return groups[value];
+            } else {
+                return [];
+            }
+        });
     };
 }
 

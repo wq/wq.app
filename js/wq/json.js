@@ -1,21 +1,29 @@
 /*
  * wq.app 0.8.0-dev - wq/json.js
- * Simple wrapper around jQuery.ajax
+ * Simple wrapper around jQuery.ajax & object functions
  * (so projects can supply non-jQuery implementations if needed.)
  * (c) 2013-2015, S. Andrew Sheppard
  * https://wq.io/license
  */
 
-define(['jquery'], function($) {
+/* global Promise */
+
+define(['jquery', 'localforage'], function($) {
 
 var json = {};
 
-json.get = function fetch(url, success, error) {
-    $.ajax(url, {
-        'dataType': 'json',
-        'success': success,
-        'error': error
-    });
+json.extend = $.extend;
+
+json.param = $.param;
+
+json.isArray = $.isArray;
+
+json.get = function(url, params, jsonp) {
+    return Promise.resolve($.ajax(url, {
+        'data': params,
+//        'cache': false,
+        'dataType': jsonp ? "jsonp" : "json"
+    }));
 };
 
 return json;
