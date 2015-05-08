@@ -1,14 +1,20 @@
 [
     {
         "id": "one",
-        "label": "ONE"
+        "label": "ONE",
+        "type_id": 1,
+        "color": "#f00"
     },
     {
         "id": "two",
-        "label": "TWO"
+        "label": "TWO",
+        "type_id": 1,
+        "color": "#0f0"
     },
     {
         "id": "three",
-        "label": "THREE"
+        "label": "THREE",
+        "type_id": 2,
+        "color": "#00f"
     }
 ]

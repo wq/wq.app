@@ -1,0 +1,49 @@
+{{>header}}
+<form action="{{pages_info.base_url}}/{{id}}" method="post" data-ajax="false">
+  <input type="hidden" name="_method" value="put">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+  <ul data-role="listview">
+    <li>
+      <label for="label">Name</label>
+      <input name="label" id="label" value="{{label}}">
+    </li>
+    <li>
+      <fieldset data-role="controlgroup" data-type="horizontal">
+        <legend>Color</legend>
+        {{#color_choices}}
+        <input type='radio' value='{{value}}' id='color-{{value}}' name='color'
+           {{#selected}}checked{{/selected}}>
+        <label for='color-{{value}}'>{{label}}</label>
+        {{/color_choices}}
+      </fieldset>
+    </li>
+    <li>
+      <label for="type_id">Type</label>
+      <select name="type_id" id="type_id">
+        <option value="">Select a type...</option>
+      {{#type_list}}
+        <option value="{{id}}"{{#selected}} selected{{/selected}}>
+          {{label}}
+        </option>
+      {{/type_list}}
+      </select>
+    </li>
+    <li>
+      <div class="ui-grid-a">
+        <div class="ui-block-a">
+          <a href="{{pages_info.base_url}}/items/{{id}}"
+             data-role="button" data-icon="back" data-transition="flip"
+             data-direction="reverse">
+            Back
+          </a>
+        </div>
+        <div class="ui-block-b">
+          <button type="submit" data-theme="b" data-icon="check">
+            Submit
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</form>
+{{>footer}}

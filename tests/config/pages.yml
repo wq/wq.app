@@ -1,0 +1,32 @@
+about:
+    url: 'about'
+    label: 'About'
+
+version:
+    url: 'version'
+
+item:
+    url: 'items'
+    label: 'Items'
+    list: true
+    map: true
+    partial: true
+    parents:
+        itemtype: ['type']
+    choices:
+        color:
+           -
+              value: "#f00"
+              label: "Red"
+           -
+              value: "#0f0"
+              label: "Green"
+           -
+              value: "#00f"
+              label: "Blue"
+
+itemtype:
+    url: 'itemtypes'
+    label: 'Item Types'
+    list: true
+    children: ['item']

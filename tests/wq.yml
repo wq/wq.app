@@ -1,0 +1,21 @@
+collectjson:
+    -
+        paths:
+             - templates
+        type: html
+        output: js/data/templates.js
+        json:
+            indent: 4
+        jsonp: define
+    -
+        paths:
+             - config
+        type: yaml
+        extension: yml
+        output: js/data/config.js
+        json:
+            indent: 4
+        jsonp: define
+scss:
+   indir: "scss"
+   outdir: "css"

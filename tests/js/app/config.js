@@ -1,28 +1,25 @@
-define({
+define(['data/config', 'data/templates'], function(wqConfig, templates) {
+return {
     'transitions': {
         'default': 'slide'
     },
-    'pages': {
-        'about': {
-            'url': 'about',
-            'label': 'About'
-        },
-        'version': {
-            'url': 'version',
-        },
-        'item': {
-            'url': 'items',
-            'label': 'Items',
-            'list': true,
-            'map': true
-        }
+    'router': {
+        'base_url': window.location.pathname.replace(/\/$/,'')
     },
+    'pages': wqConfig.pages,
     'map': {
         'zoom': 13,
         'center': [44.98, -93.27],
-        'owl': true
+//      'owl': true
     },
-    'defaults': {
-        'version': '0.0.0'
-    }
+    'template': {
+        'templates': templates,
+        'defaults': {
+            'version': '0.0.0'
+        }
+    },
+
+    'debug': true,
+    'loadMissingAsJson': true
+};
 });

@@ -1,0 +1,12 @@
+<div data-role='page'>
+  <div data-role='header'>
+    {{>home}}
+    <h1>{{label}}</h1>
+    <a href="{{pages_info.base_url}}/items/{{id}}/edit" data-icon="edit"
+       data-iconpos="notext" data-transition="flip">Edit</a>
+  </div>
+  <div role="main" class="ui-content">
+    <p>{{label}}</p>
+    <p><span style="color:{{color}}">{{color_label}}</span></p>
+    <p>{{#type}}{{label}}{{/type}}</p>
+{{>footer}}

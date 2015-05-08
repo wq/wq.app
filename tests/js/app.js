@@ -1,16 +1,15 @@
 requirejs.config({
     'baseUrl': '../js',
     'paths': {
-        'app': '../tests/js/app'
+        'app': '../tests/js/app',
+        'data': '../tests/js/data'
     }
 });
 
-var baseurl = window.location.pathname.replace(/\/$/,'');
-
-require(['wq/app', 'wq/map', 'wq/owl','app/config', 'app/templates'],
-function(app, map, owl, config, templates) {
-    app.init(config, templates, baseurl);
-    map.init(config.map);
-    owl.init();
-    app.jqmInit();
+require(['wq/app', 'wq/map', 'app/config'],
+function(app, map, config) {
+    app.init(config).then(function() {
+        map.init(config.map);
+        app.jqmInit();
+    });
 });
