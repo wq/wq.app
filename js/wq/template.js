@@ -11,10 +11,14 @@ function(m) {
 // Exported module object
 var tmpl = {};
 
-tmpl.init = function(templates, partials, defaults) {
-    if (templates) _templates = templates;
-    if (partials)  _partials  = partials;
-    if (defaults)  _defaults  = defaults;
+tmpl.init = function(config) {
+    if (arguments.length > 1 ||
+            (config && !config.templates && !config.defaults)) {
+        throw "tmpl.init() now takes a single configuration argument";
+    }
+    _templates = config.templates || {};
+    _partials = config.partials || config.templates.partials || {};
+    _defaults = config.defaults || {};
 };
 
 tmpl.setDefault = function(key, value) {
@@ -23,10 +27,12 @@ tmpl.setDefault = function(key, value) {
 
 tmpl.render = function(template, data) {
     var context = {}, key;
-    for (key in _defaults)
+    for (key in _defaults) {
         context[key] = _defaults[key];
-    for (key in data)
+    }
+    for (key in data) {
         context[key] = data[key];
+    }
 
     template = _templates[template] || template;
     return m.render(template, context, _partials);

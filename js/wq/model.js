@@ -122,7 +122,7 @@ function Model(config) {
     };
 
     // Find an object by id
-    self.find = function(value, attr) {
+    self.find = function(value, attr, localOnly) {
         if (!attr) {
             attr = 'id';
         }
@@ -134,9 +134,9 @@ function Model(config) {
         return self.getIndex(attr).then(function(ilist) {
             if (ilist && ilist[value]) {
                 return ilist[value];
-            } else {
+            } else if (attr == "id") {
                 // Not found in local list; try server
-                if (attr == "id" && config.partial && config.url) {
+                if (!localOnly && config.partial && config.url) {
                     return self.store.fetch('/' + config.url + '/' + value);
                 }
             }
@@ -274,7 +274,13 @@ function Model(config) {
     // Unsaved form items related to this list
     self.unsavedItems = function() {
         // Note: wq/outbox needs to have already been loaded for this to work
-        return require('./outbox').getOutbox(
+        var outbox;
+        try {
+            var outbox = require('./outbox');
+        } catch(e) {
+            return Promise.resolve([]);
+        }
+        return outbox.getOutbox(
             self.store
         ).unsavedItems(self.query);
     };

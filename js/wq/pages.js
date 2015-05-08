@@ -20,10 +20,14 @@ var pages = {
 };
 
 // Configuration
-pages.init = function(baseurl, config) {
+pages.init = function(config) {
     // Define baseurl (without trailing slash) if it is not /
-    if (baseurl)
-        pages.info.base_url = baseurl;
+    if (typeof config == "string" || arguments.length > 1) {
+        throw "pages.init() now takes a single configuration argument";
+    }
+    if (config && config.base_url) {
+        pages.info.base_url = config.base_url;
+    }
 
     pages.config = $.extend(pages.config, config || {});
 

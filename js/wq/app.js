@@ -6,10 +6,13 @@
  * https://wq.io/license
  */
 
+/* global Promise */
+
 define(['jquery', 'jquery.mobile',
-        './store', './pages', './template', './spinner', './console',
+        './store', './model', './outbox', './pages', './template',
+        './spinner', './console',
         'es5-shim'],
-function($, jqm, ds, pages, tmpl, spin, console) {
+function($, jqm, ds, model, outbox, pages, tmpl, spin, console) {
 
 var app = {
     'OFFLINE': 'offline',
@@ -17,11 +20,51 @@ var app = {
     'ERROR': 'error'
 };
 
-app.init = function(config, templates, baseurl, svc) {
-    if (baseurl === undefined)
-        baseurl = '';
-    if (svc === undefined)
-        svc = baseurl;
+app.models = {};
+
+app.init = function(config) {
+    if (arguments.length > 1) {
+        throw "app.init() now takes a single configuration argument";
+    }
+    // Router (wq/pages.js) configuration
+    if (!config.router) {
+        config.router = {
+            'base_url': ''
+        };
+    }
+
+    // Store (wq/store.js) configuration
+    if (!config.store) {
+        config.store = {
+            'service': config.router.base_url,
+            'defaults': {'format': 'json'}
+        };
+    }
+    if (!config.store.fetchFail) {
+        config.fetchFail = _fetchFail;
+    }
+
+    // Outbox (wq/outbox.js) configuration
+    if (!config.outbox) {
+        config.outbox = {};
+    }
+    if (!config.outbox.updateModels) {
+        config.outbox.updateModels = _updateModels;
+    }
+
+    // Propagate debug setting to other modules
+    if (config.debug) {
+        config.router.debug = config.debug;
+        config.store.debug = config.debug;
+    }
+
+    // Load missing (non-local) content as JSON, or as server-rendered HTML?
+    // Default is server-rendered HTML
+    config.loadMissingAsHtml = (
+        config.loadMissingAsHtml || !config.loadMissingAsJson
+    );
+    config.loadMissingAsJson = !config.loadMissingAsHtml;
+
     app.config = config;
     app.wq_config = {'pages': config.pages};
 
@@ -29,25 +72,18 @@ app.init = function(config, templates, baseurl, svc) {
     app.can_login = !!config.pages.login;
 
     // Initialize wq/store.js
-    var dsconf = config.store || {};
-    if (config.debug)
-        dsconf.debug = config.debug;
-    if (!dsconf.applyResult)
-        dsconf.applyResult = _applyResult;
-    if (!dsconf.fetchFail)
-        dsconf.fetchFail = _fetchFail;
-    ds.init(svc, {'format': 'json'}, dsconf);
+    ds.init(config.store);
     app.service = ds.service;
 
+    // Initialize wq/outbox.js
+    outbox.init(config.outbox);
+
     // Initialize wq/pages.js
-    var pagesconf = {};
-    if (config.debug)
-        pagesconf.debug = config.debug;
-    pages.init(baseurl, pagesconf);
+    pages.init(config.router);
     app.base_url = pages.info.base_url;
 
     // Initialize wq/template.js
-    tmpl.init(templates, templates.partials, config.defaults);
+    tmpl.init(config.template);
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
 
@@ -55,8 +91,9 @@ app.init = function(config, templates, baseurl, svc) {
     var seconds;
     if (config.backgroundSync) {
         seconds = config.backgroundSync;
-        if (seconds === true)
+        if (seconds === true) {
             seconds = 30;
+        }
         app._syncInterval = setInterval(function() {
             app.sync();
         }, seconds * 1000);
@@ -88,32 +125,44 @@ app.init = function(config, templates, baseurl, svc) {
     }
 
     // Initialize authentication, if applicable
+    var ready;
     if (app.can_login) {
-        var user = ds.get('user');
-        var csrftoken = ds.get('csrftoken');
-        if (user) {
+        pages.register('logout\/?', app.logout);
+        _checkLogin();
+
+        // Load some values from store - not ready till this is done.
+        ready = ds.get(['user', 'csrftoken']).then(function(values) {
+            var user = values[0],
+                csrftoken = values[1];
+            tmpl.setDefault('csrf_token', csrftoken);
+            if (!user) {
+                return;
+            }
             app.user = user;
             tmpl.setDefault('user', user);
             tmpl.setDefault('is_authenticated', true);
-            tmpl.setDefault('csrftoken', csrftoken);
-            tmpl.setDefault('csrf_token', csrftoken);
-            app.wq_config = ds.get({'url': 'config'});
-            tmpl.setDefault('wq_config', app.wq_config);
-            $('body').trigger('login');
-        }
-        _checkLogin();
-        pages.register('logout\/?', app.logout);
+            return ds.get('/config').then(function(wq_config) {
+                tmpl.setDefault('wq_config', app.wq_config);
+                app.wq_config = wq_config;
+                $('body').trigger('login');
+            });
+        });
+    } else {
+        ready = Promise.resolve();
     }
 
     // Configure jQuery Mobile transitions
     if (config.transitions) {
         var def = "default";
-        if (config.transitions[def])
+        if (config.transitions[def]) {
             jqm.defaultPageTransition = config.transitions[def];
-        if (config.transitions.dialog)
+        }
+        if (config.transitions.dialog) {
             jqm.defaultDialogTransition = config.transitions.dialog;
-        if (config.transitions.save)
+        }
+        if (config.transitions.save) {
             _saveTransition = config.transitions.save;
+        }
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
@@ -124,6 +173,7 @@ app.init = function(config, templates, baseurl, svc) {
             _registerList(page);
             _registerDetail(page);
             _registerEdit(page);
+            app.models[page] = model(conf);
         } else if (conf) {
             _registerOther(page);
         }
@@ -134,55 +184,71 @@ app.init = function(config, templates, baseurl, svc) {
     $(document).on('click', 'form [type=submit]', _submitClick);
 
     if (app.config.jqmInit) {
-        app.jqmInit();
+        ready = ready.then(app.jqmInit);
     }
+
+    return ready;
 };
 
 app.jqmInit = pages.jqmInit;
 
 app.logout = function() {
-    if (!app.can_login)
+    if (!app.can_login) {
         return;
+    }
     delete app.user;
-    ds.set('user', null);
     tmpl.setDefault('user', null);
     tmpl.setDefault('is_authenticated', false);
     app.wq_config = {'pages': app.config.pages};
     tmpl.setDefault('wq_config', app.wq_config);
-    ds.fetch({'url': 'logout'}, true, function(result) {
-        tmpl.setDefault('csrftoken', result.csrftoken);
+    ds.set('user', null).then(function() {
+        $('body').trigger('logout');
+    });
+
+    // Notify server (don't need to wait for this)
+    ds.fetch('/logout').then(function(result) {
         tmpl.setDefault('csrf_token', result.csrftoken);
-        ds.set('csrftoken', result.csrftoken);
-    }, true);
-    $('body').trigger('logout');
+        ds.set('csrf_token', result.csrftoken);
+    });
 };
 
 // Determine appropriate context & template for pages.go
 app.go = function(page, ui, params, itemid, edit, url, context) {
-    if (ui && ui.options && ui.options.data) return; // Ignore form actions
+    if (ui && ui.options && ui.options.data) {
+        return; // Ignore form actions
+    }
     var conf = _getConf(page);
     if (!conf.list) {
         _renderOther(page, ui, params, url, context);
         return;
     }
+    var model = app.models[page];
     spin.start();
-    ds.getList({'url': conf.url}, function(list) {
-        spin.stop();
-        if (itemid) {
-            if (edit)
-                _renderEdit(page, list, ui, params, itemid, url, context);
-            else
-                _renderDetail(page, list, ui, params, itemid, url, context);
+
+    if (itemid) {
+        if (itemid == 'new') {
+            return _displayItem(
+                itemid, {}, page, ui, params, edit, url, context
+            );
         } else {
-            _renderList(page, list, ui, params, url, context);
+            var localOnly = !app.config.loadMissingAsJson;
+            return model.find(itemid, 'id', localOnly).then(function(item) {
+                _displayItem(
+                    itemid, item, page, ui, params, edit, url, context
+                );
+            });
         }
-    });
+    } else {
+        return _displayList(page, ui, params, url, context);
+    }
+
 };
 
 // Sync outbox and handle result
 app.sync = function(retryAll) {
-    if (app.syncing || !ds.unsaved())
+    if (app.syncing || !ds.unsaved()) {
         return;
+    }
     app.syncing = true;
     app.presync();
     ds.sendAll(function(result) {
@@ -302,10 +368,11 @@ app.postsync = function(result) {
         if (result) {
             console.log("Successfully synced.");
         } else {
-            if (result === false)
+            if (result === false) {
                 msg = "Sync error!";
-            else
+            } else {
                 msg = "Sync failed!";
+            }
             console.warn(msg + " " + ds.unsaved() + " items remain unsaved");
         }
     }
@@ -437,8 +504,9 @@ function _registerList(page) {
     for (var ppage in app.getParents(page)) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
-        if (url)
+        if (url) {
             url += '/';
+        }
         url += '<slug>/' + conf.url;
         pages.register(url, goUrl(ppage, url));
         pages.register(url + '/', goUrl(ppage, url));
@@ -463,17 +531,20 @@ function _registerList(page) {
         };
     }
 }
-function _renderList(page, list, ui, params, url, context) {
+function _displayList(page, ui, params, url, context) {
+    spin.stop();
+
     var conf = _getConf(page);
+    var model = app.models[page];
     var pnum = 1, next = null, prev = null, filter;
     if (url === undefined) {
         url = conf.url;
-        if (url)
+        if (url) {
             url += '/';
+        }
     }
-    if (params || (context && context.parent_page)) {
-        if (params)
-            url += "?" + $.param(params);
+    if ((params && $.param(params)) || (context && context.parent_page)) {
+        url += "?" + $.param(params);
         if (params && params.page) {
             pnum = params.page;
         } else {
@@ -481,17 +552,15 @@ function _renderList(page, list, ui, params, url, context) {
             for (var key in params || {}) {
                 filter[key] = params[key];
             }
-            for (var ppage in app.getParents(page)) {
-                // FIXME: leverage field name information (added in #16)
-                var p = ppage;
-                if (p.indexOf(page) === 0)
-                    p = p.replace(page, '');
-                if (filter[p]) {
-                    filter[p + '_id'] = filter[p];
-                    delete filter[p];
-                } else if (context && context.parent_page == ppage) {
-                    filter[p + '_id'] = context.parent_id;
-                }
+            if (context && context.parent_page) {
+                var parents = app.getParents(page);
+                Object.keys(parents).forEach(function(ppage) {
+                    parents[ppage].forEach(function(field) {
+                        if (context && context.parent_page == ppage) {
+                            filter[field] = context.parent_id;
+                        }
+                    });
+                });
             }
         }
     }
@@ -500,47 +569,40 @@ function _renderList(page, list, ui, params, url, context) {
         // Set max_local_pages to avoid filling up local storage and
         // instead attempt to load HTML directly from the server
         // (using built-in jQM loader)
-        _loadFromServer(url, ui);
-        return;
+        if (app.config.loadMissingAsHtml) {
+            return _loadFromServer(url, ui);
+        }
     }
 
-    var data = filter ? list.filter(filter) : list.page(pnum);
-    if (conf.partial && !data.length && list.info.count) {
-        // No local filter, but list.page() just returned an empty dataset even
-        // though list info indicates there is at least some data in the list.
-        // Try loading from server.
-        _loadFromServer(url, ui);
-        return;
-    }
+    var result = filter ? model.filter(filter) : model.page(pnum);
+    return Promise.all([result, model.unsavedItems()]).then(function(results) {
+        var data = results[0];
+        var unsavedItems = results[1];
+        if (pnum > 1) {
+            var prevp = {'page': +pnum - 1};
+            prev = conf.url + '/?' + $.param(prevp);
+        }
 
-    if (pnum > 1) {
-        var prevp = {'page': +pnum - 1};
-        prev = conf.url + '/?' + $.param(prevp);
-    }
+        if (pnum < data.pages) {
+            var nextp = {'page': +pnum + 1};
+            next = conf.url + '/?' + $.param(nextp);
+        }
 
-    if (pnum < data.info.pages) {
-        var nextp = {'page': +pnum + 1};
-        next = conf.url + '/?' + $.param(nextp);
-    }
+        context = $.extend({}, data, {
+            'previous': prev ? '/' + prev : null,
+            'next':     next ? '/' + next : null,
+            'multiple': data.pages > 1
+        }, context);
 
-    context = $.extend({}, conf, {
-        'list':     data,
-        'page':     pnum,
-        'pages':    data.info.pages,
-        'per_page': data.info.per_page,
-        'total':    data.info.total,
-        'previous': prev ? '/' + prev : null,
-        'next':     next ? '/' + next : null,
-        'multiple': data.info.pages > 1
-    }, context);
+        // Add any outbox items to context
+        context.unsaved = unsavedItems.length;
+        context.unsavedItems = unsavedItems;
 
-    // Add any outbox items to context
-    var unsavedItems = list.unsavedItems();
-    context.unsaved = unsavedItems.length;
-    context.unsavedItems = unsavedItems;
-
-    _addLookups(page, context, false, function(context) {
-        pages.go(url, page + '_list', context, ui, conf.once ? true : false);
+        return _addLookups(page, context, false).then(function(context) {
+            return pages.go(
+                url, page + '_list', context, ui, conf.once ? true : false
+            );
+        });
     });
 }
 
@@ -554,43 +616,15 @@ function _registerDetail(page) {
         url += "/";
     } else {
         // This list is bound to root URL, don't mistake other lists for items
-        for (var key in app.wq_config.pages)
+        for (var key in app.wq_config.pages) {
             reserved.push(app.wq_config.pages[key].url);
+        }
     }
     pages.register(url + '<slug>', function(match, ui, params) {
-        if (reserved.indexOf(match[1]) > -1)
+        if (reserved.indexOf(match[1]) > -1) {
             return;
-        app.go(page, ui, params, match[1]);
-    });
-}
-function _renderDetail(page, list, ui, params, itemid, url, context) {
-    var conf = _getConf(page);
-    if (url === undefined) {
-        url = conf.url;
-        if (url)
-            url += '/';
-        url += itemid;
-    }
-    var item = list.find(itemid, undefined, undefined, conf.max_local_pages);
-    if (!item) {
-        // Item not found in stored list...
-        if (params)
-            url += '?' + $.param(params);
-        if (conf.partial) {
-            // conf.partial indicates that the local list does not represent
-            // the entire dataset; if an item is not found, attempt to load
-            // HTML directly from the server (using built-in jQM loader)
-            _loadFromServer(url, ui);
-        } else {
-            // If conf.partial is not set, locally stored list is assumed to
-            // contain the entire dataset, so the item probably does not exist.
-            pages.notFound(url);
         }
-        return;
-    }
-    context = $.extend({}, conf, item, context);
-    _addLookups(page, context, false, function(context) {
-        pages.go(url, page + '_detail', context, ui, conf.once ? true : false);
+        app.go(page, ui, params, match[1]);
     });
 }
 
@@ -604,48 +638,67 @@ function _registerEdit(page) {
         app.go(page, ui, params, match[1], true);
     }
 }
-function _renderEdit(page, list, ui, params, itemid, url, context) {
-    var conf = _getConf(page);
-    if (itemid != "new") {
-        // Edit existing item
-        if (url === undefined) {
-            url = conf.url;
-            if (url)
-                url += '/';
-            url += itemid + '/edit';
-        }
-        var item = list.find(
-            itemid, undefined, undefined, conf.max_local_pages
-        );
-        if (!item) {
-            // Not found locally (see notes in _renderDetail)
-            if (params)
-                url += '?' + $.param(params);
-            if (conf.partial)
-                _loadFromServer(url, ui);
-            else
-                pages.notFound(url);
-            return;
-        }
-        context = $.extend({}, conf, params, item, context);
-        _addLookups(page, context, true, done);
-    } else {
-        // Create new item
-        context = $.extend({}, conf.defaults, conf, params, context);
-        if (url === undefined) {
-            url = conf.url;
-            if (url)
-                url += '/';
-            url += 'new';
-            if (params && $.param(params))
-                url += '?' + $.param(params);
-        }
-        _addLookups(page, context, "new", done);
-    }
 
+function _displayItem(itemid, item, page, ui, params, edit, url, context) {
+    var conf = _getConf(page);
+    spin.stop();
+    if (url === undefined) {
+        url = conf.url;
+        if (url) {
+            url += '/';
+        }
+        url += itemid;
+        if (edit && itemid != 'new') {
+            url += '/edit';
+        }
+        if (params && $.param(params)) {
+            url += '?' + $.param(params);
+        }
+    }
+    if (item) {
+        if (edit) {
+            return _renderEdit(itemid, item, page, ui, params, url, context);
+        } else {
+            return _renderDetail(item, page, ui, params, url, context);
+        }
+    } else {
+        if (conf.partial && app.config.loadMissingAsHtml) {
+            // conf.partial indicates that the local list does not represent
+            // the entire dataset; if an item is not found, attempt to load
+            // HTML directly from the server (using built-in jQM loader)
+            return _loadFromServer(url, ui);
+        } else {
+            // If conf.partial is not set, locally stored list is assumed to
+            // contain the entire dataset, so the item probably does not exist.
+            return pages.notFound(url);
+        }
+    }
+}
+
+function _renderDetail(item, page, ui, params, url, context) {
+    var conf = _getConf(page);
+    context = $.extend({'page_config': conf}, item, context);
+    return _addLookups(page, context, false).then(function(context) {
+        return pages.go(
+            url, page + '_detail', context, ui, conf.once ? true : false
+        );
+    });
+}
+
+function _renderEdit(itemid, item, page, ui, params, url, context) {
+    var conf = _getConf(page);
+    if (itemid == "new") {
+        // Create new item
+        context = $.extend({'page_config': conf}, conf.defaults, context);
+        _addLookups(page, context, "new").then(done);
+    } else {
+        // Edit existing item
+        context = $.extend({'page_config': conf}, item, context);
+        _addLookups(page, context, true).then(done);
+    }
     function done(context) {
         var divid = page + '_' + itemid + '-page';
-        pages.go(
+        return pages.go(
             url, page + '_edit', context, ui, false, divid
         );
     }
@@ -664,8 +717,9 @@ function _registerOther(page) {
 
 function _renderOther(page, ui, params, url, context) {
     var conf = _getConf(page);
-    if (url === undefined)
+    if (url === undefined) {
         url = conf.url;
+    }
     context = $.extend({}, conf, params, context);
     pages.go(url, page, context, ui, conf.once ? true : false);
 }
@@ -673,21 +727,24 @@ function _renderOther(page, ui, params, url, context) {
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
     var $form = $(this), $submitVal, item, backgroundSync;
-    if (evt.isDefaultPrevented())
+    if (evt.isDefaultPrevented()) {
         return;
+    }
     if ($form.data('submit-button-name')) {
         $submitVal = $("<input>")
            .attr("name", $form.data('submit-button-name'))
            .attr("value", $form.data('submit-button-value'));
         $form.append($submitVal);
     }
-    if ($form.data('json') !== undefined && !$form.data('json'))
+    if ($form.data('json') !== undefined && !$form.data('json')) {
         return; // Defer to default (HTML-based) handler
+    }
 
-    if ($form.data('background-sync') !== undefined)
+    if ($form.data('background-sync') !== undefined) {
         backgroundSync = $form.data('background-sync');
-    else
+    } else {
         backgroundSync = app.config.backgroundSync;
+    }
 
     var outboxId = $form.data('outbox-id');
     var url = $form.attr('action').replace(app.base_url + "/", "");
@@ -698,16 +755,17 @@ function _handleForm(evt) {
     var has_files = ($files.length > 0 && $files.val().length > 0);
     if (!app['native'] && has_files) {
         // Files present and we're not running in Cordova.
-        if (window.FormData && window.Blob)
+        if (window.FormData && window.Blob) {
             // Modern browser; use FormData to upload files via AJAX.
             // FIXME: localStorage version of outbox item will be unusable.
             // Can we serialize this object somehow?
             vals.data = new FormData(this);
-        else
+        } else {
             // Looks like we're in a an old browser and we can't upload files
             // via AJAX or Cordova...  Bypass store and assume server is
             // configured to accept regular form posts.
             return;
+        }
     } else {
         // No files, or we're running in Cordova.
         // Use a simple dictionary for values, which is better for outbox
@@ -719,13 +777,16 @@ function _handleForm(evt) {
     }
     // Skip regular form submission, we're saving this via store
     evt.preventDefault();
-    if ($submitVal) $submitVal.remove();
+    if ($submitVal) {
+        $submitVal.remove();
+    }
 
     vals.url = url;
-    if (url == conf.url + "/" || !conf.list)
+    if (url == conf.url + "/" || !conf.list) {
         vals.method = "POST"; // REST API uses POST for new records
-    else
+    } else {
         vals.method = "PUT";  // .. but PUT to update existing records
+    }
 
     vals.listQuery = {'url': conf.url};
     vals.csrftoken = ds.get('csrftoken');
@@ -788,21 +849,24 @@ function _onSendItem(item, result, $form) {
         for (var f in item.error) {
             // FIXME: there may be multiple errors per field
             var err = item.error[f][0];
-            if (f == 'non_field_errors')
+            if (f == 'non_field_errors') {
                 showError(err);
-            else
+            } else {
                 showError(err, f);
+            }
         }
-        if (!item.error.non_field_errors)
+        if (!item.error.non_field_errors) {
             showError('One or more errors were found.');
+        }
     }
     app.saveerror(item, app.ERROR, conf);
 
     function showError(err, field) {
-        if (field)
+        if (field) {
             field = field + '-';
-        else
+        } else {
             field = '';
+        }
         var sel = '.' + conf.page + '-' + field + 'errors';
         $form.find(sel).html(err);
     }
@@ -822,15 +886,16 @@ function _submitClick() {
 
 
 // Successful results from REST API contain the newly saved object
-function _applyResult(item, result) {
+function _updateModels(item, result) {
     if (result && result.id) {
         var conf = _getConfByUrl(item.listQuery.url);
         item.saved = true;
         item.newid = result.id;
         ds.getList(item.listQuery, function(list) {
             var res = $.extend({}, result);
-            for (var aname in app.attachmentTypes)
+            for (var aname in app.attachmentTypes) {
                 _updateAttachments(conf, res, aname);
+            }
             list.update([res], 'id', conf.reversed, conf.max_local_pages);
         });
     } else if (app.can_login && result && result.user && result.config) {
@@ -842,8 +907,9 @@ function _applyResult(item, result) {
 function _updateAttachments(conf, res, aname) {
     var info = app.attachmentTypes[aname];
     var aconf = _getConf(aname, true);
-    if (!aconf || !conf[info.predicate] || !res[aconf.url])
+    if (!aconf || !conf[info.predicate] || !res[aconf.url]) {
         return;
+    }
     var attachments = res[aconf.url];
     attachments.forEach(function(a) {
         a[conf.page + '_id'] = res.id;
@@ -858,38 +924,46 @@ function _saveLogin(result) {
     var config = result.config,
         user = result.user,
         csrftoken = result.csrftoken;
-    if (!app.can_login)
+    if (!app.can_login) {
         return;
+    }
     app.wq_config = config;
-    ds.set({'url': 'config'}, config);
     tmpl.setDefault('wq_config', config);
     app.user = user;
     tmpl.setDefault('user', user);
     tmpl.setDefault('is_authenticated', true);
     tmpl.setDefault('csrftoken', csrftoken);
-    ds.set('user', user);
-    ds.set('csrftoken', csrftoken);
-    $('body').trigger('login');
+
+    return Promise.all([
+        ds.set('/config', config),
+        ds.set('user', user),
+        ds.set('csrf_token', csrftoken)
+    ]).then(function() {
+        $('body').trigger('login');
+    });
 }
 
 function _checkLogin() {
-    if (!app.can_login)
+    if (!app.can_login) {
         return;
-    ds.fetch({'url': 'login'}, true, function(result) {
-        if (result && result.user && result.config) {
-            _saveLogin(result);
-        } else if (result && app.user) {
-            app.logout();
-        } else if (result && result.csrftoken) {
-            tmpl.setDefault('csrftoken', result.csrftoken);
-            ds.set('csrftoken', result.csrftoken);
-        }
-    }, true);
+    }
+    setTimeout(function() {
+        ds.fetch('/login').then(function(result) {
+            if (result && result.user && result.config) {
+                _saveLogin(result);
+            } else if (result && app.user) {
+                app.logout();
+            } else if (result && result.csrftoken) {
+                tmpl.setDefault('csrftoken', result.csrftoken);
+                ds.set('csrf_token', result.csrftoken);
+            }
+        });
+    }, 10);
 }
 
 // Add various callback functions to context object to automate foreign key
 // lookups within templates
-function _addLookups(page, context, editable, callback) {
+function _addLookups(page, context, editable) {
     var conf = _getConf(page);
     var lookups = {};
     var field;
@@ -910,22 +984,34 @@ function _addLookups(page, context, editable, callback) {
     for (var ppage in parents) {
         parents[ppage].forEach(_addParentLookup);
     }
-    $.each(conf.children || [], function(i, v) {
+    function _addParentLookup(col) {
+        var pconf;
+        lookups[col] = _parent_lookup(ppage, col + '_id', context);
+        if (editable) {
+            pconf = _getConf(ppage);
+            lookups[col + '_list'] = _parent_dropdown_lookup(
+                page, ppage, col + '_id', context
+            );
+        }
+    }
+    (conf.children || []).forEach(function(v) {
         var cconf = _getConf(v);
-        lookups[cconf.url] = _children_lookup(page, v);
+        lookups[cconf.url] = _children_lookup(page, v, context);
     });
 
     // Load annotations and identifiers
     for (var aname in app.attachmentTypes) {
         var info = app.attachmentTypes[aname];
         var aconf = _getConf(aname, true);
-        if (!aconf || !conf[info.predicate])
+        if (!aconf || !conf[info.predicate]) {
             continue;
+        }
 
-        if (info.type)
-            lookups[info.type] = _parent_lookup(
-                info.type, info.typeColumn || 'type_id'
+        if (info.type) {
+            lookups[info.type] = _this_parent_lookup(
+                info.type, info.typeColumn || 'type_id', context
             );
+        }
         if (editable) {
             if (aconf.choices) {
                 for (field in aconf.choices) {
@@ -935,160 +1021,147 @@ function _addLookups(page, context, editable, callback) {
                 }
             }
             if (info.getChoiceList) {
-                lookups.item_choices = _item_choice_lookup(page, aname);
+                lookups.item_choices = _item_choice_lookup(
+                    page, aname, context
+                );
             }
         }
-        if (editable == "new")
-            lookups[aconf.url] = _default_attachments(page, aname);
-        else
-            lookups[aconf.url] = _children_lookup(page, aname);
+        if (editable == "new") {
+            lookups[aconf.url] = _default_attachments(page, aname, context);
+        } else {
+            lookups[aconf.url] = _children_lookup(page, aname, context);
+        }
     }
-    var queue = [];
-    for (var key in lookups)
-        queue.push(key);
 
+    // Process lookup functions
     spin.start();
-    step();
-    function step() {
-        if (!queue.length) {
-            spin.stop();
-            callback(context);
-            return;
-        }
-        var key = queue.shift();
-        lookups[key](context, key, step);
-    }
-    function _addParentLookup(col) {
-        var pconf;
-        lookups[col] = _parent_lookup(ppage, col + '_id');
-        if (editable) {
-            pconf = _getConf(ppage);
-            lookups[col + '_list'] = _parent_dropdown_lookup(
-                page, ppage, col + '_id'
-            );
-            if (pconf.url && col == ppage)
-                lookups[pconf.url] = lookups[col + '_list'];
-        }
-    }
-}
-
-function _make_lookup(page, fn) {
-    return function(context, key, callback) {
-        var conf = _getConf(page);
-        ds.getList({'url': conf.url}, function(list) {
-            context[key] = fn(list, context);
-            callback(context);
+    var keys = Object.keys(lookups);
+    var queue = keys.map(function(key) {
+        return lookups[key];
+    });
+    return Promise.all(queue).then(function(results) {
+        results.forEach(function(result, i) {
+            var key = keys[i];
+            context[key] = result;
         });
-    };
+        spin.stop();
+        return context;
+    });
 }
 
 // Preset list of choices
 function _choice_label_lookup(name, choices) {
-    return function(context, key, callback) {
-        context[key] = function() {
-            if (!this[name])
-                return;
-            var label;
-            choices.forEach(function(choice) {
-                if (choice.value == this[name])
-                    label = choice.label;
-            }, this);
-            return label;
-        };
-        callback(context);
-    };
+    function choiceLabel() {
+        if (!this[name]) {
+            return;
+        }
+        var label;
+        choices.forEach(function(choice) {
+            if (choice.value == this[name]) {
+                label = choice.label;
+            }
+        }, this);
+        return label;
+    }
+    return Promise.resolve(choiceLabel);
 }
 
 function _choice_dropdown_lookup(name, choices) {
-    return function(context, key, callback) {
-        context[key] = function() {
-            var list = [];
-            choices.forEach(function(choice) {
-                var item = $.extend({}, choice);
-                if (choice.value == this[name])
-                    item.selected = true;
-                list.push(item);
-            }, this);
-            return list;
-        };
-        callback(context);
-    };
+    choices = choices.map(function(choice) {
+        return $.extend({}, choice);
+    });
+    function choiceDropdown() {
+        choices.forEach(function(choice) {
+            if (choice.value == this[name]) {
+                choice.selected = true;
+            } else {
+                choice.selected = false;
+            }
+        }, this);
+        return choices;
+    }
+    return Promise.resolve(choiceDropdown);
 }
 
-function _item_choice_lookup(page, aname) {
-    return function(context, key, callback) {
-        var info = app.attachmentTypes[aname];
-        var tconf = _getConf(info.type);
-        ds.getList({'url': tconf.url}, function(types) {
-            var lists = [], listLookup = {};
-            types.filter(info.getTypeFilter(page, context)).forEach(
-                function(type) {
-                    lists.push(info.getChoiceList(type, context));
-                }
-            );
-            if (!lists.length)
-                callback(context);
-            else
-                addList(0);
-            function addList(index) {
-                var lconf = _getConf(lists[index]);
-                ds.getList({'url': lconf.url}, function(list) {
-                    listLookup[lists[index]] = function(type) {
-                        var items = list.filter(
-                            info.getChoiceListFilter(type, context)
-                        );
-                        items.forEach(function(item, i) {
-                            if (item.id == this.item_id) {
-                                item = $.extend({}, item);
-                                item.selected = true;
-                                items[i] = item;
-                            }
-                        }, this);
-                        return items;
-                    };
-                    if (index < lists.length - 1)
-                        addList(index + 1);
-                    else {
-                        context[key] = function() {
-                            if (this.type_id) {
-                                var type = types.find(this.type_id);
-                                var listid = info.getChoiceList(type, context);
-                                return listLookup[listid].call(this, type);
-                            }
-                        };
-                        callback(context);
-                    }
+function _item_choice_lookup(page, aname, context) {
+    var info = app.attachmentTypes[aname];
+    var tmodel = app.models[info.type];
+    var tfilter = info.getTypeFilter(page, context);
+    return tmodel.filter(tfilter).then(function(types) {
+        if (!types.length) {
+            return [];
+        }
+        var queue = types.map(function(type) {
+            var lname = info.getChoiceList(type, context);
+            var lmodel = app.models[lname];
+            var lfilter = info.getChoiceListFilter(type, context);
+            return lmodel.filter(lfilter).then(function(items) {
+                items = items.map(function(item) {
+                    return $.extend({}, item);
                 });
-            }
+                return function() {
+                    items.forEach(function(item) {
+                        if (item.id == this.item_id) {
+                            item.selected = true;
+                        } else {
+                            item.selected = false;
+                        }
+                    }, this);
+                    return items;
+                };
+            });
         });
-    };
+        return Promise.all(queue).then(function(results) {
+            var listLookup = {};
+            results.forEach(function(fn, i) {
+                listLookup[types[i].id] = fn;
+            });
+            return function() {
+                if (this.type_id) {
+                    return listLookup[this.type_id].call(this);
+                }
+            };
+        });
+    });
 }
 
 // Simple foreign key lookup
-function _parent_lookup(page, column) {
-    if (!column) column = page + '_id';
-    return _make_lookup(page, function(list) {
+function _parent_lookup(page, column, context) {
+    var model = app.models[page];
+    return model.find(context[column]);
+}
+
+// Foreign key lookup for objects other than root
+function _this_parent_lookup(page, column) {
+    var model = app.models[page];
+    return model.getIndex('id').then(function(index) {
         return function() {
-            return list.find(this[column]);
+            return index[this[column]];
         };
     });
 }
 
 // List of all potential foreign key values (useful for generating dropdowns)
-function _parent_dropdown_lookup(cpage, ppage, column) {
-    if (!column) column = ppage + '_id';
-    return _make_lookup(ppage, function(list, context) {
+function _parent_dropdown_lookup(cpage, ppage, column, context) {
+    var model = app.models[ppage];
+    var result;
+    if (app.parentFilters[column]) {
+        result = model.filter(
+            app.parentFilters[column](ppage, cpage, context)
+        );
+    } else {
+        result = model.load().then(function(data) {
+            return data.list;
+        });
+    }
+    return result.then(function(choices) {
         return function() {
-            var parents = [], choices = list;
-            if (app.parentFilters[column]) {
-                choices = list.filter(
-                    app.parentFilters[column](ppage, cpage, context)
-                );
-            }
+            var parents = [];
             choices.forEach(function(v) {
                 var item = $.extend({}, v);
-                if (item.id == this[column])
+                if (item.id == this[column]) {
                     item.selected = true; // Currently selected item
+                }
                 parents.push(item);
             }, this);
             return parents;
@@ -1097,38 +1170,40 @@ function _parent_dropdown_lookup(cpage, ppage, column) {
 }
 
 // List of objects with a foreign key pointing to this one
-function _children_lookup(ppage, cpage) {
-    return _make_lookup(cpage, function(list) {
-        return function() {
-            var filter = {};
-            filter[ppage + '_id'] = this.id;
-            var result = list.filter(filter);
-            result.forEach(function(item, i) {
-                item = $.extend({}, item);
-                item['@index'] = i;
-                result[i] = item;
-            });
-            return result;
-        };
+function _children_lookup(ppage, cpage, context) {
+    var filter = {};
+    var model = app.models[cpage];
+
+    // FIXME: handle alternative names for FKs
+    filter[ppage + '_id'] = context.id;
+
+    return model.filter(filter).then(function(data) {
+        var result = [];
+        data.forEach(function(item, i) {
+            item = $.extend({}, item);
+            item['@index'] = i;
+            result[i] = item;
+        });
+        return result;
     });
 }
 
 // List of empty annotations for new objects
-function _default_attachments(ppage, apage) {
+function _default_attachments(ppage, apage, context) {
     var info = app.attachmentTypes[apage];
-    if (!info.type)
-        return function(context, key, callback) {
-            context[key] = [];
-            callback(context);
-        };
-    return _make_lookup(info.type, function(list, context) {
-        var filter = info.getTypeFilter(ppage, context);
-        var types = list.filter(filter);
+    if (!info.type) {
+        return Promise.resolve([]);
+    }
+
+    var model = app.models[info.type];
+    var filter = info.getTypeFilter(ppage, context);
+    return model.filter(filter).then(function(types) {
         var attachments = [];
         types.forEach(function(t, i) {
             var obj = {};
-            if (info.getDefaults)
+            if (info.getDefaults) {
                 obj = info.getDefaults(t, context);
+            }
             obj.type_id = t.id;
             obj['@index'] = i;
             attachments.push(obj);
@@ -1140,13 +1215,13 @@ function _default_attachments(ppage, apage) {
 // Load configuration based on page id
 function _getConf(page, silentFail) {
     var conf = app.wq_config.pages[page];
-    if (!conf)
-        if (silentFail)
+    if (!conf) {
+        if (silentFail) {
             return;
-        else
+        } else {
             throw 'Configuration for "' + page + '" not found!';
-    if (conf.alias)
-        return _getConf(conf.alias);
+        }
+    }
     return $.extend({'page': page}, conf);
 }
 
@@ -1154,22 +1229,25 @@ function _getConf(page, silentFail) {
 function _getConfByUrl(url) {
     var parts = url.split('/');
     var conf;
-    for (var p in app.wq_config.pages)
+    for (var p in app.wq_config.pages) {
         if (app.wq_config.pages[p].url == parts[0]) {
             conf = $.extend({}, app.wq_config.pages[p]);
             conf.page = p; // Same as 'name'?
         }
-    if (!conf)
+    }
+    if (!conf) {
         throw 'Configuration for "/' + url + '" not found!';
+    }
     return conf;
 }
 
 function _loadFromServer(url, ui) {
     var jqmurl = '/' + url, options = ui && ui.options || {};
     options.wqSkip = true;
-    if (app.config.debug)
+    if (app.config.debug) {
         console.log("Loading " + url + " from server");
-    jqm.changePage(jqmurl, options);
+    }
+    return Promise.resolve(jqm.changePage(jqmurl, options));
 }
 
 function _fetchFail(query, error) {
