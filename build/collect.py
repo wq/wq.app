@@ -60,7 +60,8 @@ def readfiles(basedir, ftype=None, fext=None):
 @click.option('--indent', default=4, help="JSON Indentation")
 @click.option('--jsonp', help="Wrap as JSONP")
 @click.argument('paths', type=click.Path(exists=True), nargs=-1)
-def collectjson(**conf):
+@wq.pass_config
+def collectjson(config, **conf):
     """
     Load directory files into a JSON object.  The filenames will become the
     keys and the contents will become the values.  The most common use for this
@@ -77,8 +78,14 @@ def collectjson(**conf):
 
     if not conf['extension']:
         conf['extension'] = conf['type']
+
     if not conf['paths']:
-        conf['paths'] = ['.']
+        if isinstance(config.get('collectjson', None), dict):
+            # Ensure wq.yml paths are used if not passed via argument
+            conf['paths'] = config['collectjson'].get('paths', None)
+
+        if not conf['paths']:
+            conf['paths'] = ['.']
 
     obj = {}
     for d in conf['paths']:
