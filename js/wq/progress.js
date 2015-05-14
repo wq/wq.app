@@ -37,8 +37,9 @@ progress.init = function(path, onComplete, onFail, onProgress) {
 progress.start = function($progress) {
     var url = $progress.data('url');
     var interval = $progress.data('interval') || progress.interval;
-    if (!url || _timers[url])
+    if (!url || _timers[url]) {
         return;
+    }
     _timers[url] = setInterval(
         progress.timer($progress, url),
         interval * 1000
@@ -48,8 +49,9 @@ progress.start = function($progress) {
 // progress.stop stops a timer started with progress.start
 progress.stop = function($progress) {
     var url = $progress.data('url');
-    if (!url || !_timers[url])
+    if (!url || !_timers[url]) {
         return;
+    }
     clearInterval(_timers[url]);
 };
 
@@ -57,14 +59,16 @@ progress.stop = function($progress) {
 // with a hook for custom response
 progress.complete = function($progress, data) {
     progress.stop($progress);
-    if (progress.onComplete)
+    if (progress.onComplete) {
         progress.onComplete($progress, data);
+    }
 };
 
 progress.fail = function($progress, data) {
     progress.stop($progress);
-    if (progress.onFail)
+    if (progress.onFail) {
         progress.onFail($progress, data);
+    }
 };
 
 // progress.timer generates a function suitable for setInterval

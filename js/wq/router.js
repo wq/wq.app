@@ -32,25 +32,28 @@ router.init = function(routedefs, handlers, opts) {
                 _router.defaultHandlerEvents[ename] = evt;
             });
         }
-    } else
+    } else {
         _conf = $.extend(_conf, opts);
+    }
     router.add(routedefs, handlers);
 };
 
 // Mimics Router.add()
 router.add = function(routedefs, handlers) {
-    if (_router)
+    if (_router) {
         // After init, can directly add routes to Router
         _router.add(routedefs, handlers);
-    else
+    } else {
         // Before init, need to collect routes in queue
         _pending.push({'r': routedefs, 'h': handlers});
+    }
 };
 
 // Mimics Router.getParams()
 router.getParams = function(search) {
-    if (!_router)
+    if (!_router) {
         throw "Router is not ready to getParams!";
+    }
     return _router.getParams(search);
 };
 

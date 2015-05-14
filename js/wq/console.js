@@ -7,9 +7,9 @@
 
 define(function() {
 
-if (window.console)
+if (window.console) {
     return window.console;
-else {
+} else {
     var fn = function() {};
     return {
         'log':   fn,

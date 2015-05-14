@@ -5,6 +5,8 @@
  * https://wq.io/license
  */
 
+/* global escape */
+
 define(['jquery', 'jquery.mobile', './router', './template', './console'],
 function($, jqm, router, tmpl, console) {
 
@@ -56,8 +58,9 @@ pages.register = function(path, fn, obj, prevent) {
             // (unless this is a form post and is not being handled by app.js)
             if (ui && ui.options && ui.options.data && ui.options.fromPage) {
                 var $form = ui.options.fromPage.find('form');
-                if ($form.data('json') !== undefined && !$form.data('json'))
+                if ($form.data('json') !== undefined && !$form.data('json')) {
                     return false;
+                }
             }
             return true;
         };
@@ -66,23 +69,27 @@ pages.register = function(path, fn, obj, prevent) {
         var curpath = jqm.activePage && jqm.activePage.jqmData('url');
 
         // Capture URLs only, not completed pages
-        if (typeof ui.toPage !== "string")
+        if (typeof ui.toPage !== "string") {
             return;
+        }
         
         // Don't handle urls that app.js specifically marked for server loading
-        if (ui.options && ui.options.wqSkip)
+        if (ui.options && ui.options.wqSkip) {
             return;
+        }
 
         // Avoid interfering with hash updates when popups open & close
         if ((curpath == match[0] || curpath + '#' + hash == match[0]) &&
-               !ui.options.allowSamePageTransition)
+               !ui.options.allowSamePageTransition) {
             return;
+        }
         
         // Prevent default changePage behavior?
-        if (typeof prevent === 'function' && prevent(match, ui, params))
+        if (typeof prevent === 'function' && prevent(match, ui, params)) {
             evt.preventDefault();
-        else if (typeof prevent !== 'function' && prevent)
+        } else if (typeof prevent !== 'function' && prevent) {
             evt.preventDefault();
+        }
 
         fn = (typeof fn == "string" ? obj[fn] : fn);
         fn(match, ui, params, hash, evt, $page);
@@ -113,12 +120,14 @@ pages.addRoute = function(path, events, fn, obj) {
 function _inject(path, template, context, pageid) {
     _updateInfo(path);
     var html  = tmpl.render(template, context);
-    if (!html.match(/<div/))
+    if (!html.match(/<div/)) {
         throw "No content found in template '" + template + "'!";
+    }
     var title = html.split(/<\/?title>/)[1];
     var body  = html.split(/<\/?body[^>?]*>/)[1];
-    if (body)
+    if (body) {
         html = body;
+    }
     var $page = $(html.trim());
 
     // Check for <div data-role=page>, in case it is not the only element in
@@ -138,18 +147,20 @@ function _inject(path, template, context, pageid) {
     var url   = pages.info.full_path;
     var $oldpage;
     if (pageid) {
-        if (pageid === true)
+        if (pageid === true) {
             pageid = template + '-page';
+        }
         $oldpage = $('#' + pageid);
     } else {
         $oldpage = $(":jqmData(url='" + url + "')");
     }
     if (role == 'popup' || role == 'panel') {
         $page.appendTo(jqm.activePage[0]);
-        if (role == 'popup')
+        if (role == 'popup') {
             $page.popup();
-        else
+        } else {
             $page.panel();
+        }
         $page.trigger('create');
     } else {
         if ($oldpage.length) {
@@ -157,8 +168,9 @@ function _inject(path, template, context, pageid) {
         }
         $page.attr("data-" + jqm.ns + "url", url);
         $page.attr("data-" + jqm.ns + "title", title);
-        if (pageid)
+        if (pageid) {
             $page.attr('id', pageid);
+        }
         $page.appendTo(jqm.pageContainer);
         $page.page();
     }
@@ -167,8 +179,9 @@ function _inject(path, template, context, pageid) {
 
 // Render template only once
 function _injectOnce(path, template, context, id) {
-    if(!id)
+    if(!id) {
         id = template + "-page";
+    }
     var $page = $('#' + id);
     if (!$page.length) {
         // Initial render, use context if available
@@ -197,19 +210,21 @@ pages.go = function(path, template, context, ui, once, pageid) {
     }
     var $page, role, options;
     once = once || pages.config.injectOnce;
-    if (once)
+    if (once) {
         // Only render the template once
         $page = _injectOnce(path, template, context, pageid);
-    else
+    } else {
         // Default: render the template every time the page is loaded
         $page = _inject(path, template, context, pageid);
+    }
 
     role = $page.jqmData('role');
     if (role == 'page') {
         options = ui && ui.options || {};
         options._jqmrouter_bC = true;
-        if (once || _injectOnce)
+        if (once || _injectOnce) {
             options.allowSamePageTransition = true;
+        }
         jqm.changePage($page, options);
     } else if (role == 'popup') {
         options = {};
@@ -218,11 +233,13 @@ pages.go = function(path, template, context, ui, once, pageid) {
             options.positionTo = $page.jqmData('position-to');
             var link = ui.options.link;
             if (link) {
-                if (link.jqmData('position-to'))
+                if (link.jqmData('position-to')) {
                     options.positionTo = link.jqmData('position-to');
+                }
                 // 'origin' won't work since we're opening the popup manually
-                if (!options.positionTo || options.positionTo == 'origin')
+                if (!options.positionTo || options.positionTo == 'origin') {
                     options.positionTo = link[0];
+                }
                 // Remove link highlight *after* popup is closed
                 $page.bind('popupafterclose.resetlink', function() {
                     link.removeClass('ui-btn-active');

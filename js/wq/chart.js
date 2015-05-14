@@ -20,13 +20,15 @@ function _trans(x, y, off) {
 
 function _selectOrAppend(sel, name, cls) {
     var selector = name;
-    if (cls)
+    if (cls) {
         selector += "." + cls;
+    }
     var elem = sel.select(selector);
     if (elem.empty()) {
         elem = sel.append(name);
-        if (cls)
+        if (cls) {
             elem.attr('class', cls);
+        }
     }
     return elem;
 }
@@ -55,8 +57,9 @@ chart.base = function() {
 
     // Accessors for entire data object
     function datasets(d) {
-        if (d.data)
+        if (d.data) {
             return d.data;
+        }
         return d;
     }
     function legendItems(d) {
@@ -195,8 +198,9 @@ chart.base = function() {
 
     // The actual work
     function _plot(data) {
-        if (legend === null || legend.auto)
+        if (legend === null || legend.auto) {
             _positionLegend.call(this, legendItems(data));
+        }
         _computeScales(datasets(data));
         var ordinal = xscalefn().rangePoints || false;
         var svg = d3.select(this);
@@ -261,31 +265,35 @@ chart.base = function() {
 
         // Create actual scale & axis objects
         xscale.scale = xscalefn();
-        if (ordinal)
+        if (ordinal) {
             xscale.scale
                 .domain(xset(data).sort(d3.ascending))
                 .rangePoints([0, gwidth], 1);
-        else
+        } else {
             xscale.scale
                 .domain([xscale.xmin, xscale.xmax])
                 .range([0, gwidth]);
-        if (xscale.scale.nice && xnice)
+        }
+        if (xscale.scale.nice && xnice) {
             xscale.scale.nice(xnice);
+        }
 
         xscale.axis = d3.svg.axis()
             .scale(xscale.scale)
             .orient('bottom')
             .tickSize(4, 2, 1);
-        if (xticks)
+        if (xticks) {
             xscale.axis.ticks(xticks);
+        }
 
         for (var scaleid in yscales) {
             var scale = yscales[scaleid];
             var domain;
-            if (scale.invert)
+            if (scale.invert) {
                 domain = [scale.ymax, scale.ymin];
-            else
+            } else {
                 domain = [scale.ymin, scale.ymax];
+            }
             scale.scale = yscalefn()
                 .domain(domain)
                 .nice()
@@ -329,10 +337,11 @@ chart.base = function() {
         yaxes.exit().remove();
         yaxes.attr('transform', function(d) {
                 var x;
-                if (d.orient == 'left')
+                if (d.orient == 'left') {
                     x = margins.left;
-                else
+                } else {
                     x = cwidth - margins.right;
+                }
                 var y = margins.top;
                 return _trans(x, y);
             })
@@ -342,10 +351,11 @@ chart.base = function() {
                    .selectAll('line').attr('stroke', '#000');
             });
 
-        if (legend && legend.position)
+        if (legend && legend.position) {
             _renderLegend.call(this, legendItems(data), opts);
-        else
+        } else {
             outer.select('g.legend').remove();
+        }
         wrapup.call(this, datasets(data), opts);
     }
 
@@ -391,14 +401,16 @@ chart.base = function() {
                 };
             }
             var yscale = yscales[scaleid];
-            if (!yscale.id)
+            if (!yscale.id) {
                 yscale.id = scaleid;
+            }
             if (!yscale.orient) {
                 yscale.orient = leftYAxis ? 'left' : 'right';
                 leftYAxis = !leftYAxis;
             }
-            if (!yscale.sets)
+            if (!yscale.sets) {
                 yscale.sets = 0;
+            }
             yscale.sets++;
             if (yscale.auto) {
                 yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
@@ -406,8 +418,9 @@ chart.base = function() {
             }
         });
         var ymargin = {'left': 70};
-        if (d3.keys(yscales).length > 1)
+        if (d3.keys(yscales).length > 1) {
             ymargin.right = 70;
+        }
         plot.setMargin('yaxis', ymargin);
     }
 
@@ -463,223 +476,308 @@ chart.base = function() {
 
     // Getters/setters for chart configuration
     plot.width = function(val) {
-        if (!arguments.length) return width;
+        if (!arguments.length) {
+            return width;
+        }
         width = val;
         return plot;
     };
     plot.height = function(val) {
-        if (!arguments.length) return height;
+        if (!arguments.length) {
+            return height;
+        }
         height = val;
         return plot;
     };
     plot.viewBox = function(val) {
-        if (!arguments.length) return viewBox;
+        if (!arguments.length) {
+            return viewBox;
+        }
         viewBox = val;
         return plot;
     };
     plot.nestedSvg = function(val) {
-        if (!arguments.length) return nestedSvg;
+        if (!arguments.length) {
+            return nestedSvg;
+        }
         nestedSvg = val;
         return plot;
     };
     plot.outerFill = function(val) {
-        if (!arguments.length) return outerFill;
+        if (!arguments.length) {
+            return outerFill;
+        }
         outerFill = val;
         return plot;
     };
     plot.innerFill = function(val) {
-        if (!arguments.length) return innerFill;
+        if (!arguments.length) {
+            return innerFill;
+        }
         innerFill = val;
         return plot;
     };
     plot.legend = function(val) {
-        if (!arguments.length) return legend;
+        if (!arguments.length) {
+            return legend;
+        }
         legend = val || {};
         var lmargin = {};
-        if (legend.position == 'bottom')
+        if (legend.position == 'bottom') {
             lmargin.bottom = legend.size + 10;
-        else if (legend.position == 'right')
+        } else if (legend.position == 'right') {
             lmargin.right = legend.size + 10;
+        }
 
         plot.setMargin('legend', lmargin);
         return plot;
     };
     plot.xscale = function(val) {
-        if (!arguments.length) return xscale;
+        if (!arguments.length) {
+            return xscale;
+        }
         xscale = val;
         return plot;
     };
     plot.xscalefn = function(fn) {
-        if (!arguments.length) return xscalefn;
+        if (!arguments.length) {
+            return xscalefn;
+        }
         xscalefn = fn;
         return plot;
     };
     plot.xscaled = function(fn) {
-        if (!arguments.length) return xscaled;
+        if (!arguments.length) {
+            return xscaled;
+        }
         xscaled = fn;
         return plot;
     };
     plot.xnice = function(val) {
-        if (!arguments.length) return xnice;
+        if (!arguments.length) {
+            return xnice;
+        }
         xnice = val;
         return plot;
     };
     plot.xticks = function(val) {
-        if (!arguments.length) return xticks;
+        if (!arguments.length) {
+            return xticks;
+        }
         xticks = val;
         return plot;
     };
     plot.yscales = function(val) {
-        if (!arguments.length) return yscales;
+        if (!arguments.length) {
+            return yscales;
+        }
         yscales = val;
         return plot;
     };
     plot.yscalefn = function(fn) {
-        if (!arguments.length) return yscalefn;
+        if (!arguments.length) {
+            return yscalefn;
+        }
         yscalefn = fn;
         return plot;
     };
     plot.yscaled = function(fn) {
-        if (!arguments.length) return yscaled;
+        if (!arguments.length) {
+            return yscaled;
+        }
         yscaled = fn;
         return plot;
     };
     plot.cscale = function(fn) {
-        if (!arguments.length) return cscale;
+        if (!arguments.length) {
+            return cscale;
+        }
         cscale = fn;
         return plot;
     };
 
     // Getters/setters for accessors
     plot.datasets = function(fn) {
-        if (!arguments.length) return datasets;
+        if (!arguments.length) {
+            return datasets;
+        }
         datasets = fn;
         return plot;
     };
     plot.id = function(fn) {
-        if (!arguments.length) return id;
+        if (!arguments.length) {
+            return id;
+        }
         id = fn;
         return plot;
     };
     plot.label = function(fn) {
-        if (!arguments.length) return label;
+        if (!arguments.length) {
+            return label;
+        }
         label = fn;
         return plot;
     };
     plot.legendItems = function(fn) {
-        if (!arguments.length) return legendItems;
+        if (!arguments.length) {
+            return legendItems;
+        }
         legendItems = fn;
         return plot;
     };
     plot.legendItemId = function(fn) {
-        if (!arguments.length) return legendItemId;
+        if (!arguments.length) {
+            return legendItemId;
+        }
         legendItemId = fn;
         return plot;
     };
     plot.legendItemLabel = function(fn) {
-        if (!arguments.length) return legendItemLabel;
+        if (!arguments.length) {
+            return legendItemLabel;
+        }
         legendItemLabel = fn;
         return plot;
     };
     plot.items = function(fn) {
-        if (!arguments.length) return items;
+        if (!arguments.length) {
+            return items;
+        }
         items = fn;
         return plot;
     };
     plot.yunits = function(fn) {
-        if (!arguments.length) return yunits;
+        if (!arguments.length) {
+            return yunits;
+        }
         yunits = fn;
         return plot;
     };
     plot.xunits = function(fn) {
-        if (!arguments.length) return xunits;
+        if (!arguments.length) {
+            return xunits;
+        }
         xunits = fn;
         return plot;
     };
     plot.xvalue = function(fn) {
-        if (!arguments.length) return xvalue;
+        if (!arguments.length) {
+            return xvalue;
+        }
         xvalue = fn;
         return plot;
     };
     plot.xmin = function(fn) {
-        if (!arguments.length) return xmin;
+        if (!arguments.length) {
+            return xmin;
+        }
         xmin = fn;
         return plot;
     };
     plot.xmax = function(fn) {
-        if (!arguments.length) return xmax;
+        if (!arguments.length) {
+            return xmax;
+        }
         xmax = fn;
         return plot;
     };
     plot.xset = function(fn) {
-        if (!arguments.length) return xset;
+        if (!arguments.length) {
+            return xset;
+        }
         xset = fn;
         return plot;
     };
     plot.yvalue = function(fn) {
-        if (!arguments.length) return yvalue;
+        if (!arguments.length) {
+            return yvalue;
+        }
         yvalue = fn;
         return plot;
     };
     plot.ymin = function(fn) {
-        if (!arguments.length) return ymin;
+        if (!arguments.length) {
+            return ymin;
+        }
         ymin = fn;
         return plot;
     };
     plot.ymax = function(fn) {
-        if (!arguments.length) return ymax;
+        if (!arguments.length) {
+            return ymax;
+        }
         ymax = fn;
         return plot;
     };
     plot.itemid = function(fn) {
-        if (!arguments.length) return itemid;
+        if (!arguments.length) {
+            return itemid;
+        }
         itemid = fn;
         return plot;
     };
 
     // Getters/setters for render functions
     plot.init = function(fn) {
-        if (!arguments.length) return init;
+        if (!arguments.length) {
+            return init;
+        }
         init = fn;
         return plot;
     };
     plot.renderBackground = function(fn) {
-        if (!arguments.length) return renderBackground;
+        if (!arguments.length) {
+            return renderBackground;
+        }
         renderBackground = fn;
         return plot;
     };
     plot.render = function(fn) {
-        if (!arguments.length) return render;
+        if (!arguments.length) {
+            return render;
+        }
         render = fn;
         return plot;
     };
     plot.wrapup = function(fn) {
-        if (!arguments.length) return wrapup;
+        if (!arguments.length) {
+            return wrapup;
+        }
         wrapup = fn;
         return plot;
     };
     plot.translate = function(fn) {
-        if (!arguments.length) return translate;
+        if (!arguments.length) {
+            return translate;
+        }
         translate = fn;
         return plot;
     };
     plot.legendItemShape = function(fn) {
-        if (!arguments.length) return legendItemShape;
+        if (!arguments.length) {
+            return legendItemShape;
+        }
         legendItemShape = fn;
         return plot;
     };
     plot.legendItemStyle = function(fn) {
-        if (!arguments.length) return legendItemStyle;
+        if (!arguments.length) {
+            return legendItemStyle;
+        }
         legendItemStyle = fn;
         return plot;
     };
     plot.rectStyle = function(fn) {
-        if (!arguments.length) return rectStyle;
+        if (!arguments.length) {
+            return rectStyle;
+        }
         rectStyle = fn;
         return plot;
     };
     plot.circleStyle = function(fn) {
-        if (!arguments.length) return circleStyle;
+        if (!arguments.length) {
+            return circleStyle;
+        }
         circleStyle = fn;
         return plot;
     };
@@ -702,8 +800,9 @@ chart.base = function() {
         for (var name in marginGroups) {
             for (var dir in marginGroups[name]) {
                 var val = marginGroups[name][dir];
-                if (val)
+                if (val) {
                     margins[dir] += val;
+                }
             }
         }
         return margins;
@@ -835,49 +934,65 @@ chart.scatter = function() {
 
     // Getters/setters for chart configuration
     plot.pointShape = function(fn) {
-        if (!arguments.length) return pointShape;
+        if (!arguments.length) {
+            return pointShape;
+        }
         pointShape = fn;
         return plot;
     };
 
     plot.pointStyle = function(fn) {
-        if (!arguments.length) return pointStyle;
+        if (!arguments.length) {
+            return pointStyle;
+        }
         pointStyle = fn;
         return plot;
     };
 
     plot.lineStyle = function(fn) {
-        if (!arguments.length) return lineStyle;
+        if (!arguments.length) {
+            return lineStyle;
+        }
         lineStyle = fn;
         return plot;
     };
 
     plot.pointover = function(fn) {
-        if (!arguments.length) return pointover;
+        if (!arguments.length) {
+            return pointover;
+        }
         pointover = fn;
         return plot;
     };
 
     plot.pointout = function(fn) {
-        if (!arguments.length) return pointout;
+        if (!arguments.length) {
+            return pointout;
+        }
         pointout = fn;
         return plot;
     };
 
     plot.pointLabel = function(fn) {
-        if (!arguments.length) return pointLabel;
+        if (!arguments.length) {
+            return pointLabel;
+        }
         pointLabel = fn;
         return plot;
     };
 
     plot.drawPointsIf = function(fn) {
-        if (!arguments.length) return drawPointsIf;
+        if (!arguments.length) {
+            return drawPointsIf;
+        }
         drawPointsIf = fn;
         return plot;
     };
 
     plot.drawLinesIf = function(fn) {
-        if (!arguments.length) return drawLinesIf;
+        if (!arguments.length) {
+            return drawLinesIf;
+        }
         drawLinesIf = fn;
         return plot;
     };
@@ -911,7 +1026,9 @@ chart.timeSeries = function() {
 
     // Getters/setters for chart configuration
     plot.timeFormat = function(val) {
-        if (!arguments.length) return format;
+        if (!arguments.length) {
+            return format;
+        }
         format = d3.time.format(val);
         return plot;
     };
@@ -1018,8 +1135,9 @@ chart.boxplot = function() {
         var yscale = plot.yscales()[yunits];
         var color = plot.cscale()(sid);
         return function(d) {
-            if (!d || (!d.median && !d.min && !d.max))
+            if (!d || (!d.median && !d.min && !d.max)) {
                 return;
+            }
             function y(val) {
                 return yscale.scale(val) - yscale.scale(0);
             }

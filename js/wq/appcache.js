@@ -13,8 +13,9 @@ var ac = {};
 
 // Allow custom callback
 ac.init = function(callback) {
-    if (callback)
+    if (callback) {
         _callback = callback;
+    }
 };
 
 // Allow manual trigger of update
@@ -83,30 +84,35 @@ function _callback(type, msg) {
 function _update(evt) {
 
     var type;
-    if (evt && _etypes[evt.type])
+    if (evt && _etypes[evt.type]) {
         type = evt.type;
-    else if (!_ac)
+    } else if (!_ac) {
         type = 'nosupport';
-    else if (_stypes[_ac.status])
+    } else if (_stypes[_ac.status]) {
         type = _stypes[_ac.status];
-    else
+    } else {
         type = 'unknown';
+    }
 
-    if ((type == 'idle' || type == 'error') && !ol.online)
+    if ((type == 'idle' || type == 'error') && !ol.online) {
         type = 'offline';
+    }
 
     var msg = ac.messages[type] ? ac.messages[type] : ac.messages.unknown;
 
-    if (type == 'progress' && evt.loaded & evt.total)
+    if (type == 'progress' && evt.loaded & evt.total) {
         msg += ' (' + evt.loaded + ' of ' + evt.total + ')';
+    }
 
     _callback(type, msg);
 }
 
 // Initialization
-if (_ac)
-    for (var type in _etypes)
+if (_ac) {
+    for (var type in _etypes) {
         _ac.addEventListener(type, _update, true);
+    }
+}
 
 
 return ac;

@@ -15,8 +15,9 @@ auto.template = '{{#list}}<option value="{{id}}">{{label}}</option>{{/list}}';
 
 // Automatically register callbacks for every datalist
 auto.init = function(template) {
-    if (template)
+    if (template) {
         auto.template = template;
+    }
     pages.addRoute('.*', 's', _register);
     function _register(match, ui, params, hash, evt, $page) {
         $page.find('datalist').each(function(i, datalist) {
@@ -30,8 +31,9 @@ auto.init = function(template) {
 // will trigger an update.
 auto.register = function($datalist, $scope) {
     var $input;
-    if (!$scope)
+    if (!$scope) {
         $scope = $datalist.parents('body');
+    }
     $input = $scope.find('input[list="' + $datalist.attr('id') + '"]');
     if (!$input.length || $input.data('registered')) {
         return;
@@ -68,13 +70,16 @@ auto.update = function($datalist, value) {
     }
 
     // Load results via AJAX
-    if (!exists)
+    if (!exists) {
         spin.start();
+    }
     json.get(url, function(result) {
-        if (!exists)
+        if (!exists) {
             spin.stop();
-        if (!result.list)
+        }
+        if (!result.list) {
             result = {'list': result};
+        }
         result.count = result.count || result.list.length;
         result.multi = result.count > 1;
         _cache[url] = result;

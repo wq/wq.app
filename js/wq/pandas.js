@@ -85,16 +85,18 @@ pandas.parse = function(str) {
         var metaname = row[0];
         var metaStart = valuesHeader.lastIndexOf("") + 1;
         row.slice(metaStart).forEach(function(d, i) {
-            if (!metadata[i])
+            if (!metadata[i]) {
                 metadata[i] = {};
+            }
             metadata[i][metaname] = d;
         });
     }
 
     function parseIdHeader(row) {
         // Blank last column => this row has index column labels
-        if (row.indexOf("") != valuesHeader.lastIndexOf("") + 1)
+        if (row.indexOf("") != valuesHeader.lastIndexOf("") + 1) {
             throw "Header mismatch!";
+        }
         idColumns = row.slice(0, row.indexOf(""));
         
     }
@@ -141,15 +143,17 @@ pandas.parse = function(str) {
         var rowdata = [];
         row.slice(idColumns.length).forEach(function(d, i) {
             var c, item, dsi, valname;
-            if (d === "")
+            if (d === "") {
                 return;
+            }
             dsi = col2dataset[i];
             valname = valuesHeader[i + idColumns.length];
             item = rowdata[dsi];
             if (!item) {
                 item = {};
-                for (c in id)
+                for (c in id) {
                     item[c] = id[c];
+                }
                 rowdata[dsi] = item;
             }
             item[valname] = isNaN(+d) ? d : +d;

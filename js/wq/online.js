@@ -19,16 +19,18 @@ var ol = {
         _update();
     },
     'init': function(callback) {
-        if (callback)
+        if (callback) {
             _callback = callback;
+        }
     }
 };
 
 // Internal functions
 var _last_type = null;
 function _callback(type, msg) {
-    if (type != _last_type)
+    if (type != _last_type) {
         console.log(type + ' - ' + msg);
+    }
     _last_type = type;
 }
 

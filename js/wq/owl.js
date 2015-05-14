@@ -12,8 +12,9 @@ var _referer = document.referrer;
 
 // Module object is main logging function
 function owl(action, data, path) {
-    if (!owl.config.key)
+    if (!owl.config.key) {
         throw "Missing log key (hint: try owl.init)!";
+    }
     if (!action) {
         action = "view";
     }
@@ -67,8 +68,9 @@ owl.init = function init(config) {
     Object.keys(owl.events).forEach(function(evt) {
         $(window).on(evt, function() {
             var data;
-            if (owl.events[evt])
+            if (owl.events[evt]) {
                 data = owl.events[evt]();
+            }
             owl("event:" + evt, data);
         });
     });
@@ -149,11 +151,13 @@ owl.sync = function sync(key, forceSync) {
             var csrftoken = null;
             cookie.forEach(function(c) {
                 var vals = c.trim().split('=');
-                if (vals[0].trim() == "csrftoken")
+                if (vals[0].trim() == "csrftoken") {
                     csrftoken = vals[1].trim();
+                }
             });
-            if (!csrftoken)
+            if (!csrftoken) {
                 return;
+            }
             xhr.setRequestHeader('X-CSRFToken', csrftoken);
         },
         'success': function success() {
@@ -186,8 +190,9 @@ owl.sync = function sync(key, forceSync) {
 
 owl.syncAll = function() {
     owl.ds.keys().forEach(function(key){
-        if (key.indexOf('-fail') == -1)
+        if (key.indexOf('-fail') == -1) {
             owl.sync(key);
+        }
     });
 };
 

@@ -12,15 +12,18 @@ function(jqm) {
 var spin = {};
 
 spin.start = function(msg, duration, opts) {
-    if (!opts) opts = {};
+    if (!opts) {
+        opts = {};
+    }
     if (msg) {
         opts.text = msg;
         opts.textVisible = true;
     }
     jqm.loading('show', opts);
 
-    if (duration)
+    if (duration) {
         setTimeout(spin.stop, duration * 1000);
+    }
 };
 
 spin.stop = function() {

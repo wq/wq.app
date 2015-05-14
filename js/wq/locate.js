@@ -20,13 +20,17 @@ locate.init = function(map) {
 // Simple geolocation function
 locate.locate = function(success, error, high, watch, opts) {
     var map = _map || L.map(L.DomUtil.create('div'));
-    if (!opts) opts = {};
+    if (!opts) {
+        opts = {};
+    }
     var nospin = false;
 
     // If no success callback, assume setView
     if (!success) {
         success = function(){};
-        if (!error) error = success;
+        if (!error) {
+            error = success;
+        }
         opts.setView = true;
     }
     if (high) {
@@ -43,23 +47,26 @@ locate.locate = function(success, error, high, watch, opts) {
     map.on('locationfound', go(success));
     map.on('locationerror', go(error));
 
-    if (!nospin)
+    if (!nospin) {
         spin.start();
+    }
     map.locate(opts);
     function go(fn) {
         return function(evt) {
-            if (!nospin)
+            if (!nospin) {
                 spin.stop();
+            }
             fn(evt);
         };
     }
 
-    if (watch)
+    if (watch) {
         return {
             'stop': function() {
                 map.stopLocate();
             }
         };
+    }
 };
 
 // Interactive GPS & map-based locator tool
@@ -68,30 +75,38 @@ locate.locate = function(success, error, high, watch, opts) {
 locate.Locator = function(map, fields, opts) {
     var self = this;
 
-    if (!fields) fields = {};
-    if (!opts) opts = {};
+    if (!fields) {
+        fields = {};
+    }
+    if (!opts) {
+        opts = {};
+    }
 
     var _mode, _marker, _circle, _locate;
 
     // Mode switching functions (define fields.toggle for default usage)
     self.setMode = function(mode) {
-        if (!mode || !self[mode + 'Start'])
+        if (!mode || !self[mode + 'Start']) {
             return;
+        }
         self.stop();
         _mode = mode;
         self.start();
-        if (opts.onSetMode)
+        if (opts.onSetMode) {
             opts.onSetMode(mode);
+        }
     };
 
     self.start = function() {
-        if (_mode)
+        if (_mode) {
             self[_mode + 'Start']();
+        }
     };
 
     self.stop = function() {
-        if (_mode)
+        if (_mode) {
             self[_mode + 'Stop']();
+        }
     };
 
     // GPS mode
@@ -105,8 +120,9 @@ locate.Locator = function(map, fields, opts) {
     };
 
     self.gpsStop = function() {
-        if (_locate)
+        if (_locate) {
             _locate.stop();
+        }
     };
 
     // Interactive mode
@@ -120,8 +136,9 @@ locate.Locator = function(map, fields, opts) {
 
     // Manual mode
     self.manualStart = function() {
-        if (!fields.latitude || !fields.longitude)
+        if (!fields.latitude || !fields.longitude) {
             return;
+        }
         fields.latitude.attr('readonly', false);
         fields.longitude.attr('readonly', false);
     };
@@ -142,38 +159,52 @@ locate.Locator = function(map, fields, opts) {
 
     // Display and save updates to location
     self.update = function(loc, accuracy) {
-        if (!_marker)
+        if (!_marker) {
             _marker = self.makeMarker().addTo(map);
-        if (!_circle)
+        }
+        if (!_circle) {
             _circle = self.makeCircle().addTo(map);
+        }
         // Update display
         _marker.setLatLng(loc);
         _circle.setLatLng(loc).setRadius(accuracy);
 
         // Save to fields
         if (fields) {
-            if (fields.latitude)  fields.latitude.val(loc.lat);
-            if (fields.longitude) fields.longitude.val(loc.lng);
-            if (fields.accuracy)  fields.accuracy.val(accuracy);
-            if (fields.mode)      fields.mode.val(_mode);
+            if (fields.latitude) {
+                fields.latitude.val(loc.lat);
+            }
+            if (fields.longitude) {
+                fields.longitude.val(loc.lng);
+            }
+            if (fields.accuracy) {
+                fields.accuracy.val(accuracy);
+            }
+            if (fields.mode) {
+                fields.mode.val(_mode);
+            }
         }
 
         // User-defined callback (FIXME: make event?)
-        if (opts.onUpdate)
+        if (opts.onUpdate) {
             opts.onUpdate(loc, accuracy);
+        }
     };
 
     self.onerror = function(evt) {
-        if (window.console)
+        if (window.console) {
             window.console.log("Error retrieving coordinates!");
-        if (opts.onError)
+        }
+        if (opts.onError) {
             opts.onError(evt);
+        }
     };
 
     // Respond to map clicks in interactive mode
     function _clickMap(evt) {
-        if (_mode != 'interactive')
+        if (_mode != 'interactive') {
             return;
+        }
         // Estimate accuracy based on viewport information
         // (higher zoom = better accuracy)
         var ll = map.getBounds();
@@ -189,8 +220,9 @@ locate.Locator = function(map, fields, opts) {
     }
 
     function _updateManual() {
-        if (_mode != 'manual')
+        if (_mode != 'manual') {
             return;
+        }
         self.update(L.latLng(
             fields.latitude.val(),
             fields.longitude.val()
@@ -198,10 +230,11 @@ locate.Locator = function(map, fields, opts) {
     }
 
     function _getVal($input) {
-        if ($input.is('select'))
+        if ($input.is('select')) {
             return $input.val();
-        else if ($input.is('input[type=radio]'))
+        } else if ($input.is('input[type=radio]')) {
             return $input.filter(':checked').val();
+        }
         return null;
     }
 

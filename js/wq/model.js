@@ -276,7 +276,7 @@ function Model(config) {
         // Note: wq/outbox needs to have already been loaded for this to work
         var outbox;
         try {
-            var outbox = require('./outbox');
+            outbox = require('./outbox');
         } catch(e) {
             return Promise.resolve([]);
         }

@@ -16,12 +16,17 @@ var md = {};
 md.init = function(tmplvar, contextvar) {
 
     // Default variable names
-    if (!tmplvar) tmplvar = "html"; // Look for {{html}} in template
-    if (!contextvar) contextvar = "markdown"; // Replace w/parse(this.markdown)
+    if (!tmplvar) {
+        tmplvar = "html"; // Look for {{html}} in template
+    }
+    if (!contextvar) {
+        contextvar = "markdown"; // Replace w/parse(this.markdown)
+    }
 
     tmpl.setDefault(tmplvar, function() {
-        if (!this[contextvar])
+        if (!this[contextvar]) {
             return "";
+        }
         return md.parse(this[contextvar]);
     });
 };
