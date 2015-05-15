@@ -54,7 +54,7 @@ pages.register = function(path, fn, obj, prevent) {
     if (prevent === undefined) {
         prevent = function(match, ui, params) {
             /* jshint unused: false */
-            // By default, prevent default changePage behavior 
+            // By default, prevent default changePage behavior
             // (unless this is a form post and is not being handled by app.js)
             if (ui && ui.options && ui.options.data && ui.options.fromPage) {
                 var $form = ui.options.fromPage.find('form');
@@ -72,7 +72,7 @@ pages.register = function(path, fn, obj, prevent) {
         if (typeof ui.toPage !== "string") {
             return;
         }
-        
+
         // Don't handle urls that app.js specifically marked for server loading
         if (ui.options && ui.options.wqSkip) {
             return;
@@ -83,7 +83,7 @@ pages.register = function(path, fn, obj, prevent) {
                !ui.options.allowSamePageTransition) {
             return;
         }
-        
+
         // Prevent default changePage behavior?
         if (typeof prevent === 'function' && prevent(match, ui, params)) {
             evt.preventDefault();

@@ -65,6 +65,13 @@ app.init = function(config) {
     );
     config.loadMissingAsJson = !config.loadMissingAsHtml;
 
+    // After a form submission, sync in the background, or wait before
+    // continuing?  Default (as of 0.8) is to sync in the background.
+    config.backgroundSync = (
+        config.backgroundSync || !config.noBackgroundSync
+    );
+    config.noBackgroundSync = !config.backgroundSync;
+
     app.config = config;
     app.wq_config = {'pages': config.pages};
 
@@ -101,7 +108,6 @@ app.init = function(config) {
 
     // Option to override various hooks
     [
-        'postsubmit',
         'postsave',
         'saveerror',
         'presync',
@@ -168,6 +174,7 @@ app.init = function(config) {
 
     // Register routes with wq/pages.js
     for (var page in app.wq_config.pages) {
+        app.wq_config.pages[page].name = page;
         var conf = _getConf(page);
         if (conf.list) {
             _registerList(page);
@@ -178,6 +185,12 @@ app.init = function(config) {
             _registerOther(page);
         }
     }
+
+    // Register outbox
+    pages.register('outbox', _outboxList);
+    pages.register('outbox/', _outboxList);
+    pages.register('outbox/<slug>', _outboxItem(false));
+    pages.register('outbox/<slug>/edit', _outboxItem(true));
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
@@ -246,22 +259,24 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 
 // Sync outbox and handle result
 app.sync = function(retryAll) {
-    if (app.syncing || !ds.unsaved()) {
+    if (app.syncing) {
         return;
     }
-    app.syncing = true;
-    app.presync();
-    ds.sendAll(function(result) {
-        app.syncing = false;
-        app.postsync(result);
-    }, retryAll);
+    outbox.unsynced().then(function(unsynced) {
+        if (!unsynced) {
+            return;
+        }
+        app.syncing = true;
+        app.presync();
+        outbox.sendAll(retryAll).then(function(result) {
+            app.syncing = false;
+            app.postsync(result);
+        });
+    });
 };
 
-// Hooks for form submissions sent immediately (non-backgroundSync)
-
-// Hook for handling navigation after server response to form submission
-app.postsave = function(item, result, conf) {
-    // Save was successful, redirect to next screen
+// Hook for handling navigation after form submission
+app.postsave = function(item, backgroundSync) {
     var options = {
         'reverse': true,
         'transition': _saveTransition,
@@ -270,21 +285,26 @@ app.postsave = function(item, result, conf) {
     var postsave, pconf, match, mode, url, itemid;
 
     // conf.postsave can be set redirect to another page
-    postsave = conf.postsave;
+    postsave = item.modelConf.postsave;
     if (!postsave) {
         // Otherwise, default is to return the page for the item just saved
-        postsave = conf.page;
+        if (backgroundSync) {
+            // If backgroundSync, return to list view while syncing
+            postsave = item.modelConf.name + '_list';
+        } else {
+            // If noBackgroundSync, return to the newly synced item
+            postsave = item.modelConf.name + '_detail';
+        }
     }
 
-    // conf.postsave can explicitly indicate which template mode to use
+    // conf.postsave should explicitly indicate which template mode to use
     match = postsave.match(/^(.+)_([^_]+)$/);
     if (match) {
         postsave = match[1];
         mode = match[2];
-        if (mode != 'list' && mode != 'detail' && mode != 'edit') {
-            throw "Unknown template mode!";
-        }
-        // Otherwise, default is 'detail' for list pages (see below).
+    }
+    if (mode != 'list' && mode != 'detail' && mode != 'edit') {
+        throw "Unknown template mode!";
     }
 
     // Retrieve configuration for postsave page, if any
@@ -299,26 +319,33 @@ app.postsave = function(item, result, conf) {
         // For list pages, the url can differ depending on the mode
         url = app.base_url + '/' + pconf.url + '/';
 
-        // Default mode is to return to the detail view
-        if (!mode) {
-            mode = 'detail';
-        }
-
         if (mode != 'list') {
             // Detail or edit view; determine item id and add to url
-
-            // If postsave page is the same as the item's page, use the new id
-            if (postsave == conf.page) {
-                itemid = item.newid;
+            if (postsave == item.modelConf.name && !item.synced) {
+                // Config indicates return to detail/edit view of the model
+                // that was just saved, but the item hasn't been synced yet.
+                // Navigate to outbox URL instead.
+                url = app.base_url + '/outbox/' + item.id;
+                if (mode != 'edit' && item.error) {
+                    // Return to edit form if there was an error
+                    mode = 'edit';
+                }
             } else {
-                // Otherwise, look for a foreign key reference
-                // FIXME: what if the foreign key has a different name?
-                itemid = result[postsave + '_id'];
+                // Item has been successfully synced
+                if (postsave == item.modelConf.name) {
+                    // If postsave page is the same as the item's page, use the
+                    // new id
+                    itemid = item.result && item.result.id;
+                } else {
+                    // Otherwise, look for a foreign key reference
+                    // FIXME: what if the foreign key has a different name?
+                    itemid = item.result && item.result[postsave + '_id'];
+                }
+                if (!itemid) {
+                    throw "Could not find " + postsave + " id in result!";
+                }
+                url += itemid;
             }
-            if (!itemid) {
-                throw "Could not find " + postsave + " id in result!";
-            }
-            url += itemid;
             if (mode == "edit") {
                 url += "/edit";
             }
@@ -333,26 +360,20 @@ app.postsave = function(item, result, conf) {
 };
 
 // Hook for handling navigation / alerts after a submission error
-app.saveerror = function(item, reason, conf) {
+// (only used when noBackgroundSync is set)
+app.saveerror = function(item, reason, $form) {
     /* jshint unused: false */
     // Save failed for some reason, perhaps due to being offline
     // (override to customize behavior, e.g. display an outbox)
     if (app.config.debug) {
         console.warn("Could not save: " + reason);
     }
-};
-
-// Hooks for background sync
-
-// Hook for handling navigation after form submission with backgroundSync on
-app.postsubmit = function(item, conf) {
-    /* jshint unused: false */
-    // (override to customize behavior, e.g. return to a list view)
+    app.postsave(item);
 };
 
 // Hook for handling alerts before a background sync event
+// (only used when backgroundSync is set)
 app.presync = function() {
-    /* jshint unused: false */
     if (app.config.debug) {
         console.log("Syncing...");
     }
@@ -373,7 +394,9 @@ app.postsync = function(result) {
             } else {
                 msg = "Sync failed!";
             }
-            console.warn(msg + " " + ds.unsaved() + " items remain unsaved");
+            outbox.unsynced().then(function(unsynced) {
+               console.warn(msg + " " + unsynced + " items remain unsynced");
+            });
         }
     }
 };
@@ -516,9 +539,8 @@ function _registerList(page) {
             var pconf = _getConf(ppage);
             var pageurl = url.replace('<slug>', match[1]);
             spin.start();
-            ds.getList({'url': pconf.url}, function(plist) {
+            app.models[ppage].find(match[1]).then(function(pitem) {
                 spin.stop();
-                var pitem = plist.find(match[1]);
                 var context = {
                     'parent_id': match[1],
                     'parent_url': pitem && (pconf.url + '/' + pitem.id),
@@ -574,10 +596,11 @@ function _displayList(page, ui, params, url, context) {
         }
     }
 
-    var result = filter ? model.filter(filter) : model.page(pnum);
-    return Promise.all([result, model.unsavedItems()]).then(function(results) {
+    var result1 = filter ? model.filter(filter) : model.page(pnum);
+    var result2 = model.unsyncedItems();
+    return Promise.all([result1, result2]).then(function(results) {
         var data = results[0];
-        var unsavedItems = results[1];
+        var unsyncedItems = results[1];
         if (pnum > 1) {
             var prevp = {'page': +pnum - 1};
             prev = conf.url + '/?' + $.param(prevp);
@@ -595,8 +618,8 @@ function _displayList(page, ui, params, url, context) {
         }, context);
 
         // Add any outbox items to context
-        context.unsaved = unsavedItems.length;
-        context.unsavedItems = unsavedItems;
+        context.unsynced = unsyncedItems.length;
+        context.unsyncedItems = unsyncedItems;
 
         return _addLookups(page, context, false).then(function(context) {
             return pages.go(
@@ -690,11 +713,11 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
     if (itemid == "new") {
         // Create new item
         context = $.extend({'page_config': conf}, conf.defaults, context);
-        _addLookups(page, context, "new").then(done);
+        return _addLookups(page, context, "new").then(done);
     } else {
         // Edit existing item
         context = $.extend({'page_config': conf}, item, context);
-        _addLookups(page, context, true).then(done);
+        return _addLookups(page, context, true).then(done);
     }
     function done(context) {
         var divid = page + '_' + itemid + '-page';
@@ -724,9 +747,55 @@ function _renderOther(page, ui, params, url, context) {
     pages.go(url, page, context, ui, conf.once ? true : false);
 }
 
+function _outboxList(match, ui) {
+    outbox.model.load().then(function(data) {
+        pages.go('outbox', 'outbox', data, ui);
+    });
+}
+
+function _outboxItem(edit) {
+    // Display outbox item using model-specific detail/edit view
+    return function(match, ui, params) {
+        outbox.model.find(match[1]).then(function(item) {
+            var id, idMatch = item.data.url.match(new RegExp(
+                item.modelConf.url + '/([^\/]+)$'
+            ));
+            if (item.data.id) {
+                id = item.data.id;
+            } else if (idMatch) {
+                id = idMatch[1];
+            } else {
+                id = 'new';
+            }
+            var url = 'outbox/' + item.id;
+            if (edit) {
+                url += '/edit';
+            }
+            var context = {
+                'unsynced': true,
+                'outbox_id': item.id,
+                'error': item.error
+            };
+            if (id == 'new') {
+                $.extend(context, item.data);
+            } else {
+                context.id = id;
+            }
+            _displayItem(
+                 id, item.data, item.modelConf.name,
+                 ui, params, edit, url, context
+            ).then(function($page) {
+                if (edit && item.error) {
+                    app.showOutboxErrors(item, $page);
+                }
+            });
+        });
+    };
+}
+
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
-    var $form = $(this), $submitVal, item, backgroundSync;
+    var $form = $(this), $submitVal, backgroundSync;
     if (evt.isDefaultPrevented()) {
         return;
     }
@@ -788,53 +857,55 @@ function _handleForm(evt) {
         vals.method = "PUT";  // .. but PUT to update existing records
     }
 
-    vals.listQuery = {'url': conf.url};
-    vals.csrftoken = ds.get('csrftoken');
-
+    vals.modelConf = conf;
     $('.error').html('');
-    outboxId = ds.save(vals, outboxId);
-    item = ds.find('outbox', outboxId);
-    if (backgroundSync) {
-        app.postsubmit(item, conf);
-        app.sync();
-    } else {
-        spin.start();
-        ds.sendItem(outboxId, function(item, result) {
-            spin.stop();
-            _onSendItem(item, result, $form);
+    ds.get('csrftoken').then(function(csrftoken) {
+        vals.csrftoken = csrftoken;
+        outbox.save(vals, outboxId, true).then(function(item) {
+            if (backgroundSync) {
+                // Send user to next screen while app syncs in background
+                app.postsave(item, true);
+                app.sync();
+                return;
+            }
+
+            // Submit form immediately and wait for server to respond
+            spin.start();
+            outbox.sendItem(item).then(function(item) {
+                spin.stop();
+                if (!item || item.synced) {
+                    // Item was synced
+                    app.postsave(item, false);
+                    return;
+                }
+                // Something went wrong
+                var error;
+                if (!item.error) {
+                    // Save failed without server error: probably offline
+                    error = app.OFFLINE;
+                } else if (typeof(item.error) === 'string') {
+                    // Save failed and error information is not in JSON format
+                    // (likely a 500 server failure)
+                    error = app.FAILURE;
+                } else {
+                    // Save failed and error information is in JSON format
+                    // (likely a 400 bad data error)
+                    error = app.ERROR;
+                }
+                app.saveerror(item, app.ERROR, $form);
+            });
         });
-    }
+    });
 }
 
-function _onSendItem(item, result, $form) {
-    var conf = _getConfByUrl(item.listQuery.url);
-
-    if (!item) {
-        // Save failed, probably due to item being saved already
-        return;
-    }
-
-    if (item.saved) {
-        // Save succeeded
-        app.postsave(item, result, conf);
-        return;
-    }
-
+app.showOutboxErrors = function(item, $page) {
     if (!item.error) {
-        // Save failed without server error: probably offline
         showError("Error saving data.");
-        app.saveerror(item, app.OFFLINE, conf);
         return;
-    }
-
-    if (typeof(item.error) === 'string') {
-        // Save failed and error information is not in JSON format
-        // (likely a 500 server failure)
+    } else if (typeof(item.error) === 'string') {
         showError(item.error);
-        app.saveerror(item, app.FAILURE, conf);
         return;
     }
-
     // Save failed and error information is in JSON format
     // (likely a 400 bad data error)
     var errs = Object.keys(item.error);
@@ -859,7 +930,6 @@ function _onSendItem(item, result, $form) {
             showError('One or more errors were found.');
         }
     }
-    app.saveerror(item, app.ERROR, conf);
 
     function showError(err, field) {
         if (field) {
@@ -867,10 +937,10 @@ function _onSendItem(item, result, $form) {
         } else {
             field = '';
         }
-        var sel = '.' + conf.page + '-' + field + 'errors';
-        $form.find(sel).html(err);
+        var sel = '.' + item.modelConf.name + '-' + field + 'errors';
+        $page.find(sel).html(err);
     }
-}
+};
 
 // Remember which submit button was clicked (and its value)
 function _submitClick() {
@@ -887,38 +957,32 @@ function _submitClick() {
 
 // Successful results from REST API contain the newly saved object
 function _updateModels(item, result) {
-    if (result && result.id) {
-        var conf = _getConfByUrl(item.listQuery.url);
-        item.saved = true;
-        item.newid = result.id;
-        ds.getList(item.listQuery, function(list) {
-            var res = $.extend({}, result);
-            for (var aname in app.attachmentTypes) {
-                _updateAttachments(conf, res, aname);
+    if (item.modelConf.list && item.synced) {
+        // Extract any nested attachment arrays and update related models
+        var res = $.extend({}, result);
+        var results = Object.keys(app.attachmentTypes).map(function(aname) {
+            var info = app.attachmentTypes[aname];
+            var aconf = _getConf(aname, true);
+            if (!aconf || !item.modelConf[info.predicate] || !res[aconf.url]) {
+                return Promise.resolve();
             }
-            list.update([res], 'id', conf.reversed, conf.max_local_pages);
+            var attachments = res[aconf.url];
+            attachments.forEach(function(a) {
+                a[item.modelConf.name + '_id'] = res.id;
+            });
+            delete res[aconf.url];
+            return app.models[aname].update(attachments);
+        });
+
+        // Update primary model
+        Promise.all(results).then(function() {
+            app.models[item.modelConf.name].update([res]);
         });
     } else if (app.can_login && result && result.user && result.config) {
         _saveLogin(result);
-        item.saved = true;
     }
 }
 
-function _updateAttachments(conf, res, aname) {
-    var info = app.attachmentTypes[aname];
-    var aconf = _getConf(aname, true);
-    if (!aconf || !conf[info.predicate] || !res[aconf.url]) {
-        return;
-    }
-    var attachments = res[aconf.url];
-    attachments.forEach(function(a) {
-        a[conf.page + '_id'] = res.id;
-    });
-    ds.getList({'url': aconf.url}, function(list) {
-        list.update(attachments, 'id', aconf.reversed, aconf.max_local_pages);
-    });
-    delete res[aconf.url];
-}
 
 function _saveLogin(result) {
     var config = result.config,
@@ -1231,8 +1295,7 @@ function _getConfByUrl(url) {
     var conf;
     for (var p in app.wq_config.pages) {
         if (app.wq_config.pages[p].url == parts[0]) {
-            conf = $.extend({}, app.wq_config.pages[p]);
-            conf.page = p; // Same as 'name'?
+            conf = app.wq_config.pages[p];
         }
     }
     if (!conf) {

@@ -34,7 +34,7 @@ function Model(config) {
 
     // Default to main store, but allow overriding
     self.store = config.store || ds;
-    
+
     if (config.query) {
         self.query = self.store.normalizeQuery(config.query);
     } else if (config.url) {
@@ -272,17 +272,17 @@ function Model(config) {
     };
 
     // Unsaved form items related to this list
-    self.unsavedItems = function() {
+    self.unsyncedItems = function() {
         // Note: wq/outbox needs to have already been loaded for this to work
         var outbox;
         try {
-            outbox = require('./outbox');
+            outbox = require('wq/outbox');
         } catch(e) {
             return Promise.resolve([]);
         }
         return outbox.getOutbox(
             self.store
-        ).unsavedItems(self.query);
+        ).unsyncedItems(self.query);
     };
 
     // Apply a predefined function to a retreived item

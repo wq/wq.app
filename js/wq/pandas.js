@@ -11,7 +11,7 @@ var pandas = {};
 
 pandas.parse = function(str) {
     /* Parses a CSV string with the following structure:
-       
+
     ,value,value,value              // values header
     site,SITE1,SITE2,SITE3          // meta header #1 (site)
     parameter,PARAM1,PARAM1,PARAM2  // meta header #2 (parameter)
@@ -98,7 +98,7 @@ pandas.parse = function(str) {
             throw "Header mismatch!";
         }
         idColumns = row.slice(0, row.indexOf(""));
-        
+
     }
 
     function findDatasets() {
@@ -139,7 +139,7 @@ pandas.parse = function(str) {
         idColumns.forEach(function(c, i) {
             id[c] = row[i];
         });
-        
+
         var rowdata = [];
         row.slice(idColumns.length).forEach(function(d, i) {
             var c, item, dsi, valname;

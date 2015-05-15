@@ -92,7 +92,7 @@ function _Store(name) {
             console.log('looking up ' + key);
         }
 
-        // If that fails, check storage (if available)
+        // Check storage first
         var promise = lf.getItem(_prefix + key).then(function(result) {
             if (!result) {
                 return fetchData();
@@ -171,7 +171,7 @@ function _Store(name) {
                     usage += l;
                 });
                 // UTF-16 means two bytes per character in storage
-                // (at least on webkit)
+                // FIXME: Is this true for non-localStorage backends?
                 return usage * 2;
             });
         });
@@ -187,6 +187,7 @@ function _Store(name) {
 
     // Helper to allow simple objects to be used as keys
     self.toKey = function(query) {
+        query = self.normalizeQuery(query);
         if (!query) {
             throw "Invalid query!";
         }

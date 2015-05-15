@@ -10,6 +10,7 @@ define(['leaflet', 'jquery', './app', './pages', './json', './spinner',
 function(L, $, app, pages, json, spin, tmpl, console) {
 
 /* global require */
+/* global Promise */
 
 // module variable
 var map = {};
@@ -176,22 +177,19 @@ map.getLayerConfs = function(page, itemid) {
 
 // Internal layer loading function - override to customize
 map.cache = {};
-map.loadLayer = function(url, callback) {
+map.loadLayer = function(url) {
     url = app.service + '/' + url;
     if (url.indexOf('.geojson') == -1) {
         url += '.geojson';
     }
     if (map.cache[url]) {
-        setTimeout(function() {
-            callback(map.cache[url]);
-        }, 100);
-        return;
+        return Promise.resolve(map.cache[url]);
     }
     spin.start();
-    json.get(url, function(geojson) {
+    return json.get(url).then(function(geojson) {
         spin.stop();
         map.cache[url] = geojson;
-        callback(geojson);
+        return geojson;
     });
 };
 
@@ -243,7 +241,7 @@ map.renderPopup = function(page) {
 // Primary map routine
 map.createMap = function(page, itemid, override) {
     var mapid, divid, mapconf, m, defaults,
-        layerConfs, remaining, layers,
+        layerConfs, layers,
         basemaps, basemap, div, owl;
 
     // Load configuration and div id
@@ -293,8 +291,7 @@ map.createMap = function(page, itemid, override) {
     // Load layerconfs and add empty layer groups to map
     layers = {};
     layerConfs = map.getLayerConfs(page, itemid);
-    remaining = layerConfs.length;
-    layerConfs.forEach(function(layerconf, i) {
+    var results = layerConfs.map(function(layerconf, i) {
         layerconf = L.extend({}, layerconf,
                              override && override[layerconf.name]);
         if (layerconf.cluster && L.MarkerClusterGroup) {
@@ -306,17 +303,9 @@ map.createMap = function(page, itemid, override) {
         } else {
             layerconf.layer = L.featureGroup().addTo(m);
         }
-        loadLayer(layerconf);
         layers[layerconf.name] = layerconf.layer;
         layerConfs[i] = layerconf;
-    });
-
-    map.createLayerControl(basemaps, layers).addTo(m);
-
-
-    // Async-load geojson for layers and add to layergroups
-    function loadLayer(layerconf) {
-        map.loadLayer(layerconf.url, function(geojson) {
+        return map.loadLayer(layerconf.url).then(function(geojson) {
             var options = {};
             if (layerconf.oneach) {
                 options.onEachFeature = layerconf.oneach;
@@ -328,12 +317,12 @@ map.createMap = function(page, itemid, override) {
                 options.style = layerconf.style;
             }
             map.geoJson(geojson, options).addTo(layerconf.layer);
-            remaining--;
-            if (!remaining) {
-                autoZoom();
-            }
         });
-    }
+    });
+
+    map.createLayerControl(basemaps, layers).addTo(m);
+
+    Promise.all(results).then(autoZoom);
 
     function autoZoom() {
         if (mapconf.autoZoom !== undefined && !mapconf.autoZoom) {

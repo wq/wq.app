@@ -77,21 +77,18 @@ function _Outbox(store) {
 
     // Queue data for server use; use outbox to cache unsynced items
     self.save = function(data, id, noSend) {
-        return self.model.load().then(function(outbox) {
-            var item;
-            if (id) {
-                outbox.list.forEach(function(obj) {
-                    if (obj.id == id) {
-                        item = obj;
-                    }
-                });
-            }
-
+        var result;
+        if (id) {
+            result = self.model.find(id);
+        } else {
+            result = Promise.resolve();
+        }
+        return result.then(function(item) {
             if (item && !item.synced) {
                 // reuse existing item
                 item.data = data;
-                delete item.retryCount;
-                delete item.error;
+                item.retryCount = 0;
+                item.error = null;
             } else {
                 // create new item
                 item = {
@@ -161,7 +158,7 @@ function _Outbox(store) {
             console.log("Sending item to " + url);
             if (self.debugValues) {
                 console.log(data);
-            } 
+            }
         }
 
         if (data.fileupload) {
@@ -333,6 +330,7 @@ function _Outbox(store) {
         // Default: assume non-empty result means the sync was successful
         if (result) {
             item.synced = true;
+            item.result = result;
         }
     };
 
