@@ -35,11 +35,11 @@ auto.register = function($datalist, $scope) {
         $scope = $datalist.parents('body');
     }
     $input = $scope.find('input[list="' + $datalist.attr('id') + '"]');
-    if (!$input.length || $input.data('registered')) {
+    if (!$input.length || $input.data('wq-registered')) {
         return;
     } else {
         $input.on('input.autocomplete', _update);
-        $input.data('registered', true);
+        $input.data('wq-registered', true);
     }
 
     function _update() {
@@ -49,9 +49,9 @@ auto.register = function($datalist, $scope) {
 
 var _cache = {};
 auto.update = function($datalist, value) {
-    var url = $datalist.data('url'),
-        param = $datalist.data('query') || 'q',
-        min = $datalist.data('min') || 3,
+    var url = $datalist.data('wq-url'),
+        param = $datalist.data('wq-query') || 'q',
+        min = $datalist.data('wq-min') || 3,
         exists = $datalist.find(
             'option[value="' + value.replace('"', "'") + '"]'
         ).length;

@@ -799,23 +799,23 @@ function _handleForm(evt) {
     if (evt.isDefaultPrevented()) {
         return;
     }
-    if ($form.data('submit-button-name')) {
+    if ($form.data('wq-submit-button-name')) {
         $submitVal = $("<input>")
-           .attr("name", $form.data('submit-button-name'))
-           .attr("value", $form.data('submit-button-value'));
+           .attr("name", $form.data('wq-submit-button-name'))
+           .attr("value", $form.data('wq-submit-button-value'));
         $form.append($submitVal);
     }
-    if ($form.data('json') !== undefined && !$form.data('json')) {
+    if ($form.data('wq-json') !== undefined && !$form.data('wq-json')) {
         return; // Defer to default (HTML-based) handler
     }
 
-    if ($form.data('background-sync') !== undefined) {
-        backgroundSync = $form.data('background-sync');
+    if ($form.data('wq-background-sync') !== undefined) {
+        backgroundSync = $form.data('wq-background-sync');
     } else {
         backgroundSync = app.config.backgroundSync;
     }
 
-    var outboxId = $form.data('outbox-id');
+    var outboxId = $form.data('wq-outbox-id');
     var url = $form.attr('action').replace(app.base_url + "/", "");
     var conf = _getConfByUrl(url);
 
@@ -949,8 +949,8 @@ function _submitClick() {
         name = $button.attr('name'),
         value = $button.attr('value');
     if (name !== undefined && value !== undefined) {
-        $form.data('submit-button-name', name);
-        $form.data('submit-button-value', value);
+        $form.data('wq-submit-button-name', name);
+        $form.data('wq-submit-button-value', value);
     }
 }
 

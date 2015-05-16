@@ -204,8 +204,8 @@ chart.base = function() {
         _computeScales(datasets(data));
         var ordinal = xscalefn().rangePoints || false;
         var svg = d3.select(this);
-        var uid = svg.attr('data-uid') || Math.round(Math.random() * 1000000);
-        svg.attr('data-uid', uid);
+        var uid = svg.attr('data-wq-uid') || Math.round(Math.random() * 1000000);
+        svg.attr('data-wq-uid', uid);
         var vbstr;
         if (viewBox) {
             if (viewBox === true) {

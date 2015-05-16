@@ -58,7 +58,8 @@ pages.register = function(path, fn, obj, prevent) {
             // (unless this is a form post and is not being handled by app.js)
             if (ui && ui.options && ui.options.data && ui.options.fromPage) {
                 var $form = ui.options.fromPage.find('form');
-                if ($form.data('json') !== undefined && !$form.data('json')) {
+                var dataJson = $form.data('wq-json');
+                if (dataJson !== undefined && !dataJson) {
                     return false;
                 }
             }
@@ -230,7 +231,7 @@ pages.go = function(path, template, context, ui, once, pageid) {
         options = {};
         if (ui && ui.options) {
             options.transition = ui.options.transition;
-            options.positionTo = $page.jqmData('position-to');
+            options.positionTo = $page.data('wq-position-to');
             var link = ui.options.link;
             if (link) {
                 if (link.jqmData('position-to')) {

@@ -35,8 +35,8 @@ progress.init = function(path, onComplete, onFail, onProgress) {
 // progress.start accepts a jQuery-wrapped progress element and looks for a
 // data-url attribute to poll (and an optional data-interval attribute)
 progress.start = function($progress) {
-    var url = $progress.data('url');
-    var interval = $progress.data('interval') || progress.interval;
+    var url = $progress.data('wq-url');
+    var interval = $progress.data('wq-interval') || progress.interval;
     if (!url || _timers[url]) {
         return;
     }
@@ -48,7 +48,7 @@ progress.start = function($progress) {
 
 // progress.stop stops a timer started with progress.start
 progress.stop = function($progress) {
-    var url = $progress.data('url');
+    var url = $progress.data('wq-url');
     if (!url || !_timers[url]) {
         return;
     }
