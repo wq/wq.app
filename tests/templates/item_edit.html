@@ -1,7 +1,9 @@
 {{>header}}
 <form action="{{pages_info.base_url}}/items/{{id}}" method="post" data-ajax="false"
     {{#outbox_id}}data-wq-outbox-id="{{outbox_id}}"{{/outbox_id}}>
+  {{#id}}
   <input type="hidden" name="_method" value="put">
+  {{/id}}
   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
   <ul data-role="listview">
     <li>

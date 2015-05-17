@@ -12,6 +12,7 @@
     "curly": true,
     "globals": {
         "define": false,
-        "require": false
+        "require": false,
+        "JSON": false
     }
 }

@@ -14,5 +14,9 @@
   <div role="main" class="ui-content">
     <p>{{label}}</p>
     <p><span style="color:{{color}}">{{color_label}}</span></p>
-    <p>{{#type}}{{label}}{{/type}}</p>
+    <p>{{#type}}
+      <a href="{{pages_info.base_url}}/itemtypes/{{id}}/items">
+        {{label}}
+      </a>
+    {{/type}}</p>
 {{>footer}}

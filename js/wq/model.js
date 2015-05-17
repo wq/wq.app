@@ -59,27 +59,31 @@ function Model(config) {
                 query.page = page_num;
             }
         }
-        return fn(query).then(function(data) {
-            if (!data) {
-                data = [];
-            }
-            if (json.isArray(data)) {
-                data = {'list': data};
-            }
-            if (!data.pages) {
-                data.pages = 1;
-            }
-            if (!data.count) {
-                data.count = data.list.length;
-            }
-            if (!data.per_page) {
-                data.per_page = data.list.length;
-            }
+        return fn(query).then(_processData).then(function(data) {
             if (!data.page) {
                 data.page = page_num;
             }
             return data;
         });
+    }
+
+    function _processData(data) {
+        if (!data) {
+            data = [];
+        }
+        if (json.isArray(data)) {
+            data = {'list': data};
+        }
+        if (!data.pages) {
+            data.pages = 1;
+        }
+        if (!data.count) {
+            data.count = data.list.length;
+        }
+        if (!data.per_page) {
+            data.per_page = data.list.length;
+        }
+        return data;
     }
 
     function resetCaches() {
@@ -145,14 +149,14 @@ function Model(config) {
     };
 
     // Filter an array of objects by one or more attributes
-    self.filter = function(filter, any, localOnly) {
+    self.filterPage = function(filter, any, localOnly) {
 
         // If partial list, we can never be 100% sure all filter matches are
         // stored locally. In that case, run query on server.
         if (!localOnly && config.partial && config.url) {
             // FIXME: won't work as expected if any == true
             var query = json.extend({'url': config.url}, filter);
-            return self.store.fetch(query);
+            return self.store.fetch(query).then(_processData);
         }
 
         if (!filter || !Object.keys(filter).length) {
@@ -170,7 +174,7 @@ function Model(config) {
                 groups.forEach(function(group) {
                     result = result.concat(group);
                 });
-                return result;
+                return _processData(result);
             });
         } else {
             // Default: require match on all filter attributes
@@ -186,7 +190,7 @@ function Model(config) {
             return self.getGroup(f.name, f.value).then(function(group) {
                 // If only one filter attribute was given, return group as-is
                 if (!afilter.length) {
-                    return group;
+                    return _processData(group);
                 }
 
                 var result = [];
@@ -203,9 +207,16 @@ function Model(config) {
                         result.push(obj);
                     }
                 });
-                return result;
+                return _processData(result);
             });
         }
+    };
+
+    // Filter an array of objects by one or more attributes
+    self.filter = function(filter, any, localOnly) {
+        return self.filterPage(filter, any, localOnly).then(function(data) {
+            return data.list;
+        });
     };
 
     // Merge new/updated items into list

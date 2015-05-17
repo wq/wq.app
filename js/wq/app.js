@@ -399,6 +399,12 @@ app.postsync = function(result) {
             });
         }
     }
+    if (jqm.activePage.data('wq-sync-refresh')) {
+        jqm.changePage(jqm.activePage.data('url'), {
+            'transition': 'none',
+            'allowSamePageTransition': true
+        });
+    }
 };
 
 app.attachmentTypes = {
@@ -566,7 +572,9 @@ function _displayList(page, ui, params, url, context) {
         }
     }
     if ((params && $.param(params)) || (context && context.parent_page)) {
-        url += "?" + $.param(params);
+        if (params && $.param(params)) {
+            url += "?" + $.param(params);
+        }
         if (params && params.page) {
             pnum = params.page;
         } else {
@@ -579,7 +587,7 @@ function _displayList(page, ui, params, url, context) {
                 Object.keys(parents).forEach(function(ppage) {
                     parents[ppage].forEach(function(field) {
                         if (context && context.parent_page == ppage) {
-                            filter[field] = context.parent_id;
+                            filter[field + '_id'] = context.parent_id;
                         }
                     });
                 });
@@ -596,7 +604,7 @@ function _displayList(page, ui, params, url, context) {
         }
     }
 
-    var result1 = filter ? model.filter(filter) : model.page(pnum);
+    var result1 = filter ? model.filterPage(filter) : model.page(pnum);
     var result2 = model.unsyncedItems();
     return Promise.all([result1, result2]).then(function(results) {
         var data = results[0];
@@ -975,11 +983,11 @@ function _updateModels(item, result) {
         });
 
         // Update primary model
-        Promise.all(results).then(function() {
+        return Promise.all(results).then(function() {
             app.models[item.modelConf.name].update([res]);
         });
     } else if (app.can_login && result && result.user && result.config) {
-        _saveLogin(result);
+        return _saveLogin(result);
     }
 }
 

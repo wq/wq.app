@@ -78,14 +78,15 @@ function _Outbox(store) {
     // Queue data for server use; use outbox to cache unsynced items
     self.save = function(data, id, noSend) {
         return self.model.load().then(function(obdata) {
-            var item;
-            if (id) {
-                obdata.list.forEach(function(obj) {
-                    if (obj.id == id) {
-                        item = obj;
-                    }
-                });
-            }
+            var item, maxId = 0;
+            obdata.list.forEach(function(obj) {
+                if (id && obj.id == id) {
+                    item = obj;
+                }
+                if (obj.id > maxId) {
+                    maxId = obj.id;
+                }
+            });
 
             if (item && !item.synced) {
                 // reuse existing item
@@ -97,7 +98,7 @@ function _Outbox(store) {
                 item = {
                     data: data,
                     synced: false,
-                    id: obdata.count + 1
+                    id: maxId + 1
                 };
                 if (data.modelConf) {
                     item.modelConf = data.modelConf;
