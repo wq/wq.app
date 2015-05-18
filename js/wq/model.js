@@ -37,7 +37,7 @@ function Model(config) {
 
     if (config.query) {
         self.query = self.store.normalizeQuery(config.query);
-    } else if (config.url) {
+    } else if (config.url !== undefined) {
         self.query = {'url': config.url};
     } else {
         throw "Could not determine query for model!";
