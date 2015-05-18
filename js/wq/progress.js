@@ -5,7 +5,7 @@
  * https://wq.io/license
  */
 
-define(['./pages', './json'], function(pages, json) {
+define(['./router', './json'], function(router, json) {
 
 // Exported module variable
 var progress = {
@@ -18,8 +18,8 @@ var _last = {};
 
 // Optionally initialize wq/progress with a page path to auto start polling
 progress.init = function(path, onComplete, onFail, onProgress) {
-    pages.addRoute(path, 's', _startProgress);
-    pages.addRoute(path, 'h', _stopProgress);
+    router.addRoute(path, 's', _startProgress);
+    router.addRoute(path, 'h', _stopProgress);
     progress.onComplete = onComplete;
     progress.onFail = onFail;
     progress.onProgress = onProgress;
@@ -33,7 +33,7 @@ progress.init = function(path, onComplete, onFail, onProgress) {
 };
 
 // progress.start accepts a jQuery-wrapped progress element and looks for a
-// data-url attribute to poll (and an optional data-interval attribute)
+// data-wq-url attribute to poll (and an optional data-interval attribute)
 progress.start = function($progress) {
     var url = $progress.data('wq-url');
     var interval = $progress.data('wq-interval') || progress.interval;

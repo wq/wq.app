@@ -5,9 +5,9 @@
  * https://wq.io/license
  */
 
-define(['leaflet', 'jquery', './app', './pages', './json', './spinner',
+define(['leaflet', 'jquery', './app', './router', './json', './spinner',
         './template', './console', 'es5-shim'],
-function(L, $, app, pages, json, spin, tmpl, console) {
+function(L, $, app, router, json, spin, tmpl, console) {
 
 /* global require */
 /* global Promise */
@@ -85,7 +85,7 @@ map.init = function(defaults) {
 function _registerList(page) {
     var mapconf = _getConf(page);
     var url = mapconf.url ? mapconf.url + '/' : '';
-    pages.addRoute(url, 's', function() {
+    router.addRoute(url, 's', function() {
         map.createMap(page);
     });
 
@@ -97,8 +97,8 @@ function _registerList(page) {
             purl += '/';
         }
         purl += '<slug>/' + mapconf.url;
-        pages.addRoute(purl, 's', goUrl);
-        pages.addRoute(purl + '/', 's', goUrl);
+        router.addRoute(purl, 's', goUrl);
+        router.addRoute(purl + '/', 's', goUrl);
     }
 
     function goUrl(match, ui, params) {
@@ -117,7 +117,7 @@ function _registerList(page) {
 function _registerDetail(page) {
     var mapconf = _getConf(page);
     var url = mapconf.url ? mapconf.url + '/' : '';
-    pages.addRoute(url + '<slug>', 's', function(match) {
+    router.addRoute(url + '<slug>', 's', function(match) {
         var itemid = match[1];
         if (itemid == 'new') {
             return;
@@ -130,7 +130,7 @@ function _registerDetail(page) {
 function _registerOther(page) {
     var mapconf = _getConf(page);
     var url = mapconf.url;
-    pages.addRoute(url, 's', function() {
+    router.addRoute(url, 's', function() {
         map.createMap(page);
     });
 }

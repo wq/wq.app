@@ -5,8 +5,8 @@
  * https://wq.io/license
  */
 
-define(['jquery', './pages', './json', './template', './spinner'],
-function($, pages, json, tmpl, spin) {
+define(['jquery', './router', './json', './template', './spinner'],
+function($, router, json, tmpl, spin) {
 
 // Exported module variable
 var auto = {};
@@ -18,7 +18,7 @@ auto.init = function(template) {
     if (template) {
         auto.template = template;
     }
-    pages.addRoute('.*', 's', _register);
+    router.addRoute('.*', 's', _register);
     function _register(match, ui, params, hash, evt, $page) {
         $page.find('datalist').each(function(i, datalist) {
             /* jshint unused: false */

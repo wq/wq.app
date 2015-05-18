@@ -13,7 +13,7 @@
 (function ( root, doc, factory ) {
 	if ( typeof define === "function" && define.amd ) {
 		// AMD. Register as an anonymous module.
-		define( [ "jquery", "jquery.mobile.router", "wq/router" ], function ( $ ) {
+		define( [ "jquery", "jquery.mobile.router" ], function ( $ ) {
 			factory( $, root, doc );
 			return $.mobile;
 		});
@@ -711,7 +711,7 @@ $.ui.plugin = {
 		phonegapNavigationEnabled: false,
 
 		//automatically initialize the DOM when it's ready
-		autoInitializePage: true,
+		autoInitializePage: false, // true in stock jQM
 
 		pushStateEnabled: true,
 

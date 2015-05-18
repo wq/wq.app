@@ -9,10 +9,10 @@
 /* global Promise */
 
 define(['jquery', 'jquery.mobile',
-        './store', './model', './outbox', './pages', './template',
+        './store', './model', './outbox', './router', './template',
         './spinner', './console',
         'es5-shim'],
-function($, jqm, ds, model, outbox, pages, tmpl, spin, console) {
+function($, jqm, ds, model, outbox, router, tmpl, spin, console) {
 
 var app = {
     'OFFLINE': 'offline',
@@ -26,7 +26,7 @@ app.init = function(config) {
     if (arguments.length > 1) {
         throw "app.init() now takes a single configuration argument";
     }
-    // Router (wq/pages.js) configuration
+    // Router (wq/router.js) configuration
     if (!config.router) {
         config.router = {
             'base_url': ''
@@ -56,6 +56,7 @@ app.init = function(config) {
     if (config.debug) {
         config.router.debug = config.debug;
         config.store.debug = config.debug;
+        config.template.debug = config.debug;
     }
 
     // Load missing (non-local) content as JSON, or as server-rendered HTML?
@@ -85,9 +86,9 @@ app.init = function(config) {
     // Initialize wq/outbox.js
     outbox.init(config.outbox);
 
-    // Initialize wq/pages.js
-    pages.init(config.router);
-    app.base_url = pages.info.base_url;
+    // Initialize wq/router.js
+    router.init(config.router);
+    app.base_url = router.info.base_url;
 
     // Initialize wq/template.js
     tmpl.init(config.template);
@@ -133,7 +134,7 @@ app.init = function(config) {
     // Initialize authentication, if applicable
     var ready;
     if (app.can_login) {
-        pages.register('logout\/?', app.logout);
+        router.register('logout\/?', app.logout);
         _checkLogin();
 
         // Load some values from store - not ready till this is done.
@@ -172,7 +173,7 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
-    // Register routes with wq/pages.js
+    // Register routes with wq/router.js
     for (var page in app.wq_config.pages) {
         app.wq_config.pages[page].name = page;
         var conf = _getConf(page);
@@ -187,10 +188,10 @@ app.init = function(config) {
     }
 
     // Register outbox
-    pages.register('outbox', _outboxList);
-    pages.register('outbox/', _outboxList);
-    pages.register('outbox/<slug>', _outboxItem(false));
-    pages.register('outbox/<slug>/edit', _outboxItem(true));
+    router.register('outbox', _outboxList);
+    router.register('outbox/', _outboxList);
+    router.register('outbox/<slug>', _outboxItem(false));
+    router.register('outbox/<slug>/edit', _outboxItem(true));
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
@@ -203,7 +204,7 @@ app.init = function(config) {
     return ready;
 };
 
-app.jqmInit = pages.jqmInit;
+app.jqmInit = router.jqmInit;
 
 app.logout = function() {
     if (!app.can_login) {
@@ -225,7 +226,7 @@ app.logout = function() {
     });
 };
 
-// Determine appropriate context & template for pages.go
+// Determine appropriate context & template for router.go
 app.go = function(page, ui, params, itemid, edit, url, context) {
     if (ui && ui.options && ui.options.data) {
         return; // Ignore form actions
@@ -523,8 +524,8 @@ var _saveTransition = "none";
 // handles requests for [url] and [url]/
 function _registerList(page) {
     var conf = _getConf(page);
-    pages.register(conf.url, go);
-    pages.register(conf.url + '/', go);
+    router.register(conf.url, go);
+    router.register(conf.url + '/', go);
     function go(match, ui, params) {
         app.go(page, ui, params);
     }
@@ -537,8 +538,8 @@ function _registerList(page) {
             url += '/';
         }
         url += '<slug>/' + conf.url;
-        pages.register(url, goUrl(ppage, url));
-        pages.register(url + '/', goUrl(ppage, url));
+        router.register(url, goUrl(ppage, url));
+        router.register(url + '/', goUrl(ppage, url));
     }
     function goUrl(ppage, url) {
         return function(match, ui, params) {
@@ -630,7 +631,7 @@ function _displayList(page, ui, params, url, context) {
         context.unsyncedItems = unsyncedItems;
 
         return _addLookups(page, context, false).then(function(context) {
-            return pages.go(
+            return router.go(
                 url, page + '_list', context, ui, conf.once ? true : false
             );
         });
@@ -651,7 +652,7 @@ function _registerDetail(page) {
             reserved.push(app.wq_config.pages[key].url);
         }
     }
-    pages.register(url + '<slug>', function(match, ui, params) {
+    router.register(url + '<slug>', function(match, ui, params) {
         if (reserved.indexOf(match[1]) > -1) {
             return;
         }
@@ -663,8 +664,8 @@ function _registerDetail(page) {
 // handles requests for [url]/[id]/edit and [url]/new
 function _registerEdit(page) {
     var conf = _getConf(page);
-    pages.register(conf.url + '/<slug>/edit', go);
-    pages.register(conf.url + '/(new)', go);
+    router.register(conf.url + '/<slug>/edit', go);
+    router.register(conf.url + '/(new)', go);
     function go(match, ui, params) {
         app.go(page, ui, params, match[1], true);
     }
@@ -701,7 +702,7 @@ function _displayItem(itemid, item, page, ui, params, edit, url, context) {
         } else {
             // If conf.partial is not set, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
-            return pages.notFound(url);
+            return router.notFound(url);
         }
     }
 }
@@ -710,7 +711,7 @@ function _renderDetail(item, page, ui, params, url, context) {
     var conf = _getConf(page);
     context = $.extend({'page_config': conf}, item, context);
     return _addLookups(page, context, false).then(function(context) {
-        return pages.go(
+        return router.go(
             url, page + '_detail', context, ui, conf.once ? true : false
         );
     });
@@ -729,7 +730,7 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
     }
     function done(context) {
         var divid = page + '_' + itemid + '-page';
-        return pages.go(
+        return router.go(
             url, page + '_edit', context, ui, false, divid
         );
     }
@@ -739,8 +740,8 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
 // handles requests for [url] and [url]/
 function _registerOther(page) {
     var conf = _getConf(page);
-    pages.register(conf.url, go);
-    pages.register(conf.url + '/', go);
+    router.register(conf.url, go);
+    router.register(conf.url + '/', go);
     function go(match, ui, params) {
         app.go(page, ui, params);
     }
@@ -752,12 +753,12 @@ function _renderOther(page, ui, params, url, context) {
         url = conf.url;
     }
     context = $.extend({}, conf, params, context);
-    pages.go(url, page, context, ui, conf.once ? true : false);
+    router.go(url, page, context, ui, conf.once ? true : false);
 }
 
 function _outboxList(match, ui) {
     outbox.model.load().then(function(data) {
-        pages.go('outbox', 'outbox', data, ui);
+        router.go('outbox', 'outbox', data, ui);
     });
 }
 
