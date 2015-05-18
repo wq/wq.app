@@ -73,7 +73,7 @@ auto.update = function($datalist, value) {
     if (!exists) {
         spin.start();
     }
-    json.get(url, function(result) {
+    json.get(url).then(function(result) {
         if (!exists) {
             spin.stop();
         }

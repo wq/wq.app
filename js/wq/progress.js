@@ -75,7 +75,7 @@ progress.fail = function($progress, data) {
 // (with $progress and url bound to scope).
 progress.timer = function($progress, url) {
     return function() {
-        json.get(url, function(data) {
+        json.get(url).then(function(data) {
             var done = false;
             if (!data.total) {
                 // Set to "intermediate" state
