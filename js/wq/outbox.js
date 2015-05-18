@@ -100,10 +100,10 @@ function _Outbox(store) {
                     synced: false,
                     id: maxId + 1
                 };
-                if (data.modelConf) {
-                    item.modelConf = data.modelConf;
-                    delete data.modelConf;
-                }
+            }
+            if (data.modelConf) {
+                item.modelConf = data.modelConf;
+                delete data.modelConf;
             }
 
             return self.model.update([item]).then(function() {
@@ -117,7 +117,7 @@ function _Outbox(store) {
     };
 
     // Send a single item from the outbox to the server
-    self.sendItem = function(item) {
+    self.sendItem = function(item, once) {
         if (!item || item.synced) {
             return Promise.resolve(null);
         } else if (!ol.online) {
@@ -225,6 +225,9 @@ function _Outbox(store) {
             } else {
                 item.error = jqxhr.statusCode;
             }
+            if (once) {
+                item.locked = true;
+            }
             return self.model.update([item]).then(function() {
                 return item;
             });
@@ -246,11 +249,8 @@ function _Outbox(store) {
 
     // Send items to a batch service on the server
     self.sendBatch = function(items) {
-        if (!items.length) {
-            return Promise.resolve(true);
-        }
-        if (!ol.online) {
-            return Promise.resolve(false);
+        if (!items.length || !ol.online) {
+            return Promise.resolve(items);
         }
 
         var data = [];
@@ -271,19 +271,17 @@ function _Outbox(store) {
             }
 
             // Apply sync results to individual items
-            var success = true;
             results.forEach(function(result, i) {
                 var item = items[i];
                 self.applyResult(item, result);
                 if (!item.synced) {
-                    success = false;
                     item.retryCount = item.retryCount || 0;
                     item.retryCount++;
                 }
             });
 
             return self.model.update(items).then(function() {
-                return success;
+                return items;
             });
 
         }, function() {
@@ -295,11 +293,8 @@ function _Outbox(store) {
         // No batch service; emulate batch mode by sending each item to
         // the server and summarizing the result
 
-        if (!items.length) {
-            return Promise.resolve(true);
-        }
-        if (!ol.online) {
-            return Promise.resolve(false);
+        if (!items.length || !ol.online) {
+            return Promise.resolve(items);
         }
 
         var results = items.map(function(item) {
@@ -307,22 +302,15 @@ function _Outbox(store) {
         });
 
         return Promise.all(results).then(function(items) {
-            var success = true;
             items.forEach(function(item) {
-                if (!item) {
-                    // sendItem failed
-                    success = null;
-                } else if (!item.synced) {
+                if (item && !item.synced) {
                     // sendItem did not result in sync
-                    if (success) {
-                        success = false;
-                    }
                     item.retryCount = item.retryCount || 0;
                     item.retryCount++;
                 }
             });
             return self.model.update(items).then(function() {
-                return success;
+                return items;
             });
         });
     };
@@ -387,10 +375,13 @@ function _Outbox(store) {
         return self.unsyncedItems(modelConf).then(function(unsynced) {
             var items = [];
             unsynced.forEach(function(item) {
-                if (!self.maxRetries || !item.retryCount ||
-                        item.retryCount < self.maxRetries) {
-                    items.push(item);
+                if (self.maxRetries && item.retryCount >= self.maxRetries) {
+                    return;
                 }
+                if (item.locked) {
+                    return;
+                }
+                items.push(item);
             });
             return items;
         });

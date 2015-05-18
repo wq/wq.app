@@ -111,6 +111,7 @@ app.init = function(config) {
     [
         'postsave',
         'saveerror',
+        'showOutboxErrors',
         'presync',
         'postsync',
         'parentFilters'
@@ -138,7 +139,7 @@ app.init = function(config) {
         _checkLogin();
 
         // Load some values from store - not ready till this is done.
-        ready = ds.get(['user', 'csrftoken']).then(function(values) {
+        ready = ds.get(['user', 'csrf_token']).then(function(values) {
             var user = values[0],
                 csrftoken = values[1];
             tmpl.setDefault('csrf_token', csrftoken);
@@ -269,9 +270,9 @@ app.sync = function(retryAll) {
         }
         app.syncing = true;
         app.presync();
-        outbox.sendAll(retryAll).then(function(result) {
+        outbox.sendAll(retryAll).then(function(items) {
             app.syncing = false;
-            app.postsync(result);
+            app.postsync(items);
         });
     });
 };
@@ -369,7 +370,11 @@ app.saveerror = function(item, reason, $form) {
     if (app.config.debug) {
         console.warn("Could not save: " + reason);
     }
-    app.postsave(item);
+    if (reason == app.OFFLINE) {
+        app.postsave(item, false);
+    } else {
+        app.showOutboxErrors(item, $form);
+    }
 };
 
 // Hook for handling alerts before a background sync event
@@ -381,12 +386,21 @@ app.presync = function() {
 };
 
 // Hook for handling alerts after a background sync event
-app.postsync = function(result) {
+app.postsync = function(items) {
     /* jshint unused: false */
-    // Called after every sync with result from ds.sendAll().
+    // Called after every sync with result from outbox.sendAll().
     // (override to customize behavior, e.g. update a status icon)
     var msg;
-    if (app.config.debug) {
+    if (app.config.debug && items.length) {
+        var result = true;
+        items.forEach(function(item) {
+            if (!item) {
+                result = null;
+            }
+            if (!item.synced && result) {
+                result = false;
+            }
+        });
         if (result) {
             console.log("Successfully synced.");
         } else {
@@ -400,7 +414,7 @@ app.postsync = function(result) {
             });
         }
     }
-    if (jqm.activePage.data('wq-sync-refresh')) {
+    if (items.length && jqm.activePage.data('wq-sync-refresh')) {
         jqm.changePage(jqm.activePage.data('url'), {
             'transition': 'none',
             'allowSamePageTransition': true
@@ -414,7 +428,7 @@ app.attachmentTypes = {
         'type': 'annotationtype',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
-            return {'for': page};
+            return {};
         }
     },
     identifier: {
@@ -868,7 +882,7 @@ function _handleForm(evt) {
 
     vals.modelConf = conf;
     $('.error').html('');
-    ds.get('csrftoken').then(function(csrftoken) {
+    ds.get('csrf_token').then(function(csrftoken) {
         vals.csrftoken = csrftoken;
         outbox.save(vals, outboxId, true).then(function(item) {
             if (backgroundSync) {
@@ -880,7 +894,7 @@ function _handleForm(evt) {
 
             // Submit form immediately and wait for server to respond
             spin.start();
-            outbox.sendItem(item).then(function(item) {
+            outbox.sendItem(item, true).then(function(item) {
                 spin.stop();
                 if (!item || item.synced) {
                     // Item was synced
@@ -901,7 +915,7 @@ function _handleForm(evt) {
                     // (likely a 400 bad data error)
                     error = app.ERROR;
                 }
-                app.saveerror(item, app.ERROR, $form);
+                app.saveerror(item, error, $form);
             });
         });
     });
@@ -1005,7 +1019,7 @@ function _saveLogin(result) {
     app.user = user;
     tmpl.setDefault('user', user);
     tmpl.setDefault('is_authenticated', true);
-    tmpl.setDefault('csrftoken', csrftoken);
+    tmpl.setDefault('csrf_token', csrftoken);
 
     return Promise.all([
         ds.set('/config', config),
@@ -1027,7 +1041,7 @@ function _checkLogin() {
             } else if (result && app.user) {
                 app.logout();
             } else if (result && result.csrftoken) {
-                tmpl.setDefault('csrftoken', result.csrftoken);
+                tmpl.setDefault('csrf_token', result.csrftoken);
                 ds.set('csrf_token', result.csrftoken);
             }
         });
