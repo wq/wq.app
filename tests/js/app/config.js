@@ -8,8 +8,7 @@ return {
     },
     'pages': wqConfig.pages,
     'map': {
-        'zoom': 13,
-        'center': [44.98, -93.27]
+        'bounds': [[44.95, -93.30], [45.01, -93.24]]
 //      'owl': true
     },
     'template': {

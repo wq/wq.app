@@ -19,8 +19,7 @@ var map = {};
 map.config = {
     'maps': {}, // Auto-populated from app.config.pages where map == true
     'defaults': {
-        'zoom': 0,
-        'center': [0, 0],
+        'bounds': [[-4, -4], [4, 4]],
         'autoZoom': {
             'wait': 0.5, // How long to wait before triggering autoZoom
             'sticky': true, // Start new maps in same location as old maps
@@ -276,14 +275,14 @@ map.createMap = function(page, itemid, override) {
         m = map.maps[mapid];
         m.invalidateSize();
         if (defaults.autoZoom.sticky) {
-            m.setView(defaults.center, defaults.zoom);
+            m.fitBounds(defaults.bounds);
         }
         return;
     }
 
     // Create map, set default zoom and basemap
     m = map.maps[mapid] = L.map(divid);
-    m.setView(defaults.center, defaults.zoom);
+    m.fitBounds(defaults.bounds);
     basemaps = map.createBaseMaps();
     basemap = Object.keys(basemaps)[0];
     basemaps[basemap].addTo(m);
@@ -347,8 +346,7 @@ map.createMap = function(page, itemid, override) {
 
     if (map.config.defaults.autoZoom.sticky) {
         m.on('moveend', function() {
-            map.config.defaults.zoom = m.getZoom();
-            map.config.defaults.center = m.getCenter();
+            map.config.defaults.bounds = m.getBounds();
         });
     }
     if (owl) {
