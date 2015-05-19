@@ -69,7 +69,7 @@ Library                 |  Version  |  Notes
 [es5-shim.js]           |    4.1.1  |  
 [highlight.js]          |      8.5  |  `node tools/build.js -t amd -n bash css javascript markdown python scss xml`
 [jquery]                |   1.11.3  |  
-[jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first
+[jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first; `autoInitializePage: false`
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.13.1  |
 [leaflet]               |    0.7.3  |  
