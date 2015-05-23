@@ -841,34 +841,53 @@ function _handleForm(evt) {
     var outboxId = $form.data('wq-outbox-id');
     var url = $form.attr('action').replace(app.base_url + "/", "");
     var conf = _getConfByUrl(url);
-
     var vals = {};
     var $files = $form.find('input[type=file]');
     var has_files = ($files.length > 0 && $files.val().length > 0);
-    if (!app['native'] && has_files) {
-        // Files present and we're not running in Cordova.
-        if (window.FormData && window.Blob) {
-            // Modern browser; use FormData to upload files via AJAX.
-            // FIXME: localStorage version of outbox item will be unusable.
-            // Can we serialize this object somehow?
-            vals.data = new FormData(this);
-        } else {
-            // Looks like we're in a an old browser and we can't upload files
-            // via AJAX or Cordova...  Bypass store and assume server is
-            // configured to accept regular form posts.
-            return;
-        }
-    } else {
-        // No files, or we're running in Cordova.
-        // Use a simple dictionary for values, which is better for outbox
-        // serialization.  store will automatically use Cordova FileUpload iff
-        // there is a form field named 'fileupload'.
-        $.each($form.serializeArray(), function(i, v) {
-            vals[v.name] = v.value;
+    var ready;
+
+    if (has_files && !window.Blob) {
+        // Files present but there's no Blob API.  Looks like we're in a an old
+        // browser that can't upload files via AJAX.  Bypass wq/outbox.js
+        // entirely and hope server is able to respond to regular form posts
+        // with HTML (hint: wq.db is).
+        return;
+    }
+
+    // Modern browser and/or no files present; skip regular form submission,
+    // we're saving this via wq/outbox.js
+    evt.preventDefault();
+
+    // Use a simple JSON structure for values, which is better for outbox
+    // serialization.
+    ready = Promise.resolve();
+    $.each($form.serializeArray(), function(i, v) {
+        vals[v.name] = v.value;
+    });
+    // Handle <input type=file>.  Use HTML JSON form-style objects, but
+    // with Blob instead of base64 encoding to represent the actual file.
+    if (has_files) {
+        $files.each(function() {
+            var name = this.name;
+            // FIXME: Handle multiple files
+            var file = this.files && this.files.length && this.files[0];
+            if (!file) {
+                return;
+            }
+            vals[name] = {
+                'type': file.type,
+                'name': file.name,
+                // Convert to blob for better serialization
+                'body': file.slice(0, file.size, file.type)
+            };
         });
     }
-    // Skip regular form submission, we're saving this via store
-    evt.preventDefault();
+    // Handle Cordova files
+    if (app['native']) {
+        $files = $form.find('input[data-wq-type=file]');
+        // FIXME
+    }
+
     if ($submitVal) {
         $submitVal.remove();
     }
@@ -881,9 +900,9 @@ function _handleForm(evt) {
     }
 
     vals.modelConf = conf;
-    $('.error').html('');
-    ds.get('csrf_token').then(function(csrftoken) {
-        vals.csrftoken = csrftoken;
+    $form.find('.error').html('');
+    Promise.all([ds.get('csrf_token'), ready]).then(function(results) {
+        vals.csrftoken = results[0];
         outbox.save(vals, outboxId, true).then(function(item) {
             if (backgroundSync) {
                 // Send user to next screen while app syncs in background

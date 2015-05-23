@@ -31,6 +31,11 @@ var _verbosity = {
     'Values': 3
 };
 
+var _canEmbedBlobs = {};
+_canEmbedBlobs[lf.INDEXEDDB] = true;
+_canEmbedBlobs[lf.WEBSQL] = false;
+_canEmbedBlobs[lf.LOCALSTORAGE] = false;
+
 return store;
 
 function _Store(name) {
@@ -63,7 +68,12 @@ function _Store(name) {
             'fetchFail',
             'jsonp',
             'debug',
-            'formatKeyword'
+            'formatKeyword',
+            'alwaysExtractBlobs',
+            'getBlob',
+            'setBlob',
+            'removeBlob',
+            'makeRef'
         ];
         optlist.forEach(function(opt) {
             if (opts.hasOwnProperty(opt)) {
@@ -77,7 +87,20 @@ function _Store(name) {
                 }
             }
         }
+
+        self.ready = lf.ready().then(function() {
+            // Disable blob extraction if it's not needed
+            if (!self.alwaysExtractBlobs && _canEmbedBlobs[lf.driver()]) {
+                _setItemFn = _setItem = lf.setItem.bind(lf);
+                _getItemFn = _getItem = lf.getItem.bind(lf);
+                _removeItemFn = _removeItem = lf.removeItem.bind(lf);
+            }
+        });
     };
+
+    self.ready = {'then': function() {
+        throw "Call init first!";
+    }};
 
     // Get value from datastore
     self.get = function(query) {
@@ -93,12 +116,12 @@ function _Store(name) {
         }
 
         // Check storage first
-        var promise = lf.getItem(_prefix + key).then(function(result) {
+        var promise = _getItem(_prefix + key).then(function(result) {
             if (!result) {
                 return fetchData();
             }
             if (self.debugLookup) {
-                console.log('in localStorage');
+                console.log('in storage');
             }
             return result;
         }, function() {
@@ -128,7 +151,7 @@ function _Store(name) {
             if (self.debugLookup) {
                 console.log('deleting ' + key);
             }
-            return lf.removeItem(_prefix + key);
+            return _removeItem(_prefix + key);
         } else {
             if (self.debugLookup) {
                 console.log('saving new value for ' + key);
@@ -136,7 +159,7 @@ function _Store(name) {
                     console.log(value);
                 }
             }
-            return lf.setItem(_prefix + key, value).then(function(d) {
+            return _setItem(_prefix + key, value).then(function(d) {
                 return d;
             }, function(err) {
                 self.storageFail(value, err);
@@ -148,11 +171,14 @@ function _Store(name) {
     self.storageFail = function(item, error) {
         /* jshint unused: false */
         self.storageUsage().then(function(usage) {
+            var msg;
             if (usage > 0) {
-                console.warn("Storage appears to be full.");
+                msg = "Storage appears to be full.";
             } else {
-                console.warn("Storage appears to be disabled.");
+                msg = "Storage appears to be disabled.";
             }
+            console.warn(msg + "  Caught Error:");
+            console.warn(error.stack || error);
         });
     };
 
@@ -292,7 +318,7 @@ function _Store(name) {
             // Only clear items matching this store's key prefix
             self.keys().then(function(keys) {
                 return Promise.all(keys.map(function(key) {
-                    return lf.removeItem(_prefix + key);
+                    return _removeItem(_prefix + key);
                 }));
             });
         }
@@ -309,6 +335,201 @@ function _Store(name) {
         });
     };
 
+    // Some localForage drivers (i.e. localStorage and WebSQL) require
+    // serialization of Blob values.  localForage does this automatically, but
+    // not for Blobs nested within other Objects.  As a workaround, extract
+    // any blobs into separate keys and replace them with references ("refs").
+    // When indexedDB is universally supported, the following can be removed.
+
+    // Override the following to save blobs somewhere else.
+    self.getBlob = function(ref) {
+        return lf.getItem(_prefix + ref);
+    };
+    self.setBlob = function(ref, blob) {
+        return lf.setItem(_prefix + ref, blob);
+    };
+    self.removeBlob = function(ref) {
+        return lf.removeItem(_prefix + ref);
+    };
+    self.makeRef = function(blob) {
+         /* jshint unused: false */
+         return Promise.resolve('blob' + Math.round(
+             Math.random() * 100000000
+         ));
+    };
+
+    // localForage function proxies
+    // (twice-wrapped since self.ready may overwrite implementation.)
+    function _getItem(key) {
+        return self.ready.then(function() {
+            return _getItemFn(key);
+        });
+    }
+    function _getItemFn(key) {
+        return lf.getItem(key).then(function(value) {
+            if (value && value._nested) {
+                return _insertBlobs(value);
+            } else {
+                return value;
+            }
+        });
+    }
+
+    function _setItem(key, newValue) {
+        return self.ready.then(function() {
+            return _setItemFn(key, newValue);
+        });
+    }
+    function _setItemFn(key, newValue) {
+        // Extract blobs and also load previous value into memory to see if
+        // there are any refs that need updating.
+        return Promise.all([
+            _extractBlobs(newValue),
+            lf.getItem(key)
+        ]).then(function(values) {
+            var newRefs = _findRefs(values[0]);
+            var oldRefs = _findRefs(values[1]);
+            return _cleanupBlobs(oldRefs, newRefs).then(function() {
+                return lf.setItem(key, values[0]);
+            });
+        });
+    }
+
+    function _removeItem(key) {
+        return self.ready.then(function() {
+            return _removeItemFn(key);
+        });
+    }
+    function _removeItemFn(key) {
+        return lf.getItem(key).then(function(oldValue) {
+            var oldRefs = _findRefs(oldValue);
+            return _cleanupBlobs(oldRefs, []).then(function() {
+                return lf.removeItem(key);
+            });
+        });
+    }
+
+    // Recursively extract blobs into separate values & replace with refs
+    function _extractBlobs(value) {
+        if (!(value instanceof Object) || !window.Blob) {
+            return Promise.resolve(value);
+        } else if (json.isArray(value)) {
+            return Promise.all(value.map(_extractBlobs));
+        } else if (value instanceof Blob) {
+            if (value._ref) {
+                if (self.debugValues) {
+                     console.log('blob already saved: ' + value._ref);
+                }
+                return Promise.resolve('_ref_' + value._ref);
+            }
+            return self.makeRef(value).then(function(ref) {
+                if (self.debugValues) {
+                     console.log('saving blob ' + ref);
+                }
+                return self.setBlob(ref, value).then(function() {
+                    return '_ref_' + ref;
+                });
+            });
+        }
+        var keys = Object.keys(value);
+        var results = keys.map(function(key) {
+            return _extractBlobs(value[key]);
+        });
+        return Promise.all(results).then(function(values) {
+            var result = {};
+            values.forEach(function(value, i) {
+                var key = keys[i];
+                result[key] = value;
+                // Check for and propagate _nested property
+                if (!json.isArray(value)) {
+                    value = [value];
+                }
+                value.forEach(function(val) {
+                    if (!val) {
+                        return;
+                    }
+                    if ((val.match && val.match(/^_ref_/)) || val._nested) {
+                        result._nested = true;
+                    }
+                });
+            });
+            return result;
+        });
+    }
+
+    // Recursively replace refs with associated blobs
+    function _insertBlobs(value) {
+        var match = value && value.match && value.match(/^_ref_(.+)/);
+        var ref = match && match[1];
+        if (ref) {
+            if (self.debugValues) {
+                 console.log('loading blob ' + ref);
+            }
+            return lf.getItem(_prefix + ref).then(function(blob) {
+                if (blob) {
+                    blob._ref = ref;
+                }
+                return blob;
+            });
+        } else if (json.isArray(value)) {
+            return Promise.all(value.map(_insertBlobs));
+        } else if (!(value instanceof Object) || !value._nested) {
+            return Promise.resolve(value);
+        }
+        var keys = Object.keys(value);
+        var results = keys.map(function(key) {
+            return _insertBlobs(value[key]);
+        });
+        return Promise.all(results).then(function(values) {
+            var result = {};
+            values.forEach(function(value, i) {
+                if (keys[i] == "_nested") {
+                   return;
+                }
+                result[keys[i]] = value;
+            });
+            return result;
+        });
+    }
+
+    // List all refs in object (and any nested objects)
+    function _findRefs(value) {
+        var match = value && value.match && value.match(/^_ref_(.+)/);
+        var refs = [];
+        if (match) {
+            return [match[1]];
+        }
+        if (json.isArray(value)) {
+            value.map(_findRefs).forEach(function(r) {
+                refs = refs.concat(r);
+            });
+            return refs;
+        }
+        if (!(value instanceof Object) || !value._nested) {
+            return [];
+        }
+        Object.keys(value).forEach(function(key) {
+            refs = refs.concat(_findRefs(value[key]));
+        });
+        return refs;
+    }
+
+    // Clean up refs after an update
+    function _cleanupBlobs(oldRefs, newRefs) {
+        var newRefMap = {};
+        newRefs.forEach(function(ref) {
+            newRefMap[ref] = true;
+        });
+        var deletedRefs = oldRefs.filter(function(ref) {
+            return !(newRefMap[ref]);
+        });
+        return Promise.all(deletedRefs.map(function(ref) {
+            if (self.debugValues) {
+                 console.log('deleting blob ' + ref);
+            }
+            return self.removeBlob(ref);
+        }));
+    }
 }
 
 });

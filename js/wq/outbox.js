@@ -5,12 +5,11 @@
  * https://wq.io/license
  */
 
-/* global FileUploadOptions */
-/* global FileTransfer */
 /* global Promise */
 
-define(['jquery', './store', './model', './online', './json', './console'],
-function($, ds, model, ol, json, console) {
+define(['jquery', 'localforage', './store', './model',
+        './online', './json', './console'],
+function($, lf, ds, model, ol, json, console) {
 
 var _outboxes = {};
 var outbox = new _Outbox(ds);
@@ -127,8 +126,6 @@ function _Outbox(store) {
         var url = self.service;
         var method = self.syncMethod;
         var data = json.extend({}, item.data);
-        var contenttype;
-        var processdata;
         var headers = {};
         if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
@@ -153,11 +150,6 @@ function _Outbox(store) {
             url += '?' + json.param(defaults);
         }
 
-        if (data.data) {
-            data = data.data;
-            contenttype = processdata = false;
-        }
-
         if (self.debugNetwork) {
             console.log("Sending item to " + url);
             if (self.debugValues) {
@@ -165,40 +157,38 @@ function _Outbox(store) {
             }
         }
 
-        if (data.fileupload) {
-            var opts = new FileUploadOptions();
-            opts.fileKey = data.fileupload;
-            opts.fileName = data[data.fileupload];
-            delete data[data.fileupload];
-            delete data.fileupload;
-            opts.params = data;
-            var ft = new FileTransfer();
-            return Promise(function(resolve) {
-                ft.upload(opts.fileName, url,
-                    function(res) {
-                        var response = JSON.parse(
-                            decodeURIComponent(res.response)
-                        );
-                        resolve(success(response));
-                    },
-                    function(res) {
-                        resolve(error(
-                            {responseText: 'Error uploading file: ' + res.code}
-                        ));
-                    }, opts
-                );
-            });
-        } else {
-            return Promise.resolve($.ajax(url, {
-                data: data,
-                type: method,
-                dataType: "json",
-                contentType: contenttype,
-                processData: processdata,
-                async: true,
-                headers: headers
-            })).then(success, error);
+        // If files/blobs are present, use a FormData object to submit
+        var formData = new FormData();
+        var useFormData = false;
+        var key, val, blob;
+        for (key in data) {
+            val = data[key];
+            if (val && val.name && val.type && val.body) {
+                // File (Blob) record; add with filename
+                blob = val.body;
+                if (!blob.type) {
+                    // Serialized blobs lose their type
+                    blob = blob.slice(0, blob.size, val.type);
+                }
+                formData.append(key, blob, val.name);
+                useFormData = true;
+            }
         }
+        if (useFormData) {
+            // Add regular form fields
+            for (key in data) {
+                formData.append(key, data[key]);
+            }
+        }
+
+        return Promise.resolve($.ajax(url, {
+            data: useFormData ? formData : data,
+            type: method,
+            dataType: "json",
+            processData: !useFormData,
+            async: true,
+            headers: headers
+        })).then(success, error);
 
         function success(result) {
             if (self.debugNetwork) {
@@ -223,7 +213,7 @@ function _Outbox(store) {
                     item.error = jqxhr.responseText;
                 }
             } else {
-                item.error = jqxhr.statusCode;
+                item.error = jqxhr.status;
             }
             if (once) {
                 item.locked = true;
