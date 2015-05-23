@@ -75,11 +75,14 @@ function _Outbox(store) {
     };
 
     // Queue data for server use; use outbox to cache unsynced items
-    self.save = function(data, id, noSend) {
+    self.save = function(data, options, noSend) {
         return self.model.load().then(function(obdata) {
             var item, maxId = 0;
+            if (!options) {
+                options = {};
+            }
             obdata.list.forEach(function(obj) {
-                if (id && obj.id == id) {
+                if (options.id && obj.id == options.id) {
                     item = obj;
                 }
                 if (obj.id > maxId) {
@@ -89,20 +92,23 @@ function _Outbox(store) {
 
             if (item && !item.synced) {
                 // reuse existing item
+                (options.preserve || []).forEach(function(field) {
+                    if (data[field] === undefined) {
+                        data[field] = item.data[field];
+                    }
+                });
                 item.data = data;
                 item.retryCount = 0;
                 item.error = null;
+                item.options = options;
             } else {
                 // create new item
                 item = {
                     data: data,
                     synced: false,
-                    id: maxId + 1
+                    id: maxId + 1,
+                    options: options
                 };
-            }
-            if (data.modelConf) {
-                item.modelConf = data.modelConf;
-                delete data.modelConf;
             }
 
             return self.model.update([item]).then(function() {
@@ -123,21 +129,16 @@ function _Outbox(store) {
             return Promise.resolve(item);
         }
 
+        var data = item.data;
+        var options = item.options;
         var url = self.service;
-        var method = self.syncMethod;
-        var data = json.extend({}, item.data);
+        if (options.url) {
+            url = url + '/' + options.url;
+        }
+        var method = options.method || self.syncMethod;
         var headers = {};
-        if (data.hasOwnProperty('url')) {
-            url = url + '/' + data.url;
-            delete data.url;
-        }
-        if (data.method) {
-            method = data.method;
-            delete data.method;
-        }
-        if (data.csrftoken) {
-            headers['X-CSRFToken'] = data.csrftoken;
-            delete data.csrftoken;
+        if (options.csrftoken) {
+            headers['X-CSRFToken'] = options.csrftoken;
         }
 
         var defaults = json.extend({}, self.defaults);
@@ -177,7 +178,10 @@ function _Outbox(store) {
         if (useFormData) {
             // Add regular form fields
             for (key in data) {
-                formData.append(key, data[key]);
+                val = data[key];
+                if (!val || !val.name || !val.type || !val.body) {
+                    formData.append(key, val);
+                }
             }
         }
 
@@ -186,6 +190,7 @@ function _Outbox(store) {
             type: method,
             dataType: "json",
             processData: !useFormData,
+            contentType: useFormData ? false : undefined,
             async: true,
             headers: headers
         })).then(success, error);
@@ -318,8 +323,11 @@ function _Outbox(store) {
 
     // Update any corresponding models with synced data
     self.updateModels = function(item, result) {
-        if (item.modelConf && item.synced) {
-            var conf = json.extend({'store': self.store}, item.modelConf);
+        if (item.options.modelConf && item.synced) {
+            var conf = json.extend(
+                {'store': self.store},
+                item.options.modelConf
+            );
             return model(conf).update([result]).then(function() {
                 return result;
             });
@@ -347,11 +355,11 @@ function _Outbox(store) {
         // Otherwise, only match items corresponding to the specified list
         return result.then(function(items) {
             return items.filter(function(item) {
-                if (!item.modelConf) {
+                if (!item.options.modelConf) {
                     return false;
                 }
                 for (var key in modelConf) {
-                    if (item.modelConf[key] != modelConf[key]) {
+                    if (item.options.modelConf[key] != modelConf[key]) {
                         return false;
                     }
                 }

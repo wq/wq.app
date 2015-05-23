@@ -205,6 +205,12 @@ app.init = function(config) {
     return ready;
 };
 
+app.prefetchAll = function() {
+    return Promise.all(Object.keys(app.models).map(function(name) {
+        return app.models[name].prefetch();
+    }));
+};
+
 app.jqmInit = router.jqmInit;
 
 app.logout = function() {
@@ -269,9 +275,11 @@ app.sync = function(retryAll) {
             return;
         }
         app.syncing = true;
+        tmpl.setDefault('syncing', true);
         app.presync();
         outbox.sendAll(retryAll).then(function(items) {
             app.syncing = false;
+            tmpl.setDefault('syncing', false);
             app.postsync(items);
         });
     });
@@ -284,18 +292,19 @@ app.postsave = function(item, backgroundSync) {
         'transition': _saveTransition,
         'allowSamePageTransition': true
     };
-    var postsave, pconf, match, mode, url, itemid;
+    var postsave, pconf, match, mode, url, itemid, modelConf;
 
     // conf.postsave can be set redirect to another page
-    postsave = item.modelConf.postsave;
+    modelConf = item.options.modelConf;
+    postsave = modelConf.postsave;
     if (!postsave) {
         // Otherwise, default is to return the page for the item just saved
         if (backgroundSync) {
             // If backgroundSync, return to list view while syncing
-            postsave = item.modelConf.name + '_list';
+            postsave = modelConf.name + '_list';
         } else {
             // If noBackgroundSync, return to the newly synced item
-            postsave = item.modelConf.name + '_detail';
+            postsave = modelConf.name + '_detail';
         }
     }
 
@@ -323,7 +332,7 @@ app.postsave = function(item, backgroundSync) {
 
         if (mode != 'list') {
             // Detail or edit view; determine item id and add to url
-            if (postsave == item.modelConf.name && !item.synced) {
+            if (postsave == modelConf.name && !item.synced) {
                 // Config indicates return to detail/edit view of the model
                 // that was just saved, but the item hasn't been synced yet.
                 // Navigate to outbox URL instead.
@@ -334,7 +343,7 @@ app.postsave = function(item, backgroundSync) {
                 }
             } else {
                 // Item has been successfully synced
-                if (postsave == item.modelConf.name) {
+                if (postsave == modelConf.name) {
                     // If postsave page is the same as the item's page, use the
                     // new id
                     itemid = item.result && item.result.id;
@@ -414,6 +423,10 @@ app.postsync = function(items) {
             });
         }
     }
+    app.syncRefresh(items);
+};
+
+app.syncRefresh = function(items) {
     if (items.length && jqm.activePage.data('wq-sync-refresh')) {
         jqm.changePage(jqm.activePage.data('url'), {
             'transition': 'none',
@@ -780,8 +793,8 @@ function _outboxItem(edit) {
     // Display outbox item using model-specific detail/edit view
     return function(match, ui, params) {
         outbox.model.find(match[1]).then(function(item) {
-            var id, idMatch = item.data.url.match(new RegExp(
-                item.modelConf.url + '/([^\/]+)$'
+            var id, idMatch = item.options.url.match(new RegExp(
+                item.options.modelConf.url + '/([^\/]+)$'
             ));
             if (item.data.id) {
                 id = item.data.id;
@@ -805,7 +818,7 @@ function _outboxItem(edit) {
                 context.id = id;
             }
             _displayItem(
-                 id, item.data, item.modelConf.name,
+                 id, item.data, item.options.modelConf.name,
                  ui, params, edit, url, context
             ).then(function($page) {
                 if (edit && item.error) {
@@ -839,6 +852,7 @@ function _handleForm(evt) {
     }
 
     var outboxId = $form.data('wq-outbox-id');
+    var preserve = $form.data('wq-outbox-preserve');
     var url = $form.attr('action').replace(app.base_url + "/", "");
     var conf = _getConfByUrl(url);
     var vals = {};
@@ -892,18 +906,26 @@ function _handleForm(evt) {
         $submitVal.remove();
     }
 
-    vals.url = url;
+    var options = {
+        'url': url
+    };
+    if (outboxId) {
+        options.id = outboxId;
+        if (preserve && preserve.split) {
+            options.preserve = preserve.split(/,/);
+        }
+    }
     if (url == conf.url + "/" || !conf.list) {
-        vals.method = "POST"; // REST API uses POST for new records
+        options.method = "POST"; // REST API uses POST for new records
     } else {
-        vals.method = "PUT";  // .. but PUT to update existing records
+        options.method = "PUT";  // .. but PUT to update existing records
     }
 
-    vals.modelConf = conf;
+    options.modelConf = conf;
     $form.find('.error').html('');
     Promise.all([ds.get('csrf_token'), ready]).then(function(results) {
-        vals.csrftoken = results[0];
-        outbox.save(vals, outboxId, true).then(function(item) {
+        options.csrftoken = results[0];
+        outbox.save(vals, options, true).then(function(item) {
             if (backgroundSync) {
                 // Send user to next screen while app syncs in background
                 app.postsave(item, true);
@@ -979,7 +1001,7 @@ app.showOutboxErrors = function(item, $page) {
         } else {
             field = '';
         }
-        var sel = '.' + item.modelConf.name + '-' + field + 'errors';
+        var sel = '.' + item.options.modelConf.name + '-' + field + 'errors';
         $page.find(sel).html(err);
     }
 };
@@ -999,18 +1021,19 @@ function _submitClick() {
 
 // Successful results from REST API contain the newly saved object
 function _updateModels(item, result) {
-    if (item.modelConf.list && item.synced) {
+    var modelConf = item.options.modelConf;
+    if (modelConf.list && item.synced) {
         // Extract any nested attachment arrays and update related models
         var res = $.extend({}, result);
         var results = Object.keys(app.attachmentTypes).map(function(aname) {
             var info = app.attachmentTypes[aname];
             var aconf = _getConf(aname, true);
-            if (!aconf || !item.modelConf[info.predicate] || !res[aconf.url]) {
+            if (!aconf || !modelConf[info.predicate] || !res[aconf.url]) {
                 return Promise.resolve();
             }
             var attachments = res[aconf.url];
             attachments.forEach(function(a) {
-                a[item.modelConf.name + '_id'] = res.id;
+                a[modelConf.name + '_id'] = res.id;
             });
             delete res[aconf.url];
             return app.models[aname].update(attachments);
@@ -1018,7 +1041,7 @@ function _updateModels(item, result) {
 
         // Update primary model
         return Promise.all(results).then(function() {
-            app.models[item.modelConf.name].update([res]);
+            app.models[modelConf.name].update([res]);
         });
     } else if (app.can_login && result && result.user && result.config) {
         return _saveLogin(result);

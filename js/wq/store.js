@@ -178,7 +178,7 @@ function _Store(name) {
                 msg = "Storage appears to be disabled.";
             }
             console.warn(msg + "  Caught Error:");
-            console.warn(error.stack || error);
+            console.warn(error && error.stack || error);
         });
     };
 
