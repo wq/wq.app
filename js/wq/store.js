@@ -367,11 +367,7 @@ function _Store(name) {
     }
     function _getItemFn(key) {
         return lf.getItem(key).then(function(value) {
-            if (value && value._nested) {
-                return _insertBlobs(value);
-            } else {
-                return value;
-            }
+            return _insertBlobs(value);
         });
     }
 

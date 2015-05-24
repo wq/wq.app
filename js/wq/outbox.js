@@ -161,7 +161,7 @@ function _Outbox(store) {
         // If files/blobs are present, use a FormData object to submit
         var formData = new FormData();
         var useFormData = false;
-        var key, val, blob;
+        var key, val, blob, slice;
         for (key in data) {
             val = data[key];
             if (val && val.name && val.type && val.body) {
@@ -169,7 +169,8 @@ function _Outbox(store) {
                 blob = val.body;
                 if (!blob.type) {
                     // Serialized blobs lose their type
-                    blob = blob.slice(0, blob.size, val.type);
+                    slice = blob.slice || blob.webkitSlice;
+                    blob = slice.call(blob, 0, blob.size, val.type);
                 }
                 formData.append(key, blob, val.name);
                 useFormData = true;

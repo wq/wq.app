@@ -156,7 +156,7 @@ app.init = function(config) {
             });
         });
     } else {
-        ready = Promise.resolve();
+        ready = ds.ready;
     }
 
     // Configure jQuery Mobile transitions
@@ -888,11 +888,12 @@ function _handleForm(evt) {
             if (!file) {
                 return;
             }
+            var slice = file.slice || file.webkitSlice;
             vals[name] = {
                 'type': file.type,
                 'name': file.name,
                 // Convert to blob for better serialization
-                'body': file.slice(0, file.size, file.type)
+                'body': slice.call(file, 0, file.size, file.type)
             };
         });
     }

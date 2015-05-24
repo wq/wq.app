@@ -261,6 +261,8 @@ function Model(config) {
         resetCaches();
         if (data.pages == 1 && data.list) {
             data.count = data.per_page = data.list.length;
+        } else {
+            data = _processData(data);
         }
         return self.store.set(self.query, data);
     };
