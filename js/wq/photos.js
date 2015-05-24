@@ -8,22 +8,28 @@
 /* global Camera */
 /* global alert */
 
-define(['jquery'], function($) {
+define(['jquery', './template'], function($, tmpl) {
 
 var photos = {};
 
-photos.preview = function(imgid, file, fallback) {
-    if (window.FileReader) {
-        var reader = new FileReader();
-        reader.onload = function(evt) {
-            $('#'+imgid).attr('src', evt.target.result);
-        };
-        reader.readAsDataURL(file);
-    } else if (fallback) {
-        $('#'+imgid).attr('src', fallback);
-    }
+photos.init = function(config) {
+    tmpl.setDefault('image_url', function() {
+        try {
+            return this.body && _getUrl(this.body);
+        } catch (e) {
+            // Image will be blank, but at least template won't crash
+        }
+    });
 };
 
+photos.preview = function(imgid, file) {
+    $('#'+imgid).attr('src', _getUrl(file));
+};
+
+function _getUrl(file) {
+    var URL = window.URL || window.webkitURL;
+    return URL && URL.createObjectURL(file);
+}
 
 photos.take = function(input, preview) {
     var options = $.extend({
