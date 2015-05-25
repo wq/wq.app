@@ -2159,6 +2159,14 @@ requireModule('promise/polyfill').polyfill();
                 !/Chrome/.test(self.navigator.userAgent)) {
                 return false;
             }
+            // IndexedDB on Chrome before 38 doesn't have proper Blob support
+            // https://code.google.com/p/chromium/issues/detail?id=108012
+            // https://code.google.com/p/chromium/issues/detail?id=408120
+            // https://github.com/mozilla/localForage/issues/241
+            var match = self.navigator.userAgent.match(/Chrome\/([0-9]+)/);
+            if (match && parseInt(match[1]) < 38 && self.openDatabase) {
+                return false;
+            }
             try {
                 return indexedDB &&
                        typeof indexedDB.open === 'function' &&
