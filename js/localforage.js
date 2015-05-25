@@ -1,6 +1,6 @@
 /*!
     localForage -- Offline Storage, Improved
-    Version 1.2.2
+    Version 1.2.3
     https://mozilla.github.io/localForage
     (c) 2013-2015 Mozilla, Apache License 2.0
 */
@@ -907,7 +907,7 @@ requireModule('promise/polyfill').polyfill();
         bufferToString: bufferToString
     };
 
-    if (typeof module !== 'undefined' && module.exports) {
+    if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
         module.exports = localforageSerializer;
     } else if (typeof define === 'function' && define.amd) {
         define('localforageSerializer', function() {
@@ -925,7 +925,7 @@ requireModule('promise/polyfill').polyfill();
     // Originally found in https://github.com/mozilla-b2g/gaia/blob/e8f624e4cc9ea945727278039b3bc9bcb9f8667a/shared/js/async_storage.js
 
     // Promises!
-    var Promise = (typeof module !== 'undefined' && module.exports) ?
+    var Promise = (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') ?
                   require('promise') : this.Promise;
 
     // Initialize IndexedDB; fall back to vendor-prefixed versions if needed.
@@ -1001,7 +1001,7 @@ requireModule('promise/polyfill').polyfill();
             })["catch"](reject);
         });
 
-        executeDeferedCallback(promise, callback);
+        executeCallback(promise, callback);
         return promise;
     }
 
@@ -1040,7 +1040,7 @@ requireModule('promise/polyfill').polyfill();
             })["catch"](reject);
         });
 
-        executeDeferedCallback(promise, callback);
+        executeCallback(promise, callback);
 
         return promise;
     }
@@ -1084,12 +1084,13 @@ requireModule('promise/polyfill').polyfill();
                     resolve(value);
                 };
                 transaction.onabort = transaction.onerror = function() {
-                    reject(req.error);
+                    var err = req.error ? req.error : req.transaction.error;
+                    reject(err);
                 };
             })["catch"](reject);
         });
 
-        executeDeferedCallback(promise, callback);
+        executeCallback(promise, callback);
         return promise;
     }
 
@@ -1123,19 +1124,16 @@ requireModule('promise/polyfill').polyfill();
                     reject(req.error);
                 };
 
-                // The request will be aborted if we've exceeded our storage
-                // space. In this case, we will reject with a specific
-                // "QuotaExceededError".
-                transaction.onabort = function(event) {
-                    var error = event.target.error;
-                    if (error === 'QuotaExceededError') {
-                        reject(error);
-                    }
+                // The request will be also be aborted if we've exceeded our storage
+                // space.
+                transaction.onabort = function() {
+                    var err = req.error ? req.error : req.transaction.error;
+                    reject(err);
                 };
             })["catch"](reject);
         });
 
-        executeDeferedCallback(promise, callback);
+        executeCallback(promise, callback);
         return promise;
     }
 
@@ -1154,12 +1152,13 @@ requireModule('promise/polyfill').polyfill();
                 };
 
                 transaction.onabort = transaction.onerror = function() {
-                    reject(req.error);
+                    var err = req.error ? req.error : req.transaction.error;
+                    reject(err);
                 };
             })["catch"](reject);
         });
 
-        executeDeferedCallback(promise, callback);
+        executeCallback(promise, callback);
         return promise;
     }
 
@@ -1284,29 +1283,6 @@ requireModule('promise/polyfill').polyfill();
         }
     }
 
-    function executeDeferedCallback(promise, callback) {
-        if (callback) {
-            promise.then(function(result) {
-                deferCallback(callback, result);
-            }, function(error) {
-                callback(error);
-            });
-        }
-    }
-
-    // Under Chrome the callback is called before the changes (save, clear)
-    // are actually made. So we use a defer function which wait that the
-    // call stack to be empty.
-    // For more info : https://github.com/mozilla/localForage/issues/175
-    // Pull request : https://github.com/mozilla/localForage/pull/178
-    function deferCallback(callback, result) {
-        if (callback) {
-            return setTimeout(function() {
-                return callback(null, result);
-            }, 0);
-        }
-    }
-
     var asyncStorage = {
         _driver: 'asyncStorage',
         _initStorage: _initStorage,
@@ -1320,7 +1296,7 @@ requireModule('promise/polyfill').polyfill();
         keys: keys
     };
 
-    if (typeof module !== 'undefined' && module.exports) {
+    if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
         module.exports = asyncStorage;
     } else if (typeof define === 'function' && define.amd) {
         define('asyncStorage', function() {
@@ -1338,7 +1314,7 @@ requireModule('promise/polyfill').polyfill();
     'use strict';
 
     // Promises!
-    var Promise = (typeof module !== 'undefined' && module.exports) ?
+    var Promise = (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') ?
                   require('promise') : this.Promise;
 
     var globalObject = this;
@@ -1375,7 +1351,7 @@ requireModule('promise/polyfill').polyfill();
 
     // Find out what kind of module setup we have; if none, we'll just attach
     // localForage to the main window.
-    if (typeof module !== 'undefined' && module.exports) {
+    if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
         moduleType = ModuleType.EXPORT;
     } else if (typeof define === 'function' && define.amd) {
         moduleType = ModuleType.DEFINE;
@@ -1672,7 +1648,7 @@ requireModule('promise/polyfill').polyfill();
     'use strict';
 
     // Promises!
-    var Promise = (typeof module !== 'undefined' && module.exports) ?
+    var Promise = (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') ?
                   require('promise') : this.Promise;
 
     var globalObject = this;
@@ -1696,7 +1672,7 @@ requireModule('promise/polyfill').polyfill();
 
     // Find out what kind of module setup we have; if none, we'll just attach
     // localForage to the main window.
-    if (typeof module !== 'undefined' && module.exports) {
+    if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
         moduleType = ModuleType.EXPORT;
     } else if (typeof define === 'function' && define.amd) {
         moduleType = ModuleType.DEFINE;
@@ -1881,8 +1857,9 @@ requireModule('promise/polyfill').polyfill();
                             }, function(t, error) {
                                 reject(error);
                             });
-                        }, function(sqlError) { // The transaction failed; check
-                                                // to see if it's a quota error.
+                        }, function(sqlError) {
+                            // The transaction failed; check
+                            // to see if it's a quota error.
                             if (sqlError.code === sqlError.QUOTA_ERR) {
                                 // We reject the callback outright for now, but
                                 // it's worth trying to re-run the transaction.
@@ -1918,8 +1895,8 @@ requireModule('promise/polyfill').polyfill();
                 var dbInfo = self._dbInfo;
                 dbInfo.db.transaction(function(t) {
                     t.executeSql('DELETE FROM ' + dbInfo.storeName +
-                                 ' WHERE key = ?', [key], function() {
-
+                                 ' WHERE key = ?', [key],
+                                 function() {
                         resolve();
                     }, function(t, error) {
 
@@ -2079,7 +2056,7 @@ requireModule('promise/polyfill').polyfill();
     'use strict';
 
     // Promises!
-    var Promise = (typeof module !== 'undefined' && module.exports) ?
+    var Promise = (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') ?
                   require('promise') : this.Promise;
 
     // Custom drivers are stored here when `defineDriver()` is called.
@@ -2132,7 +2109,7 @@ requireModule('promise/polyfill').polyfill();
 
     // Find out what kind of module setup we have; if none, we'll just attach
     // localForage to the main window.
-    if (typeof module !== 'undefined' && module.exports) {
+    if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
         moduleType = ModuleType.EXPORT;
     } else if (typeof define === 'function' && define.amd) {
         moduleType = ModuleType.DEFINE;
@@ -2403,43 +2380,39 @@ requireModule('promise/polyfill').polyfill();
             self._ready = null;
 
             if (isLibraryDriver(driverName)) {
-                // We allow localForage to be declared as a module or as a
-                // library available without AMD/require.js.
-                if (moduleType === ModuleType.DEFINE) {
-                    require([driverName], function(lib) {
-                        self._extend(lib);
-
-                        resolve();
-                    });
-
-                    return;
-                } else if (moduleType === ModuleType.EXPORT) {
-                    // Making it browserify friendly
-                    var driver;
-                    switch (driverName) {
-                        case self.INDEXEDDB:
-                            driver = require('./drivers/indexeddb');
-                            break;
-                        case self.LOCALSTORAGE:
-                            driver = require('./drivers/localstorage');
-                            break;
-                        case self.WEBSQL:
-                            driver = require('./drivers/websql');
+                var driverPromise = new Promise(function(resolve/*, reject*/) {
+                    // We allow localForage to be declared as a module or as a
+                    // library available without AMD/require.js.
+                    if (moduleType === ModuleType.DEFINE) {
+                        require([driverName], resolve);
+                    } else if (moduleType === ModuleType.EXPORT) {
+                        // Making it browserify friendly
+                        switch (driverName) {
+                            case self.INDEXEDDB:
+                                resolve(require('./drivers/indexeddb'));
+                                break;
+                            case self.LOCALSTORAGE:
+                                resolve(require('./drivers/localstorage'));
+                                break;
+                            case self.WEBSQL:
+                                resolve(require('./drivers/websql'));
+                                break;
+                        }
+                    } else {
+                        resolve(globalObject[driverName]);
                     }
-
+                });
+                driverPromise.then(function(driver) {
                     self._extend(driver);
-                } else {
-                    self._extend(globalObject[driverName]);
-                }
+                    resolve();
+                });
             } else if (CustomDrivers[driverName]) {
                 self._extend(CustomDrivers[driverName]);
+                resolve();
             } else {
                 self._driverSet = Promise.reject(error);
                 reject(error);
-                return;
             }
-
-            resolve();
         });
 
         function setDriverToConfig() {
