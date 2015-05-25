@@ -738,8 +738,9 @@ function _renderDetail(item, page, ui, params, url, context) {
     var conf = _getConf(page);
     context = $.extend({'page_config': conf}, item, context);
     return _addLookups(page, context, false).then(function(context) {
+        var divid = page + '_detail_' + (item.id || 'new') + '-page';
         return router.go(
-            url, page + '_detail', context, ui, conf.once ? true : false
+            url, page + '_detail', context, ui, conf.once ? true : false, divid
         );
     });
 }
@@ -756,7 +757,7 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
         return _addLookups(page, context, true).then(done);
     }
     function done(context) {
-        var divid = page + '_' + itemid + '-page';
+        var divid = page + '_edit_' + itemid + '-page';
         return router.go(
             url, page + '_edit', context, ui, false, divid
         );
