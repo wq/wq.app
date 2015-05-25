@@ -125,9 +125,12 @@ def mustache(**conf):
 
     context = conf["context"] or {}
     if not isinstance(context, dict):
-        path = context
-        context = readfiles(path, "yaml", "yml")
-        context.update(**readfiles(path, "json"))
+        if context.startswith('{'):
+            context = json.loads(context)
+        else:
+            path = context
+            context = readfiles(path, "yaml", "yml")
+            context.update(**readfiles(path, "json"))
 
     partials = conf['partials'] or {}
     if not isinstance(partials, dict):
