@@ -875,27 +875,38 @@ function _handleForm(evt) {
 
     // Use a simple JSON structure for values, which is better for outbox
     // serialization.
+    function addVal(name, val) {
+        if (vals[name] !== undefined) {
+            if (!$.isArray(vals[name])) {
+                vals[name] = [vals[name]];
+            }
+            vals[name].push(val);
+        } else {
+            vals[name] = val;
+        }
+    }
     ready = Promise.resolve();
     $.each($form.serializeArray(), function(i, v) {
-        vals[v.name] = v.value;
+        addVal(v.name, v.value);
     });
     // Handle <input type=file>.  Use HTML JSON form-style objects, but
     // with Blob instead of base64 encoding to represent the actual file.
     if (has_files) {
         $files.each(function() {
-            var name = this.name;
-            // FIXME: Handle multiple files
-            var file = this.files && this.files.length && this.files[0];
-            if (!file) {
+            var name = this.name, file, slice;
+            if (!this.files || !this.files.length) {
                 return;
             }
-            var slice = file.slice || file.webkitSlice;
-            vals[name] = {
-                'type': file.type,
-                'name': file.name,
-                // Convert to blob for better serialization
-                'body': slice.call(file, 0, file.size, file.type)
-            };
+            for (var i = 0; i < this.files.length; i++) {
+                file = this.files[i];
+                slice = file.slice || file.webkitSlice;
+                addVal(name, {
+                    'type': file.type,
+                    'name': file.name,
+                    // Convert to blob for better serialization
+                    'body': slice.call(file, 0, file.size, file.type)
+                });
+            }
         });
     }
     // Handle Cordova files

@@ -164,6 +164,25 @@ function _Outbox(store) {
         var key, val, blob, slice;
         for (key in data) {
             val = data[key];
+            if (!val) {
+                continue;
+            }
+            if (json.isArray(val) || (val.name && val.type && val.body)) {
+                useFormData = true;
+            }
+        }
+        if (useFormData) {
+            for (key in data) {
+                val = data[key];
+                if (json.isArray(val)) {
+                    val.forEach(appendValue.bind(this, key));
+                } else {
+                    appendValue(key, val);
+                }
+            }
+        }
+
+        function appendValue(key, val) {
             if (val && val.name && val.type && val.body) {
                 // File (Blob) record; add with filename
                 blob = val.body;
@@ -173,16 +192,9 @@ function _Outbox(store) {
                     blob = slice.call(blob, 0, blob.size, val.type);
                 }
                 formData.append(key, blob, val.name);
-                useFormData = true;
-            }
-        }
-        if (useFormData) {
-            // Add regular form fields
-            for (key in data) {
-                val = data[key];
-                if (!val || !val.name || !val.type || !val.body) {
-                    formData.append(key, val);
-                }
+            } else {
+                // Add regular form fields
+                formData.append(key, val);
             }
         }
 
