@@ -140,9 +140,8 @@ app.init = function(config) {
 
         // Load some values from store - not ready till this is done.
         ready = ds.get(['user', 'csrf_token']).then(function(values) {
-            var user = values[0],
-                csrftoken = values[1];
-            tmpl.setDefault('csrf_token', csrftoken);
+            var user = values[0];
+            _setCSRFToken(values[1]);
             if (!user) {
                 return;
             }
@@ -228,8 +227,7 @@ app.logout = function() {
 
     // Notify server (don't need to wait for this)
     ds.fetch('/logout').then(function(result) {
-        tmpl.setDefault('csrf_token', result.csrftoken);
-        ds.set('csrf_token', result.csrftoken);
+        _setCSRFToken(result.csrftoken);
     });
 };
 
@@ -546,6 +544,12 @@ app.getParents = function(page) {
 
 // Internal variables and functions
 var _saveTransition = "none";
+
+function _setCSRFToken(csrftoken) {
+    outbox.setCSRFToken(csrftoken);
+    tmpl.setDefault('csrf_token', csrftoken);
+    return ds.set('csrf_token', csrftoken);
+}
 
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
@@ -1074,12 +1078,10 @@ function _saveLogin(result) {
     app.user = user;
     tmpl.setDefault('user', user);
     tmpl.setDefault('is_authenticated', true);
-    tmpl.setDefault('csrf_token', csrftoken);
-
     return Promise.all([
         ds.set('/config', config),
         ds.set('user', user),
-        ds.set('csrf_token', csrftoken)
+        _setCSRFToken(csrftoken)
     ]).then(function() {
         $('body').trigger('login');
     });
@@ -1096,8 +1098,7 @@ function _checkLogin() {
             } else if (result && app.user) {
                 app.logout();
             } else if (result && result.csrftoken) {
-                tmpl.setDefault('csrf_token', result.csrftoken);
-                ds.set('csrf_token', result.csrftoken);
+                _setCSRFToken(result.csrftoken);
             }
         });
     }, 10);

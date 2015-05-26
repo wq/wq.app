@@ -32,6 +32,8 @@ function _Outbox(store) {
     self.syncMethod = 'POST';
     self.cleanOutbox = true;
     self.maxRetries = 3;
+    self.csrftoken = null;
+    self.csrftokenField = 'csrfmiddlewaretoken';
 
     self.init = function(opts) {
 
@@ -48,6 +50,7 @@ function _Outbox(store) {
             'cleanOutbox',
             'maxRetries',
             'batchService',
+            'csrftokenField',
 
             // Outbox functions
             'applyResult',
@@ -72,6 +75,10 @@ function _Outbox(store) {
         if (self.batchService && !self.parseBatchResult) {
             self.parseBatchResult = self.store.parseData;
         }
+    };
+
+    self.setCSRFToken = function(csrftoken) {
+        self.csrftoken = csrftoken;
     };
 
     // Queue data for server use; use outbox to cache unsynced items
@@ -137,8 +144,13 @@ function _Outbox(store) {
         }
         var method = options.method || self.syncMethod;
         var headers = {};
-        if (options.csrftoken) {
-            headers['X-CSRFToken'] = options.csrftoken;
+
+        // Use current CSRF token in case it's changed since item was saved
+        var csrftoken = self.csrftoken || options.csrftoken;
+        if (csrftoken) {
+            headers['X-CSRFToken'] = csrftoken;
+            data = json.extend({}, data);
+            data[self.csrftokenField] = csrftoken;
         }
 
         var defaults = json.extend({}, self.defaults);
