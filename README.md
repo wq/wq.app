@@ -56,6 +56,7 @@ To facilitate compact deployment, wq.app provides a Python-based [build process]
  [wq/map.js]: https://wq.io/docs/map-js
  [wq/store.js]: https://wq.io/docs/store-js
  [wq/model.js]: https://wq.io/docs/model-js
+ [wq/outbox.js]: https://wq.io/docs/outbox-js
  [wq/router.js]: https://wq.io/docs/router-js
  [other useful utilities]: https://wq.io/docs/other-modules
  
