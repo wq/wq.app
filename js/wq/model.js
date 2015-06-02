@@ -138,7 +138,7 @@ function Model(config) {
         return self.getIndex(attr).then(function(ilist) {
             if (ilist && ilist[value]) {
                 return ilist[value];
-            } else if (attr == "id") {
+            } else if (attr == "id" && value !== undefined) {
                 // Not found in local list; try server
                 if (!localOnly && config.partial && config.url) {
                     return self.store.fetch('/' + config.url + '/' + value);

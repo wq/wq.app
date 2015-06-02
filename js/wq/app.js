@@ -102,9 +102,11 @@ app.init = function(config) {
         if (seconds === true) {
             seconds = 30;
         }
-        app._syncInterval = setInterval(function() {
-            app.sync();
-        }, seconds * 1000);
+		if (seconds > 0) {
+			app._syncInterval = setInterval(function() {
+				app.sync();
+			}, seconds * 1000);
+		}
     }
 
     // Option to override various hooks
@@ -312,19 +314,22 @@ app.postsave = function(item, backgroundSync) {
         postsave = match[1];
         mode = match[2];
     }
-    if (mode != 'list' && mode != 'detail' && mode != 'edit') {
-        throw "Unknown template mode!";
-    }
 
     // Retrieve configuration for postsave page, if any
     pconf = _getConf(postsave, true);
 
     // Compute URL
-    if (!pconf || !pconf.url || !pconf.list) {
+    if (!pconf) {
         // If conf.postsave is not the name of a list page, assume it's a
         // simple page or a URL
         url = app.base_url + '/' + postsave;
+    } else if (!pconf.list) {
+        url = app.base_url + '/' + pconf.url;
     } else {
+        if (mode != 'list' && mode != 'detail' && mode != 'edit') {
+            throw "Unknown template mode!";
+        }
+        
         // For list pages, the url can differ depending on the mode
         url = app.base_url + '/' + pconf.url + '/';
 
@@ -946,7 +951,9 @@ function _handleForm(evt) {
             if (backgroundSync) {
                 // Send user to next screen while app syncs in background
                 app.postsave(item, true);
-                app.sync();
+				if (backgroundSync > 0) {
+					app.sync();
+				}
                 return;
             }
 
