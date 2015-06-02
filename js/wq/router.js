@@ -206,6 +206,7 @@ function _updateInfo(path) {
     router.info.full_path_enc = escape(router.info.full_path);
     router.info.params = router.getParams(path);
     tmpl.setDefault('router_info', router.info);
+    tmpl.setDefault('rt', router.info.base_url);
     // Compatibility with older templates
     tmpl.setDefault('pages_info', router.info);
 }

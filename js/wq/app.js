@@ -94,6 +94,7 @@ app.init = function(config) {
     tmpl.init(config.template);
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
+    tmpl.setDefault('svc', app.service);
 
     // Option to submit forms in the background rather than wait for each post
     var seconds;
