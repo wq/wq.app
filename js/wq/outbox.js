@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.8.0-dev - wq/outbox.js
+ * wq.app 0.8.0 - wq/outbox.js
  * Queue submitted forms for eventual syncing to the server
  * (c) 2012-2015, S. Andrew Sheppard
  * https://wq.io/license

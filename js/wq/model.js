@@ -1,5 +1,5 @@
 /*!
- * wq.app 0.8.0-dev - wq/model.js
+ * wq.app 0.8.0 - wq/model.js
  * A simple model API for working with stored lists
  * (c) 2012-2015, S. Andrew Sheppard
  * https://wq.io/license

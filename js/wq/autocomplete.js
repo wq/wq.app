@@ -1,5 +1,5 @@
 /*
- * wq.app 0.8.0-dev - wq/autocomplete.js
+ * wq.app 0.8.0 - wq/autocomplete.js
  * Simple AJAX autocomplete leveraging the HTML5 <datalist> element
  * (c) 2014-2015, S. Andrew Sheppard
  * https://wq.io/license

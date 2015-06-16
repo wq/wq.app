@@ -1,5 +1,5 @@
 /*
- * wq.app 0.8.0-dev - wq/photos.js
+ * wq.app 0.8.0 - wq/photos.js
  * Helpers for working with Cordova photo library
  * (c) 2012-2015, S. Andrew Sheppard
  * https://wq.io/license
@@ -12,7 +12,7 @@ define(['jquery', './template'], function($, tmpl) {
 
 var photos = {};
 
-photos.init = function(config) {
+photos.init = function() {
     tmpl.setDefault('image_url', function() {
         try {
             return this.body && _getUrl(this.body);
