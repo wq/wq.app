@@ -2,9 +2,15 @@
 
 [wq.app](https://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens [on the server or on the client] depending on project needs, network connectivity, and `localStorage` availability.
 
-[**Release Notes**](https://github.com/wq/wq.app/releases) | [**Installation**](https://wq.io/docs/setup) | [**Documentation**](https://wq.io/wq.app) | [**Issue Tracker**](https://github.com/wq/wq.app/issues)
 
-[![PyPI Package](https://pypip.in/version/wq.app/badge.svg?style=flat)](https://pypi.python.org/pypi/wq.app)
+
+[![Latest PyPI Release](https://img.shields.io/pypi/v/wq.app.svg)](https://pypi.python.org/pypi/wq.app)
+[![Release Notes](https://img.shields.io/github/release/wq/wq.app.svg)](https://github.com/wq/wq.app/releases)
+[![Documentation](https://img.shields.io/badge/Docs-0.8-blue.svg)](https://wq.io/wq.app)
+[![License](https://img.shields.io/pypi/l/wq.app.svg)](https://wq.io/license)
+[![GitHub Stars](https://img.shields.io/github/stars/wq/wq.app.svg)](https://github.com/wq/wq.app/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/wq/wq.app.svg)](https://github.com/wq/wq.app/network)
+[![GitHub Issues](https://img.shields.io/github/issues/wq/wq.app.svg)](https://github.com/wq/wq.app/issues)
 
 ## Getting Started
 
