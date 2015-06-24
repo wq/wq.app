@@ -72,7 +72,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first; `autoInitializePage: false`
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.13.1  |
-[leaflet]               |    0.7.3  |  
+[leaflet]               |    0.7.3  | [#3359]
 [leaflet.draw]          |    0.2.4  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |    1.2.3  | [#381], [#241]
@@ -96,6 +96,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
 [jquery.validate]:       https://github.com/jzaefferer/jquery-validation
 [leaflet]:               https://github.com/Leaflet/Leaflet
+[#3359]:                 https://github.com/Leaflet/Leaflet/pull/3559
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
 [localforage]:           https://github.com/mozilla/localForage

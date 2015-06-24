@@ -35,8 +35,7 @@ map.config = {
             'iconSize':    [25, 41],
             'iconAnchor':  [12, 41],
             'popupAnchor': [1, -34],
-            'shadowSize':  [41, 41],
-            'shadowUrl':  L.Icon.Default.imagePath + '/marker-shadow.png'
+            'shadowSize':  [41, 41]
         },
 
         'owl': false
@@ -55,6 +54,11 @@ map.icons = {
 map.init = function(defaults) {
     // Auto-detect whether CRS-aware GeoJSON parser is available
     map.geoJson = L.Proj ? L.Proj.geoJson : L.geoJson;
+
+    // Assign after module load in case L.Icon.Default.imagePath is overridden
+    map.config.defaults.icon.shadowUrl = (
+        L.Icon.Default.imagePath + '/marker-shadow.png'
+    );
 
     if (defaults) {
         L.extend(map.config.defaults, defaults);
