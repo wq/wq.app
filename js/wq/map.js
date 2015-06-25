@@ -174,7 +174,13 @@ map.addAutoLayers = function(page) {
             'name': editConf.name,
             'type': 'geojson',
             'url': editConf.url + '/{{{id}}}.geojson',
-            'oneach': map.renderPopup(page)
+            'draw': {
+                'polygon': {},
+                'polyline': {},
+                'marker': {},
+                'rectangle': {},
+                'circle': false
+            }
         }, 'edit');
     }
 };
@@ -277,7 +283,7 @@ map.addOverlayType('geojson', function(layerconf) {
         if (layerconf.style) {
             options.style = layerconf.style;
         }
-        map.geoJson(geojson, options).addTo(overlay);
+        return map.geoJson(geojson, options).addTo(overlay);
     });
 
     return overlay;
@@ -285,6 +291,27 @@ map.addOverlayType('geojson', function(layerconf) {
 
 map.createLayerControl = function(basemaps, layers) {
     return L.control.layers(basemaps, layers);
+};
+
+map.addDrawControl = function(m, layer, opts, $geom) {
+    var control = new L.Control.Draw({
+        'draw': opts,
+        'edit': {'featureGroup': layer}
+    }).addTo(m);
+
+    m.on('draw:created', function(e) {
+        layer.addLayer(e.layer);
+        save();
+    });
+
+    m.on('draw:edited', save);
+
+    return control;
+
+    function save() {
+        $geom.val(JSON.stringify(layer.toGeoJSON()));
+        map.cache = {};
+    }
 };
 
 // Default popup renderer for items - override to customize
@@ -440,6 +467,22 @@ map.createMap = function(page, itemid, mode, url, divid) {
 
     if (mapconf.onshow) {
         mapconf.onshow(m, mode, itemid);
+    }
+
+    if (mode == 'edit' && L.Control.Draw) {
+        var drawLayer = null;
+        layerConfs.forEach(function(layerConf) {
+             if (layerConf.draw && layerConf.type == "geojson") {
+                 drawLayer = layerConf;
+             }
+        });
+        if (drawLayer) {
+            var geomname = drawLayer.geometryField || 'geometry';
+            var $geom = $.mobile.activePage.find('[name=' + geomname + ']');
+            layers[drawLayer.name].ready.then(function(layer) {
+                map.addDrawControl(m, layer, drawLayer.draw, $geom);
+            });
+        }
     }
 
     return m;

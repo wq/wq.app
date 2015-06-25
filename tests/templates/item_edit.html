@@ -5,6 +5,7 @@
   <input type="hidden" name="_method" value="put">
   {{/id}}
   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+  <input type="hidden" name="geometry">
   <ul data-role="listview">
     <li>
       <label for="label">Name</label>
@@ -36,6 +37,9 @@
     <li>
       <label for="image">Image</label>
       <input type="file" name="image" id="image">
+    </li>
+    <li>
+      <div id="item-{{id}}{{^id}}new{{/id}}-edit-map" style="height:500px;"></div>
     </li>
     <li>
       <p class="error item-errors"></p>

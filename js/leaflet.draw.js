@@ -1,4 +1,5 @@
-define(function() {
+define(["leaflet"],
+function(L) {
 
 /*
 	Leaflet.draw, a plugin that adds drawing and editing tools to Leaflet powered maps.
