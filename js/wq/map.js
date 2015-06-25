@@ -101,7 +101,9 @@ map.init = function(defaults) {
             }
             if (!mapconf[mode].layers) {
                 mapconf[mode].layers = [];
-                mapconf[mode].autoLayers = true;
+                if (mode != 'defaults') {
+                    mapconf[mode].autoLayers = true;
+                }
             }
         });
 
@@ -218,11 +220,18 @@ map.loadLayer = function(url) {
     if (map.cache[url]) {
         return Promise.resolve(map.cache[url]);
     }
+    // Ignore requests for "new.geojson"
+    if (url.match(/\/new\.geojson$/)) {
+        return Promise.resolve(null);
+    }
     spin.start();
     return json.get(url).then(function(geojson) {
         spin.stop();
         map.cache[url] = geojson;
         return geojson;
+    }, function() {
+        spin.stop();
+        return null;
     });
 };
 
@@ -520,14 +529,10 @@ function _getConf(page, mode) {
     });
 
     // Mix in mode-specific options
-    L.extend(mapconf, conf.defaults);
+    L.extend(mapconf, conf.defaults, conf[mode] || {});
+    mapconf.layers = conf.defaults.layers.concat(conf.layers || []);
     if (mode && mode != 'defaults') {
-        mapconf.layers = mapconf.layers.slice().concat(conf[mode].layers);
-        Object.keys(conf[mode]).forEach(function(key) {
-            if (key != 'layers') {
-                mapconf[key] = conf[mode][key];
-            }
-        });
+        mapconf.layers = mapconf.layers.concat(conf[mode].layers);
     }
     return mapconf;
 }
