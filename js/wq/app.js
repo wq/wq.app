@@ -21,6 +21,7 @@ var app = {
 };
 
 app.models = {};
+app.plugins = {};
 
 app.init = function(config) {
     if (arguments.length > 1) {
@@ -176,6 +177,10 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
+    for (var plugin in app.plugins) {
+        app.plugins[plugin].init(app.config[plugin]);
+    }
+
     // Register routes with wq/router.js
     for (var page in app.wq_config.pages) {
         app.wq_config.pages[page].name = page;
@@ -184,9 +189,13 @@ app.init = function(config) {
             _registerList(page);
             _registerDetail(page);
             _registerEdit(page);
+            _onShowList(page);
+            _onShowDetail(page);
+            _onShowEdit(page);
             app.models[page] = model(conf);
         } else if (conf) {
             _registerOther(page);
+            _onShowOther(page);
         }
     }
 
@@ -205,6 +214,11 @@ app.init = function(config) {
     }
 
     return ready;
+};
+
+app.use = function(plugin) {
+    app.plugins[plugin.name] = plugin;
+    plugin.app = app;
 };
 
 app.prefetchAll = function() {
@@ -264,6 +278,14 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
         return _displayList(page, ui, params, url, context);
     }
 
+};
+
+// Run any/all plugins on the specified page
+app.runPlugins = function(page, mode, itemid, url) {
+    url = url.replace(app.base_url + '/', '');
+    for (var plugin in app.plugins) {
+        app.plugins[plugin].run(page, mode, itemid, url);
+    }
 };
 
 // Sync outbox and handle result
@@ -597,6 +619,29 @@ function _registerList(page) {
         };
     }
 }
+
+function _onShowList(page) {
+    var conf = _getConf(page);
+    var url = conf.url ? conf.url + '/?' : '';
+    router.addRoute(url, 's', goUrl);
+
+    // Special handling for /[parent_list_url]/[parent_id]/[url]
+    for (var ppage in app.getParents(page)) {
+        var pconf = app.config.pages[ppage];
+        var purl = pconf.url;
+        if (url) {
+            purl += '/';
+        }
+        purl += '<slug>/' + conf.url;
+        router.addRoute(purl, 's', goUrl);
+        router.addRoute(purl + '/', 's', goUrl);
+    }
+
+    function goUrl(match) {
+        app.runPlugins(page, 'list', null, match[0]);
+    }
+}
+
 function _displayList(page, ui, params, url, context) {
     spin.stop();
 
@@ -697,6 +742,19 @@ function _registerDetail(page) {
     });
 }
 
+// Register an onshow event for item detail views
+function _onShowDetail(page) {
+    var conf = _getConf(page);
+    var url = conf.url ? conf.url + '/' : '';
+    router.addRoute(url + '<slug>', 's', function(match) {
+        var itemid = match[1];
+        if (itemid == 'new') {
+            return;
+        }
+        app.runPlugins(page, 'detail', itemid, match[0]);
+    });
+}
+
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
 function _registerEdit(page) {
@@ -705,6 +763,18 @@ function _registerEdit(page) {
     router.register(conf.url + '/(new)', go);
     function go(match, ui, params) {
         app.go(page, ui, params, match[1], true);
+    }
+}
+
+// Register an onshow event for item edit views
+function _onShowEdit(page) {
+    var conf = _getConf(page);
+    var url = conf.url ? conf.url + '/' : '';
+    router.addRoute(url + '<slug>/edit', 's', go);
+    router.addRoute(url + '(new)', 's', go);
+    function go(match) {
+        var itemid = match[1];
+        app.runPlugins(page, 'edit', itemid, match[0]);
     }
 }
 
@@ -783,6 +853,14 @@ function _registerOther(page) {
     function go(match, ui, params) {
         app.go(page, ui, params);
     }
+}
+
+// Register an onshow event for non-list single pages
+function _onShowOther(page) {
+    var conf = _getConf(page);
+    router.addRoute(conf.url + '/?', 's', function(match) {
+        app.runPlugins(page, null, null, match[0]);
+    });
 }
 
 function _renderOther(page, ui, params, url, context) {

@@ -1,19 +1,21 @@
 /*!
  * wq.app 0.8.1-dev - wq/map.js
- * Leaflet integration for app.js list & detail views
+ * Leaflet integration for wq/app.js pages
  * (c) 2013-2015, S. Andrew Sheppard
  * https://wq.io/license
  */
 
-define(['leaflet', 'jquery', './app', './router', './json', './spinner',
+define(['leaflet', 'jquery', './json', './spinner',
         './template', './console', 'es5-shim'],
-function(L, $, app, router, json, spin, tmpl, console) {
+function(L, $, json, spin, tmpl, console) {
 
 /* global require */
 /* global Promise */
 
 // module variable
-var map = {};
+var map = {
+    'name': "map"
+};
 
 // module configuration
 map.config = {
@@ -50,8 +52,17 @@ map.icons = {
     'default': new L.Icon.Default()
 };
 
-// This should be called after app.init()
+// This will be called by app.init()
 map.init = function(defaults) {
+    var app = map.app;
+    if (!app) {
+        console.warn(
+            "Call app.use(map) rather than calling map.init() directly"
+        );
+        app = require('wq/app');
+        app.use(map);
+    }
+
     // Auto-detect whether CRS-aware GeoJSON parser is available
     map.geoJson = L.Proj ? L.Proj.geoJson : L.geoJson;
 
@@ -65,126 +76,139 @@ map.init = function(defaults) {
     }
 
     // Define map configuration for all app pages with map=True
-    for (var page in app.config.pages) {
-        var pconf = L.extend({}, app.config.pages[page]);
+    Object.keys(app.config.pages).forEach(function(page) {
+        var pconf = app.config.pages[page];
         if (!pconf.map) {
-            continue;
-        }
-        pconf.layers = [];
-        map.config.maps[page] = pconf;
-
-        // Register onshow events
-        if (pconf.list) {
-            pconf.autoLayers = true;
-            _registerList(page);
-            _registerDetail(page);
-        } else {
-            _registerOther(page);
-        }
-    }
-};
-
-// Register an onshow event for list views
-function _registerList(page) {
-    var mapconf = _getConf(page);
-    var url = mapconf.url ? mapconf.url + '/' : '';
-    router.addRoute(url, 's', function() {
-        map.createMap(page);
-    });
-
-    // Special handling for /[parent_list_url]/[parent_id]/[url]
-    for (var ppage in app.getParents(page)) {
-        var pconf = app.config.pages[ppage];
-        var purl = pconf.url;
-        if (url) {
-            purl += '/';
-        }
-        purl += '<slug>/' + mapconf.url;
-        router.addRoute(purl, 's', goUrl);
-        router.addRoute(purl + '/', 's', goUrl);
-    }
-
-    function goUrl(match, ui, params) {
-        // Override URL for this map's main layer to enable filter by parent
-        var override = {};
-        var url = match[0].substring(1).split("?")[0];
-        if (params) {
-            url += ".geojson" + L.Util.getParamString(params);
-        }
-        override[mapconf.name] = {'url': url};
-        map.createMap(page, undefined, override);
-    }
-}
-
-// Register an onshow event for item detail views
-function _registerDetail(page) {
-    var mapconf = _getConf(page);
-    var url = mapconf.url ? mapconf.url + '/' : '';
-    router.addRoute(url + '<slug>', 's', function(match) {
-        var itemid = match[1];
-        if (itemid == 'new') {
             return;
         }
-        map.createMap(page, itemid);
-    });
-}
 
-// Register an onshow event for non-list single pages
-function _registerOther(page) {
-    var mapconf = _getConf(page);
-    var url = mapconf.url;
-    router.addRoute(url, 's', function() {
-        map.createMap(page);
+        var mapconf = (pconf.map instanceof Object) ? pconf.map : {};
+        if (!mapconf.name) {
+            mapconf.name = pconf.name;
+        }
+        if (!mapconf.url) {
+            mapconf.url = pconf.url;
+        }
+
+        // Initialize map configurations for each page display mode
+        var modes = ['defaults'];
+        if (pconf.list) {
+            modes = modes.concat(['list', 'detail', 'edit']);
+        }
+        modes.forEach(function(mode) {
+            if (!mapconf[mode]) {
+                mapconf[mode] = {};
+            }
+            if (!mapconf[mode].layers) {
+                mapconf[mode].layers = [];
+                mapconf[mode].autoLayers = true;
+            }
+        });
+
+        map.config.maps[page] = mapconf;
+
+        if (pconf.list) {
+            map.addAutoLayers(page);
+        }
     });
-}
+};
+
+// Plugin API
+map.run = function(page, mode, itemid, url) {
+    map.createMap(page, itemid, mode, url);
+};
 
 // Add a layer configuration (layerconf) to a map configuration
-map.addLayerConf = function(page, layerconf) {
-    var mapconf = _getConf(page);
-    mapconf.layers.push(layerconf);
+map.addLayerConf = function(page, layerconf, mode) {
+    if (!mode) {
+        mode = 'defaults';
+    }
+    if (!map.config.maps[page]) {
+        throw 'Configuration for "' + page + '" not found!';
+    }
+    if (!map.config.maps[page][mode]) {
+        throw 'Configuration for mode "' + mode + '" not found!';
+    }
+    if (!layerconf.type) {
+        layerconf.type = 'geojson';
+    }
+    if (!map.createOverlay[layerconf.type]) {
+        throw 'Unknown layer type "' + layerconf.type + '"!';
+    }
+    map.config.maps[page][mode].layers.push(layerconf);
 };
 
 // Define an icon for use by list items displayed as points
 map.createIcon = function(name, options) {
     options = L.extend({}, map.config.defaults.icon, options);
     map.icons[name] = L.icon(options);
+    return map.icons[name];
+};
+
+// Compute default layer configuration for wq REST API
+map.addAutoLayers = function(page) {
+    var listConf = _getConf(page, 'list');
+    if (listConf.autoLayers) {
+        map.addLayerConf(page, {
+            'name': listConf.name,
+            'type': 'geojson',
+            'url': '{{{url}}}.geojson',
+            'oneach': map.renderPopup(page),
+            'cluster': true
+        }, 'list');
+    }
+
+    var detailConf = _getConf(page, 'detail');
+    if (detailConf.autoLayers) {
+        map.addLayerConf(page, {
+            'name': detailConf.name,
+            'type': 'geojson',
+            'url': detailConf.url + '/{{{id}}}.geojson',
+            'oneach': map.renderPopup(page)
+        }, 'detail');
+    }
+
+    var editConf = _getConf(page, 'edit');
+    if (editConf.autoLayers) {
+        map.addLayerConf(page, {
+            'name': editConf.name,
+            'type': 'geojson',
+            'url': editConf.url + '/{{{id}}}.geojson',
+            'oneach': map.renderPopup(page)
+        }, 'edit');
+    }
 };
 
 // Load map configuration for the given page
-map.getLayerConfs = function(page, itemid) {
-    var mapconf = _getConf(page);
-    var layers = mapconf.layers.slice();
-
-    if (!mapconf.autoLayers) {
-        return layers;
+map.getLayerConfs = function(page, itemid, mode, url) {
+    if (!mode) {
+        if (map.app.config.pages[page].list) {
+            mode = itemid ? 'list' : 'detail';
+        }
     }
-
-    if (itemid) {
-        // Automatically load geojson for the current item
-        layers.push({
-            'name': mapconf.name,
-            'url': mapconf.url + '/' + itemid,
-            'oneach': map.renderPopup(page)
-        });
-    } else {
-        // Automatically load geojson for the entire list
-        layers.push({
-            'name': mapconf.name,
-            'url': mapconf.url,
-            'oneach': map.renderPopup(page),
-            'cluster': true
-        });
+    var mapconf = _getConf(page, mode);
+    var layers = [];
+    if (!url) {
+        url = mapconf.url;
+        if (itemid) {
+             url += '/' + itemid;
+        }
     }
+    mapconf.layers.forEach(function(layerconf) {
+        layerconf = L.extend({}, layerconf);
+        layerconf.url = tmpl.render(layerconf.url, {
+            'id': itemid,
+            'url': url.replace(/\/$/, '')
+        });
+        layers.push(layerconf);
+    });
     return layers;
 };
 
 // Internal layer loading function - override to customize
 map.cache = {};
 map.loadLayer = function(url) {
-    url = app.service + '/' + url;
-    if (url.indexOf('.geojson') == -1) {
-        url += '.geojson';
-    }
+    url = map.app.service + '/' + url;
     if (map.cache[url]) {
         return Promise.resolve(map.cache[url]);
     }
@@ -220,6 +244,45 @@ map.createBaseMaps = function() {
     };
 };
 
+map.createOverlay = function(layerconf) {
+    var fn = map.createOverlay[layerconf.type];
+    return fn(layerconf);
+};
+
+map.addOverlayType = function(type, fn) {
+    map.createOverlay[type] = fn;
+};
+
+map.addOverlayType('geojson', function(layerconf) {
+    var overlay;
+    if (layerconf.cluster && L.MarkerClusterGroup) {
+        var options = {};
+        if (layerconf.clusterIcon) {
+            options.iconCreateFunction = layerconf.clusterIcon;
+        }
+        overlay = new L.MarkerClusterGroup(options);
+    } else {
+        overlay = L.featureGroup();
+    }
+
+    // Load layer content as JSON
+    overlay.ready = map.loadLayer(layerconf.url).then(function(geojson) {
+        var options = {};
+        if (layerconf.oneach) {
+            options.onEachFeature = layerconf.oneach;
+        }
+        if (layerconf.icon) {
+            options.pointToLayer = _makeMarker(layerconf.icon);
+        }
+        if (layerconf.style) {
+            options.style = layerconf.style;
+        }
+        map.geoJson(geojson, options).addTo(overlay);
+    });
+
+    return overlay;
+});
+
 map.createLayerControl = function(basemaps, layers) {
     return L.control.layers(basemaps, layers);
 };
@@ -242,27 +305,32 @@ map.renderPopup = function(page) {
 };
 
 // Primary map routine
-map.createMap = function(page, itemid, override) {
-    var mapid, divid, mapconf, m, defaults,
+map.createMap = function(page, itemid, mode, url, divid) {
+    var mapid, mapconf, m, defaults,
         layerConfs, layers,
         basemaps, basemap, div, owl;
 
     // Load configuration and div id
-    mapconf = _getConf(page);
+    mapconf = _getConf(page, mode);
     defaults = map.config.defaults;
     // If defaults.owl, assume wq/owl has been async-loaded already
     owl = defaults.owl && require('wq/owl');
 
-    if (mapconf.list && itemid) {
+    if (itemid) {
         mapid = page + '-' + itemid;
+        if (mode == 'edit') {
+            mapid += '-edit';
+        }
     } else {
         mapid = page;
     }
 
-    if (mapconf.div) {
-        divid = mapconf.div;
-    } else {
-        divid = mapid + '-map';
+    if (!divid) {
+        if (mapconf.div) {
+            divid = mapconf.div;
+        } else {
+            divid = mapid + '-map';
+        }
     }
 
     div = L.DomUtil.get(divid);
@@ -293,34 +361,18 @@ map.createMap = function(page, itemid, override) {
 
     // Load layerconfs and add empty layer groups to map
     layers = {};
-    layerConfs = map.getLayerConfs(page, itemid);
-    var results = layerConfs.map(function(layerconf, i) {
-        layerconf = L.extend({}, layerconf,
-                             override && override[layerconf.name]);
-        if (layerconf.cluster && L.MarkerClusterGroup) {
-            var options = {};
-            if (layerconf.clusterIcon) {
-                options.iconCreateFunction = layerconf.clusterIcon;
-            }
-            layerconf.layer = new L.MarkerClusterGroup(options).addTo(m);
-        } else {
-            layerconf.layer = L.featureGroup().addTo(m);
+    layerConfs = map.getLayerConfs(page, itemid, mode, url);
+    var overlays = layerConfs.map(map.createOverlay);
+    var results = [];
+    layerConfs.forEach(function(layerconf, i) {
+        var layer = overlays[i];
+        layers[layerconf.name] = layer;
+        if (layer.ready) {
+            results.push(layer.ready);
         }
-        layers[layerconf.name] = layerconf.layer;
-        layerConfs[i] = layerconf;
-        return map.loadLayer(layerconf.url).then(function(geojson) {
-            var options = {};
-            if (layerconf.oneach) {
-                options.onEachFeature = layerconf.oneach;
-            }
-            if (layerconf.icon) {
-                options.pointToLayer = _makeMarker(layerconf.icon);
-            }
-            if (layerconf.style) {
-                options.style = layerconf.style;
-            }
-            map.geoJson(geojson, options).addTo(layerconf.layer);
-        });
+        if (!layerconf.noAutoAdd) {
+            layer.addTo(m);
+        }
     });
 
     map.createLayerControl(basemaps, layers).addTo(m);
@@ -334,10 +386,14 @@ map.createMap = function(page, itemid, override) {
         if (!map.config.defaults.autoZoom) {
             return;
         }
-        var bounds = layerConfs[0].layer.getBounds();
-        if (layerConfs.length > 1) {
-            layerConfs.slice(1).forEach(function(layerconf) {
-                bounds.extend(layerconf.layer.getBounds());
+        var lnames = Object.keys(layers);
+        if (!lnames.length) {
+            return;
+        }
+        var bounds = layers[lnames[0]].getBounds();
+        if (lnames.length > 1) {
+            lnames.slice(1).forEach(function(lname) {
+                bounds.extend(layers[lname].getBounds());
             });
         }
         if (mapconf.minBounds) {
@@ -383,7 +439,7 @@ map.createMap = function(page, itemid, override) {
     $controls.find("input").attr("data-role", "none");
 
     if (mapconf.onshow) {
-        mapconf.onshow(m);
+        mapconf.onshow(m, mode, itemid);
     }
 
     return m;
@@ -404,10 +460,31 @@ function _makeMarker(icon) {
 }
 
 // Load map configuration for a given page
-function _getConf(page) {
-    var mapconf = map.config.maps[page];
-    if (!mapconf) {
+function _getConf(page, mode) {
+    var conf = map.config.maps[page];
+    if (!conf) {
         throw 'Configuration for "' + page + '" not found!';
+    }
+
+    // Options that apply to all modes
+    var mapconf = {};
+    var reserved = ['defaults', 'list', 'detail', 'edit'];
+    Object.keys(conf).forEach(function(key) {
+        if (reserved.indexOf(key) > -1) {
+            return;
+        }
+        mapconf[key] = conf[key];
+    });
+
+    // Mix in mode-specific options
+    L.extend(mapconf, conf.defaults);
+    if (mode && mode != 'defaults') {
+        mapconf.layers = mapconf.layers.slice().concat(conf[mode].layers);
+        Object.keys(conf[mode]).forEach(function(key) {
+            if (key != 'layers') {
+                mapconf[key] = conf[mode][key];
+            }
+        });
     }
     return mapconf;
 }
