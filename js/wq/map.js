@@ -175,7 +175,7 @@ map.addAutoLayers = function(page) {
         map.addLayerConf(page, {
             'name': editConf.name,
             'type': 'geojson',
-            'url': editConf.url + '/{{{id}}}.geojson',
+            'url': editConf.url + '/{{{id}}}/edit.geojson',
             'draw': {
                 'polygon': {},
                 'polyline': {},
@@ -315,6 +315,15 @@ map.addDrawControl = function(m, layer, opts, $geom) {
 
     m.on('draw:edited', save);
 
+    var $submit = $geom.parents('form').find('[type=submit]');
+    m.on('draw:drawstart draw:editstart draw:deletestart', function() {
+        $submit.attr('disabled', true);
+    });
+
+    m.on('draw:drawstop draw:editstop draw:deletestop', function() {
+        $submit.attr('disabled', false);
+    });
+
     return control;
 
     function save() {
@@ -383,14 +392,18 @@ map.createMap = function(page, itemid, mode, url, divid) {
         m = map.maps[mapid];
         m.invalidateSize();
         if (defaults.autoZoom.sticky) {
-            m.fitBounds(defaults.bounds);
+            m.fitBounds(defaults.lastBounds || defaults.bounds);
         }
         return;
     }
 
     // Create map, set default zoom and basemap
-    m = map.maps[mapid] = L.map(divid);
-    m.fitBounds(defaults.bounds);
+    var opts = {};
+    if (defaults.maxBounds) {
+        opts.maxBounds = defaults.maxBounds;
+    }
+    m = map.maps[mapid] = L.map(divid, opts);
+    m.fitBounds(defaults.lastBounds || defaults.bounds);
     basemaps = map.createBaseMaps();
     basemap = Object.keys(basemaps)[0];
     basemaps[basemap].addTo(m);
@@ -426,14 +439,26 @@ map.createMap = function(page, itemid, mode, url, divid) {
         if (!lnames.length) {
             return;
         }
-        var bounds = layers[lnames[0]].getBounds();
-        if (lnames.length > 1) {
-            lnames.slice(1).forEach(function(lname) {
-                bounds.extend(layers[lname].getBounds());
-            });
-        }
+        var bounds;
+        lnames.forEach(function(lname) {
+            if (!layers[lname].getBounds) {
+                return;
+            }
+            var layerBounds = layers[lname].getBounds();
+            if (bounds) {
+                 bounds.extend(layerBounds);
+            } else {
+                 bounds = layerBounds;
+            }
+        });
         if (mapconf.minBounds) {
-            bounds.extend(mapconf.minBounds);
+            if (bounds) {
+                bounds.extend(mapconf.minBounds);
+            } else {
+                bounds = mapconf.minBounds;
+            }
+        } else if (!bounds) {
+            bounds = map.config.defaults.bounds;
         }
         setTimeout(function() {
             m.fitBounds(bounds, map.config.defaults.autoZoom);
@@ -442,7 +467,7 @@ map.createMap = function(page, itemid, mode, url, divid) {
 
     if (map.config.defaults.autoZoom.sticky) {
         m.on('moveend', function() {
-            map.config.defaults.bounds = m.getBounds();
+            map.config.defaults.lastBounds = m.getBounds();
         });
     }
     if (owl) {
