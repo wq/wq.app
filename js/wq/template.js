@@ -72,10 +72,14 @@ tmpl.inject = function(template, context, url, pageid) {
             pageid = template + '-page';
         }
         $oldpage = $('#' + pageid);
-    } else {
-        $oldpage = $(":jqmData(url='" + url + "')");
     }
-    if ($oldpage.length) {
+    if (!$oldpage || !$oldpage.length) {
+        $oldpage = $(":jqmData(url='" + url + "')");
+        if (pageid && $oldpage.attr('id') && $oldpage.attr('id') != pageid) {
+            $oldpage = null;
+        }
+    }
+    if ($oldpage && $oldpage.length) {
         $oldpage.remove();
     }
     if (role == 'popup' || role == 'panel') {
