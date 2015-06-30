@@ -21,6 +21,13 @@ function owl(action, data, path) {
     if (!path) {
         path = owl.getPath();
     }
+    if (path.length > 255) {
+        if (!data) {
+            data = {};
+        }
+        data.path = path;
+        path = path.substring(0, 255);
+    }
     var post = {
         "path": path,
         "action": action,
@@ -218,7 +225,7 @@ owl.events = {
 owl.getPath = function getPath() {
     // $('.ui-page-active').data("url");
     var loc = window.location;
-    return loc.pathname; // + loc.search
+    return loc.pathname + loc.search;
 };
 
 // Utility to get various browser & app information
