@@ -116,9 +116,9 @@ map.init = function(defaults) {
 };
 
 // Plugin API
-map.run = function(page, mode, itemid, url) {
+map.run = function(page, mode, itemid, url, parentInfo) {
     if (map.config.maps[page]) {
-        map.createMap(page, itemid, mode, url);
+        map.createMap(page, itemid, mode, url, parentInfo);
     }
 };
 
@@ -205,11 +205,14 @@ map.getLayerConfs = function(page, itemid, mode, url) {
         }
     }
     mapconf.layers.forEach(function(layerconf) {
+        var parts = url.split('?'),
+            baseurl = parts[0].replace(/\/$/, ''),
+            params = parts[1] && ("?" + parts[1]) || "";
         layerconf = L.extend({}, layerconf);
         layerconf.url = tmpl.render(layerconf.url, {
             'id': itemid,
-            'url': url.replace(/\/$/, '')
-        });
+            'url': baseurl
+        }) + params;
         layers.push(layerconf);
     });
     return layers;
@@ -352,7 +355,7 @@ map.renderPopup = function(page) {
 };
 
 // Primary map routine
-map.createMap = function(page, itemid, mode, url, divid) {
+map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
     var mapid, mapconf, m, defaults,
         layerConfs, layers,
         basemaps, basemap, div, owl;
@@ -368,6 +371,10 @@ map.createMap = function(page, itemid, mode, url, divid) {
         if (mode == 'edit') {
             mapid += '-edit';
         }
+    } else if (parentInfo) {
+        mapid = (
+            parentInfo.parent_page + '-' + parentInfo.parent_id + '-' + page
+        );
     } else {
         mapid = page;
     }

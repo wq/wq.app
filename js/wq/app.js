@@ -281,10 +281,10 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 };
 
 // Run any/all plugins on the specified page
-app.runPlugins = function(page, mode, itemid, url) {
+app.runPlugins = function(page, mode, itemid, url, parentInfo) {
     url = url.replace(app.base_url + '/', '');
     for (var plugin in app.plugins) {
-        app.plugins[plugin].run(page, mode, itemid, url);
+        app.plugins[plugin].run(page, mode, itemid, url, parentInfo);
     }
 };
 
@@ -623,7 +623,9 @@ function _registerList(page) {
 function _onShowList(page) {
     var conf = _getConf(page);
     var url = conf.url ? conf.url + '/?' : '';
-    router.addRoute(url, 's', goUrl);
+    router.addRoute(url, 's', function(match) {
+        app.runPlugins(page, 'list', null, match[0]);
+    });
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     for (var ppage in app.getParents(page)) {
@@ -632,13 +634,19 @@ function _onShowList(page) {
         if (url) {
             purl += '/';
         }
-        purl += '<slug>/' + conf.url;
-        router.addRoute(purl, 's', goUrl);
-        router.addRoute(purl + '/', 's', goUrl);
+        purl = '(' + purl + ')<slug>/' + conf.url;
+        router.addRoute(purl + '/?', 's', goUrl(ppage));
     }
 
-    function goUrl(match) {
-        app.runPlugins(page, 'list', null, match[0]);
+    function goUrl(ppage) {
+        return function(match) {
+            var parentInfo = {
+                'parent_id': match[2],
+                'parent_url': match[1] + match[2],
+                'parent_page': ppage
+            }
+            app.runPlugins(page, 'list', null, match[0], parentInfo);
+        }
     }
 }
 
@@ -1086,7 +1094,7 @@ app.showOutboxErrors = function(item, $page) {
         // REST API provided per-field error information
 
         // Form errors (other than non_field_errors) are keyed by fieldname
-        for (var f in item.error) {
+        errs.forEach(function(f) {
             // FIXME: there may be multiple errors per field
             var err = item.error[f][0];
             if (f == 'non_field_errors') {
@@ -1104,7 +1112,7 @@ app.showOutboxErrors = function(item, $page) {
                     });
                 }
             }
-        }
+        });
         if (!item.error.non_field_errors) {
             showError('One or more errors were found.');
         }
