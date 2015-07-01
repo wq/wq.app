@@ -117,7 +117,9 @@ map.init = function(defaults) {
 
 // Plugin API
 map.run = function(page, mode, itemid, url) {
-    map.createMap(page, itemid, mode, url);
+    if (map.config.maps[page]) {
+        map.createMap(page, itemid, mode, url);
+    }
 };
 
 // Add a layer configuration (layerconf) to a map configuration

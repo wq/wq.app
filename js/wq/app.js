@@ -829,7 +829,9 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
     var conf = _getConf(page);
     if (itemid == "new") {
         // Create new item
-        context = $.extend({'page_config': conf}, conf.defaults, context);
+        context = $.extend(
+            {'page_config': conf}, params, conf.defaults, context
+        );
         return _addLookups(page, context, "new").then(done);
     } else {
         // Edit existing item
@@ -1090,7 +1092,17 @@ app.showOutboxErrors = function(item, $page) {
             if (f == 'non_field_errors') {
                 showError(err);
             } else {
-                showError(err, f);
+                if (typeof(err) !== 'object') {
+                    showError(err, f);
+                } else {
+                    // Nested object errors (e.g. attachment)
+                    item.error[f].forEach(function(err, i) {
+                        for (var n in err) {
+                            var fid = f + '-' + i + '-' + n;
+                            showError(err[n][0], fid);
+                        }
+                    });
+                }
             }
         }
         if (!item.error.non_field_errors) {
