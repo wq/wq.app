@@ -140,14 +140,13 @@ app.init = function(config) {
     var ready;
     if (app.can_login) {
         router.register('logout\/?', app.logout);
-        _checkLogin();
 
         // Load some values from store - not ready till this is done.
         ready = ds.get(['user', 'csrf_token']).then(function(values) {
             var user = values[0];
-            _setCSRFToken(values[1]);
+            var csrfReady = _setCSRFToken(values[1]);
             if (!user) {
-                return;
+                return csrfReady;
             }
             app.user = user;
             tmpl.setDefault('user', user);
@@ -156,8 +155,10 @@ app.init = function(config) {
                 tmpl.setDefault('wq_config', app.wq_config);
                 app.wq_config = wq_config;
                 $('body').trigger('login');
+                return csrfReady;
             });
         });
+        ready = ready.then(_checkLogin);
     } else {
         ready = ds.ready;
     }
@@ -352,7 +353,7 @@ app.postsave = function(item, backgroundSync) {
         if (mode != 'list' && mode != 'detail' && mode != 'edit') {
             throw "Unknown template mode!";
         }
-        
+
         // For list pages, the url can differ depending on the mode
         url = app.base_url + '/' + pconf.url + '/';
 
@@ -644,9 +645,9 @@ function _onShowList(page) {
                 'parent_id': match[2],
                 'parent_url': match[1] + match[2],
                 'parent_page': ppage
-            }
+            };
             app.runPlugins(page, 'list', null, match[0], parentInfo);
-        }
+        };
     }
 }
 
