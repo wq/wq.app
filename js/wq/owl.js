@@ -68,8 +68,12 @@ owl.init = function init(config) {
         owl("view");
     });
 
-    $('body').on('click', 'a[rel="external"]', function(evt) {
-        owl("link", {'url': evt.target.href});
+    $('body').on('click', 'a', function(evt) {
+        var url = evt.target.href;
+        if (!url || url.indexOf(window.location.origin) === 0) {
+            return;
+        }
+        owl("link", {'url': url});
     });
 
     Object.keys(owl.events).forEach(function(evt) {
