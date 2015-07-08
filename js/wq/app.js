@@ -669,24 +669,27 @@ function _displayList(page, ui, params, url, context) {
         }
         if (params && params.page) {
             pnum = params.page;
-        } else {
-            filter = {};
-            for (var key in params || {}) {
+        }
+        filter = {};
+        for (var key in params || {}) {
+            if (key != 'page') {
                 filter[key] = params[key];
             }
-            if (context && context.parent_page) {
-                var parents = app.getParents(page);
-                Object.keys(parents).forEach(function(ppage) {
-                    parents[ppage].forEach(function(field) {
-                        if (context && context.parent_page == ppage) {
-                            filter[field + '_id'] = context.parent_id;
-                        }
-                    });
+        }
+        if (context && context.parent_page) {
+            var parents = app.getParents(page);
+            Object.keys(parents).forEach(function(ppage) {
+                parents[ppage].forEach(function(field) {
+                    if (context && context.parent_page == ppage) {
+                        filter[field + '_id'] = context.parent_id;
+                    }
                 });
-            }
+            });
         }
     }
-
+    if (filter && !Object.keys(filter).length) {
+        filter = null;
+    }
     if (pnum > conf.max_local_pages || filter && conf.partial) {
         // Set max_local_pages to avoid filling up local storage and
         // instead attempt to load HTML directly from the server
