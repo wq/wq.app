@@ -171,7 +171,7 @@ function _Outbox(store) {
         }
 
         // If files/blobs are present, use a FormData object to submit
-        var formData = new FormData();
+        var formData = (window.FormData && new FormData());
         var useFormData = false;
         var key, val, blob, slice;
         for (key in data) {
@@ -184,6 +184,9 @@ function _Outbox(store) {
             }
         }
         if (useFormData) {
+            if (!formData) {
+                throw "FormData needed but not present!";
+            }
             for (key in data) {
                 val = data[key];
                 if (json.isArray(val)) {
