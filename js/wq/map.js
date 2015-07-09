@@ -40,6 +40,8 @@ map.config = {
             'shadowSize':  [41, 41]
         },
 
+        'basemaps': _defaultBasemaps(),
+
         'owl': false
     }
 };
@@ -218,7 +220,7 @@ map.getLayerConfs = function(page, itemid, mode, url) {
     return layers;
 };
 
-// Internal layer loading function - override to customize
+// GeoJSON loading function - override to customize
 map.cache = {};
 map.loadLayer = function(url) {
     url = map.app.service + '/' + url;
@@ -240,32 +242,70 @@ map.loadLayer = function(url) {
     });
 };
 
-// Default base maps - override to customize
-map.createBaseMaps = function() {
+// Default base map configuration - override to customize
+function _defaultBasemaps() {
     /* jshint maxlen: false */
-    var mqcdn = "http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.png";
+    var mqcdn = "http://otile{s}.mqcdn.com/tiles/1.0.0/{layer}/{z}/{x}/{y}.png";
 
     // Attribution (https://gist.github.com/mourner/1804938)
     var osmAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
     var aerialAttr = 'Imagery &copy; NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency';
     var mqTilesAttr = 'Tiles &copy; <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png" />';
 
-    return {
-        "Street": L.tileLayer(mqcdn, {
+    return [
+        {
+            'name': "Street",
+            'type': 'tile',
+            'url': mqcdn,
             'subdomains': '1234',
-            'type': 'map',
+            'layer': 'map',
             'attribution': osmAttr + ', ' + mqTilesAttr
-        }),
-        "Aerial": L.tileLayer(mqcdn, {
+        },
+        {
+            'name': "Aerial",
+            'type': 'tile',
+            'url': mqcdn,
             'subdomains': '1234',
-            'type': 'sat',
+            'layer': 'sat',
             'attribution': aerialAttr + ', ' + mqTilesAttr
-        })
-    };
+        }
+    ];
 };
 
+
+// Configuration-based basemap creation functions
+map.createBasemaps = function() {
+    var basemaps = {};
+    map.config.defaults.basemaps.forEach(function(layerconf) {
+        basemaps[layerconf.name] = map.createBasemap(layerconf);
+    })
+    return basemaps;
+}
+
+map.createBaseMaps = map.createBasemaps;  // Backwards compatibility
+
+map.createBasemap = function(layerconf) {
+    var fn = map.createBasemap[layerconf.type];
+    if (!fn) {
+        throw 'Unknown basemap type "' + layerconf.type + '"!';
+    }
+    return fn(layerconf);
+}
+
+map.addBasemapType = function(type, fn) {
+    map.createBasemap[type] = fn;
+}
+
+map.addBasemapType('tile', function(layerConf) {
+    return L.tileLayer(layerConf.url, layerConf);
+});
+
+// Configuration-based overlay creation functions
 map.createOverlay = function(layerconf) {
     var fn = map.createOverlay[layerconf.type];
+    if (!fn) {
+        throw 'Unknown overlay type "' + layerconf.type + '"!';
+    }
     return fn(layerconf);
 };
 
@@ -303,6 +343,7 @@ map.addOverlayType('geojson', function(layerconf) {
     return overlay;
 });
 
+// Hooks for customizing layer and draw controls
 map.createLayerControl = function(basemaps, layers) {
     return L.control.layers(basemaps, layers);
 };
@@ -413,7 +454,14 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
     }
     m = map.maps[mapid] = L.map(divid, opts);
     m.fitBounds(defaults.lastBounds || defaults.bounds);
-    basemaps = map.createBaseMaps();
+    // wq.app < 0.8.1 used createBaseMaps, check in case it was overridden
+    // (remove in 1.0)
+    if (map.createBaseMaps != map.createBasemaps) {
+        console.warn("map.createBaseMaps is now map.createBasemaps()");
+        basemaps = map.createBaseMaps();
+    } else {
+        basemaps = map.createBasemaps();
+    }
     basemap = Object.keys(basemaps)[0];
     basemaps[basemap].addTo(m);
 
@@ -433,7 +481,9 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
         }
     });
 
-    map.createLayerControl(basemaps, layers).addTo(m);
+    if (!mapconf.noLayerControl) {
+        map.createLayerControl(basemaps, layers).addTo(m);
+    }
 
     Promise.all(results).then(autoZoom);
 
@@ -509,7 +559,7 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
     $controls.find("input").attr("data-role", "none");
 
     if (mapconf.onshow) {
-        mapconf.onshow(m, mode, itemid);
+        mapconf.onshow(m, mode, itemid, layers, basemaps);
     }
 
     if (mode == 'edit' && L.Control.Draw) {
