@@ -75,7 +75,7 @@ app.init = function(config) {
     config.noBackgroundSync = !config.backgroundSync;
 
     app.config = config;
-    app.wq_config = {'pages': config.pages};
+    app.wq_config = config;
 
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
@@ -95,6 +95,7 @@ app.init = function(config) {
     tmpl.init(config.template);
     tmpl.setDefault('native', app['native']);
     tmpl.setDefault('app_config', app.config);
+    tmpl.setDefault('wq_config', app.wq_config);
     tmpl.setDefault('svc', app.service);
 
     // Option to submit forms in the background rather than wait for each post
@@ -152,8 +153,8 @@ app.init = function(config) {
             tmpl.setDefault('user', user);
             tmpl.setDefault('is_authenticated', true);
             return ds.get('/config').then(function(wq_config) {
-                tmpl.setDefault('wq_config', app.wq_config);
                 app.wq_config = wq_config;
+                tmpl.setDefault('wq_config', app.wq_config);
                 $('body').trigger('login');
                 return csrfReady;
             });
@@ -237,7 +238,7 @@ app.logout = function() {
     delete app.user;
     tmpl.setDefault('user', null);
     tmpl.setDefault('is_authenticated', false);
-    app.wq_config = {'pages': app.config.pages};
+    app.wq_config = app.config;
     tmpl.setDefault('wq_config', app.wq_config);
     ds.set('user', null).then(function() {
         $('body').trigger('logout');
@@ -714,7 +715,7 @@ function _displayList(page, ui, params, url, context) {
             next = conf.url + '/?' + $.param(nextp);
         }
 
-        context = $.extend({}, data, {
+        context = $.extend({'page_config': conf}, data, {
             'previous': prev ? '/' + prev : null,
             'next':     next ? '/' + next : null,
             'multiple': data.pages > 1
@@ -882,7 +883,7 @@ function _renderOther(page, ui, params, url, context) {
     if (url === undefined) {
         url = conf.url;
     }
-    context = $.extend({}, conf, params, context);
+    context = $.extend({'page_config': conf}, context);
     router.go(url, page, context, ui, conf.once ? true : false);
 }
 
