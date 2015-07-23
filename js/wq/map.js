@@ -270,7 +270,7 @@ function _defaultBasemaps() {
             'attribution': aerialAttr + ', ' + mqTilesAttr
         }
     ];
-};
+}
 
 
 // Configuration-based basemap creation functions
@@ -278,9 +278,9 @@ map.createBasemaps = function() {
     var basemaps = {};
     map.config.defaults.basemaps.forEach(function(layerconf) {
         basemaps[layerconf.name] = map.createBasemap(layerconf);
-    })
+    });
     return basemaps;
-}
+};
 
 map.createBaseMaps = map.createBasemaps;  // Backwards compatibility
 
@@ -290,11 +290,11 @@ map.createBasemap = function(layerconf) {
         throw 'Unknown basemap type "' + layerconf.type + '"!';
     }
     return fn(layerconf);
-}
+};
 
 map.addBasemapType = function(type, fn) {
     map.createBasemap[type] = fn;
-}
+};
 
 map.addBasemapType('tile', function(layerConf) {
     return L.tileLayer(layerConf.url, layerConf);

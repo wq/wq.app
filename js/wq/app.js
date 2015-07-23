@@ -888,7 +888,7 @@ function _renderOther(page, ui, params, url, context) {
         url = conf.url;
     }
     if (params && $.param(params)) {
-        url += "?" + $.param(params)
+        url += "?" + $.param(params);
     }
     context = $.extend({'page_config': conf}, context);
     router.go(url, page, context, ui, conf.once ? true : false);
