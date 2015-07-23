@@ -180,7 +180,9 @@ app.init = function(config) {
     }
 
     for (var plugin in app.plugins) {
-        app.plugins[plugin].init(app.config[plugin]);
+        app.plugins[plugin].init.call(
+            app.plugins[plugin], app.config[plugin]
+        );
     }
 
     // Register routes with wq/router.js
@@ -286,7 +288,9 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
     url = url.replace(app.base_url + '/', '');
     for (var plugin in app.plugins) {
-        app.plugins[plugin].run(page, mode, itemid, url, parentInfo);
+        app.plugins[plugin].run.call(
+            app.plugins[plugin], page, mode, itemid, url, parentInfo
+        );
     }
 };
 
@@ -882,6 +886,9 @@ function _renderOther(page, ui, params, url, context) {
     var conf = _getConf(page);
     if (url === undefined) {
         url = conf.url;
+    }
+    if (params && $.param(params)) {
+        url += "?" + $.param(params)
     }
     context = $.extend({'page_config': conf}, context);
     router.go(url, page, context, ui, conf.once ? true : false);

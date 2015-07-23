@@ -159,7 +159,7 @@ map.addAutoLayers = function(page) {
             'name': listConf.name,
             'type': 'geojson',
             'url': '{{{url}}}.geojson',
-            'oneach': map.renderPopup(page),
+            'popup': page,
             'cluster': true
         }, 'list');
     }
@@ -170,7 +170,7 @@ map.addAutoLayers = function(page) {
             'name': detailConf.name,
             'type': 'geojson',
             'url': detailConf.url + '/{{{id}}}.geojson',
-            'oneach': map.renderPopup(page)
+            'popup': page
         }, 'detail');
     }
 
@@ -327,9 +327,19 @@ map.addOverlayType('geojson', function(layerconf) {
 
     // Load layer content as JSON
     overlay.ready = map.loadLayer(layerconf.url).then(function(geojson) {
-        var options = {};
-        if (layerconf.oneach) {
+        var options = {}, popup;
+        if (layerconf.popup) {
+            popup = map.renderPopup(layerconf.popup);
+        }
+        if (layerconf.oneach && popup) {
+            options.onEachFeature = function(feat, layer) {
+                popup(feat, layer);
+                layerconf.oneach(feat, layer);
+            };
+        } else if (layerconf.oneach) {
             options.onEachFeature = layerconf.oneach;
+        } else if (popup) {
+            options.onEachFeature = popup;
         }
         if (layerconf.icon) {
             options.pointToLayer = _makeMarker(layerconf.icon);
@@ -360,6 +370,7 @@ map.addDrawControl = function(m, layer, opts, $geom) {
     });
 
     m.on('draw:edited', save);
+    m.on('draw:deleted', save);
 
     var $submit = $geom.parents('form').find('[type=submit]');
     m.on('draw:drawstart draw:editstart draw:deletestart', function() {
@@ -588,6 +599,8 @@ function _makeMarker(icon) {
         var key;
         if (typeof icon == 'function') {
             key = icon(geojson.properties);
+        } else if (icon.indexOf('{{') > -1){
+            key = tmpl.render(icon, geojson.properties);
         } else {
             key = icon;
         }
