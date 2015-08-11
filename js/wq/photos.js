@@ -26,9 +26,9 @@ photos.init = function() {
 
 photos.run = function() {
     var $page = jqm.activePage;
-    $page.find('input[type=file]').on('change', photos.preview);
-    $page.find('button[data-wq-action=take]').on('click', photos.take);
-    $page.find('button[data-wq-action=pick]').on('click', photos.pick);
+    $page.on('change', 'input[type=file]', photos.preview);
+    $page.on('click', 'button[data-wq-action=take]', photos.take);
+    $page.on('click', 'button[data-wq-action=pick]', photos.pick);
 };
 
 photos.preview = function(imgid, file) {

@@ -1031,7 +1031,8 @@ function _handleForm(evt) {
         $files.each(function() {
              var name = this.name;
              var value = this.value;
-             if (vals[name] && typeof vals[name] === "string") {
+             var curVal = $.isArray(vals[name]) ? vals[name][0] : vals[name];
+             if (curVal && typeof curVal === "string") {
                  delete vals[name];
              }
              ready = ready.then(ds.get(value).then(function(data) {
