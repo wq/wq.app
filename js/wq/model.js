@@ -247,7 +247,7 @@ function Model(config) {
                      return;
                 }
                 if (config.reversed) {
-                    data.list.shift(obj);
+                    data.list.unshift(obj);
                 } else {
                     data.list.push(obj);
                 }

@@ -1195,7 +1195,7 @@ function _updateModels(item, result) {
 
         // Update primary model
         return Promise.all(results).then(function() {
-            app.models[modelConf.name].update([res]);
+            return app.models[modelConf.name].update([res]);
         });
     } else if (app.can_login && result && result.user && result.config) {
         return _saveLogin(result);
