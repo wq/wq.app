@@ -7,8 +7,8 @@
 
 /* global Camera */
 
-define(['jquery', './template', './store', './spinner'],
-function($, tmpl, ds, spin) {
+define(['jquery', 'jquery.mobile', './template', './store', './spinner'],
+function($, jqm, tmpl, ds, spin) {
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
@@ -24,7 +24,24 @@ photos.init = function() {
     });
 };
 
+photos.run = function() {
+    var $page = jqm.activePage;
+    $page.find('input[type=file]').on('change', photos.preview);
+    $page.find('button[data-wq-action=take]').on('click', photos.take);
+    $page.find('button[data-wq-action=pick]').on('click', photos.pick);
+};
+
 photos.preview = function(imgid, file) {
+    if (typeof imgid !== 'string' && !file) {
+        imgid = $(this).data('wq-preview');
+        if (!imgid) {
+            return;
+        }
+        file = this.files[0];
+        if (!file) {
+            return;
+        }
+    }
     $('#'+imgid).attr('src', _getUrl(file));
 };
 
@@ -39,17 +56,24 @@ photos.take = function(input, preview) {
         correctOrientation: true,
         saveToPhotoAlbum: true
     }, _defaults);
-    _start(options, input, preview);
+    _start.call(this, options, input, preview);
 };
 
 photos.pick = function(input, preview) {
     var options = $.extend({
         sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM
     }, _defaults);
-    _start(options, input, preview);
+    _start.call(this, options, input, preview);
 };
 
 function _start(options, input, preview) {
+    if (typeof input !== 'string' && !preview) {
+        input = $(this).data('wq-input');
+        if (!input) {
+            return;
+        }
+        preview = jqm.activePage.find('#' + input).data('wq-preview');
+    }
     navigator.camera.getPicture(
         function(data) {
             load(data, input, preview);
@@ -76,14 +100,16 @@ function load(data, input, preview) {
         ds.set(name, file).then(function() {
             $('#' + input).val(name);
             spin.stop();
-            photos.preview(preview, blob);
+            if (preview) {
+                photos.preview(preview, blob);
+            }
         });
     });
 }
 
 function error(msg) {
     spin.start("Error Loading Image: " + msg, 1.5, {
-        "theme": $.mobile.pageLoadErrorMessageTheme,
+        "theme": jqm.pageLoadErrorMessageTheme,
         "textonly": true
     });
 }
