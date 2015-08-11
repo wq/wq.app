@@ -6,9 +6,11 @@
  */
 
 /* global Camera */
-/* global alert */
 
-define(['jquery', './template'], function($, tmpl) {
+define(['jquery', './template', './store', './spinner'],
+function($, tmpl, ds, spin) {
+
+var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
 var photos = {};
 
@@ -49,8 +51,8 @@ photos.pick = function(input, preview) {
 
 function _start(options, input, preview) {
     navigator.camera.getPicture(
-        function(uri) {
-            load(uri, input, preview);
+        function(data) {
+            load(data, input, preview);
         },
         function(msg) {
             error(msg);
@@ -58,18 +60,37 @@ function _start(options, input, preview) {
     options);
 }
 
-function load(uri, input, preview) {
-    $('#' + preview).attr('src', uri);
-    $('#' + input).val(uri);
+function load(data, input, preview) {
+    spin.start('Loading image...');
+    // localforageSerializer is defined by localstorage.js, but might not be
+    // loaded already - so use async require.
+    require(['localforageSerializer'], function(serializer) {
+        var blob = serializer.deserialize(LOCALFORAGE_PREFIX + data);
+        var number = Math.round(Math.random() * 1e10);
+        var name = $('#' + input).val() || ('photo' + number + '.jpg');
+        var file = {
+            'name': name,
+            'type': 'image/jpeg',
+            'body': blob
+        };
+        ds.set(name, file).then(function() {
+            $('#' + input).val(name);
+            spin.stop();
+            photos.preview(preview, blob);
+        });
+    });
 }
 
 function error(msg) {
-    alert(msg);
+    spin.start("Error Loading Image: " + msg, 1.5, {
+        "theme": $.mobile.pageLoadErrorMessageTheme,
+        "textonly": true
+    });
 }
 
 var _defaults = {
     quality: 75,
-    destinationType: 1 //Camera.DestinationType.FILE_URI
+    destinationType: 0 //Camera.DestinationType.DATA_URL
 };
 
 return photos;

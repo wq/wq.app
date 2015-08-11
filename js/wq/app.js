@@ -314,6 +314,12 @@ app.sync = function(retryAll) {
     });
 };
 
+app.emptyOutbox = function() {
+    return outbox.model.overwrite([]).then(function() {
+        app.syncRefresh([null]);
+    });
+};
+
 // Hook for handling navigation after form submission
 app.postsave = function(item, backgroundSync) {
     var options = {
@@ -1022,7 +1028,19 @@ function _handleForm(evt) {
     // Handle Cordova files
     if (app['native']) {
         $files = $form.find('input[data-wq-type=file]');
-        // FIXME
+        $files.each(function() {
+             var name = this.name;
+             var value = this.value;
+             if (vals[name] && typeof vals[name] === "string") {
+                 delete vals[name];
+             }
+             ready = ready.then(ds.get(value).then(function(data) {
+                 if (data) {
+                     addVal(name, data);
+                     return ds.set(value, null);
+                 }
+             }));
+        });
     }
 
     if ($submitVal) {
