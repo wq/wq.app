@@ -12,7 +12,9 @@ function($, jqm, tmpl, ds, spin) {
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
-var photos = {};
+var photos = {
+    'name': "photos"
+};
 
 photos.init = function() {
     tmpl.setDefault('image_url', function() {

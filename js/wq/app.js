@@ -1035,6 +1035,9 @@ function _handleForm(evt) {
              if (curVal && typeof curVal === "string") {
                  delete vals[name];
              }
+             if (!value) {
+                 return;
+             }
              ready = ready.then(ds.get(value).then(function(data) {
                  if (data) {
                      addVal(name, data);
