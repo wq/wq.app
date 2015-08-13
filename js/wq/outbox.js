@@ -7,9 +7,8 @@
 
 /* global Promise */
 
-define(['jquery', 'localforage', './store', './model',
-        './online', './json', './console'],
-function($, lf, ds, model, ol, json, console) {
+define(['jquery', 'localforage', './store', './model', './json', './console'],
+function($, lf, ds, model, json, console) {
 
 var _outboxes = {};
 var outbox = new _Outbox(ds);
@@ -132,8 +131,6 @@ function _Outbox(store) {
     self.sendItem = function(item, once) {
         if (!item || item.synced) {
             return Promise.resolve(null);
-        } else if (!ol.online) {
-            return Promise.resolve(item);
         }
 
         var data = item.data;
@@ -272,7 +269,7 @@ function _Outbox(store) {
 
     // Send items to a batch service on the server
     self.sendBatch = function(items) {
-        if (!items.length || !ol.online) {
+        if (!items.length) {
             return Promise.resolve(items);
         }
 
@@ -316,7 +313,7 @@ function _Outbox(store) {
         // No batch service; emulate batch mode by sending each item to
         // the server and summarizing the result
 
-        if (!items.length || !ol.online) {
+        if (!items.length) {
             return Promise.resolve(items);
         }
 

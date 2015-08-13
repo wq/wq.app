@@ -240,9 +240,6 @@ function _Store(name) {
 
     // Fetch data from server
     self.fetch = function(query, cache) {
-        // if (!ol.online)
-        //    return; // FIXME: should defer until later
-
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
         var data = json.extend({}, self.defaults, query);
