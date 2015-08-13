@@ -100,7 +100,8 @@ function Model(config) {
             return {
                 'pages': data.pages,
                 'per_page': data.per_page,
-                'count': data.count
+                'count': data.count,
+                'config': config
             };
         });
     };
