@@ -1029,6 +1029,7 @@ function _handleForm(evt) {
     if (app['native']) {
         $files = $form.find('input[data-wq-type=file]');
         $files.each(function() {
+             // Cordova files are already in storage, copy over to form
              var name = this.name;
              var value = this.value;
              var curVal = $.isArray(vals[name]) ? vals[name][0] : vals[name];
@@ -1040,6 +1041,14 @@ function _handleForm(evt) {
              }
              ready = ready.then(ds.get(value).then(function(data) {
                  if (data) {
+                     if (data.body && data.body._ref) {
+                         // Blob is saved separately from metadata for
+                         // serialization.  ds.set(value, null) will see the
+                         // ref and wipe out file.  Avoid this by ensuring a
+                         // new ref is assigned for the blob.
+                         // (FIXME: Need to reconsider how refs work).
+                         delete data.body._ref;
+                     }
                      addVal(name, data);
                      return ds.set(value, null);
                  }

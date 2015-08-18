@@ -31,11 +31,6 @@ var _verbosity = {
     'Values': 3
 };
 
-var _canEmbedBlobs = {};
-_canEmbedBlobs[lf.INDEXEDDB] = true;
-_canEmbedBlobs[lf.WEBSQL] = false;
-_canEmbedBlobs[lf.LOCALSTORAGE] = false;
-
 return store;
 
 function _Store(name) {
@@ -90,11 +85,13 @@ function _Store(name) {
 
         self.ready = lf.ready().then(function() {
             // Disable blob extraction if it's not needed
-            if (!self.alwaysExtractBlobs && _canEmbedBlobs[lf.driver()]) {
-                _setItemFn = _setItem = lf.setItem.bind(lf);
-                _getItemFn = _getItem = lf.getItem.bind(lf);
-                _removeItemFn = _removeItem = lf.removeItem.bind(lf);
-            }
+            return lf.supportsBlobs().then(function(supportsBlobs) {
+                if (!self.alwaysExtractBlobs && supportsBlobs) {
+                    _setItemFn = _setItem = lf.setItem.bind(lf);
+                    _getItemFn = _getItem = lf.getItem.bind(lf);
+                    _removeItemFn = _removeItem = lf.removeItem.bind(lf);
+                }
+            });
         });
     };
 

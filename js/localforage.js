@@ -1508,7 +1508,13 @@ requireModule('promise/polyfill').polyfill();
         clear: clear,
         length: length,
         key: key,
-        keys: keys
+        keys: keys,
+        supportsBlobs: function() {
+            var self = this;
+            return self.ready().then(function() {
+                return _checkBlobSupport(self._dbInfo.db);
+            });
+        }
     };
 
     if (typeof module !== 'undefined' && module.exports && typeof require !== 'undefined') {
@@ -1837,7 +1843,10 @@ requireModule('promise/polyfill').polyfill();
         clear: clear,
         length: length,
         key: key,
-        keys: keys
+        keys: keys,
+        supportsBlobs: function() {
+            return Promise.resolve(false);
+        }
     };
 
     if (moduleType === ModuleType.EXPORT) {
@@ -2254,7 +2263,10 @@ requireModule('promise/polyfill').polyfill();
         clear: clear,
         length: length,
         key: key,
-        keys: keys
+        keys: keys,
+        supportsBlobs: function() {
+            return Promise.resolve(false);
+        }
     };
 
     if (moduleType === ModuleType.DEFINE) {
@@ -2299,7 +2311,8 @@ requireModule('promise/polyfill').polyfill();
         'keys',
         'length',
         'removeItem',
-        'setItem'
+        'setItem',
+        'supportsBlobs'
     ];
 
     var ModuleType = {
