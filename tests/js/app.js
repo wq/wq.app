@@ -8,8 +8,7 @@ requirejs.config({
 
 require(['wq/app', 'wq/map', 'app/config', 'leaflet.draw'],
 function(app, map, config) {
-    app.init(config).then(function() {
-        map.init(config.map);
-        app.jqmInit();
-    });
+    config.jqmInit = true;
+    app.use(map);
+    app.init(config);
 });
