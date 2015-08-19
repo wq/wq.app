@@ -84,15 +84,20 @@ function _Store(name) {
         }
 
         self.ready = lf.ready().then(function() {
-            // Disable blob extraction if it's not needed
-            return lf.supportsBlobs().then(function(supportsBlobs) {
-                if (!self.alwaysExtractBlobs && supportsBlobs) {
-                    _setItemFn = _setItem = lf.setItem.bind(lf);
-                    _getItemFn = _getItem = lf.getItem.bind(lf);
-                    _removeItemFn = _removeItem = lf.removeItem.bind(lf);
-                }
-            });
-        });
+            return lf.setItem('wq-store-test', true).then(function() {
+                // localForage is available; continue as normal
+
+                // Disable blob extraction if it's not needed
+                return lf.supportsBlobs().then(function(supportsBlobs) {
+                    if (!self.alwaysExtractBlobs && supportsBlobs) {
+                        _setItemFn = _setItem = lf.setItem.bind(lf);
+                        _getItemFn = _getItem = lf.getItem.bind(lf);
+                        _removeItemFn = _removeItem = lf.removeItem.bind(lf);
+                        _keysFn = _keys = lf.keys.bind(lf);
+                    }
+                });
+            }, _inMemoryFallback);
+        }, _inMemoryFallback);
     };
 
     self.ready = {'then': function() {
@@ -320,7 +325,7 @@ function _Store(name) {
 
     // List storage keys matching this store's key prefix
     self.keys = function() {
-        return lf.keys().then(function(keys) {
+        return _keys().then(function(keys) {
             return keys.filter(function(key) {
                 return key.indexOf(_prefix) === 0;
             }).map(function(key){
@@ -397,6 +402,16 @@ function _Store(name) {
                 return lf.removeItem(key);
             });
         });
+    }
+
+    function _keys() {
+        return self.ready.then(function() {
+            return _keysFn();
+        });
+    }
+
+    function _keysFn() {
+        return lf.keys();
     }
 
     // Recursively extract blobs into separate values & replace with refs
@@ -519,6 +534,34 @@ function _Store(name) {
             }
             return self.removeBlob(ref);
         }));
+    }
+
+    function _inMemoryFallback() {
+        // localForage isn't working for whatever reason
+        // Replace with in-memory store to avoid breaking other code
+        if (self.debug) {
+            console.warn(
+                "localForage is not working; using in-memory store"
+            );
+        }
+        var inMemoryStore = {};
+        _setItemFn = _setItem = function(key, value) {
+            inMemoryStore[key] = value;
+            return Promise.resolve(value);
+        };
+        _getItemFn = _getItem = function(key) {
+            if (inMemoryStore.hasOwnProperty(key)) {
+                return Promise.resolve(inMemoryStore[key]);
+            }
+            return Promise.resolve(null);
+        };
+        _removeItemFn = _removeItem = function(key) {
+            delete inMemoryStore[key];
+            return Promise.resolve();
+        };
+        _keysFn = _keys = function() {
+            return Promise.resolve(Object.keys(inMemoryStore));
+        };
     }
 }
 
