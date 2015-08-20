@@ -72,7 +72,7 @@ def scss(**conf):
     scss.config.LOAD_PATHS = [
         conf['indir'],
         os.path.join(conf['indir'], 'lib'),
-        
+
         # FIXME: Why aren't these paths automatically picked up on Windows?
         os.path.join(conf['indir'], 'lib', 'compass'),
         os.path.join(conf['indir'], 'lib', 'compass', 'css3'),
