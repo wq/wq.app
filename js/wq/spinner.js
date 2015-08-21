@@ -1,5 +1,5 @@
 /*
- * wq.app 0.8.1 - wq/spinner.js
+ * wq.app 0.8.2-dev - wq/spinner.js
  * Wrapper for jQuery Mobile's spinner
  * (c) 2012-2015, S. Andrew Sheppard
  * https://wq.io/license
