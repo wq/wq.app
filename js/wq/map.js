@@ -514,6 +514,9 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
             if (!layers[lname].getBounds) {
                 return;
             }
+            if (!m.hasLayer(layers[lname])) {
+                return;
+            }
             var layerBounds = layers[lname].getBounds();
             if (bounds) {
                  bounds.extend(layerBounds);
