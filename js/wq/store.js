@@ -72,6 +72,7 @@ function _Store(name) {
 
         var optlist = [
             'saveMethod',
+            'validate',
             'parseData',
             'applyResult',
             'localStorageFail',
@@ -808,6 +809,12 @@ function _Store(name) {
 
     // Queue data for server use; use outbox to cache unsaved items
     self.save = function(data, id, callback) {
+        if (!self.validate(data)) {
+            if (callback) {
+                callback(null);
+            }
+            return null;
+        }
         var outbox = self.get('outbox');
         if (!outbox)
             outbox = [];
@@ -840,6 +847,12 @@ function _Store(name) {
             self.sendItem(item.id, callback);
         else
             return item.id;
+    };
+
+    // Validate a record before adding it to outbox
+    self.validate = function(data) {
+        /* jshint unused: false */
+        return true;
     };
 
     // Send a single item from the outbox to the server
