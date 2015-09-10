@@ -347,7 +347,15 @@ map.addOverlayType('geojson', function(layerconf) {
         if (layerconf.style) {
             options.style = layerconf.style;
         }
-        return map.geoJson(geojson, options).addTo(overlay);
+        var gjLayer = map.geoJson(geojson, options);
+        if (layerconf.cluster && L.MarkerClusterGroup) {
+            gjLayer.getLayers().forEach(function(layer) {
+                layer.addTo(overlay);
+            });
+        } else {
+            gjLayer.addTo(overlay);
+        }
+        return gjLayer;
     });
 
     return overlay;
