@@ -214,7 +214,11 @@ map.getLayerConfs = function(page, itemid, mode, url) {
         layerconf.url = tmpl.render(layerconf.url, {
             'id': itemid,
             'url': baseurl
-        }) + params;
+        });
+        if (params && layerconf.url.indexOf('?') > -1) {
+            params = params.replace(/^\?/, "&");
+        }
+        layerconf.url += params;
         layers.push(layerconf);
     });
     return layers;
