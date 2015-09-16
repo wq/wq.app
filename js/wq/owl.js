@@ -5,8 +5,8 @@
  * https://wq.io/license
  */
 
-define(['wq/store', 'jquery', 'jquery.mobile'],
-function(ds, $) {
+define(['jquery', 'jquery.mobile'],
+function($) {
 
 var _referer = document.referrer;
 
@@ -48,7 +48,41 @@ function owl(action, data, path) {
 }
 
 owl.config = {};
-owl.ds = ds.getStore('owl');
+owl.ds = {
+    'ls': (function() {
+         var store;
+         try {
+             store = window.localStorage;
+             store.setItem('owltest', '1');
+             if (store.getItem('owltest') != '1') {
+                 store = {};
+             }
+         } catch(e) {
+             store = {};
+         }
+         return store;
+    })(),
+    'get': function(key) {
+        var val = this.ls['owl_' + key];
+        return val && JSON.parse(val);
+    },
+    'set': function(key, val) {
+        if (val === null) {
+            delete this.ls['owl_' + key];
+        } else {
+            this.ls['owl_' + key] = JSON.stringify(val);
+        }
+    },
+    'keys': function() {
+        var keys = [];
+        for (var key in this.ls) {
+            if (key.match(/^owl_/)) {
+                keys.push(key.replace(/^owl_/, ''));
+            }
+        }
+        return keys;
+    }
+};
 
 // Initiallize configuration and set up event listeners
 owl.init = function init(config) {
@@ -101,6 +135,10 @@ owl.init = function init(config) {
     }
 };
 
+// wq/app.js plugin compat
+owl.name = 'owl';
+owl.run = function() {};
+
 // Sync log to server (with logic to handle errors & prevent simultaneous sync)
 var _syncing = {};
 var _waiting = {};
@@ -149,6 +187,7 @@ owl.sync = function sync(key, forceSync) {
     queue.forEach(function(d) {
         d.client_key = key;
     });
+    owl.ds.set(key, queue);
 
     var async = !forceSync;
 
@@ -244,7 +283,6 @@ owl.stats = function() {
         'scroll': owl.events.scrollstop(),
 
         // Cache status
-        'localstorage': ds.localStorageUsage(),
         'appcache': (
             window.applicationCache ? window.applicationCache.status : null
         )
