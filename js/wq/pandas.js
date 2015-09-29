@@ -24,7 +24,7 @@ pandas.parse = function(str) {
         {
             'site': 'SITE1',
             'parameter': 'PARAM1',
-            'list': [
+            'data': [
                 {'date': '2014-01-01', 'value': 0.5},
                 {'date': '2014-01-02', 'value': 0.1}
             ]
@@ -46,7 +46,7 @@ pandas.parse = function(str) {
         {
             'site': 'SITE1',
             'parameter': 'PARAM1',
-            'list': [
+            'data': [
                 {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3}
             ]
         }
@@ -55,9 +55,25 @@ pandas.parse = function(str) {
     */
 
     var idColumns, metadata = [], datasets = [], col2dataset = [], data,
-        valuesHeader, rows = d3.csv.parseRows(str);
+        valuesHeader, rows;
+    if (str.charAt(0) != ',') {
+        // Assume plain CSV (single series with one-row header)
+        data = [];
+        d3.csv.parse(str).forEach(function(row) {
+            var key, val;
+            for (key in row) {
+                val = row[key];
+                row[key] = isNaN(+val) ? val : +val;
+            }
+            data.push(row);
+        });
+        return [{
+            'data': data
+        }];
+    }
 
     // Parse CSV headers and data
+    rows = d3.csv.parseRows(str);
     rows.forEach(function(row, i) {
         if (data) {
             parseData(row);
@@ -112,7 +128,7 @@ pandas.parse = function(str) {
             if (index === undefined) {
                 index = datasets.length;
                 datasetIndex[metaHash] = index;
-                meta.list = [];
+                meta.data = [];
                 datasets.push(meta);
             }
             col2dataset[i] = index;
@@ -127,7 +143,7 @@ pandas.parse = function(str) {
         idColumns = [row[0]];
         valuesHeader = [];
         row.slice(1).forEach(function(s, i) {
-            datasets[i] = {'id': s, 'list': []};
+            datasets[i] = {'id': s, 'data': []};
             col2dataset[i] = i;
             valuesHeader[i + 1] = "value";
         });
@@ -159,7 +175,7 @@ pandas.parse = function(str) {
             item[valname] = isNaN(+d) ? d : +d;
         });
         rowdata.forEach(function(d, i) {
-            datasets[i].list.push(d);
+            datasets[i].data.push(d);
         });
     }
     return datasets;

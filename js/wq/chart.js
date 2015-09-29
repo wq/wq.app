@@ -74,7 +74,7 @@ chart.base = function() {
         return dataset.label;
     }
     function items(dataset) {
-        return dataset.list;
+        return dataset.data || dataset.list;
     }
     function legendItemId(d) {
         return id(d);
@@ -921,8 +921,8 @@ chart.scatter = function() {
         // Generate elements for new data
         newpoints = points.enter().append('g')
             .attr('class', 'data');
-        newpoints.append(pointShape(sid));
         newpoints.append('title');
+        newpoints.append(pointShape(sid));
 
         points.exit().remove();
 
@@ -1081,19 +1081,57 @@ chart.contour = function() {
 
 // Box & whiskers (precomputed)
 chart.boxplot = function() {
-    var plot = chart.base(), r, wr, offsets = {};
+    var plot = chart.base(), r, wr, offsets = {}, prefix = 'value-';
+
+    // Accessors for individual items
+    function q1(d) {
+        if ('p25' in d) {
+             // Backwards compatibility with old names; remove in 1.0
+            return d.p25;
+        }
+        return d[prefix + 'q1'];
+    }
+    function q3(d) {
+        if ('p75' in d) {
+             // Backwards compatibility with old names; remove in 1.0
+            return d.p75;
+        }
+        return d[prefix + 'q3'];
+    }
+    function med(d) {
+        if ('median' in d) {
+             // Backwards compatibility with old names; remove in 1.0
+            return d.median;
+        }
+        return d[prefix + 'med'];
+    }
+    function whishi(d) {
+        if ('max' in d) {
+             // Backwards compatibility with old names; remove in 1.0
+            return d.max;
+        }
+        return d[prefix + 'whishi'];
+    }
+    function whislo(d) {
+        if ('min' in d) {
+             // Backwards compatibility with old names; remove in 1.0
+            return d.min;
+        }
+        return d[prefix + 'whislo'];
+    }
+
     plot.xscalefn(d3.scale.ordinal)
         .itemid(function(d) { return plot.xvalue()(d); })
         .ymin(function(dataset) {
             var items = plot.items();
             return d3.min(items(dataset), function(d) {
-                return d.min;
+                return whislo(d);
             });
         })
         .ymax(function(dataset) {
             var items = plot.items();
             return d3.max(items(dataset), function(d) {
-                return d.max;
+                return whishi(d);
             });
         })
         .init(function(datasets, opts) {
@@ -1137,7 +1175,12 @@ chart.boxplot = function() {
         var yscale = plot.yscales()[yunits];
         var color = plot.cscale()(sid);
         return function(d) {
-            if (!d || (!d.median && !d.min && !d.max)) {
+            var dq1 = q1(d),
+                dq3 = q3(d),
+                dmed = med(d),
+                dwhislo = whislo(d),
+                dwhishi = whishi(d);
+            if (!d || (!dmed && !dwhislo && !dwhishi)) {
                 return;
             }
             function y(val) {
@@ -1146,67 +1189,111 @@ chart.boxplot = function() {
 
             var box = _selectOrAppend(d3.select(this), 'g', 'box')
                 .attr('transform', _trans(offsets[sid], 0));
-            _selectOrAppend(box, 'line', 'p25')
+            _selectOrAppend(box, 'line', 'q1')
                .attr('x1', -r)
                .attr('x2', r)
-               .attr('y1', y(d.p25))
-               .attr('y2', y(d.p25))
+               .attr('y1', y(dq1))
+               .attr('y2', y(dq1))
                .attr('stroke-width', 2)
                .attr('stroke', color);
-            _selectOrAppend(box, 'line', 'p75')
+            _selectOrAppend(box, 'line', 'q3')
                .attr('x1', -r)
                .attr('x2', r)
-               .attr('y1', y(d.p75))
-               .attr('y2', y(d.p75))
+               .attr('y1', y(dq3))
+               .attr('y2', y(dq3))
                .attr('stroke-width', 2)
                .attr('stroke', color);
-            _selectOrAppend(box, 'line', 'median')
+            _selectOrAppend(box, 'line', 'med')
                .attr('x1', -r)
                .attr('x2', r)
-               .attr('y1', y(d.median))
-               .attr('y2', y(d.median))
+               .attr('y1', y(dmed))
+               .attr('y2', y(dmed))
                .attr('stroke-width', 2)
                .attr('stroke', color);
             _selectOrAppend(box, 'line', 'iqr-left')
                .attr('x1', -r)
                .attr('x2', -r)
-               .attr('y1', y(d.p25))
-               .attr('y2', y(d.p75))
+               .attr('y1', y(dq1))
+               .attr('y2', y(dq3))
                .attr('stroke-width', 2)
                .attr('stroke', color);
             _selectOrAppend(box, 'line', 'iqr-right')
                .attr('x1', r)
                .attr('x2', r)
-               .attr('y1', y(d.p25))
-               .attr('y2', y(d.p75))
+               .attr('y1', y(dq1))
+               .attr('y2', y(dq3))
                .attr('stroke-width', 2)
                .attr('stroke', color);
             _selectOrAppend(box, 'line', 'w-top')
                .attr('x1', -wr)
                .attr('x2', wr)
-               .attr('y1', y(d.max))
-               .attr('y2', y(d.max))
+               .attr('y1', y(dwhishi))
+               .attr('y2', y(dwhishi))
                .attr('stroke', color);
             _selectOrAppend(box, 'line', 'w-bottom')
                .attr('x1', -wr)
                .attr('x2', wr)
-               .attr('y1', y(d.min))
-               .attr('y2', y(d.min))
+               .attr('y1', y(dwhislo))
+               .attr('y2', y(dwhislo))
                .attr('stroke', color);
-            _selectOrAppend(box, 'line', 'w-p75')
+            _selectOrAppend(box, 'line', 'w-q3')
                .attr('x1', 0)
                .attr('x2', 0)
-               .attr('y1', y(d.max))
-               .attr('y2', y(d.p75))
+               .attr('y1', y(dwhishi))
+               .attr('y2', y(dq3))
                .attr('stroke', color);
-            _selectOrAppend(box, 'line', 'w-p25')
+            _selectOrAppend(box, 'line', 'w-q1')
                .attr('x1', 0)
                .attr('x2', 0)
-               .attr('y1', y(d.min))
-               .attr('y2', y(d.p25))
+               .attr('y1', y(dwhislo))
+               .attr('y2', y(dq1))
                .attr('stroke', color);
         };
     }
+
+    // Getters/setters for accessors
+    plot.prefix = function(val) {
+        if (!arguments.length) {
+            return prefix;
+        }
+        prefix = val;
+        return plot;
+    };
+    plot.q1 = function(fn) {
+        if (!arguments.length) {
+            return q1;
+        }
+        q1 = fn;
+        return plot;
+    };
+    plot.q3 = function(fn) {
+        if (!arguments.length) {
+            return q3;
+        }
+        q3 = fn;
+        return plot;
+    };
+    plot.med = function(fn) {
+        if (!arguments.length) {
+            return med;
+        }
+        med = fn;
+        return plot;
+    };
+    plot.whishi = function(fn) {
+        if (!arguments.length) {
+            return whishi;
+        }
+        whishi = fn;
+        return plot;
+    };
+    plot.whislo = function(fn) {
+        if (!arguments.length) {
+            return whislo;
+        }
+        whislo = fn;
+        return plot;
+    };
 
     return plot;
 };
