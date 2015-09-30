@@ -6,8 +6,6 @@
  * https://wq.io/license
  */
 
-/* global Promise */
-
 define(['jquery', 'localforage'], function($) {
 
 var json = {};

@@ -5,8 +5,6 @@
  * https://wq.io/license
  */
 
-/* global Promise */
-
 define(['./store', './json', './console'], function(ds, json, console) {
 
 function model(config) {

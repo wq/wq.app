@@ -86,21 +86,37 @@ function _start(options, input, preview) {
     options);
 }
 
+photos.base64toBlob = function(data) {
+    return new Promise(function(resolve) {
+        // localforageSerializer is defined by localstorage.js, but might not
+        // be loaded already - so use async require.
+        require(['localforageSerializer'], function(serializer) {
+            var blob = serializer.deserialize(LOCALFORAGE_PREFIX + data);
+            resolve(blob);
+        });
+    });
+};
+
+photos.storeFile = function(name, type, blob, input) {
+    // Save blob data for later retrieval
+    var file = {
+        'name': name,
+        'type': type,
+        'body': blob
+    };
+    return ds.set(name, file).then(function() {
+        if (input) {
+            $('#' + input).val(name);
+        }
+    });
+};
+
 function load(data, input, preview) {
     spin.start('Loading image...');
-    // localforageSerializer is defined by localstorage.js, but might not be
-    // loaded already - so use async require.
-    require(['localforageSerializer'], function(serializer) {
-        var blob = serializer.deserialize(LOCALFORAGE_PREFIX + data);
+    photos.base64toBlob(data).then(function(blob) {
         var number = Math.round(Math.random() * 1e10);
         var name = $('#' + input).val() || ('photo' + number + '.jpg');
-        var file = {
-            'name': name,
-            'type': 'image/jpeg',
-            'body': blob
-        };
-        ds.set(name, file).then(function() {
-            $('#' + input).val(name);
+        photos.storeFile(name, 'image/jpeg', blob, input).then(function() {
             spin.stop();
             if (preview) {
                 photos.preview(preview, blob);

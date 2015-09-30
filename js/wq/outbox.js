@@ -5,8 +5,6 @@
  * https://wq.io/license
  */
 
-/* global Promise */
-
 define(['jquery', 'localforage', './store', './model', './json', './console'],
 function($, lf, ds, model, json, console) {
 

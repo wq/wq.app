@@ -5,8 +5,6 @@
  * https://wq.io/license
  */
 
-/* global Promise */
-
 define(['localforage', './json', './console', 'es5-shim'],
 function(lf, json, console) {
 

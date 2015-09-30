@@ -9,9 +9,6 @@ define(['leaflet', 'jquery', './json', './spinner',
         './template', './console', 'es5-shim'],
 function(L, $, json, spin, tmpl, console) {
 
-/* global require */
-/* global Promise */
-
 // module variable
 var map = {
     'name': "map"

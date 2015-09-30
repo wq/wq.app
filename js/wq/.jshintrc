@@ -13,6 +13,7 @@
     "globals": {
         "define": false,
         "require": false,
-        "JSON": false
+        "JSON": false,
+        "Promise": false
     }
 }
