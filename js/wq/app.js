@@ -161,6 +161,11 @@ app.init = function(config) {
     } else {
         ready = ds.ready;
     }
+    ready = ready.then(function() {
+        return outbox.unsynced().then(function(unsynced) {
+            tmpl.setDefault('unsynced', unsynced);
+        });
+    });
 
     // Configure jQuery Mobile transitions
     if (config.transitions) {
@@ -463,12 +468,16 @@ app.postsync = function(items) {
 };
 
 app.syncRefresh = function(items) {
-    if (items.length && jqm.activePage.data('wq-sync-refresh')) {
+    if (!items.length || !jqm.activePage.data('wq-sync-refresh')) {
+        return;
+    }
+    outbox.unsynced().then(function(unsynced) {
+        tmpl.setDefault('unsynced', unsynced);
         jqm.changePage(jqm.activePage.data('url'), {
             'transition': 'none',
             'allowSamePageTransition': true
         });
-    }
+    });
 };
 
 app.attachmentTypes = {
@@ -1085,6 +1094,7 @@ function _handleForm(evt) {
             }
 
             // Submit form immediately and wait for server to respond
+            $form.attr('data-wq-outbox-id', item.id);
             spin.start();
             outbox.sendItem(item, true).then(function(item) {
                 spin.stop();
