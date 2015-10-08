@@ -81,21 +81,7 @@ function _Store(name) {
             }
         }
 
-        self.ready = lf.ready().then(function() {
-            return lf.setItem('wq-store-test', true).then(function() {
-                // localForage is available; continue as normal
-
-                // Disable blob extraction if it's not needed
-                return lf.supportsBlobs().then(function(supportsBlobs) {
-                    if (!self.alwaysExtractBlobs && supportsBlobs) {
-                        _setItemFn = _setItem = lf.setItem.bind(lf);
-                        _getItemFn = _getItem = lf.getItem.bind(lf);
-                        _removeItemFn = _removeItem = lf.removeItem.bind(lf);
-                        _keysFn = _keys = lf.keys.bind(lf);
-                    }
-                });
-            }, _inMemoryFallback);
-        }, _inMemoryFallback);
+        self.ready = new Promise(_ready);
     };
 
     self.ready = {'then': function() {
@@ -532,6 +518,48 @@ function _Store(name) {
             }
             return self.removeBlob(ref);
         }));
+    }
+
+    function _ready(resolve) {
+        var resolved = false;
+        lf.ready().then(function() {
+            lf.setItem('wq-store-test', true).then(function() {
+                // localForage is available; continue as normal
+
+                // Disable blob extraction if it's not needed
+                lf.supportsBlobs().then(function(supportsBlobs) {
+                    if (!self.alwaysExtractBlobs && supportsBlobs) {
+                        _setItemFn = _setItem = lf.setItem.bind(lf);
+                        _getItemFn = _getItem = lf.getItem.bind(lf);
+                        _removeItemFn = _removeItem = lf.removeItem.bind(lf);
+                        _keysFn = _keys = lf.keys.bind(lf);
+                    }
+                    resolved = true;
+                    resolve();
+                });
+
+            // Couldn't store wq-store-test for some reason
+            }, fallback);
+
+        // localForage.ready() failed for some reason
+        }, fallback);
+
+        setTimeout(function() {
+            if (!resolved) {
+                // localForage failed, and also failed to reject() for some
+                // reason - this should be rare but has happened in the wild.
+                console.error("Storage failed to initialize in 5 seconds");
+                fallback();
+            }
+        }, 5000);
+
+        function fallback() {
+            if (!resolved) {
+                _inMemoryFallback();
+                resolve();
+            }
+            resolved = true;
+        }
     }
 
     function _inMemoryFallback() {
