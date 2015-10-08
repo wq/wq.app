@@ -1291,10 +1291,6 @@ function _addLookups(page, context, editable) {
             );
         }
     }
-    (conf.children || []).forEach(function(v) {
-        var cconf = _getConf(v);
-        lookups[cconf.url] = _children_lookup(page, v, context);
-    });
 
     // Load annotations and identifiers
     for (var aname in app.attachmentTypes) {
