@@ -650,7 +650,7 @@ function _onShowList(page) {
     for (var ppage in app.getParents(page)) {
         var pconf = app.config.pages[ppage];
         var purl = pconf.url;
-        if (url) {
+        if (purl) {
             purl += '/';
         }
         purl = '(' + purl + ')<slug>/' + conf.url;
