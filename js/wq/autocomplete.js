@@ -5,26 +5,29 @@
  * https://wq.io/license
  */
 
-define(['jquery', './router', './json', './template', './spinner'],
-function($, router, json, tmpl, spin) {
+define(['jquery', 'jquery.mobile', './json', './template', './spinner'],
+function($, jqm, json, tmpl, spin) {
 
 // Exported module variable
-var auto = {};
+var auto = {
+    'name': 'autocomplete'
+};
 
 auto.template = '{{#list}}<option value="{{id}}">{{label}}</option>{{/list}}';
 
-// Automatically register callbacks for every datalist
 auto.init = function(template) {
     if (template) {
         auto.template = template;
     }
-    router.addRoute('.*', 's', _register);
-    function _register(match, ui, params, hash, evt, $page) {
-        $page.find('datalist').each(function(i, datalist) {
-            /* jshint unused: false */
-            auto.register($(datalist), $page);
-        });
-    }
+};
+
+// Automatically register callbacks for every datalist
+auto.run = function() {
+    var $page = jqm.activePage;
+    $page.find('datalist, [data-wq-datalist]').each(function(i, datalist) {
+        /* jshint unused: false */
+        auto.register($(datalist), $page);
+    });
 };
 
 // Register a jQuery-wrapped datalist element.  Changes to associated inputs
@@ -90,7 +93,7 @@ auto.update = function($datalist, value) {
 
 // Update <datalist> HTML with new <options>
 auto.render = function($datalist, result) {
-    var $options = $datalist.find('option'),
+    var $options = $datalist.find('option, [data-wq-option]'),
         data = result.list,
         $tmpdl, $tmpopts, last;
 
@@ -104,10 +107,10 @@ auto.render = function($datalist, result) {
     if ($options.length == data.length) {
         $tmpdl = $("<datalist>");
         $tmpdl.append(tmpl.render(auto.template, result));
-        $tmpopts = $tmpdl.find('option');
+        $tmpopts = $tmpdl.find('option, [data-wq-option]');
         last = data.length - 1;
-        if ($options[0].value == $tmpopts[0].value &&
-                $options[last].value == $tmpopts[last].value) {
+        if (getVal($options[0]) == getVal($tmpopts[0]) &&
+                getVal($options[last]) == getVal($tmpopts[last])) {
             return;
         }
     }
@@ -116,6 +119,9 @@ auto.render = function($datalist, result) {
     $datalist.empty().append(tmpl.render(auto.template, result));
 };
 
+function getVal(elem) {
+    return $(elem).val() || $(elem).data('wq-value');
+}
 return auto;
 
 });
