@@ -335,7 +335,7 @@ chart.base = function() {
 
         var yaxes = outer.selectAll('g.axis')
             .data(d3.values(yscales), function(s){ return s.id; });
-        yaxes.enter().append('g').attr('class', 'axis');
+        yaxes.enter().append('g').attr('class', 'axis').append('text');
         yaxes.exit().remove();
         yaxes.attr('transform', function(d) {
                 var x;
@@ -348,9 +348,26 @@ chart.base = function() {
                 return _trans(x, y);
             })
             .each(function(d) {
-                d3.select(this)
-                   .call(d.axis)
+                var axis = d3.select(this);
+                axis.call(d.axis)
                    .selectAll('line').attr('stroke', '#000');
+                axis.select('text')
+                    .text(d.id || '')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-weight', 'bold')
+                    .attr('transform', function() {
+                        if (d.orient == 'left') {
+                            return (
+                                'rotate(-90),' +
+                                'translate(-' + gheight / 2 + ',-60)'
+                            );
+                        } else {
+                            return (
+                                'rotate(90),' +
+                                'translate(' + gheight / 2 + ',-60)'
+                            );
+                        }
+                    });
             });
 
         if (legend && legend.position) {
