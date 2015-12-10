@@ -927,22 +927,34 @@ chart.scatter = function() {
                 bisect = d3.bisector(xvalue),
                 hoverData = [];
             plot.datasets()(data).forEach(function(dataset) {
+                if (!drawLinesIf(dataset)) {
+                    return;
+                }
                 var sid = plot.id()(dataset),
                     items = plot.items()(dataset),
                     yunits = plot.yunits()(dataset),
                     yscaled = plot.yscaled()(yunits),
                     index = bisect.left(items, x),
-                    d = items[index > 0 ? index - 1 : 0],
-                    ptx = xscale.scale(xvalue(d)),
-                    pty = yscaled(d),
+                    d1 = items[index > 0 ? index - 1 : 0],
+                    d2 = items[index < items.length ? index : index - 1],
+                    ptx1 = xscale.scale(xvalue(d1)),
+                    pty1 = yscaled(d1),
+                    dist1 = Math.sqrt(
+                        Math.pow(ptx1 - mouse[0], 2) +
+                        Math.pow(pty1 - mouse[1], 2)
+                    ),
+                    ptx2 = xscale.scale(xvalue(d2)),
+                    pty2 = yscaled(d2),
+                    dist2 = Math.sqrt(
+                        Math.pow(ptx2 - mouse[0], 2) +
+                        Math.pow(pty2 - mouse[1], 2)
+                    ),
                     threshold = 20;
-                if (drawLinesIf(dataset) &&
-                    Math.abs(ptx - mouse[0]) < threshold &&
-                    Math.abs(pty - mouse[1]) < threshold) {
+                if (dist1 < threshold || dist2 < threshold) {
                     hoverData.push({
                         'id': sid,
                         'units': yunits,
-                        'data': d
+                        'data': dist1 < dist2 ? d1 : d2
                     });
                 }
             });
@@ -950,12 +962,12 @@ chart.scatter = function() {
             hover.enter().append('g')
                 .attr('class', 'line-hover');
             hover.each(function(d) {
-                var g = d3.select(this);
+                var g = d3.select(this).datum(d.data);
                 _selectOrAppend(g, pointShape(d.id))
                     .call(pointStyle(d.id))
-                    .attr('transform', translate(d.units)(d.data));
+                    .attr('transform', translate(d.units));
                 _selectOrAppend(g, 'title')
-                    .text(pointLabel(d.id)(d.data));
+                    .text(pointLabel(d.id));
             });
             hover.exit().remove();
         };
