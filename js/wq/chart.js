@@ -43,6 +43,8 @@ chart.base = function() {
         viewBox=true,
         nestedSvg=false,
         renderBackground = false,
+        chartover=false,
+        chartout=false,
         xscale = null,
         xscalefn = d3.scale.linear,
         xnice = null,
@@ -263,6 +265,13 @@ chart.base = function() {
             .attr('width', gwidth)
             .attr('height', gheight)
             .attr('fill', innerFill);
+        if (chartover) {
+            inner.on('mouseover', chartover(data));
+            inner.on('mousemove', chartover(data));
+        }
+        if (chartout) {
+            inner.on('mouseout', chartout(data));
+        }
 
 
         // Create actual scale & axis objects
@@ -744,6 +753,20 @@ chart.base = function() {
         init = fn;
         return plot;
     };
+    plot.chartover = function(fn) {
+        if (!arguments.length) {
+            return chartover;
+        }
+        chartover = fn;
+        return plot;
+    };
+    plot.chartout = function(fn) {
+        if (!arguments.length) {
+            return chartout;
+        }
+        chartout = fn;
+        return plot;
+    };
     plot.renderBackground = function(fn) {
         if (!arguments.length) {
             return renderBackground;
@@ -893,6 +916,44 @@ chart.scatter = function() {
         return items && items.length > 50;
     }
 
+    plot.chartover(function(data) {
+        return function() {
+            var inner = d3.select(this),
+                mouse = d3.mouse(this),
+                xscale = plot.xscale(),
+                xvalue = plot.xvalue(),
+                x = xscale.scale.invert(mouse[0]),
+                bisect = d3.bisector(xvalue);
+            plot.datasets()(data).forEach(function(dataset) {
+                var sid = plot.id()(dataset),
+                    items = plot.items()(dataset),
+                    translate = plot.translate(),
+                    yunits = plot.yunits()(dataset),
+                    yscaled = plot.yscaled()(yunits),
+                    index = bisect.left(items, x),
+                    d = items[index > 0 ? index - 1 : 0],
+                    ptx = xscale.scale(xvalue(d)),
+                    pty = yscaled(d),
+                    threshold = 20,
+                    hover = _selectOrAppend(inner, 'g', 'hover-' + sid)
+                       .classed('line-hover', true)
+                       .datum(d);
+                if (drawLinesIf(dataset) &&
+                    Math.abs(ptx - mouse[0]) < threshold &&
+                    Math.abs(pty - mouse[1]) < threshold) {
+                    _selectOrAppend(hover, pointShape(sid))
+                        .call(pointStyle(sid))
+                        .attr('transform', translate(yunits));
+                    _selectOrAppend(hover, 'title')
+                        .text(pointLabel(sid));
+                } else {
+                    hover.remove();
+                }
+            });
+
+        };
+    });
+
     // Render lines in background to ensure all points are above them
     plot.renderBackground(function(dataset) {
         var items   = plot.items()(dataset),
@@ -905,6 +966,8 @@ chart.scatter = function() {
             line    = d3.svg.line()
                         .x(xscaled)
                         .y(yscaled);
+        d3.select(g.node().parentNode.parentNode)
+            .selectAll('g.line-hover').remove();
         if (!drawLinesIf(dataset)) {
             path.remove();
             return;

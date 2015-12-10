@@ -16,7 +16,7 @@ data[0].list.push({
 });
 
 // Main loop
-setInterval(_update, 100);
+var anim = setInterval(_update, 100);
 function _update() {
     if (Math.random() > 0.97 && data.length < 12) {
         _newDataset();
@@ -32,6 +32,17 @@ function _update() {
     });
     d3.select('svg').datum(data).call(plot);
 }
+
+d3.select('button').on('click', function() {
+    if (anim) {
+        clearInterval(anim);
+        anim = null;
+        this.innerHTML = "Start";
+    } else {
+        anim = setInterval(_update, 100);
+        this.innerHTML = "Pause";
+    }
+});
 
 // Add new dataset to array
 function _newDataset() {
