@@ -1,5 +1,5 @@
 /*
- * wq.app 0.8.2-dev - wq/online.js
+ * wq.app 0.8.2 - wq/online.js
  * Monitor network state.
  * (c) 2012-2015, S. Andrew Sheppard
  * https://wq.io/license

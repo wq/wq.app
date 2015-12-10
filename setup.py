@@ -2,7 +2,7 @@ import os
 from setuptools import setup
 
 LONG_DESCRIPTION = """
-JavaScript web apps with RequireJS, jQuery Mobile, Mustache, and Leaflet
+Offline-capable HTML5 web and hybrid apps for citizen science field data collection.
 """
 
 
@@ -61,7 +61,7 @@ for folder in ['js', 'css', 'scss']:
 
 setup(
     name='wq.app',
-    version='0.8.2-dev',
+    version='0.8.2',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='http://wq.io/wq.app',
@@ -75,7 +75,7 @@ setup(
         'wq.app': package_data
     },
     install_requires=[
-        'wq.core',
+        'wq.core>=0.8.1',
         'pyScss>=1.3',
         'compass-stylesheets==0.12.6',
         'PyYAML',
