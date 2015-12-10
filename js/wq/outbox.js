@@ -81,7 +81,7 @@ function _Outbox(store) {
 
     // Queue data for server use; use outbox to cache unsynced items
     self.save = function(data, options, noSend) {
-        if (!self.validate(data)) {
+        if (!self.validate(data, options)) {
             return Promise.resolve(null);
         }
         return self.model.load().then(function(obdata) {
@@ -130,7 +130,7 @@ function _Outbox(store) {
     };
 
     // Validate a record before adding it to the outbox
-    self.validate = function(data) {
+    self.validate = function(data, options) {
         /* jshint unused: false */
         return true;
     };
