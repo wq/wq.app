@@ -50,6 +50,7 @@ function _Outbox(store) {
             'csrftokenField',
 
             // Outbox functions
+            'validate',
             'applyResult',
             'updateModels',
             'parseBatchResult'
@@ -80,6 +81,9 @@ function _Outbox(store) {
 
     // Queue data for server use; use outbox to cache unsynced items
     self.save = function(data, options, noSend) {
+        if (!self.validate(data)) {
+            return Promise.resolve(null);
+        }
         return self.model.load().then(function(obdata) {
             var item, maxId = 0;
             if (!options) {
@@ -123,6 +127,12 @@ function _Outbox(store) {
                 }
             });
         });
+    };
+
+    // Validate a record before adding it to the outbox
+    self.validate = function(data) {
+        /* jshint unused: false */
+        return true;
     };
 
     // Send a single item from the outbox to the server
