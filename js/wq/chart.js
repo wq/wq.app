@@ -922,35 +922,42 @@ chart.scatter = function() {
                 mouse = d3.mouse(this),
                 xscale = plot.xscale(),
                 xvalue = plot.xvalue(),
+                translate = plot.translate(),
                 x = xscale.scale.invert(mouse[0]),
-                bisect = d3.bisector(xvalue);
+                bisect = d3.bisector(xvalue),
+                hoverData = [];
             plot.datasets()(data).forEach(function(dataset) {
                 var sid = plot.id()(dataset),
                     items = plot.items()(dataset),
-                    translate = plot.translate(),
                     yunits = plot.yunits()(dataset),
                     yscaled = plot.yscaled()(yunits),
                     index = bisect.left(items, x),
                     d = items[index > 0 ? index - 1 : 0],
                     ptx = xscale.scale(xvalue(d)),
                     pty = yscaled(d),
-                    threshold = 20,
-                    hover = _selectOrAppend(inner, 'g', 'hover-' + sid)
-                       .classed('line-hover', true)
-                       .datum(d);
+                    threshold = 20;
                 if (drawLinesIf(dataset) &&
                     Math.abs(ptx - mouse[0]) < threshold &&
                     Math.abs(pty - mouse[1]) < threshold) {
-                    _selectOrAppend(hover, pointShape(sid))
-                        .call(pointStyle(sid))
-                        .attr('transform', translate(yunits));
-                    _selectOrAppend(hover, 'title')
-                        .text(pointLabel(sid));
-                } else {
-                    hover.remove();
+                    hoverData.push({
+                        'id': sid,
+                        'units': yunits,
+                        'data': d
+                    });
                 }
             });
-
+            var hover = inner.selectAll('g.line-hover').data(hoverData);
+            hover.enter().append('g')
+                .attr('class', 'line-hover');
+            hover.each(function(d) {
+                var g = d3.select(this);
+                _selectOrAppend(g, pointShape(d.id))
+                    .call(pointStyle(d.id))
+                    .attr('transform', translate(d.units)(d.data));
+                _selectOrAppend(g, 'title')
+                    .text(pointLabel(d.id)(d.data));
+            });
+            hover.exit().remove();
         };
     });
 
