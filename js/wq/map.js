@@ -229,7 +229,7 @@ map.loadLayer = function(url) {
         return Promise.resolve(map.cache[url]);
     }
     // Ignore requests for "new.geojson"
-    if (url.match(/\/new\.geojson$/)) {
+    if (url.match(/\/new\.geojson$/) || url.match(/\/new\/edit\.geojson$/)) {
         return Promise.resolve(null);
     }
     spin.start();
