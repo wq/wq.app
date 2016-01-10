@@ -1194,26 +1194,7 @@ function _submitClick() {
 function _updateModels(item, result) {
     var modelConf = item.options.modelConf;
     if (modelConf.list && item.synced) {
-        // Extract any nested attachment arrays and update related models
-        var res = $.extend({}, result);
-        var results = Object.keys(app.attachmentTypes).map(function(aname) {
-            var info = app.attachmentTypes[aname];
-            var aconf = _getConf(aname, true);
-            if (!aconf || !modelConf[info.predicate] || !res[aconf.url]) {
-                return Promise.resolve();
-            }
-            var attachments = res[aconf.url];
-            attachments.forEach(function(a) {
-                a[modelConf.name + '_id'] = res.id;
-            });
-            delete res[aconf.url];
-            return app.models[aname].update(attachments);
-        });
-
-        // Update primary model
-        return Promise.all(results).then(function() {
-            return app.models[modelConf.name].update([res]);
-        });
+        return app.models[modelConf.name].update([result]);
     } else if (app.can_login && result && result.user && result.config) {
         return _saveLogin(result);
     }
@@ -1321,8 +1302,6 @@ function _addLookups(page, context, editable) {
         }
         if (editable == "new") {
             lookups[aconf.url] = _default_attachments(page, aname, context);
-        } else {
-            lookups[aconf.url] = _children_lookup(page, aname, context);
         }
     }
 
