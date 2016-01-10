@@ -61,10 +61,10 @@ for folder in ['js', 'css', 'scss']:
 
 setup(
     name='wq.app',
-    version='0.8.3-dev',
+    version='1.0.0-dev',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
-    url='http://wq.io/wq.app',
+    url='https://wq.io/wq.app',
     license='MIT',
     packages=['wq', 'wq.app', 'wq.app.build'],
     package_dir={
