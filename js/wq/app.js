@@ -483,6 +483,7 @@ app.syncRefresh = function(items) {
 app.attachmentTypes = {
     annotation: {
         'predicate': 'annotated',
+        'attr': 'annotations',
         'type': 'annotationtype',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
@@ -491,27 +492,26 @@ app.attachmentTypes = {
     },
     identifier: {
         'predicate': 'identified',
+        'attr': 'identifiers',
         'type': 'authority',
         'typeColumn': 'authority_id',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
             return {};
         },
-        'getDefaults': function(type, context) {
+        'getDefaults': function(type, context, i) {
             /* jshint unused: false */
             return {
                 'authority_id': type.id,
                 'authority_label': type.label,
+                'is_primary': i == 0,
                 'name': ''
             };
         }
     },
-    location: {
-        'predicate': 'located',
-        'type': null
-    },
     markdown: {
         'predicate': 'marked',
+        'attr': 'markdown',
         'type': 'markdowntype',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
@@ -520,6 +520,7 @@ app.attachmentTypes = {
     },
     relationship: {
         'predicate': 'related',
+        'attr': 'relationships',
         'type': 'relationshiptype',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
@@ -543,6 +544,7 @@ app.attachmentTypes = {
     },
     inverserelationship: {
         'predicate': 'related',
+        'attr': 'inverserelationships',
         'type': 'relationshiptype',
         'getTypeFilter': function(page, context) {
             /* jshint unused: false */
@@ -1276,24 +1278,15 @@ function _addLookups(page, context, editable) {
     // Load annotations and identifiers
     for (var aname in app.attachmentTypes) {
         var info = app.attachmentTypes[aname];
-        var aconf = _getConf(aname, true);
-        if (!aconf || !conf[info.predicate]) {
+        if (!conf[info.predicate]) {
             continue;
         }
-
         if (info.type) {
             lookups[info.type] = _this_parent_lookup(
                 info.type, info.typeColumn || 'type_id', context
             );
         }
         if (editable) {
-            if (aconf.choices) {
-                for (field in aconf.choices) {
-                    lookups[field + '_choices'] = _choice_dropdown_lookup(
-                        field, aconf.choices[field]
-                    );
-                }
-            }
             if (info.getChoiceList) {
                 lookups.item_choices = _item_choice_lookup(
                     page, aname, context
@@ -1301,7 +1294,7 @@ function _addLookups(page, context, editable) {
             }
         }
         if (editable == "new") {
-            lookups[aconf.url] = _default_attachments(page, aname, context);
+            lookups[info.attr] = _default_attachments(page, aname, context);
         }
     }
 
@@ -1474,7 +1467,7 @@ function _default_attachments(ppage, apage, context) {
         types.forEach(function(t, i) {
             var obj = {};
             if (info.getDefaults) {
-                obj = info.getDefaults(t, context);
+                obj = info.getDefaults(t, context, i);
             }
             obj.type_id = t.id;
             obj['@index'] = i;
