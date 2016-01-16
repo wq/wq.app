@@ -979,7 +979,7 @@ function _handleForm(evt) {
 
     var outboxId = $form.data('wq-outbox-id');
     var preserve = $form.data('wq-outbox-preserve');
-    var url = $form.attr('action').replace(app.base_url + "/", "");
+    var url = $form.attr('action').replace(app.service + "/", "");
     var conf = _getConfByUrl(url);
     var vals = {};
     var $files = $form.find('input[type=file]');
