@@ -177,6 +177,7 @@ map.addAutoLayers = function(page) {
             'name': editConf.name,
             'type': 'geojson',
             'url': editConf.url + '/{{{id}}}/edit.geojson',
+            'flatten': true,
             'draw': {
                 'polygon': {},
                 'polyline': {},
@@ -348,6 +349,19 @@ map.addOverlayType('geojson', function(layerconf) {
         if (layerconf.style) {
             options.style = layerconf.style;
         }
+        if (layerconf.draw && geojson.type == 'Feature' &&
+                geojson.geometry.type == 'GeometryCollection') {
+            // Leaflet.draw doesn't support GeometryCollection
+            geojson = {
+                'type': 'FeatureCollection',
+                'features': geojson.geometry.geometries.map(function(geom) {
+                     return {
+                         'type': 'Feature',
+                         'geometry': geom
+                     };
+                })
+            };
+        }
         var gjLayer = map.geoJson(geojson, options);
         if (layerconf.cluster && L.MarkerClusterGroup) {
             gjLayer.getLayers().forEach(function(layer) {
@@ -369,7 +383,7 @@ map.createLayerControl = function(basemaps, layers) {
 
 map.addDrawControl = function(m, layer, opts, $geom) {
     var control = new L.Control.Draw({
-        'draw': opts,
+        'draw': opts.draw,
         'edit': {'featureGroup': layer}
     }).addTo(m);
 
@@ -392,8 +406,38 @@ map.addDrawControl = function(m, layer, opts, $geom) {
 
     return control;
 
+    function flatten(geojson) {
+        var geoms = [];
+        if (geojson.type == 'FeatureCollection') {
+            geojson.features.forEach(function(feature) {
+                addGeometry(feature.geometry);
+            });
+        }
+        if (geoms.length == 1) {
+            return geoms[0];
+        } else {
+            return {
+                'type': 'GeometryCollection',
+                'geometries': geoms
+            };
+        }
+        function addGeometry(geometry) {
+            if (geometry.type == 'GeometryCollection') {
+                geometry.geometries.forEach(addGeometry);
+            } else {
+                geoms.push(geometry);
+            }
+        }
+    }
+
     function save() {
-        $geom.val(JSON.stringify(layer.toGeoJSON()));
+        var geojson = layer.toGeoJSON();
+        if (opts.flatten) {
+            // Flatten FeatureCollection into single Geometry (or
+            // GeometryCollection).
+            geojson = flatten(geojson);
+        }
+        $geom.val(JSON.stringify(geojson));
         map.cache = {};
     }
 };
@@ -596,7 +640,7 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
             var geomname = drawLayer.geometryField || 'geometry';
             var $geom = $.mobile.activePage.find('[name=' + geomname + ']');
             layers[drawLayer.name].ready.then(function(layer) {
-                map.addDrawControl(m, layer, drawLayer.draw, $geom);
+                map.addDrawControl(m, layer, drawLayer, $geom);
             });
         }
     }
