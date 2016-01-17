@@ -330,6 +330,10 @@ map.addOverlayType('geojson', function(layerconf) {
     // Load layer content as JSON
     overlay.ready = map.loadLayer(layerconf.url).then(function(geojson) {
         var options = {}, popup;
+        if (!geojson || !geojson.type) {
+            console.warn("Ignoring empty or malformed GeoJSON result.");
+            return overlay;
+        }
         if (layerconf.popup) {
             popup = map.renderPopup(layerconf.popup);
         }
