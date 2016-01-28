@@ -9,64 +9,45 @@ define(['leaflet', './spinner'],
 function(L, spin) {
 
 // Exported module object
-var locate = {};
+var locate = {
+    'name': locate,
+    'config': {
+        'fieldNames': {
+            'latitude': 'latitude',
+            'longitude': 'longitude',
+            'accuracy': 'accuracy',
+            'toggle': 'toggle',
+            'mode': 'mode'
+        }
+    }
+}
 
-// Use an existing map if available
-var _map;
-locate.init = function(map) {
-    _map = map;
+locate.init = function(conf) {
+    L.extend(locate.config, conf || {});
 };
 
-// Simple geolocation function
-locate.locate = function(success, error, high, watch, opts) {
-    var map = _map || L.map(L.DomUtil.create('div'));
-    if (!opts) {
-        opts = {};
+// wq/app.js plugin
+locate.run = function($page, routeInfo) {
+    if (!routeInfo.page_config.locate) {
+        return;
     }
-    var nospin = false;
-
-    // If no success callback, assume setView
-    if (!success) {
-        success = function(){};
-        if (!error) {
-            error = success;
-        }
-        opts.setView = true;
+    var map = require('wq/map').getMap(routeInfo);
+    if (!map) {
+        return;
     }
-    if (high) {
-        opts.enableHighAccuracy = true;
-        opts.timeout = 60 * 1000;
+    var fields = {};
+    for (var field in locate.config.fieldNames) {
+        var name = locate.config.fieldNames[field];
+        fields[field] = $page.find('[name=' + name + ']');
     }
-    if (watch) {
-        opts.watch = true;
-        nospin = true;
-    }
-
-    map.off('locationfound');
-    map.off('locationerror');
-    map.on('locationfound', go(success));
-    map.on('locationerror', go(error));
-
-    if (!nospin) {
-        spin.start();
-    }
-    map.locate(opts);
-    function go(fn) {
-        return function(evt) {
-            if (!nospin) {
-                spin.stop();
-            }
-            fn(evt);
-        };
-    }
-
-    if (watch) {
-        return {
-            'stop': function() {
-                map.stopLocate();
-            }
-        };
-    }
+    var locator = locate.locator(
+        map,
+        fields,
+        locate.config
+    );
+    $page.on('pagehide', function() {
+        locator.stop();
+    });
 };
 
 // Interactive GPS & map-based locator tool
@@ -80,6 +61,9 @@ locate.Locator = function(map, fields, opts) {
     }
     if (!opts) {
         opts = {};
+    }
+    if (!opts.precision) {
+        opts.precision = 6;
     }
 
     var _mode, _marker, _circle, _locate;
@@ -111,18 +95,27 @@ locate.Locator = function(map, fields, opts) {
 
     // GPS mode
     self.gpsStart = function() {
-        locate.init(map);
-        _locate = locate.locate(function(evt) {
+        var locateOpts = {
+            'enableHighAccuracy': true,
+            'watch': true,
+            'setView': true,
+            'timeout': 60 * 1000
+        };
+        map.off('locationfound');
+        map.off('locationerror');
+        map.on('locationfound', success);
+        map.on('locationerror', error);
+        map.locate(locateOpts);
+        function success(evt) {
             self.update(evt.latlng, evt.accuracy);
-        }, function(evt) {
+        }
+        function error(evt) {
             self.onerror(evt);
-        }, true, true, {'setView': true});
+        }
     };
 
     self.gpsStop = function() {
-        if (_locate) {
-            _locate.stop();
-        }
+        map.stopLocate();
     };
 
     // Interactive mode
@@ -172,10 +165,14 @@ locate.Locator = function(map, fields, opts) {
         // Save to fields
         if (fields) {
             if (fields.latitude) {
-                fields.latitude.val(loc.lat);
+                fields.latitude.val(
+                    L.Util.formatNum(loc.lat, opts.precision)
+                );
             }
             if (fields.longitude) {
-                fields.longitude.val(loc.lng);
+                fields.longitude.val(
+                    L.Util.formatNum(loc.lng, opts.precision)
+                );
             }
             if (fields.accuracy) {
                 fields.accuracy.val(accuracy);

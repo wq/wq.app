@@ -117,13 +117,7 @@ map.init = function(defaults) {
 // Plugin API
 map.run = function($page, routeInfo) {
     if (map.config.maps[routeInfo.page]) {
-        map.createMap(
-            routeInfo.page,
-            routeInfo.itemId,
-            routeInfo.mode,
-            routeInfo.path,
-            routeInfo.parentInfo
-        );
+        map.createMap(routeInfo);
     }
 };
 
@@ -196,7 +190,9 @@ map.addAutoLayers = function(page) {
 };
 
 // Load map configuration for the given page
-map.getLayerConfs = function(page, itemid, mode, url) {
+map.getLayerConfs = function(routeInfo) {
+    var page = routeInfo.page, itemid = routeInfo.item_id,
+        mode = routeInfo.mode, url = routeInfo.path;
     if (!mode) {
         if (map.app.config.pages[page].list) {
             mode = itemid ? 'list' : 'detail';
@@ -469,30 +465,39 @@ map.renderPopup = function(page) {
     };
 };
 
+map.getMapId = function(routeInfo) {
+    var rt = routeInfo, parts = [];
+    if (rt.item_id) {
+        if (rt.mode == 'edit') {
+            parts = [rt.page, rt.item_id, 'edit'];
+        } else {
+            parts = [rt.page, rt.item_id];
+        }
+    } else if (routeInfo.parent_page) {
+        parts = [rt.parent_page, rt.parent_id, rt.page];
+    } else {
+        parts = [rt.page];
+    }
+    return parts.join('-');
+};
+
+map.getMap = function(routeInfo) {
+    var mapid = map.getMapId(routeInfo);
+    return map.maps[mapid] || null;
+};
+
 // Primary map routine
-map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
+map.createMap = function(routeInfo, divid) {
     var mapid, mapconf, m, defaults,
         layerConfs, layers,
         basemaps, basemap, div, owl;
 
     // Load configuration and div id
-    mapconf = _getConf(page, mode);
+    mapconf = _getConf(routeInfo.page, routeInfo.mode);
     defaults = map.config.defaults;
     // If defaults.owl, assume wq/owl has been async-loaded already
     owl = defaults.owl && require('wq/owl');
-
-    if (itemid) {
-        mapid = page + '-' + itemid;
-        if (mode == 'edit') {
-            mapid += '-edit';
-        }
-    } else if (parentInfo) {
-        mapid = (
-            parentInfo.parent_page + '-' + parentInfo.parent_id + '-' + page
-        );
-    } else {
-        mapid = page;
-    }
+    mapid = map.getMapId(routeInfo);
 
     if (!divid) {
         if (mapconf.div) {
@@ -541,7 +546,7 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
 
     // Load layerconfs and add empty layer groups to map
     layers = {};
-    layerConfs = map.getLayerConfs(page, itemid, mode, url);
+    layerConfs = map.getLayerConfs(routeInfo);
     var overlays = layerConfs.map(map.createOverlay);
     var results = [];
     layerConfs.forEach(function(layerconf, i) {
@@ -636,10 +641,10 @@ map.createMap = function(page, itemid, mode, url, parentInfo, divid) {
     $controls.find("input").attr("data-role", "none");
 
     if (mapconf.onshow) {
-        mapconf.onshow(m, mode, itemid, layers, basemaps);
+        mapconf.onshow(m, layers, basemaps, routeInfo);
     }
 
-    if (mode == 'edit' && L.Control.Draw) {
+    if (routeInfo.mode == 'edit' && L.Control.Draw) {
         var drawLayer = null;
         layerConfs.forEach(function(layerConf) {
              if (layerConf.draw && layerConf.type == "geojson") {
