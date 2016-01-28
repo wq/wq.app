@@ -123,6 +123,9 @@ router.addRoute = function(path, events, fn, obj) {
     _jqmRouter.add(rt);
 };
 
+// Update router path
+router.setPath = _updateInfo;
+
 // Inject and display page
 router.go = function(path, template, context, ui, once, pageid) {
     _updateInfo(path);
@@ -207,8 +210,6 @@ function _updateInfo(path) {
     router.info.params = router.getParams(path.split('?')[1]);
     tmpl.setDefault('router_info', router.info);
     tmpl.setDefault('rt', router.info.base_url);
-    // Compatibility with older templates
-    tmpl.setDefault('pages_info', router.info);
 }
 
 return router;

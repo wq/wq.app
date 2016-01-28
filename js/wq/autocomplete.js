@@ -5,8 +5,8 @@
  * https://wq.io/license
  */
 
-define(['jquery', 'jquery.mobile', './json', './template', './spinner'],
-function($, jqm, json, tmpl, spin) {
+define(['jquery', './json', './template', './spinner'],
+function($, json, tmpl, spin) {
 
 // Exported module variable
 var auto = {
@@ -22,8 +22,7 @@ auto.init = function(template) {
 };
 
 // Automatically register callbacks for every datalist
-auto.run = function() {
-    var $page = jqm.activePage;
+auto.run = function($page) {
     $page.find('datalist, [data-wq-datalist]').each(function(i, datalist) {
         /* jshint unused: false */
         auto.register($(datalist), $page);

@@ -290,9 +290,15 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 // Run any/all plugins on the specified page
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
     url = url.replace(app.base_url + '/', '');
+    router.setPath(url);
+    var routeInfo = $.extend({}, router.info);
+    routeInfo.page = page;
+    routeInfo.mode = mode;
+    routeInfo.itemId = itemid;
+    routeInfo.parentInfo = parentInfo;
     for (var plugin in app.plugins) {
         app.plugins[plugin].run.call(
-            app.plugins[plugin], page, mode, itemid, url, parentInfo
+            app.plugins[plugin], jqm.activePage, routeInfo
         );
     }
 };

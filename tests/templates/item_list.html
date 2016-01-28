@@ -14,8 +14,8 @@
     <ul data-role='listview' data-inset='true'>
       {{#list}}
       <li>
-        <a href='{{pages_info.base_url}}/items/{{id}}'>{{label}}</a>
-        <a data-icon="edit" href='{{pages_info.base_url}}/items/{{id}}/edit'>
+        <a href='{{rt}}/items/{{id}}'>{{label}}</a>
+        <a data-icon="edit" href='{{rt}}/items/{{id}}/edit'>
           Edit
         </a>
       </li>
@@ -24,15 +24,15 @@
       <li data-role="list-divider">Outbox</li>
       {{#unsyncedItems}}
       <li{{#error}} data-icon="alert"{{/error}}>
-        <a href='{{pages_info.base_url}}/outbox/{{id}}'>{{data.label}}</a>
+        <a href='{{rt}}/outbox/{{id}}'>{{data.label}}</a>
       </li>
       {{/unsyncedItems}}
       {{/unsynced}}
       <li data-icon="plus" data-theme="b">
-        <a href="{{pages_info.base_url}}/items/new">Add Item</a>
+        <a href="{{rt}}/items/new">Add Item</a>
       </li>
     </ul>
-    <a href='{{pages_info.base_url}}/items/four'>FOUR (not stored locally)</a>
+    <a href='{{rt}}/items/four'>FOUR (not stored locally)</a>
   </div>
   <div class='ui-block-b'>
     <div id='item-map' style='height:500px'></div>

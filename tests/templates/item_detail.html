@@ -4,10 +4,10 @@
     <h1>{{label}}{{#unsynced}} (Unsynced){{/unsynced}}</h1>
     <a data-icon="edit" data-iconpos="notext" data-transition="flip"
        {{#unsynced}}
-       href="{{pages_info.base_url}}/outbox/{{outbox_id}}/edit"
+       href="{{rt}}/outbox/{{outbox_id}}/edit"
        {{/unsynced}}
        {{^unsynced}}
-       href="{{pages_info.base_url}}/items/{{id}}/edit"
+       href="{{rt}}/items/{{id}}/edit"
        {{/unsynced}}
        >Edit</a>
   </div>
@@ -15,7 +15,7 @@
     <p>{{label}}</p>
     <p><span style="color:{{color}}">{{color_label}}</span></p>
     <p>{{#type}}
-      <a href="{{pages_info.base_url}}/itemtypes/{{id}}/items">
+      <a href="{{rt}}/itemtypes/{{id}}/items">
         {{label}}
       </a>
     {{/type}}</p>

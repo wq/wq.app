@@ -115,9 +115,15 @@ map.init = function(defaults) {
 };
 
 // Plugin API
-map.run = function(page, mode, itemid, url, parentInfo) {
-    if (map.config.maps[page]) {
-        map.createMap(page, itemid, mode, url, parentInfo);
+map.run = function($page, routeInfo) {
+    if (map.config.maps[routeInfo.page]) {
+        map.createMap(
+            routeInfo.page,
+            routeInfo.itemId,
+            routeInfo.mode,
+            routeInfo.path,
+            routeInfo.parentInfo
+        );
     }
 };
 

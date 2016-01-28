@@ -1,5 +1,5 @@
 {{>header}}
-<form action="{{pages_info.base_url}}/items/{{id}}" method="post" data-ajax="false"
+<form action="{{rt}}/items/{{id}}" method="post" data-ajax="false"
     {{#outbox_id}}data-wq-outbox-id="{{outbox_id}}"{{/outbox_id}}>
   {{#id}}
   <input type="hidden" name="_method" value="put">
@@ -47,10 +47,10 @@
         <div class="ui-block-a">
           <a data-role="button" data-icon="back" data-transition="flip"
              {{#unsynced}}
-             href="{{pages_info.base_url}}/outbox/{{outbox_id}}"
+             href="{{rt}}/outbox/{{outbox_id}}"
              {{/unsynced}}
              {{^unsynced}}
-             href="{{pages_info.base_url}}/items/{{id}}"
+             href="{{rt}}/items/{{id}}"
              {{/unsynced}}
              data-direction="reverse">
             Back

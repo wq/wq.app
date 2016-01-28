@@ -26,8 +26,7 @@ photos.init = function() {
     });
 };
 
-photos.run = function() {
-    var $page = jqm.activePage;
+photos.run = function($page) {
     $page.on('change', 'input[type=file]', photos.preview);
     $page.on('click', 'button[data-wq-action=take]', photos.take);
     $page.on('click', 'button[data-wq-action=pick]', photos.pick);
