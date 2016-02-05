@@ -211,10 +211,10 @@ map.getLayerConfs = function(routeInfo) {
             baseurl = parts[0].replace(/\/$/, ''),
             params = parts[1] && ("?" + parts[1]) || "";
         layerconf = L.extend({}, layerconf);
-        layerconf.url = tmpl.render(layerconf.url, {
+        layerconf.url = tmpl.render(layerconf.url, L.extend({
             'id': itemid,
             'url': baseurl
-        });
+        }, routeInfo.item || {}));
         if (params && layerconf.url.indexOf('?') > -1) {
             params = params.replace(/^\?/, "&");
         }

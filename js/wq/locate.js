@@ -10,7 +10,7 @@ function(L, spin) {
 
 // Exported module object
 var locate = {
-    'name': locate,
+    'name': 'locate',
     'config': {
         'fieldNames': {
             'latitude': 'latitude',

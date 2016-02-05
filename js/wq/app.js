@@ -289,7 +289,7 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
 
 // Run any/all plugins on the specified page
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
-    var conf = _getConf(page), routeInfo;
+    var conf = _getConf(page), routeInfo, getItem;
     url = url.replace(app.base_url + '/', '');
     router.setPath(url);
     routeInfo = $.extend(
@@ -302,11 +302,19 @@ app.runPlugins = function(page, mode, itemid, url, parentInfo) {
             'item_id': itemid
         }
     );
-    for (var plugin in app.plugins) {
-        app.plugins[plugin].run.call(
-            app.plugins[plugin], jqm.activePage, routeInfo
-        );
+    if (itemid) {
+        getItem = app.models[page].find(itemid);
+    } else {
+        getItem = Promise.resolve({});
     }
+    getItem.then(function(item) {
+        routeInfo.item = item;
+        for (var plugin in app.plugins) {
+            app.plugins[plugin].run.call(
+                app.plugins[plugin], jqm.activePage, routeInfo
+            );
+        }
+    });
 };
 
 // Sync outbox and handle result
