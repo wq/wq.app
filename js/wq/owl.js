@@ -213,7 +213,7 @@ owl.sync = function sync(key, forceSync) {
         'success': function success() {
             _syncing[key] = false;
             // Don't wipe out newly queued items that haven't been synced yet
-            var newqueue = owl.ds.get(key).filter(function(d){
+            var newqueue = (owl.ds.get(key) || []).filter(function(d){
                 return !d.client_key;
             });
 
