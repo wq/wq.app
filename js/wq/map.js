@@ -249,12 +249,18 @@ map.loadLayer = function(url) {
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
     /* jshint maxlen: false */
-    var mqcdn = "http://otile{s}.mqcdn.com/tiles/1.0.0/{layer}/{z}/{x}/{y}.png";
+    var mqcdn;
+    if (location.protocol == "http") {
+        mqcdn = "http://otile{s}.mqcdn.com";
+    } else {
+        mqcdn = "https://otile{s}-s.mqcdn.com";
+    }
+    mqcdn += "/tiles/1.0.0/{layer}/{z}/{x}/{y}.png";
 
     // Attribution (https://gist.github.com/mourner/1804938)
-    var osmAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+    var osmAttr = 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
     var aerialAttr = 'Imagery &copy; NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency';
-    var mqTilesAttr = 'Tiles &copy; <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png" />';
+    var mqTilesAttr = 'Tiles &copy; <a href="https://www.mapquest.com/" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png" />';
 
     return [
         {
