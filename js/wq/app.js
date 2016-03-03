@@ -116,24 +116,12 @@ app.init = function(config) {
         'saveerror',
         'showOutboxErrors',
         'presync',
-        'postsync',
-        'parentFilters'
+        'postsync'
     ].forEach(function(hook) {
         if (config[hook]) {
             app[hook] = config[hook];
         }
     });
-
-    // Option to update attachmentTypes configuration
-    var aname;
-    if (config.attachmentTypes) {
-        for (aname in config.attachmentTypes) {
-            app.attachmentTypes[aname] = $.extend(
-                app.attachmentTypes[aname] || {},
-                config.attachmentTypes[aname]
-            );
-        }
-    }
 
     // Initialize authentication, if applicable
     var ready;
@@ -500,115 +488,14 @@ app.syncRefresh = function(items) {
     });
 };
 
-app.attachmentTypes = {
-    annotation: {
-        'predicate': 'annotated',
-        'attr': 'annotations',
-        'type': 'annotationtype',
-        'getTypeFilter': function(page, context) {
-            /* jshint unused: false */
-            return {};
-        }
-    },
-    identifier: {
-        'predicate': 'identified',
-        'attr': 'identifiers',
-        'type': 'authority',
-        'typeColumn': 'authority_id',
-        'getTypeFilter': function(page, context) {
-            /* jshint unused: false */
-            return {};
-        },
-        'getDefaults': function(type, context, i) {
-            /* jshint unused: false */
-            return {
-                'authority_id': type.id,
-                'authority_label': type.label,
-                'is_primary': i == 0,
-                'name': ''
-            };
-        }
-    },
-    markdown: {
-        'predicate': 'marked',
-        'attr': 'markdown',
-        'type': 'markdowntype',
-        'getTypeFilter': function(page, context) {
-            /* jshint unused: false */
-            return {};
-        }
-    },
-    relationship: {
-        'predicate': 'related',
-        'attr': 'relationships',
-        'type': 'relationshiptype',
-        'getTypeFilter': function(page, context) {
-            /* jshint unused: false */
-            return {'from_type': page};
-        },
-        'getChoiceList': function(type, context) {
-            /* jshint unused: false */
-            return type.to_type;
-        },
-        'getChoiceListFilter': function(type, context) {
-            /* jshint unused: false */
-            return {};
-        },
-        'getDefaults': function(type, context) {
-            /* jshint unused: false */
-            return {
-                'type_label': type.name,
-                'to_type': type.to_type
-            };
-        }
-    },
-    inverserelationship: {
-        'predicate': 'related',
-        'attr': 'inverserelationships',
-        'type': 'relationshiptype',
-        'getTypeFilter': function(page, context) {
-            /* jshint unused: false */
-            return {'to_type': page};
-        },
-        'getChoiceList': function(type, context) {
-            /* jshint unused: false */
-            return type.from_type;
-        },
-        'getChoiceListFilter': function(type, context) {
-            /* jshint unused: false */
-            return {};
-        },
-        'getDefaults': function(type, context) {
-            /* jshint unused: false */
-            return {
-                'type_label': type.inverse_name,
-                'from_type': type.from_type
-            };
-        }
-    }
-};
-
-app.parentFilters = {};
-
-// Normalize structure of app.wq_config.pages[page].parents
+// Return a list of all foreign key fields
 app.getParents = function(page) {
-    var conf = _getConf(page), parents = {};
-    if (!conf.parents) {
-        /* jshint noempty: false */
-        // conf.parents is empty; return empty object
-    } else if (conf.parents.length !== undefined) {
-        // conf.parents is an array; foreign keys have the same name as the
-        // parent they point to.
-        parents = {};
-        conf.parents.forEach(function(p) {
-            parents[p] = [p];
-        });
-    } else {
-        // conf.parents is an object: keys are parents, values are arrays with
-        // names of one or more foreign key fields.
-        parents = conf.parents;
-    }
-    return parents;
+    var conf = _getConf(page);
+    return conf.form.filter(function(field) {
+        return field['wq:ForeignKey'];
+    }).map(function(field) {
+        return field['wq:ForeignKey'];
+    });
 };
 
 // Internal variables and functions
@@ -631,7 +518,7 @@ function _registerList(page) {
     }
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
-    for (var ppage in app.getParents(page)) {
+    app.getParents(page).forEach(function(ppage) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
         if (url) {
@@ -640,7 +527,7 @@ function _registerList(page) {
         url += '<slug>/' + conf.url;
         router.register(url, goUrl(ppage, url));
         router.register(url + '/', goUrl(ppage, url));
-    }
+    });
     function goUrl(ppage, url) {
         return function(match, ui, params) {
             var pconf = _getConf(ppage);
@@ -669,7 +556,7 @@ function _onShowList(page) {
     });
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
-    for (var ppage in app.getParents(page)) {
+    app.getParents(page).forEach(function(ppage) {
         var pconf = app.config.pages[ppage];
         var purl = pconf.url;
         if (purl) {
@@ -677,7 +564,7 @@ function _onShowList(page) {
         }
         purl = '(' + purl + ')<slug>/' + conf.url;
         router.addRoute(purl + '/?', 's', goUrl(ppage));
-    }
+    });
 
     function goUrl(ppage) {
         return function(match) {
@@ -717,13 +604,10 @@ function _displayList(page, ui, params, url, context) {
             }
         }
         if (context && context.parent_page) {
-            var parents = app.getParents(page);
-            Object.keys(parents).forEach(function(ppage) {
-                parents[ppage].forEach(function(field) {
-                    if (context && context.parent_page == ppage) {
-                        filter[field + '_id'] = context.parent_id;
-                    }
-                });
+            conf.form.forEach(function(field) {
+                if (field['wq:ForeignKey'] == context.parent_page) {
+                    filter[field.name + '_id'] = context.parent_id;
+                }
             });
         }
     }
@@ -1266,57 +1150,55 @@ function _checkLogin() {
 function _addLookups(page, context, editable) {
     var conf = _getConf(page);
     var lookups = {};
-    var field;
-    if (conf.choices) {
-        for (field in conf.choices) {
-            lookups[field + '_label'] = _choice_label_lookup(
-                field, conf.choices[field]
+
+    conf.form.forEach(function(field) {
+        // Choice (select/radio) lookups
+        if (field.choices) {
+            lookups[field.name + '_label'] = _choice_label_lookup(
+                field.name, field.choices
             );
             if (editable) {
-                lookups[field + '_choices'] = _choice_dropdown_lookup(
-                    field, conf.choices[field]
+                lookups[field.name + '_choices'] = _choice_dropdown_lookup(
+                    field.name, field.choices
                 );
             }
         }
-    }
-    // Foreign key lookups
-    var parents = app.getParents(page);
-    for (var ppage in parents) {
-        parents[ppage].forEach(_addParentLookup);
-    }
-    function _addParentLookup(col) {
-        var pconf;
-        lookups[col] = _parent_lookup(ppage, col + '_id', context);
-        if (editable) {
-            pconf = _getConf(ppage);
-            lookups[col + '_list'] = _parent_dropdown_lookup(
-                page, ppage, col + '_id', context
-            );
-        }
-    }
 
-    // Load annotations and identifiers
-    for (var aname in app.attachmentTypes) {
-        var info = app.attachmentTypes[aname];
-        if (!conf[info.predicate]) {
-            continue;
-        }
-        if (info.type) {
-            lookups[info.type] = _this_parent_lookup(
-                info.type, info.typeColumn || 'type_id', context
+        // Foreign key lookups
+        if (field['wq:ForeignKey']) {
+            lookups[field.name] = _parent_lookup(
+                field['wq:ForeignKey'],
+                field.name + '_id',
+                context
             );
-        }
-        if (editable) {
-            if (info.getChoiceList) {
-                lookups.item_choices = _item_choice_lookup(
-                    page, aname, context
+            if (editable) {
+                lookups[field.name + '_list'] = _parent_dropdown_lookup(
+                    field, context
                 );
             }
         }
-        if (editable == "new") {
-            lookups[info.attr] = _default_attachments(page, aname, context);
+
+        // Load types/initial list of nested forms
+        // (i.e. repeats/attachments/EAV/child model)
+        if (field.children) {
+            field.children.forEach(function(child) {
+                if (child['wq:ForeignKey']) {
+                    lookups[child.name] = _this_parent_lookup(
+                        child, context
+                    );
+                }
+            });
+            if (editable) {
+                // FIXME:
+                // if (info.getChoiceList) {
+                //     lookups.item_choices = _item_choice_lookup(...)
+                // }
+            }
+            if (editable == "new") {
+                lookups[field.name] = _default_attachments(field, context);
+            }
         }
-    }
+    });
 
     // Process lookup functions
     spin.start();
@@ -1357,7 +1239,7 @@ function _choice_dropdown_lookup(name, choices) {
     });
     function choiceDropdown() {
         choices.forEach(function(choice) {
-            if (choice.value == this[name]) {
+            if (choice.name == this[name]) {
                 choice.selected = true;
             } else {
                 choice.selected = false;
@@ -1368,7 +1250,8 @@ function _choice_dropdown_lookup(name, choices) {
     return Promise.resolve(choiceDropdown);
 }
 
-function _item_choice_lookup(page, aname, context) {
+function _item_choice_lookup(page, field, context) {
+    // FIXME: restore this for e.g. relate pattern
     var info = app.attachmentTypes[aname];
     var tmodel = app.models[info.type];
     var tfilter = info.getTypeFilter(page, context);
@@ -1417,8 +1300,8 @@ function _parent_lookup(page, column, context) {
 }
 
 // Foreign key lookup for objects other than root
-function _this_parent_lookup(page, column) {
-    var model = app.models[page];
+function _this_parent_lookup(field, column) {
+    var model = app.models[field['wq:ForeignKey']];
     return model.getIndex('id').then(function(index) {
         return function() {
             return index[this[column]];
@@ -1427,13 +1310,11 @@ function _this_parent_lookup(page, column) {
 }
 
 // List of all potential foreign key values (useful for generating dropdowns)
-function _parent_dropdown_lookup(cpage, ppage, column, context) {
-    var model = app.models[ppage];
+function _parent_dropdown_lookup(field, context) {
+    var model = app.models[field['wq:ForeignKey']];
     var result;
-    if (app.parentFilters[column]) {
-        result = model.filter(
-            app.parentFilters[column](ppage, cpage, context)
-        );
+    if (field.filter) {
+        result = model.filter(_computeFilter(field.filter, context));
     } else {
         result = model.load().then(function(data) {
             return data.list;
@@ -1444,7 +1325,7 @@ function _parent_dropdown_lookup(cpage, ppage, column, context) {
             var parents = [];
             choices.forEach(function(v) {
                 var item = $.extend({}, v);
-                if (item.id == this[column]) {
+                if (item.id == this[field.name + '_id']) {
                     item.selected = true; // Currently selected item
                 }
                 parents.push(item);
@@ -1454,42 +1335,29 @@ function _parent_dropdown_lookup(cpage, ppage, column, context) {
     });
 }
 
-// List of objects with a foreign key pointing to this one
-function _children_lookup(ppage, cpage, context) {
-    var filter = {};
-    var model = app.models[cpage];
-
-    // FIXME: handle alternative names for FKs
-    filter[ppage + '_id'] = context.id;
-
-    return model.filter(filter).then(function(data) {
-        var result = [];
-        data.forEach(function(item, i) {
-            item = $.extend({}, item);
-            item['@index'] = i;
-            result[i] = item;
-        });
-        return result;
-    });
-}
-
 // List of empty annotations for new objects
-function _default_attachments(ppage, apage, context) {
-    var info = app.attachmentTypes[apage];
-    if (!info.type) {
+function _default_attachments(field, context) {
+    if (!field.initial) {
+        return Promise.resolve([]);
+    }
+    var typeField;
+    field.children.forEach(function(tf) {
+        if (tf.name == field.initial.type_field) {
+            typeField = tf;
+        }
+    });
+    if (!typeField) {
         return Promise.resolve([]);
     }
 
-    var model = app.models[info.type];
-    var filter = info.getTypeFilter(ppage, context);
+    var model = app.models[typeField['wq:ForeignKey']];
+    var filter = _computeFilter(field.initial.filter, context);
     return model.filter(filter).then(function(types) {
         var attachments = [];
         types.forEach(function(t, i) {
             var obj = {};
-            if (info.getDefaults) {
-                obj = info.getDefaults(t, context, i);
-            }
-            obj.type_id = t.id;
+            obj[typeField.name + '_id'] = t.id;
+            obj[typeField.name + '_label'] = t.label;
             obj['@index'] = i;
             attachments.push(obj);
         });
@@ -1523,6 +1391,11 @@ function _getConfByUrl(url) {
         throw 'Configuration for "/' + url + '" not found!';
     }
     return conf;
+}
+
+function _computeFilter(filter, context) {
+    // FIXME: "render" filter with attributes from context
+    return filter;
 }
 
 function _loadFromServer(url, ui) {
