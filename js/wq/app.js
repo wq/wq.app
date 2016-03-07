@@ -1182,8 +1182,9 @@ function _addLookups(page, context, editable) {
         // (i.e. repeats/attachments/EAV/child model)
         if (field.children) {
             field.children.forEach(function(child) {
+                var fname = field.name + '.' + child.name;
                 if (child['wq:ForeignKey']) {
-                    lookups[child.name] = _this_parent_lookup(
+                    lookups[fname] = _this_parent_lookup(
                         child, context
                     );
                 }
@@ -1209,7 +1210,19 @@ function _addLookups(page, context, editable) {
     return Promise.all(queue).then(function(results) {
         results.forEach(function(result, i) {
             var key = keys[i];
+            if (key.indexOf('.') > -1) {
+                return;
+            }
             context[key] = result;
+        })
+        results.forEach(function(result, i) {
+            var parts = keys[i].split('.');
+            if (parts.length != 2 || !$.isArray(context[parts[0]])) {
+                return;
+            }
+            context[parts[0]].forEach(function(row) {
+                row[parts[1]] = result;
+            });
         });
         spin.stop();
         return context;
