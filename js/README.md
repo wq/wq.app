@@ -83,6 +83,7 @@ Library                 |  Version  |  Notes
 [proj4leaflet]          |    0.7.1  |  
 [rbush]                 |    1.4.0  |
 [requirejs], [r.js]     |   2.1.17  |  r.js is in /build
+[qunit]                 |   1.22.0  |
 
 [wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
 [wq.app modules]:        https://wq.io/docs/app
@@ -110,3 +111,4 @@ Library                 |  Version  |  Notes
 [rbush]:                 https://github.com/mourner/rbush
 [requirejs]:             https://github.com/jrburke/requirejs
 [r.js]:                  https://github.com/jrburke/r.js
+[qunit]:                 https://qunitjs.com/
