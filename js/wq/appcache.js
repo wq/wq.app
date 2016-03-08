@@ -11,6 +11,11 @@ function(ol, console) {
 // Exported module object
 var ac = {};
 
+// Default callback (meant to be overridden)
+var _callback = function(type, msg) {
+    console.log(type + ' - ' + msg);
+};
+
 // Allow custom callback
 ac.init = function(callback) {
     if (callback) {
@@ -74,11 +79,6 @@ var _etypes = {
     'obsolete':    true,
     'updateready': true
 };
-
-// Default callback (meant to be overridden)
-function _callback(type, msg) {
-    console.log(type + ' - ' + msg);
-}
 
 // Determine type from event or from _ac.status, then trigger callback
 function _update(evt) {

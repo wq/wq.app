@@ -8,6 +8,8 @@
 define(['./console'],
 function(console) {
 
+var _callback;
+
 // Exported module object
 var ol = {
     'online': navigator.onLine,
@@ -27,12 +29,12 @@ var ol = {
 
 // Internal functions
 var _last_type = null;
-function _callback(type, msg) {
+_callback = function(type, msg) {
     if (type != _last_type) {
         console.log(type + ' - ' + msg);
     }
     _last_type = type;
-}
+};
 
 function _update(evt) {
     /* jshint unused: false */

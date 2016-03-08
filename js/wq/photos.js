@@ -16,6 +16,11 @@ var photos = {
     'name': "photos"
 };
 
+var _defaults = {
+    quality: 75,
+    destinationType: 0 //Camera.DestinationType.DATA_URL
+};
+
 photos.init = function() {
     tmpl.setDefault('image_url', function() {
         try {
@@ -130,11 +135,6 @@ function error(msg) {
         "textonly": true
     });
 }
-
-var _defaults = {
-    quality: 75,
-    destinationType: 0 //Camera.DestinationType.DATA_URL
-};
 
 return photos;
 });

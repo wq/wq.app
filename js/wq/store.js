@@ -49,6 +49,9 @@ function _Store(name) {
     var _prefix = name + '_'; // Used to prefix keys
     var _promises = {}; // Save promises to prevent redundant fetches
 
+    var _getItem, _getItemFn, _setItem, _setItemFn, _removeItem, _removeItemFn,
+        _keys, _keysFn;
+
     self.init = function(opts) {
         if (typeof opts == "string" || arguments.length > 1) {
             throw "ds.init() now takes a single configuration argument";
@@ -343,23 +346,23 @@ function _Store(name) {
 
     // localForage function proxies
     // (twice-wrapped since self.ready may overwrite implementation.)
-    function _getItem(key) {
+    _getItem = function(key) {
         return self.ready.then(function() {
             return _getItemFn(key);
         });
-    }
-    function _getItemFn(key) {
+    };
+    _getItemFn = function(key) {
         return lf.getItem(key).then(function(value) {
             return _insertBlobs(value);
         });
-    }
+    };
 
-    function _setItem(key, newValue) {
+    _setItem = function(key, newValue) {
         return self.ready.then(function() {
             return _setItemFn(key, newValue);
         });
-    }
-    function _setItemFn(key, newValue) {
+    };
+    _setItemFn = function(key, newValue) {
         // Extract blobs and also load previous value into memory to see if
         // there are any refs that need updating.
         return Promise.all([
@@ -372,31 +375,31 @@ function _Store(name) {
                 return lf.setItem(key, values[0]);
             });
         });
-    }
+    };
 
-    function _removeItem(key) {
+    _removeItem = function(key) {
         return self.ready.then(function() {
             return _removeItemFn(key);
         });
-    }
-    function _removeItemFn(key) {
+    };
+    _removeItemFn = function(key) {
         return lf.getItem(key).then(function(oldValue) {
             var oldRefs = _findRefs(oldValue);
             return _cleanupBlobs(oldRefs, []).then(function() {
                 return lf.removeItem(key);
             });
         });
-    }
+    };
 
-    function _keys() {
+    _keys = function() {
         return self.ready.then(function() {
             return _keysFn();
         });
-    }
+    };
 
-    function _keysFn() {
+    _keysFn = function() {
         return lf.keys();
-    }
+    };
 
     // Recursively extract blobs into separate values & replace with refs
     function _extractBlobs(value) {

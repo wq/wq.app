@@ -58,44 +58,52 @@ chart.base = function() {
         leftYAxis = true;
 
     // Accessors for entire data object
-    function datasets(d) {
+    var datasets = function(d) {
         if (d.data) {
             return d.data;
         }
         return d;
-    }
-    function legendItems(d) {
+    };
+    var legendItems = function(d) {
         return datasets(d);
-    }
+    };
 
     // Accessors for individual datasets
-    function id(dataset) {
+    var id = function(dataset) {
         return dataset.id;
-    }
-    function label(dataset) {
+    };
+    var label = function(dataset) {
         return dataset.label;
-    }
-    function items(dataset) {
+    };
+    var items = function(dataset) {
         return dataset.data || dataset.list;
-    }
-    function legendItemId(d) {
+    };
+    var legendItemId = function(d) {
         return id(d);
-    }
-    function legendItemLabel(d) {
+    };
+    var legendItemLabel = function(d) {
         return label(d);
-    }
+    };
 
-    function xunits(dataset) {
+    var xvalue = function(d) {
+        /* jshint unused: false */
+        throw "xvalue accessor not defined!";
+    };
+    var yvalue = function(d) {
+        /* jshint unused: false */
+        throw "yvalue accessor not defined!";
+    };
+    var xunits = function(dataset) {
         /* jshint unused: false */
         throw "xunits accessor not defined!";
-    }
-    function xmax(dataset) {
+    };
+    var xmax = function(dataset) {
         return d3.max(items(dataset), xvalue);
-    }
-    function xmin(dataset) {
+    };
+    var xmin = function(dataset) {
         return d3.min(items(dataset), xvalue);
-    }
-    function xset(d) {
+    };
+    var xset = function(d) {
         var xvals = d3.set();
         datasets(d).forEach(function(dataset) {
             items(dataset).forEach(function(d) {
@@ -105,60 +113,48 @@ chart.base = function() {
         return xvals.values().map(function(d) {
             return isNaN(+d) ? d : +d;
         });
-    }
+    };
 
-    function yunits(dataset) {
+    var yunits = function(dataset) {
         return dataset.units;
-    }
-    function ymax(dataset) {
+    };
+    var ymax = function(dataset) {
         return d3.max(items(dataset), yvalue);
-    }
-    function ymin(dataset) {
+    };
+    var ymin = function(dataset) {
         return d3.min(items(dataset), yvalue);
-    }
-
+    };
     // Accessors for individual items
-    function xvalue(d) {
-        /* jshint unused: false */
-        throw "xvalue accessor not defined!";
-    }
-    function yvalue(d) {
-        /* jshint unused: false */
-        throw "yvalue accessor not defined!";
-    }
-    function xscaled(d) {
+    var xscaled = function(d) {
         return xscale.scale(xvalue(d));
-    }
-    function yscaled(scaleid) {
+    };
+    var yscaled = function(scaleid) {
         var yscale = yscales[scaleid];
         return function(d) {
             return yscale.scale(yvalue(d));
         };
-    }
-    function itemid(d) {
+    };
+    var itemid = function(d) {
         return xvalue(d) + "=" + yvalue(d);
-    }
+    };
 
     // Rendering functions (should be overridden)
-    function init(datasets, opts) {
+    var init = function(datasets, opts) {
         /* jshint unused: false */
-    }
-    function render(dataset) {
+    };
+    var render = function(dataset) {
         /* jshint unused: false */
-    }
-    function wrapup(datasets, opts) {
+    };
+    var wrapup = function(datasets, opts) {
         /* jshint unused: false */
-    }
+    };
 
     // Legend item rendering
-    function legendItemShape(sid) {
+    var legendItemShape = function(sid) {
         /* jshint unused: false */
         return "rect";
-    }
-    function legendItemStyle(sid) {
-        return rectStyle(sid);
-    }
-    function rectStyle(sid) {
+    };
+    var rectStyle = function(sid) {
         var color = cscale(sid);
         return function(sel) {
             sel.attr('x', -3)
@@ -167,8 +163,8 @@ chart.base = function() {
                 .attr('height', 6)
                 .attr('fill', color);
         };
-    }
-    function circleStyle(sid) {
+    };
+    var circleStyle = function(sid) {
         var color = cscale(sid);
         return function(sel) {
             sel.attr('r', 3)
@@ -177,18 +173,21 @@ chart.base = function() {
                 .attr('stroke-width', 0.2)
                 .attr('cursor', 'pointer');
         };
-    }
+    };
+    var legendItemStyle = function(sid) {
+        return rectStyle(sid);
+    };
 
 
     // Generate translation function xscale + given yscale
-    function translate(scaleid) {
+    var translate = function(scaleid) {
         var yfn = yscaled(scaleid);
         return function(d) {
             var x = xscaled(d);
             var y = yfn(d);
             return _trans(x, y);
         };
-    }
+    };
 
     // Plot using given selection (usually one object, but wrapped as array)
     function plot(sel) {
@@ -855,7 +854,7 @@ chart.base = function() {
 
 // Scatter plot
 chart.scatter = function() {
-    var plot = chart.base(), pointStyle = plot.circleStyle();
+    var plot = chart.base(), pointStyle = plot.circleStyle(), pointShape;
 
     plot.xvalue(function(d) {
         return d.x;
@@ -872,49 +871,49 @@ chart.scatter = function() {
     });
 
     /* To customize points beyond just the color, override these functions */
-    function pointShape(sid) {
+    pointShape = function(sid) {
         /* jshint unused: false */
         return "circle";
-    }
+    };
     // pointStyle function is initialized above
 
     /* To customize lines beyond just the color, override this function */
-    function lineStyle(sid) {
+    var lineStyle = function(sid) {
         var color = plot.cscale()(sid);
         return function(sel) {
             sel.attr('stroke', color);
         };
-    }
+    };
 
-    function pointover(sid) {
+    var pointover = function(sid) {
         /* jshint unused: false */
         return function(d) {
             d3.select(this).selectAll(pointShape(sid))
                 .attr('fill', '#9999ff');
         };
-    }
-    function pointout(sid) {
+    };
+    var pointout = function(sid) {
         /* jshint unused: false */
         return function(d) {
             d3.select(this).selectAll(pointShape(sid))
                .attr('fill', plot.cscale()(sid));
         };
-    }
-    function pointLabel(sid) {
+    };
+    var pointLabel = function(sid) {
         var x = plot.xvalue(),
             y = plot.yvalue();
         return function(d) {
             return sid + " at " + x(d) + ": " + y(d);
         };
-    }
-    function drawPointsIf(dataset) {
+    };
+    var drawPointsIf = function(dataset) {
         var items = plot.items()(dataset);
         return items && items.length <= 50;
-    }
-    function drawLinesIf(dataset){
+    };
+    var drawLinesIf = function(dataset){
         var items = plot.items()(dataset);
         return items && items.length > 50;
-    }
+    };
 
     plot.chartover(function(data) {
         return function() {
@@ -1183,41 +1182,41 @@ chart.boxplot = function() {
     var plot = chart.base(), r, wr, offsets = {}, prefix = 'value-';
 
     // Accessors for individual items
-    function q1(d) {
+    var q1 = function(d) {
         if ('p25' in d) {
              // Backwards compatibility with old names; remove in 1.0
             return d.p25;
         }
         return d[prefix + 'q1'];
-    }
-    function q3(d) {
+    };
+    var q3 = function(d) {
         if ('p75' in d) {
              // Backwards compatibility with old names; remove in 1.0
             return d.p75;
         }
         return d[prefix + 'q3'];
-    }
-    function med(d) {
+    };
+    var med = function(d) {
         if ('median' in d) {
              // Backwards compatibility with old names; remove in 1.0
             return d.median;
         }
         return d[prefix + 'med'];
-    }
-    function whishi(d) {
+    };
+    var whishi = function(d) {
         if ('max' in d) {
              // Backwards compatibility with old names; remove in 1.0
             return d.max;
         }
         return d[prefix + 'whishi'];
-    }
-    function whislo(d) {
+    };
+    var whislo = function(d) {
         if ('min' in d) {
              // Backwards compatibility with old names; remove in 1.0
             return d.min;
         }
         return d[prefix + 'whislo'];
-    }
+    };
 
     plot.xscalefn(d3.scale.ordinal)
         .itemid(function(d) { return plot.xvalue()(d); })

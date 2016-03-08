@@ -11,6 +11,12 @@ function(m, $, jqm, console) {
 // Exported module object
 var tmpl = {};
 
+// Internal variables
+var _templates = {};
+var _partials  = {};
+var _defaults  = {};
+var _debug;
+
 tmpl.init = function(config) {
     if (arguments.length > 1 ||
             (config && !config.templates && !config.defaults)) {
@@ -119,12 +125,6 @@ tmpl.injectOnce = function(template, context, url, id) {
     }
     return $page;
 };
-
-// Internal variables
-var _templates = {};
-var _partials  = {};
-var _defaults  = {};
-var _debug;
 
 return tmpl;
 

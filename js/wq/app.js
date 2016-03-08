@@ -21,6 +21,8 @@ var app = {
 app.models = {};
 app.plugins = {};
 
+var _saveTransition = "none";
+
 app.init = function(config) {
     if (arguments.length > 1) {
         throw "app.init() now takes a single configuration argument";
@@ -499,8 +501,6 @@ app.getParents = function(page) {
 };
 
 // Internal variables and functions
-var _saveTransition = "none";
-
 function _setCSRFToken(csrftoken) {
     outbox.setCSRFToken(csrftoken);
     tmpl.setDefault('csrf_token', csrftoken);
@@ -1189,12 +1189,14 @@ function _addLookups(page, context, editable) {
                     );
                 }
             });
+            /* jshint ignore:start */
             if (editable) {
                 // FIXME:
                 // if (info.getChoiceList) {
                 //     lookups.item_choices = _item_choice_lookup(...)
                 // }
             }
+            /* jshint ignore:end */
             if (editable == "new") {
                 lookups[field.name] = _default_attachments(field, context);
             }
@@ -1214,7 +1216,7 @@ function _addLookups(page, context, editable) {
                 return;
             }
             context[key] = result;
-        })
+        });
         results.forEach(function(result, i) {
             var parts = keys[i].split('.');
             if (parts.length != 2 || !$.isArray(context[parts[0]])) {
@@ -1263,6 +1265,7 @@ function _choice_dropdown_lookup(name, choices) {
     return Promise.resolve(choiceDropdown);
 }
 
+/* jshint ignore:start */
 function _item_choice_lookup(page, field, context) {
     // FIXME: restore this for e.g. relate pattern
     var info = app.attachmentTypes[aname];
@@ -1305,6 +1308,7 @@ function _item_choice_lookup(page, field, context) {
         });
     });
 }
+/* jshint ignore:end */
 
 // Simple foreign key lookup
 function _parent_lookup(page, column, context) {
@@ -1408,6 +1412,7 @@ function _getConfByUrl(url) {
 
 function _computeFilter(filter, context) {
     // FIXME: "render" filter with attributes from context
+    /* jshint unused: false */
     return filter;
 }
 

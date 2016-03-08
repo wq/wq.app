@@ -5,8 +5,8 @@
  * https://wq.io/license
  */
 
-define(['leaflet', './spinner'],
-function(L, spin) {
+define(['leaflet'],
+function(L) {
 
 // Exported module object
 var locate = {
@@ -20,7 +20,7 @@ var locate = {
             'mode': 'mode'
         }
     }
-}
+};
 
 locate.init = function(conf) {
     L.extend(locate.config, conf || {});
@@ -66,7 +66,7 @@ locate.Locator = function(map, fields, opts) {
         opts.precision = 6;
     }
 
-    var _mode, _marker, _circle, _locate;
+    var _mode, _marker, _circle;
 
     // Mode switching functions (define fields.toggle for default usage)
     self.setMode = function(mode) {
