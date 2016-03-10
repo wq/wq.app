@@ -73,6 +73,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first; `autoInitializePage: false`
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.13.1  |
+[json-forms]            |  d22b545  |
 [leaflet]               |    0.7.7  | [#3359]
 [leaflet.draw]          |    0.2.4  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
@@ -98,6 +99,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile]:         https://github.com/jquery/jquery-mobile
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
 [jquery.validate]:       https://github.com/jzaefferer/jquery-validation
+[json-forms]:            https://github.com/cezary/JSONForms
 [leaflet]:               https://github.com/Leaflet/Leaflet
 [#3359]:                 https://github.com/Leaflet/Leaflet/pull/3559
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
