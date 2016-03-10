@@ -1,3 +1,5 @@
+define(['module'], function(module) {
+
 'use strict';
 
 var Gn={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#x27;"}
@@ -130,6 +132,10 @@ function setValue(context, step, currentValue, entryValue, isFile) {
 
 function JSONEncode(formEl) {
   var entries = collectEntries(formEl);
+  return convert(entries);
+}
+
+function convert(entries) {
   var resultingObject = {};
 
   entries.forEach(function(entry) {
@@ -222,7 +228,10 @@ module.exports = {
     addEventListener('submit', JSONFormSubmitHandler);
   },
   encode: JSONEncode,
+  convert: convert,
   disable: function() {
     removeEventListener('submit', JSONFormSubmitHandler);
   }
 }
+
+});

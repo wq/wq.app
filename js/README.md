@@ -73,7 +73,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first; `autoInitializePage: false`
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.13.1  |
-[json-forms]            |  d22b545  |
+[json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions
 [leaflet]               |    0.7.7  | [#3359]
 [leaflet.draw]          |    0.2.4  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
