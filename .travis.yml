@@ -4,8 +4,14 @@ node_js: 4
 env:
  - LINT=
  - LINT=1
+addons:
+  apt:
+    packages:
+     - python3
 install:
  - npm install node-qunit-phantomjs
  - npm install jshint
+before_script:
+ - python3 -m tests.server &
 script:
  - ./runtests.sh
