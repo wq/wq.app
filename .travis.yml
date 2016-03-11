@@ -1,19 +1,16 @@
-language: node_js
+language: python
 sudo: false
-node_js: 4
+python: 3.4
 env:
  - LINT=
  - LINT=1
-addons:
-  apt:
-    packages:
-     - python3
 install:
+ - pip install .
+ - pip install html-json-forms
  - npm install https://github.com/sheppard/node-qunit-phantomjs/tarball/patch-1
  - npm install jshint
 before_script:
- - python3 setup.py test
- - PYTHONPATH=`html_json_forms*egg` python3 -m tests.server &
+ - python -m tests.server &
  - cd tests
  - wq collectjson
  - cd ..
