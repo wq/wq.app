@@ -3,18 +3,30 @@
         "id": "one",
         "label": "ONE",
         "type_id": 1,
-        "color": "#f00"
+        "color": "#f00",
+        "contacts": [
+            {"type_id": 1, "name": "Contact One", "@index": 0},
+            {"type_id": 2, "name": "Contact Two", "@index": 1}
+        ]
     },
     {
         "id": "two",
         "label": "TWO",
         "type_id": 1,
-        "color": "#0f0"
+        "color": "#0f0",
+        "contacts": [
+            {"type_id": 1, "name": "Contact Three", "@index": 0},
+            {"type_id": 2, "name": "Contact Four", "@index": 1}
+        ]
     },
     {
         "id": "three",
         "label": "THREE",
         "type_id": 2,
-        "color": "#00f"
+        "color": "#00f",
+        "contacts": [
+            {"type_id": 1, "name": "Contact Five", "@index": 0},
+            {"type_id": 2, "name": "Contact Six", "@index": 1}
+        ]
     }
 ]

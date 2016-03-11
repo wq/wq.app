@@ -11,22 +11,38 @@ item:
     list: true
     map: true
     partial: true
-    parents:
-        itemtype: ['type']
-    choices:
-        color:
+    form:
+        - name: type
+          wq:ForeignKey: itemtype
+        - name: color
+          choices:
            -
-              value: "#f00"
+              name: "#f00"
               label: "Red"
            -
-              value: "#0f0"
+              name: "#0f0"
               label: "Green"
            -
-              value: "#00f"
+              name: "#00f"
               label: "Blue"
+        - name: contacts
+          type: repeat
+          initial:
+             type_field: type
+             filter: {}
+          children:
+           - name: type
+             wq:ForeignKey: contacttype
+           - name: name
 
 itemtype:
     url: 'itemtypes'
     label: 'Item Types'
     list: true
-    children: ['item']
+    form: []
+
+contacttype:
+    url: 'contacttypes'
+    label: 'Contact Types'
+    list: true
+    form: []

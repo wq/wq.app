@@ -1,23 +1,26 @@
 <div data-role='page'>
   <div data-role='header'>
     {{>home}}
-    <h1>{{label}}{{#unsynced}} (Unsynced){{/unsynced}}</h1>
+    <h1>{{label}}{{#outbox_id}} (Unsynced){{/outbox_id}}</h1>
     <a data-icon="edit" data-iconpos="notext" data-transition="flip"
-       {{#unsynced}}
+       {{#outbox_id}}
        href="{{rt}}/outbox/{{outbox_id}}/edit"
-       {{/unsynced}}
-       {{^unsynced}}
+       {{/outbox_id}}
+       {{^outbox_id}}
        href="{{rt}}/items/{{id}}/edit"
-       {{/unsynced}}
+       {{/outbox_id}}
        >Edit</a>
   </div>
   <div role="main" class="ui-content">
-    <p>{{label}}</p>
-    <p><span style="color:{{color}}">{{color_label}}</span></p>
-    <p>{{#type}}
+    <p id="label">{{label}}</p>
+    <p id="color"><span style="color:{{color}}">{{color_label}}</span></p>
+    <p id="type">{{#type}}
       <a href="{{rt}}/itemtypes/{{id}}/items">
         {{label}}
       </a>
     {{/type}}</p>
+    {{#contacts}}
+    <p class="contact" id="contact-{{type_id}}">{{#type}}{{label}}{{/type}}: {{name}}</p>
+    {{/contacts}}
     <div id="item-{{id}}-map" style="height:400px;"></div>
 {{>footer}}

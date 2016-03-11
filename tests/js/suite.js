@@ -1,7 +1,8 @@
 requirejs.config({
     'baseUrl': '../js',
     'paths': {
-        'suite': '../tests/js/suite'
+        'suite': '../tests/js/suite',
+        'data': '../tests/js/data'
     }
 });
 

@@ -99,5 +99,8 @@ setup(
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Pre-processors',
-    ]
+    ],
+    tests_require=[
+        'html-json-forms',
+    ],
 )

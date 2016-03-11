@@ -16,9 +16,9 @@
       <fieldset data-role="controlgroup" data-type="horizontal">
         <legend>Color</legend>
         {{#color_choices}}
-        <input type='radio' value='{{value}}' id='color-{{value}}' name='color'
+        <input type='radio' value='{{name}}' id='color-{{name}}' name='color'
            {{#selected}}checked{{/selected}}>
-        <label for='color-{{value}}'>{{label}}</label>
+        <label for='color-{{name}}'>{{label}}</label>
         {{/color_choices}}
       </fieldset>
       <p class="error item-color-errors"></p>
@@ -38,6 +38,15 @@
       <label for="image">Image</label>
       <input type="file" name="image" id="image">
     </li>
+    <li data-role="list-divider">Contacts</li>
+    {{#contacts}}
+    <li>
+      <label for="contacts-{{@index}}-name">{{#type}}{{label}}{{/type}}</label>
+      <input type="hidden" name="contacts[{{@index}}][type_id]" value="{{type_id}}">
+      <input name="contacts[{{@index}}][name]" id="contacts-{{@index}}-name" value="{{name}}">
+    </li>
+    {{/contacts}}
+    <li data-role="list-divider">Location</li>
     <li>
       <div id="item-{{id}}{{^id}}new{{/id}}-edit-map" style="height:500px;"></div>
     </li>
@@ -46,12 +55,12 @@
       <div class="ui-grid-a">
         <div class="ui-block-a">
           <a data-role="button" data-icon="back" data-transition="flip"
-             {{#unsynced}}
+             {{#outbox_id}}
              href="{{rt}}/outbox/{{outbox_id}}"
-             {{/unsynced}}
-             {{^unsynced}}
+             {{/outbox_id}}
+             {{^outbox_id}}
              href="{{rt}}/items/{{id}}"
-             {{/unsynced}}
+             {{/outbox_id}}
              data-direction="reverse">
             Back
           </a>

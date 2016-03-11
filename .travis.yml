@@ -9,9 +9,13 @@ addons:
     packages:
      - python3
 install:
- - npm install node-qunit-phantomjs
+ - npm install https://github.com/sheppard/node-qunit-phantomjs/tarball/patch-1
  - npm install jshint
 before_script:
- - python3 -m tests.server &
+ - python3 setup.py test
+ - PYTHONPATH=`html_json_forms*egg` python3 -m tests.server &
+ - cd tests
+ - wq collectjson
+ - cd ..
 script:
  - ./runtests.sh

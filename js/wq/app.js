@@ -6,11 +6,11 @@
  * https://wq.io/license
  */
 
-define(['jquery', 'jquery.mobile',
+define(['jquery', 'jquery.mobile', 'json-forms',
         './store', './model', './outbox', './router', './template',
         './spinner', './console',
         'es5-shim'],
-function($, jqm, ds, model, outbox, router, tmpl, spin, console) {
+function($, jqm, jsonforms, ds, model, outbox, router, tmpl, spin, console) {
 
 var app = {
     'OFFLINE': 'offline',
@@ -813,8 +813,27 @@ function _renderOther(page, ui, params, url, context) {
     router.go(url, page, context, ui, conf.once ? true : false);
 }
 
+function _parseJsonForm(item) {
+    var values = [], key;
+    for (key in item.data) {
+        values.push({
+            'name': key,
+            'value': item.data[key]
+        });
+    }
+    item.data = jsonforms.convert(values);
+    for (key in item.data) {
+        if ($.isArray(item.data[key])) {
+            item.data[key].forEach(function(row, i) {
+                row['@index'] = i;
+            });
+        }
+    }
+}
+
 function _outboxList(match, ui) {
     outbox.model.load().then(function(data) {
+        data.list.forEach(_parseJsonForm);
         router.go('outbox', 'outbox', data, ui);
     });
 }
@@ -823,6 +842,7 @@ function _outboxItem(edit) {
     // Display outbox item using model-specific detail/edit view
     return function(match, ui, params) {
         outbox.model.find(match[1]).then(function(item) {
+            _parseJsonForm(item);
             var id, idMatch = item.options.url.match(new RegExp(
                 item.options.modelConf.url + '/([^\/]+)$'
             ));
@@ -838,7 +858,6 @@ function _outboxItem(edit) {
                 url += '/edit';
             }
             var context = {
-                'unsynced': true,
                 'outbox_id': item.id,
                 'error': item.error
             };
@@ -1166,11 +1185,7 @@ function _addLookups(page, context, editable) {
 
         // Foreign key lookups
         if (field['wq:ForeignKey']) {
-            lookups[field.name] = _parent_lookup(
-                field['wq:ForeignKey'],
-                field.name + '_id',
-                context
-            );
+            lookups[field.name] = _parent_lookup(field, context);
             if (editable) {
                 lookups[field.name + '_list'] = _parent_dropdown_lookup(
                     field, context
@@ -1184,9 +1199,7 @@ function _addLookups(page, context, editable) {
             field.children.forEach(function(child) {
                 var fname = field.name + '.' + child.name;
                 if (child['wq:ForeignKey']) {
-                    lookups[fname] = _this_parent_lookup(
-                        child, context
-                    );
+                    lookups[fname] = _this_parent_lookup(child);
                 }
             });
             /* jshint ignore:start */
@@ -1197,7 +1210,7 @@ function _addLookups(page, context, editable) {
                 // }
             }
             /* jshint ignore:end */
-            if (editable == "new") {
+            if (editable == "new" && !context[field.name]) {
                 lookups[field.name] = _default_attachments(field, context);
             }
         }
@@ -1239,7 +1252,7 @@ function _choice_label_lookup(name, choices) {
         }
         var label;
         choices.forEach(function(choice) {
-            if (choice.value == this[name]) {
+            if (choice.name == this[name]) {
                 label = choice.label;
             }
         }, this);
@@ -1311,17 +1324,17 @@ function _item_choice_lookup(page, field, context) {
 /* jshint ignore:end */
 
 // Simple foreign key lookup
-function _parent_lookup(page, column, context) {
-    var model = app.models[page];
-    return model.find(context[column]);
+function _parent_lookup(field, context) {
+    var model = app.models[field['wq:ForeignKey']];
+    return model.find(context[field.name + '_id']);
 }
 
 // Foreign key lookup for objects other than root
-function _this_parent_lookup(field, column) {
+function _this_parent_lookup(field) {
     var model = app.models[field['wq:ForeignKey']];
     return model.getIndex('id').then(function(index) {
         return function() {
-            return index[this[column]];
+            return index[this[field.name + '_id']];
         };
     });
 }
