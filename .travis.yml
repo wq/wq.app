@@ -7,7 +7,7 @@ env:
 addons:
   apt:
     packages:
-     - python3
+     - python3.5
 install:
  - npm install node-qunit-phantomjs
  - npm install jshint
