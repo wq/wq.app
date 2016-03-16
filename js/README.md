@@ -75,7 +75,7 @@ Library                 |  Version  |  Notes
 [jquery.validate]       |   1.13.1  |
 [json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions
 [leaflet]               |    0.7.7  | [#3359]
-[leaflet.draw]          |    0.2.4  |  wrapped as AMD module
+[leaflet.draw]          |    0.3.0  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |    1.2.7  |  expose blob support detection for use by wq/store.js (see [#380])
 [marked]                |    0.3.3  |  
