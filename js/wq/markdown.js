@@ -1,7 +1,7 @@
 /*
- * wq.app 1.0.0-dev - wq/markdown.js
+ * wq.app 1.0.0a1 - wq/markdown.js
  * Adds markdown support to template.js
- * (c) 2013-2015, S. Andrew Sheppard
+ * (c) 2013-2016, S. Andrew Sheppard
  * https://wq.io/license
  */
 

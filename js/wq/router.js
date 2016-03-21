@@ -1,7 +1,7 @@
 /*!
- * wq.app 1.0.0-dev - wq/router.js
+ * wq.app 1.0.0a1 - wq/router.js
  * Respond to URL changes with locally generated pages and custom events
- * (c) 2012-2015, S. Andrew Sheppard
+ * (c) 2012-2016, S. Andrew Sheppard
  * https://wq.io/license
  */
 

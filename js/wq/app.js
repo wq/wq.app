@@ -1,8 +1,8 @@
 /*!
- * wq.app 1.0.0-dev - wq/app.js
+ * wq.app 1.0.0a1 - wq/app.js
  * Utilizes store and pages to dynamically load and render
  * content from a wq.db-compatible REST service
- * (c) 2012-2015, S. Andrew Sheppard
+ * (c) 2012-2016, S. Andrew Sheppard
  * https://wq.io/license
  */
 
