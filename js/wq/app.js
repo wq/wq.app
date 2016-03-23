@@ -1370,6 +1370,13 @@ function _default_attachments(field, context) {
     if (!field.initial) {
         return Promise.resolve([]);
     }
+    if (typeof field.initial == 'string' || typeof field.initial == 'number') {
+        var attachments = [];
+        for (var i = 0; i < +field.initial; i++) {
+            attachments.push({'@index': i});
+        }
+        return Promise.resolve(attachments);
+    }
     var typeField;
     field.children.forEach(function(tf) {
         if (tf.name == field.initial.type_field) {
