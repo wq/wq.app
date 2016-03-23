@@ -172,11 +172,7 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
-    for (var plugin in app.plugins) {
-        app.plugins[plugin].init.call(
-            app.plugins[plugin], app.config[plugin]
-        );
-    }
+    _callPlugins('init', app.config);
 
     // Register routes with wq/router.js
     for (var page in app.wq_config.pages) {
@@ -213,7 +209,12 @@ app.init = function(config) {
     return ready;
 };
 
+var pcount = 0;
 app.use = function(plugin) {
+    pcount++;
+    if (!plugin.name) {
+        plugin.name = 'plugin' + pcount;
+    }
     app.plugins[plugin.name] = plugin;
     plugin.app = app;
 };
@@ -299,11 +300,7 @@ app.runPlugins = function(page, mode, itemid, url, parentInfo) {
     }
     getItem.then(function(item) {
         routeInfo.item = item;
-        for (var plugin in app.plugins) {
-            app.plugins[plugin].run.call(
-                app.plugins[plugin], jqm.activePage, routeInfo
-            );
-        }
+        _callPlugins('run', undefined, [jqm.activePage, routeInfo]);
     });
 };
 
@@ -505,6 +502,20 @@ function _setCSRFToken(csrftoken) {
     outbox.setCSRFToken(csrftoken);
     tmpl.setDefault('csrf_token', csrftoken);
     return ds.set('csrf_token', csrftoken);
+}
+
+function _callPlugins(method, lookup, args) {
+    var plugin, fn, queue = [];
+    for (plugin in app.plugins) {
+        fn = app.plugins[plugin][method];
+        if (lookup) {
+            args = [lookup[args]];
+        }
+        if (fn) {
+            queue.push(fn.apply(app.plugins[plugin], args));
+        }
+    }
+    return queue;
 }
 
 // Generate list view context and render with [url]_list template;
@@ -810,7 +821,14 @@ function _renderOther(page, ui, params, url, context) {
         url += "?" + $.param(params);
     }
     context = $.extend({'page_config': conf}, context);
-    router.go(url, page, context, ui, conf.once ? true : false);
+    Promise.all(_callPlugins(
+        'context', undefined, [context]
+    )).then(function(pluginContext) {
+        pluginContext.forEach(function(pc) {
+            $.extend(context, pc);
+        });
+        router.go(url, page, context, ui, conf.once ? true : false);
+    });
 }
 
 function _parseJsonForm(item) {
@@ -1238,6 +1256,13 @@ function _addLookups(page, context, editable) {
             context[parts[0]].forEach(function(row) {
                 row[parts[1]] = result;
             });
+        });
+        return Promise.all(_callPlugins(
+            'context', undefined, [context]
+        ));
+    }).then(function(pluginContext) {
+        pluginContext.forEach(function(pc) {
+            $.extend(context, pc);
         });
         spin.stop();
         return context;

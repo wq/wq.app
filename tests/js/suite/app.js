@@ -14,6 +14,14 @@ config.template = {
 
 config.backgroundSync = -1;
 
+app.use({
+    'context': function(context) {
+        return Promise.resolve({
+            'test_async': context.page_config.url
+        });
+    }
+});
+
 return app.init(config).then(function() {
 app.jqmInit();
 
@@ -98,6 +106,14 @@ testPage("item edit page", 'items/two/edit', function($page, assert) {
         );
         done();
     }
+});
+
+testPage("async context", "about", function($page, assert) {
+    assert.equal(
+        $page.find("#async").html(),
+        "about",
+        "async context plugin works"
+    );
 });
 
 function testPage(name, path, tests) {
