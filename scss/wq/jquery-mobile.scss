@@ -278,6 +278,8 @@ html body .ui-group-theme-$theme .ui-bar-inherit {
 	color: $bar-text;
         @if ($bar-shadow) {
 	text-shadow: 0 1px 0 $bar-shadow;
+        } @else {
+        text-shadow: none;
         }
 	font-weight: bold;
 }
@@ -294,6 +296,8 @@ html body .ui-group-theme-$theme .ui-bar-inherit {
 	color: $page-text;
         @if ($page-shadow) {
 	text-shadow: 0 1px 0 $page-shadow;
+        } @else {
+        text-shadow: none;
         }
 }
 /* Body: Read-only lists, text inputs, collapsible content */
@@ -308,6 +312,8 @@ html .ui-panel-page-container-$theme {
 	color: $body-text;
         @if ($body-shadow) {
 	text-shadow: 0 1px 0 $body-shadow;
+        } @else {
+        text-shadow: none;
         }
 }
 .ui-body-$theme {
@@ -357,6 +363,8 @@ html head + body .ui-btn.ui-btn-$theme:visited {
 	color: $up-text;
         @if ($up-shadow) {
 	text-shadow: 0 1px 0 $up-shadow;
+        } @else {
+        text-shadow: none;
         }
 }
 /* Button hover */
@@ -370,6 +378,8 @@ html head + body .ui-btn.ui-btn-$theme:hover {
 	color: $hover-text;
         @if ($hover-shadow) {
 	text-shadow: 0 1px 0 $hover-shadow;
+        } @else {
+        text-shadow: none;
         }
 }
 /* Button down */
@@ -383,6 +393,8 @@ html head + body .ui-btn.ui-btn-$theme:active {
 	color: $down-text;
         @if ($down-shadow) {
 	text-shadow: 0 1px 0 $down-shadow;
+        } @else {
+        text-shadow: none;
         }
 }
 /* Active button */
@@ -414,6 +426,8 @@ html body div.ui-slider-track.ui-body-$theme .ui-btn-active {
 	color: $active-text;
         @if ($active-shadow) {
 	text-shadow: 0 1px 0 $active-shadow;
+        } @else {
+        text-shadow: none;
         }
 }
 /* Active radio button icon */
