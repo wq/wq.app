@@ -480,10 +480,7 @@ app.syncRefresh = function(items) {
     }
     outbox.unsynced().then(function(unsynced) {
         tmpl.setDefault('unsynced', unsynced);
-        jqm.changePage(jqm.activePage.data('url'), {
-            'transition': 'none',
-            'allowSamePageTransition': true
-        });
+        app.refresh();
     });
 };
 
@@ -494,6 +491,23 @@ app.getParents = function(page) {
         return field['wq:ForeignKey'];
     }).map(function(field) {
         return field['wq:ForeignKey'];
+    });
+};
+
+// Shortcuts for $.mobile.changePage
+app.nav = function(url, options) {
+    url = app.base_url + '/' + url;
+    if (!options) {
+        options = {};
+    }
+    options.allowSamePageTransition = true;
+    jqm.changePage(url, options);
+};
+
+app.refresh = function() {
+    jqm.changePage(jqm.activePage.data('url'), {
+        'transition': 'none',
+        'allowSamePageTransition': true
     });
 };
 
@@ -1188,14 +1202,15 @@ function _addLookups(page, context, editable) {
     var conf = _getConf(page);
     var lookups = {};
 
-    conf.form.forEach(function(field) {
+    function addLookups(field, nested) {
+        var fname = nested || field.name;
         // Choice (select/radio) lookups
         if (field.choices) {
-            lookups[field.name + '_label'] = _choice_label_lookup(
+            lookups[fname + '_label'] = _choice_label_lookup(
                 field.name, field.choices
             );
             if (editable) {
-                lookups[field.name + '_choices'] = _choice_dropdown_lookup(
+                lookups[fname + '_choices'] = _choice_dropdown_lookup(
                     field.name, field.choices
                 );
             }
@@ -1203,9 +1218,13 @@ function _addLookups(page, context, editable) {
 
         // Foreign key lookups
         if (field['wq:ForeignKey']) {
-            lookups[field.name] = _parent_lookup(field, context);
+            if (nested) {
+                lookups[fname] = _this_parent_lookup(field);
+            } else {
+                lookups[fname] = _parent_lookup(field, context);
+            }
             if (editable) {
-                lookups[field.name + '_list'] = _parent_dropdown_lookup(
+                lookups[fname + '_list'] = _parent_dropdown_lookup(
                     field, context
                 );
             }
@@ -1216,22 +1235,15 @@ function _addLookups(page, context, editable) {
         if (field.children) {
             field.children.forEach(function(child) {
                 var fname = field.name + '.' + child.name;
-                if (child['wq:ForeignKey']) {
-                    lookups[fname] = _this_parent_lookup(child);
-                }
+                addLookups(child, fname);
             });
-            /* jshint ignore:start */
-            if (editable) {
-                // FIXME:
-                // if (info.getChoiceList) {
-                //     lookups.item_choices = _item_choice_lookup(...)
-                // }
-            }
-            /* jshint ignore:end */
             if (editable == "new" && !context[field.name]) {
                 lookups[field.name] = _default_attachments(field, context);
             }
         }
+    }
+    conf.form.forEach(function(field) {
+        addLookups(field, false);
     });
 
     // Process lookup functions
@@ -1243,17 +1255,21 @@ function _addLookups(page, context, editable) {
     return Promise.all(queue).then(function(results) {
         results.forEach(function(result, i) {
             var key = keys[i];
-            if (key.indexOf('.') > -1) {
-                return;
-            }
             context[key] = result;
         });
         results.forEach(function(result, i) {
-            var parts = keys[i].split('.');
-            if (parts.length != 2 || !$.isArray(context[parts[0]])) {
+            var parts = keys[i].split('.'), nested;
+            if (parts.length != 2) {
                 return;
             }
-            context[parts[0]].forEach(function(row) {
+            nested = context[parts[0]];
+            if (!nested) {
+                return;
+            }
+            if (!$.isArray(nested)) {
+                nested = [nested];
+            }
+            nested.forEach(function(row) {
                 row[parts[1]] = result;
             });
         });
@@ -1437,7 +1453,10 @@ function _getConf(page, silentFail) {
             throw 'Configuration for "' + page + '" not found!';
         }
     }
-    return $.extend({'page': page}, conf);
+    return $.extend({
+        'page': page,
+        'form': []
+    }, conf);
 }
 
 // Helper to load configuration based on URL
