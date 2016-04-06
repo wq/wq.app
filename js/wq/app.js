@@ -1223,6 +1223,9 @@ function _addLookups(page, context, editable) {
             } else {
                 lookups[fname] = _parent_lookup(field, context);
             }
+            if (!context[fname + '_label']) {
+                lookups[fname + '_label'] = _parent_label_lookup(field);
+            }
             if (editable) {
                 lookups[fname + '_list'] = _parent_dropdown_lookup(
                     field, context
@@ -1376,6 +1379,17 @@ function _this_parent_lookup(field) {
     return model.getIndex('id').then(function(index) {
         return function() {
             return index[this[field.name + '_id']];
+        };
+    });
+}
+
+// Foreign key label
+function _parent_label_lookup(field) {
+    var model = app.models[field['wq:ForeignKey']];
+    return model.getIndex('id').then(function(index) {
+        return function() {
+            var p = index[this[field.name + '_id']];
+            return p && p.label;
         };
     });
 }
