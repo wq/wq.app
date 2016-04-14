@@ -539,14 +539,7 @@ map.createMap = function(routeInfo, divid) {
     }
     m = map.maps[mapid] = L.map(divid, opts);
     m.fitBounds(defaults.lastBounds || defaults.bounds);
-    // wq.app < 0.8.1 used createBaseMaps, check in case it was overridden
-    // (remove in 1.0)
-    if (map.createBaseMaps != map.createBasemaps) {
-        console.warn("map.createBaseMaps is now map.createBasemaps()");
-        basemaps = map.createBaseMaps();
-    } else {
-        basemaps = map.createBasemaps();
-    }
+    basemaps = map.createBasemaps();
     basemap = Object.keys(basemaps)[0];
     basemaps[basemap].addTo(m);
 
