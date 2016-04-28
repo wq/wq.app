@@ -31,7 +31,15 @@ function Model(config) {
     }
 
     // Default to main store, but allow overriding
-    self.store = config.store || ds;
+    if (config.store) {
+        if (config.store instanceof ds.constructor) {
+            self.store = config.store;
+        } else {
+            self.store = ds.getStore(config.store);
+        }
+    } else {
+        self.store = ds;
+    }
 
     if (config.query) {
         self.query = self.store.normalizeQuery(config.query);
