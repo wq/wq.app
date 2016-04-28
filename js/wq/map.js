@@ -211,14 +211,16 @@ map.getLayerConfs = function(routeInfo) {
             baseurl = parts[0].replace(/\/$/, ''),
             params = parts[1] && ("?" + parts[1]) || "";
         layerconf = L.extend({}, layerconf);
-        layerconf.url = tmpl.render(layerconf.url, L.extend({
-            'id': itemid,
-            'url': baseurl
-        }, routeInfo.item || {}));
-        if (params && layerconf.url.indexOf('?') > -1) {
-            params = params.replace(/^\?/, "&");
+        if (layerconf.url.indexOf('{{') > -1) {
+            layerconf.url = tmpl.render(layerconf.url, L.extend({
+                'id': itemid,
+                'url': baseurl
+            }, routeInfo.item || {}));
+            if (params && layerconf.url.indexOf('?') > -1) {
+                params = params.replace(/^\?/, "&");
+            }
+            layerconf.url += params;
         }
-        layerconf.url += params;
         layers.push(layerconf);
     });
     return layers;
@@ -291,8 +293,6 @@ map.createBasemaps = function() {
     });
     return basemaps;
 };
-
-map.createBaseMaps = map.createBasemaps;  // Backwards compatibility
 
 map.createBasemap = function(layerconf) {
     var fn = map.createBasemap[layerconf.type];
