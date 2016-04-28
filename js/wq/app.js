@@ -522,8 +522,8 @@ function _callPlugins(method, lookup, args) {
     var plugin, fn, queue = [];
     for (plugin in app.plugins) {
         fn = app.plugins[plugin][method];
-        if (lookup) {
-            args = [lookup[args]];
+        if (lookup && !args) {
+            args = [lookup[plugin]];
         }
         if (fn) {
             queue.push(fn.apply(app.plugins[plugin], args));
