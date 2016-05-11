@@ -144,7 +144,7 @@ function Model(config) {
         }
         return self.getIndex(attr).then(function(ilist) {
             if (ilist && ilist[value]) {
-                return ilist[value];
+                return json.extend(true, {}, ilist[value]);
             } else if (attr == "id" && value !== undefined) {
                 // Not found in local list; try server
                 if (!localOnly && config.partial && config.url) {
@@ -181,7 +181,7 @@ function Model(config) {
                 groups.forEach(function(group) {
                     result = result.concat(group);
                 });
-                return _processData(result);
+                return json.extend(true, {}, _processData(result));
             });
         } else {
             // Default: require match on all filter attributes
@@ -197,7 +197,7 @@ function Model(config) {
             return self.getGroup(f.name, f.value).then(function(group) {
                 // If only one filter attribute was given, return group as-is
                 if (!afilter.length) {
-                    return _processData(group);
+                    return json.extend(true, {}, _processData(group));
                 }
 
                 var result = [];
@@ -214,7 +214,7 @@ function Model(config) {
                         result.push(obj);
                     }
                 });
-                return _processData(result);
+                return json.extend(true, {}, _processData(result));
             });
         }
     };
