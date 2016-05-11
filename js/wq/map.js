@@ -91,7 +91,9 @@ map.init = function(defaults) {
 
         // Initialize map configurations for each page display mode
         var modes = ['defaults'];
-        if (pconf.list) {
+        if (pconf.modes) {
+            modes = modes.concat(pconf.modes);
+        } else if (pconf.list) {
             modes = modes.concat(['list', 'detail', 'edit']);
         }
         modes.forEach(function(mode) {
@@ -474,10 +476,10 @@ map.renderPopup = function(page) {
 map.getMapId = function(routeInfo) {
     var rt = routeInfo, parts = [];
     if (rt.item_id) {
-        if (rt.mode == 'edit') {
-            parts = [rt.page, rt.item_id, 'edit'];
-        } else {
+        if (rt.mode == 'detail') {
             parts = [rt.page, rt.item_id];
+        } else {
+            parts = [rt.page, rt.item_id, rt.mode];
         }
     } else if (routeInfo.parent_page) {
         parts = [rt.parent_page, rt.parent_id, rt.page];
@@ -728,7 +730,9 @@ function _getConf(page, mode) {
     L.extend(mapconf, conf.defaults, conf[mode] || {});
     mapconf.layers = conf.defaults.layers.concat(conf.layers || []);
     if (mode && mode != 'defaults') {
-        mapconf.layers = mapconf.layers.concat(conf[mode].layers);
+        mapconf.layers = mapconf.layers.concat(
+            (conf[mode] || {}).layers || []
+        );
     }
     return mapconf;
 }

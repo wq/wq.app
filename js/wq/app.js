@@ -21,7 +21,9 @@ var app = {
 app.models = {};
 app.plugins = {};
 
-var _saveTransition = "none";
+var _saveTransition = "none",
+    _register = {},
+    _onShow = {};
 
 app.init = function(config) {
     if (arguments.length > 1) {
@@ -175,22 +177,26 @@ app.init = function(config) {
     _callPlugins('init', app.config);
 
     // Register routes with wq/router.js
-    for (var page in app.wq_config.pages) {
+    Object.keys(app.wq_config.pages).forEach(function(page) {
         app.wq_config.pages[page].name = page;
         var conf = _getConf(page);
         if (conf.list) {
-            _registerList(page);
-            _registerDetail(page);
-            _registerEdit(page);
-            _onShowList(page);
-            _onShowDetail(page);
-            _onShowEdit(page);
+            conf.modes.forEach(function(mode) {
+                var register = _register[mode] || _register.detail;
+                var onShow = _onShow[mode] || _onShow.detail;
+                register(page, mode);
+                onShow(page, mode);
+            });
+            (conf.server_modes || []).forEach(function(mode) {
+                var onShow = _onShow[mode] || _onShow.detail;
+                onShow(page, mode);
+            });
             app.models[page] = model(conf);
         } else if (conf) {
             _registerOther(page);
             _onShowOther(page);
         }
-    }
+    });
 
     // Register outbox
     router.register('outbox', _outboxList);
@@ -247,7 +253,7 @@ app.logout = function() {
 };
 
 // Determine appropriate context & template for router.go
-app.go = function(page, ui, params, itemid, edit, url, context) {
+app.go = function(page, ui, params, itemid, mode, url, context) {
     if (ui && ui.options && ui.options.data) {
         return; // Ignore form actions
     }
@@ -262,13 +268,13 @@ app.go = function(page, ui, params, itemid, edit, url, context) {
     if (itemid) {
         if (itemid == 'new') {
             return _displayItem(
-                itemid, {}, page, ui, params, edit, url, context
+                itemid, {}, page, ui, params, mode, url, context
             );
         } else {
             var localOnly = !app.config.loadMissingAsJson;
             return model.find(itemid, 'id', localOnly).then(function(item) {
                 _displayItem(
-                    itemid, item, page, ui, params, edit, url, context
+                    itemid, item, page, ui, params, mode, url, context
                 );
             });
         }
@@ -371,7 +377,7 @@ app.postsave = function(item, backgroundSync) {
     } else if (!pconf.list) {
         url = app.base_url + '/' + pconf.url;
     } else {
-        if (mode != 'list' && mode != 'detail' && mode != 'edit') {
+        if (pconf.modes.indexOf(mode) == -1) {
             throw "Unknown template mode!";
         }
 
@@ -405,8 +411,8 @@ app.postsave = function(item, backgroundSync) {
                 }
                 url += itemid;
             }
-            if (mode == "edit") {
-                url += "/edit";
+            if (mode != "detail") {
+                url += "/" + mode;
             }
         }
     }
@@ -534,7 +540,7 @@ function _callPlugins(method, lookup, args) {
 
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
-function _registerList(page) {
+_register.list = function(page) {
     var conf = _getConf(page);
     router.register(conf.url, go);
     router.register(conf.url + '/', go);
@@ -571,9 +577,9 @@ function _registerList(page) {
             });
         };
     }
-}
+};
 
-function _onShowList(page) {
+_onShow.list = function(page) {
     var conf = _getConf(page);
     var url = conf.url ? conf.url + '/?' : '';
     router.addRoute(url, 's', function(match) {
@@ -601,7 +607,7 @@ function _onShowList(page) {
             app.runPlugins(page, 'list', null, match[0], parentInfo);
         };
     }
-}
+};
 
 function _displayList(page, ui, params, url, context) {
     spin.stop();
@@ -683,52 +689,66 @@ function _displayList(page, ui, params, url, context) {
 
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
-function _registerDetail(page) {
+_register.detail = function(page, mode) {
     var conf = _getConf(page);
-    var url = conf.url;
-    var reserved = ["new"];
+    var url = _getDetailUrl(conf.url, mode);
+    var reserved = _getDetailReserved(conf.url);
+    router.register(url, function(match, ui, params) {
+        if (reserved.indexOf(match[1]) > -1) {
+            return;
+        }
+        app.go(page, ui, params, match[1], mode);
+    });
+};
+
+// Register an onshow event for item detail views
+_onShow.detail = function(page, mode) {
+    var conf = _getConf(page);
+    var url = _getDetailUrl(conf.url, mode);
+    var reserved = _getDetailReserved(conf.url);
+    router.addRoute(url, 's', function(match) {
+        if (reserved.indexOf(match[1]) > -1) {
+            return;
+        }
+        app.runPlugins(page, mode, match[1], match[0]);
+    });
+};
+
+function _getDetailUrl(url, mode) {
     if (url) {
         url += "/";
-    } else {
+    }
+    url += '<slug>';
+    if (mode != 'detail') {
+        url += '/' + mode;
+    }
+    return url;
+}
+
+function _getDetailReserved(url) {
+    var reserved = ["new"];
+    if (!url) {
         // This list is bound to root URL, don't mistake other lists for items
         for (var key in app.wq_config.pages) {
             reserved.push(app.wq_config.pages[key].url);
         }
     }
-    router.register(url + '<slug>', function(match, ui, params) {
-        if (reserved.indexOf(match[1]) > -1) {
-            return;
-        }
-        app.go(page, ui, params, match[1]);
-    });
-}
-
-// Register an onshow event for item detail views
-function _onShowDetail(page) {
-    var conf = _getConf(page);
-    var url = conf.url ? conf.url + '/' : '';
-    router.addRoute(url + '<slug>', 's', function(match) {
-        var itemid = match[1];
-        if (itemid == 'new') {
-            return;
-        }
-        app.runPlugins(page, 'detail', itemid, match[0]);
-    });
+    return reserved;
 }
 
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
-function _registerEdit(page) {
+_register.edit = function(page) {
     var conf = _getConf(page);
     router.register(conf.url + '/<slug>/edit', go);
     router.register(conf.url + '/(new)', go);
     function go(match, ui, params) {
-        app.go(page, ui, params, match[1], true);
+        app.go(page, ui, params, match[1], 'edit');
     }
-}
+};
 
 // Register an onshow event for item edit views
-function _onShowEdit(page) {
+_onShow.edit = function(page) {
     var conf = _getConf(page);
     var url = conf.url ? conf.url + '/' : '';
     router.addRoute(url + '<slug>/edit', 's', go);
@@ -737,9 +757,9 @@ function _onShowEdit(page) {
         var itemid = match[1];
         app.runPlugins(page, 'edit', itemid, match[0]);
     }
-}
+};
 
-function _displayItem(itemid, item, page, ui, params, edit, url, context) {
+function _displayItem(itemid, item, page, ui, params, mode, url, context) {
     var conf = _getConf(page);
     spin.stop();
     if (url === undefined) {
@@ -748,18 +768,18 @@ function _displayItem(itemid, item, page, ui, params, edit, url, context) {
             url += '/';
         }
         url += itemid;
-        if (edit && itemid != 'new') {
-            url += '/edit';
+        if (mode != 'detail' && itemid != 'new') {
+            url += '/' + mode;
         }
         if (params && $.param(params)) {
             url += '?' + $.param(params);
         }
     }
     if (item) {
-        if (edit) {
+        if (mode == 'edit') {
             return _renderEdit(itemid, item, page, ui, params, url, context);
         } else {
-            return _renderDetail(item, page, ui, params, url, context);
+            return _renderDetail(item, page, mode, ui, params, url, context);
         }
     } else {
         if (conf.partial && app.config.loadMissingAsHtml) {
@@ -775,14 +795,14 @@ function _displayItem(itemid, item, page, ui, params, edit, url, context) {
     }
 }
 
-function _renderDetail(item, page, ui, params, url, context) {
+function _renderDetail(item, page, mode, ui, params, url, context) {
     var conf = _getConf(page);
     context = $.extend({'page_config': conf}, item, context);
     return _addLookups(page, context, false).then(function(context) {
-        var divid = page + '_detail_' + (item.id || 'new') + '-page';
-        return router.go(
-            url, page + '_detail', context, ui, conf.once ? true : false, divid
-        );
+        var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
+            template = page + '_' + mode,
+            once = conf.once ? true : false;
+        return router.go(url, template, context, ui, once, divid);
     });
 }
 
@@ -1469,7 +1489,8 @@ function _getConf(page, silentFail) {
     }
     return $.extend({
         'page': page,
-        'form': []
+        'form': [],
+        'modes': (conf.list ? ['list', 'detail', 'edit'] : [])
     }, conf);
 }
 
