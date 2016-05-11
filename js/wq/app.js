@@ -201,8 +201,8 @@ app.init = function(config) {
     // Register outbox
     router.register('outbox', _outboxList);
     router.register('outbox/', _outboxList);
-    router.register('outbox/<slug>', _outboxItem(false));
-    router.register('outbox/<slug>/edit', _outboxItem(true));
+    router.register('outbox/<slug>', _outboxItem('detail'));
+    router.register('outbox/<slug>/edit', _outboxItem('edit'));
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
@@ -890,7 +890,7 @@ function _outboxList(match, ui) {
     });
 }
 
-function _outboxItem(edit) {
+function _outboxItem(mode) {
     // Display outbox item using model-specific detail/edit view
     return function(match, ui, params) {
         outbox.model.find(match[1]).then(function(item) {
@@ -906,8 +906,8 @@ function _outboxItem(edit) {
                 id = 'new';
             }
             var url = 'outbox/' + item.id;
-            if (edit) {
-                url += '/edit';
+            if (mode != 'detail') {
+                url += '/' + mode;
             }
             var context = {
                 'outbox_id': item.id,
@@ -920,9 +920,9 @@ function _outboxItem(edit) {
             }
             _displayItem(
                  id, item.data, item.options.modelConf.name,
-                 ui, params, edit, url, context
+                 ui, params, mode, url, context
             ).then(function($page) {
-                if (edit && item.error) {
+                if (mode == 'edit' && item.error) {
                     app.showOutboxErrors(item, $page);
                 }
             });
