@@ -1442,6 +1442,9 @@ function _parent_dropdown_lookup(field, context) {
 
 // List of empty annotations for new objects
 function _default_attachments(field, context) {
+    if (field.type != 'repeat') {
+        return Promise.resolve({});
+    }
     if (!field.initial) {
         return Promise.resolve([]);
     }
