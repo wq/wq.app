@@ -360,7 +360,7 @@ app.postsave = function(item, backgroundSync) {
     }
 
     // conf.postsave should explicitly indicate which template mode to use
-    match = postsave.match(/^(.+)_([^_]+)$/);
+    match = postsave.match(/^([^\/]+)_([^_\/]+)$/);
     if (match) {
         postsave = match[1];
         mode = match[2];
@@ -373,7 +373,7 @@ app.postsave = function(item, backgroundSync) {
     if (!pconf) {
         // If conf.postsave is not the name of a list page, assume it's a
         // simple page or a URL
-        url = app.base_url + '/' + postsave;
+        url = app.base_url + '/' + tmpl.render(postsave, item.result);
     } else if (!pconf.list) {
         url = app.base_url + '/' + pconf.url;
     } else {
