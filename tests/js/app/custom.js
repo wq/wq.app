@@ -1,7 +1,9 @@
 define({
-    'context': function(context) {
+    'context': function(context, routeInfo) {
         return Promise.resolve({
-            'test_async': context.page_config.url
+            'context_page_url': context.page_config.url,
+            'route_info_mode': routeInfo.mode,
+            'route_info_parent_page': routeInfo.parent_page
         });
     }
 });

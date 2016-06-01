@@ -13,11 +13,14 @@ config.template = {
 };
 
 config.backgroundSync = -1;
+config.loadMissingAsJson = true;
 
 app.use({
-    'context': function(context) {
+    'context': function(context, routeInfo) {
         return Promise.resolve({
-            'test_async': context.page_config.url
+            'context_page_url': context.page_config.url,
+            'route_info_mode': routeInfo.mode,
+            'route_info_parent_page': routeInfo.parent_page
         });
     }
 });
@@ -108,13 +111,47 @@ testPage("item edit page", 'items/two/edit', function($page, assert) {
     }
 });
 
-testPage("async context", "about", function($page, assert) {
+testPage("async context - other", "about", function($page, assert) {
     assert.equal(
         $page.find("#async").html(),
-        "about",
-        "async context plugin works"
+        "URL: about, Mode: ",
+        "async context plugin works on 'other' pages"
     );
 });
+
+testPage("async context - detail", "items/one", function($page, assert) {
+    assert.equal(
+        $page.find("#async").html(),
+        "URL: items, Mode: detail",
+        "async context plugin works in 'detail' mode"
+    );
+});
+
+testPage("async context - edit", "items/one/edit", function($page, assert) {
+    assert.equal(
+        $page.find("#async").html(),
+        "URL: items, Mode: edit",
+        "async context plugin works in 'edit' mode"
+    );
+});
+
+testPage("async context - list", "items/", function($page, assert) {
+    assert.equal(
+        $page.find("#async").html(),
+        "URL: items, Mode: list",
+        "async context plugin works in 'list' mode"
+    );
+});
+
+testPage("async context - list (filtered)", "itemtypes/1/items",
+    function($page, assert) {
+        assert.equal(
+            $page.find("#async").html(),
+            "URL: items, Mode: list (filtered by itemtype)",
+            "async context plugin works on filtered list"
+        );
+    }
+);
 
 function testPage(name, path, tests) {
     QUnit.test(name, function(assert) {

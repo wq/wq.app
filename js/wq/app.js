@@ -286,18 +286,11 @@ app.go = function(page, ui, params, itemid, mode, url, context) {
 
 // Run any/all plugins on the specified page
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
-    var conf = _getConf(page), routeInfo, getItem;
-    url = url.replace(app.base_url + '/', '');
-    router.setPath(url);
-    routeInfo = $.extend(
-        parentInfo || {},
-        router.info,
-        {
-            'page': page,
-            'page_config': conf,
-            'mode': mode,
-            'item_id': itemid
-        }
+    var routeInfo, getItem;
+    routeInfo = _getRouteInfo(
+        page, mode, itemid,
+        url.replace(app.base_url + '/', ''),
+        parentInfo
     );
     if (itemid) {
         getItem = app.models[page].find(itemid);
@@ -538,6 +531,21 @@ function _callPlugins(method, lookup, args) {
     return queue;
 }
 
+function _getRouteInfo(page, mode, itemid, url, parentInfo) {
+    var conf = _getConf(page);
+    router.setPath(url);
+    return $.extend(
+        parentInfo || {},
+        router.info,
+        {
+            'page': page,
+            'page_config': conf,
+            'mode': mode,
+            'item_id': itemid
+        }
+    );
+}
+
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 _register.list = function(page) {
@@ -657,8 +665,16 @@ function _displayList(page, ui, params, url, context) {
     var result1 = filter ? model.filterPage(filter) : model.page(pnum);
     var result2 = model.unsyncedItems();
     return Promise.all([result1, result2]).then(function(results) {
-        var data = results[0];
-        var unsyncedItems = results[1];
+        var data = results[0],
+            unsyncedItems = results[1],
+            parentInfo = {}, routeInfo;
+        ['parent_id', 'parent_url', 'parent_page'].forEach(function(key) {
+            if (context && context[key]) {
+                parentInfo[key] = context[key];
+            }
+        });
+
+        routeInfo = _getRouteInfo(page, 'list', null, url, parentInfo);
         if (pnum > 1) {
             var prevp = {'page': +pnum - 1};
             prev = conf.url + '/?' + $.param(prevp);
@@ -679,11 +695,13 @@ function _displayList(page, ui, params, url, context) {
         context.unsynced = unsyncedItems.length;
         context.unsyncedItems = unsyncedItems;
 
-        return _addLookups(page, context, false).then(function(context) {
-            return router.go(
-                url, page + '_list', context, ui, conf.once ? true : false
-            );
-        });
+        return _addLookups(page, context, false, routeInfo).then(
+            function(context) {
+                return router.go(
+                    url, page + '_list', context, ui, conf.once ? true : false
+                );
+            }
+        );
     });
 }
 
@@ -796,28 +814,32 @@ function _displayItem(itemid, item, page, ui, params, mode, url, context) {
 }
 
 function _renderDetail(item, page, mode, ui, params, url, context) {
-    var conf = _getConf(page);
+    var conf = _getConf(page),
+        routeInfo = _getRouteInfo(page, mode, item.id || 'new', url, null);
     context = $.extend({'page_config': conf}, item, context);
-    return _addLookups(page, context, false).then(function(context) {
-        var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
-            template = page + '_' + mode,
-            once = conf.once ? true : false;
-        return router.go(url, template, context, ui, once, divid);
-    });
+    return _addLookups(page, context, false, routeInfo).then(
+        function(context) {
+            var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
+                template = page + '_' + mode,
+                once = conf.once ? true : false;
+            return router.go(url, template, context, ui, once, divid);
+        }
+    );
 }
 
 function _renderEdit(itemid, item, page, ui, params, url, context) {
-    var conf = _getConf(page);
+    var conf = _getConf(page),
+        routeInfo = _getRouteInfo(page, 'edit', itemid, url, null);
     if (itemid == "new") {
         // Create new item
         context = $.extend(
             {'page_config': conf}, params, conf.defaults, context
         );
-        return _addLookups(page, context, "new").then(done);
+        return _addLookups(page, context, "new", routeInfo).then(done);
     } else {
         // Edit existing item
         context = $.extend({'page_config': conf}, item, context);
-        return _addLookups(page, context, true).then(done);
+        return _addLookups(page, context, true, routeInfo).then(done);
     }
     function done(context) {
         var divid = page + '_edit_' + itemid + '-page';
@@ -847,7 +869,8 @@ function _onShowOther(page) {
 }
 
 function _renderOther(page, ui, params, url, context) {
-    var conf = _getConf(page);
+    var conf = _getConf(page),
+        routeInfo;
     if (url === undefined) {
         url = conf.url;
     }
@@ -855,8 +878,11 @@ function _renderOther(page, ui, params, url, context) {
         url += "?" + $.param(params);
     }
     context = $.extend({'page_config': conf}, context);
+    routeInfo = _getRouteInfo(
+        page, null, null, url, null
+    );
     Promise.all(_callPlugins(
-        'context', undefined, [context]
+        'context', undefined, [context, routeInfo]
     )).then(function(pluginContext) {
         pluginContext.forEach(function(pc) {
             $.extend(context, pc);
@@ -1218,7 +1244,7 @@ function _checkLogin() {
 
 // Add various callback functions to context object to automate foreign key
 // lookups within templates
-function _addLookups(page, context, editable) {
+function _addLookups(page, context, editable, routeInfo) {
     var conf = _getConf(page);
     var lookups = {};
 
@@ -1297,7 +1323,7 @@ function _addLookups(page, context, editable) {
             });
         });
         return Promise.all(_callPlugins(
-            'context', undefined, [context]
+            'context', undefined, [context, routeInfo]
         ));
     }).then(function(pluginContext) {
         pluginContext.forEach(function(pc) {
