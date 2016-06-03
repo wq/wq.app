@@ -107,11 +107,11 @@ app.init = function(config) {
         if (seconds === true) {
             seconds = 30;
         }
-		if (seconds > 0) {
-			app._syncInterval = setInterval(function() {
-				app.sync();
-			}, seconds * 1000);
-		}
+        if (seconds > 0) {
+            app._syncInterval = setInterval(function() {
+                app.sync();
+            }, seconds * 1000);
+        }
     }
 
     // Option to override various hooks
@@ -1090,9 +1090,9 @@ function _handleForm(evt) {
             if (backgroundSync) {
                 // Send user to next screen while app syncs in background
                 app.postsave(item, true);
-				if (backgroundSync > 0) {
-					app.sync();
-				}
+                if (backgroundSync > 0) {
+                    app.sync();
+                }
                 return;
             }
 
