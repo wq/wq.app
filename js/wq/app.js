@@ -1197,7 +1197,11 @@ function _submitClick() {
 function _updateModels(item, result) {
     var modelConf = item.options.modelConf;
     if (modelConf.list && item.synced) {
-        return app.models[modelConf.name].update([result]);
+        return app.models[modelConf.name].update([result]).then(function() {
+            return Promise.all(_callPlugins(
+                'onsave', undefined, [item, result]
+            ));
+        });
     } else if (app.can_login && result && result.user && result.config) {
         return _saveLogin(result);
     }
