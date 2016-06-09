@@ -30,12 +30,14 @@ patterns.run = function($page, routeInfo) {
         var $button = $(evt.target),
             section = $button.data('wq-section'),
             count = $page.find('.section-' + section).length;
-        patterns.addAttachment(routeInfo.page, section, count, $button);
+        patterns.addAttachment(
+            routeInfo.page, section, count, $button, routeInfo.mode
+        );
     }
 };
 
-patterns.addAttachment = function(page, section, index, $button) {
-    var template = _templates[page + '_edit'],
+patterns.addAttachment = function(page, section, index, $button, mode) {
+    var template = _templates[page + '_' + (mode ? mode : 'edit')],
         pattern = '{{#' + section + '}}([\\s\\S]+){{/' + section + '}}',
         match, $attachment, context;
     if (!template) {
