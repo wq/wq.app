@@ -100,12 +100,22 @@ map.init = function(defaults) {
             if (!mapconf[mode]) {
                 mapconf[mode] = {};
             }
-            if (!mapconf[mode].layers) {
-                mapconf[mode].layers = [];
-                if (mode != 'defaults') {
-                    mapconf[mode].autoLayers = true;
-                }
+            if (!mapconf[mode].maps) {
+                mapconf[mode] = {
+                    'maps': {
+                        'main': mapconf[mode]
+                    }
+                };
             }
+            Object.keys(mapconf[mode].maps).forEach(function(mapname) {
+                var maps = mapconf[mode].maps;
+                if (!maps[mapname].layers) {
+                    maps[mapname].layers = [];
+                    if (mode != 'defaults' && mapname == 'main') {
+                        maps[mapname].autoLayers = true;
+                    }
+                }
+            });
         });
 
         map.config.maps[page] = mapconf;
@@ -118,15 +128,24 @@ map.init = function(defaults) {
 
 // Plugin API
 map.run = function($page, routeInfo) {
-    if (map.config.maps[routeInfo.page]) {
-        map.createMap(routeInfo);
+    var mapconf = map.config.maps[routeInfo.page],
+        mode = routeInfo.mode,
+        maps = mapconf && mapconf[mode] && mapconf[mode].maps;
+
+    if (maps) {
+        Object.keys(maps).forEach(function(mapname) {
+            map.createMap(routeInfo, null, mapname);
+        });
     }
 };
 
 // Add a layer configuration (layerconf) to a map configuration
-map.addLayerConf = function(page, layerconf, mode) {
+map.addLayerConf = function(page, layerconf, mode, mapname) {
     if (!mode) {
         mode = 'defaults';
+    }
+    if (!mapname) {
+        mapname = 'main';
     }
     if (!map.config.maps[page]) {
         throw 'Configuration for "' + page + '" not found!';
@@ -140,7 +159,7 @@ map.addLayerConf = function(page, layerconf, mode) {
     if (!map.createOverlay[layerconf.type]) {
         throw 'Unknown layer type "' + layerconf.type + '"!';
     }
-    map.config.maps[page][mode].layers.push(layerconf);
+    map.config.maps[page][mode].maps[mapname].layers.push(layerconf);
 };
 
 // Define an icon for use by list items displayed as points
@@ -152,7 +171,7 @@ map.createIcon = function(name, options) {
 
 // Compute default layer configuration for wq REST API
 map.addAutoLayers = function(page) {
-    var listConf = _getConf(page, 'list');
+    var listConf = _getConf(page, 'list', 'main');
     if (listConf.autoLayers) {
         map.addLayerConf(page, {
             'name': listConf.name,
@@ -163,7 +182,7 @@ map.addAutoLayers = function(page) {
         }, 'list');
     }
 
-    var detailConf = _getConf(page, 'detail');
+    var detailConf = _getConf(page, 'detail', 'main');
     if (detailConf.autoLayers) {
         map.addLayerConf(page, {
             'name': detailConf.name,
@@ -173,7 +192,7 @@ map.addAutoLayers = function(page) {
         }, 'detail');
     }
 
-    var editConf = _getConf(page, 'edit');
+    var editConf = _getConf(page, 'edit', 'main');
     if (editConf.autoLayers) {
         map.addLayerConf(page, {
             'name': editConf.name,
@@ -192,7 +211,7 @@ map.addAutoLayers = function(page) {
 };
 
 // Load map configuration for the given page
-map.getLayerConfs = function(routeInfo) {
+map.getLayerConfs = function(routeInfo, mapname) {
     var page = routeInfo.page, itemid = routeInfo.item_id,
         mode = routeInfo.mode, url = routeInfo.path;
     if (!mode) {
@@ -200,7 +219,10 @@ map.getLayerConfs = function(routeInfo) {
             mode = itemid ? 'list' : 'detail';
         }
     }
-    var mapconf = _getConf(page, mode);
+    if (!mapname) {
+        mapname = 'main';
+    }
+    var mapconf = _getConf(page, mode, mapname);
     var layers = [];
     if (!url) {
         url = mapconf.url;
@@ -473,7 +495,7 @@ map.renderPopup = function(page) {
     };
 };
 
-map.getMapId = function(routeInfo) {
+map.getMapId = function(routeInfo, mapname) {
     var rt = routeInfo, parts = [];
     if (rt.item_id) {
         if (rt.mode == 'detail') {
@@ -486,26 +508,29 @@ map.getMapId = function(routeInfo) {
     } else {
         parts = [rt.page];
     }
+    if (mapname && mapname != 'main') {
+        parts.push(mapname);
+    }
     return parts.join('-');
 };
 
-map.getMap = function(routeInfo) {
-    var mapid = map.getMapId(routeInfo);
+map.getMap = function(routeInfo, mapname) {
+    var mapid = map.getMapId(routeInfo, mapname);
     return map.maps[mapid] || null;
 };
 
 // Primary map routine
-map.createMap = function(routeInfo, divid) {
+map.createMap = function(routeInfo, divid, mapname) {
     var mapid, mapconf, m, defaults,
         layerConfs, layers,
         basemaps, basemap, div, owl;
 
     // Load configuration and div id
-    mapconf = _getConf(routeInfo.page, routeInfo.mode);
+    mapconf = _getConf(routeInfo.page, routeInfo.mode, mapname);
     defaults = map.config.defaults;
     // If defaults.owl, assume wq/owl has been async-loaded already
     owl = defaults.owl && require('wq/owl');
-    mapid = map.getMapId(routeInfo);
+    mapid = map.getMapId(routeInfo, mapname);
 
     if (!divid) {
         if (mapconf.div) {
@@ -547,7 +572,7 @@ map.createMap = function(routeInfo, divid) {
 
     // Load layerconfs and add empty layer groups to map
     layers = {};
-    layerConfs = map.getLayerConfs(routeInfo);
+    layerConfs = map.getLayerConfs(routeInfo, mapname);
     var overlays = layerConfs.map(map.createOverlay);
     var results = [];
     layerConfs.forEach(function(layerconf, i) {
@@ -642,7 +667,7 @@ map.createMap = function(routeInfo, divid) {
     $controls.find("input").attr("data-role", "none");
 
     if (mapconf.onshow) {
-        mapconf.onshow(m, layers, basemaps, routeInfo);
+        mapconf.onshow(m, layers, basemaps, routeInfo, mapname);
     }
 
     if (routeInfo.mode == 'edit' && L.Control.Draw) {
@@ -710,28 +735,27 @@ function _makeCluster(clusterIcon) {
 }
 
 // Load map configuration for a given page
-function _getConf(page, mode) {
+function _getConf(page, mode, mapname) {
     var conf = map.config.maps[page];
     if (!conf) {
         throw 'Configuration for "' + page + '" not found!';
     }
+    if (!mapname) {
+        mapname = 'main';
+    }
 
-    // Options that apply to all modes
-    var mapconf = {};
-    var reserved = ['defaults', 'list', 'detail', 'edit'];
-    Object.keys(conf).forEach(function(key) {
-        if (reserved.indexOf(key) > -1) {
-            return;
-        }
-        mapconf[key] = conf[key];
-    });
-
-    // Mix in mode-specific options
-    L.extend(mapconf, conf.defaults, conf[mode] || {});
-    mapconf.layers = conf.defaults.layers.concat(conf.layers || []);
-    if (mode && mode != 'defaults') {
-        mapconf.layers = mapconf.layers.concat(
-            (conf[mode] || {}).layers || []
+    // Start with defaults, override with mode-specific options
+    var mapconf = L.extend(
+        {},
+        conf.defaults.maps[mapname] || {},
+        (conf[mode] || {'maps': {}}).maps[mapname] || {}
+    );
+    // Combine (rather than overwrite) defaults + mode-specific layers
+    if (mode && mode != 'defaults' &&
+          conf.defaults.maps[mapname] &&
+          conf.defaults.maps[mapname].layers) {
+        mapconf.layers = conf.defaults.maps[mapname].layers.concat(
+            mapconf.layers || []
         );
     }
     return mapconf;
