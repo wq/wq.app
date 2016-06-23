@@ -413,7 +413,8 @@ map.addOverlayType('geojson', function(layerconf) {
 });
 
 // Hooks for customizing layer and draw controls
-map.createLayerControl = function(basemaps, layers) {
+map.createLayerControl = function(basemaps, layers, routeInfo, mapname) {
+    /* jshint unused: false */
     return L.control.layers(basemaps, layers);
 };
 
@@ -587,7 +588,9 @@ map.createMap = function(routeInfo, divid, mapname) {
     });
 
     if (!mapconf.noLayerControl) {
-        map.createLayerControl(basemaps, layers).addTo(m);
+        map.createLayerControl(
+            basemaps, layers, routeInfo, mapname
+        ).addTo(m);
     }
 
     Promise.all(results).then(autoZoom);
