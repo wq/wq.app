@@ -761,6 +761,12 @@ function _getConf(page, mode, mapname) {
             mapconf.layers || []
         );
     }
+    if (!mapconf.name) {
+        mapconf.name = conf.name;
+    }
+    if (!mapconf.url) {
+        mapconf.url = conf.url;
+    }
     return mapconf;
 }
 
