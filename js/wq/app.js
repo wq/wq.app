@@ -522,7 +522,7 @@ function _callPlugins(method, lookup, args) {
     for (plugin in app.plugins) {
         fn = app.plugins[plugin][method];
         if (args) {
-            fnArgs = args
+            fnArgs = args;
         } else if (lookup) {
             fnArgs = [lookup[plugin]];
         }
