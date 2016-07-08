@@ -518,14 +518,16 @@ function _setCSRFToken(csrftoken) {
 }
 
 function _callPlugins(method, lookup, args) {
-    var plugin, fn, queue = [];
+    var plugin, fn, fnArgs, queue = [];
     for (plugin in app.plugins) {
         fn = app.plugins[plugin][method];
-        if (lookup && !args) {
-            args = [lookup[plugin]];
+        if (args) {
+            fnArgs = args
+        } else if (lookup) {
+            fnArgs = [lookup[plugin]];
         }
         if (fn) {
-            queue.push(fn.apply(app.plugins[plugin], args));
+            queue.push(fn.apply(app.plugins[plugin], fnArgs));
         }
     }
     return queue;
