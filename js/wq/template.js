@@ -1,5 +1,5 @@
 /*
- * wq.app 1.0.0-dev - wq/template.js
+ * wq.app 1.0.0b1 - wq/template.js
  * Render and inject Mustache templates
  * (c) 2012-2016, S. Andrew Sheppard
  * https://wq.io/license
