@@ -275,35 +275,16 @@ map.loadLayer = function(url) {
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
     /* jshint maxlen: false */
-    var mqcdn;
-    if (location.protocol == "http") {
-        mqcdn = "http://otile{s}.mqcdn.com";
-    } else {
-        mqcdn = "https://otile{s}-s.mqcdn.com";
-    }
-    mqcdn += "/tiles/1.0.0/{layer}/{z}/{x}/{y}.png";
-
-    // Attribution (https://gist.github.com/mourner/1804938)
-    var osmAttr = 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-    var aerialAttr = 'Imagery &copy; NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency';
-    var mqTilesAttr = 'Tiles &copy; <a href="https://www.mapquest.com/" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png" />';
+    var cdn = '//stamen-tiles-{s}.a.ssl.fastly.net/{layer}/{z}/{x}/{y}.jpg';
+    var attr = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.';
 
     return [
         {
-            'name': "Street",
+            'name': "Stamen Terrain",
             'type': 'tile',
-            'url': mqcdn,
-            'subdomains': '1234',
-            'layer': 'map',
-            'attribution': osmAttr + ', ' + mqTilesAttr
-        },
-        {
-            'name': "Aerial",
-            'type': 'tile',
-            'url': mqcdn,
-            'subdomains': '1234',
-            'layer': 'sat',
-            'attribution': aerialAttr + ', ' + mqTilesAttr
+            'url': cdn,
+            'layer': 'terrain',
+            'attribution': attr
         }
     ];
 }
