@@ -37,9 +37,7 @@ map.config = {
             'shadowSize':  [41, 41]
         },
 
-        'basemaps': _defaultBasemaps(),
-
-        'owl': false
+        'basemaps': _defaultBasemaps()
     }
 };
 
@@ -463,17 +461,11 @@ map.addDrawControl = function(m, layer, opts, $geom) {
 // Default popup renderer for items - override to customize
 // (assumes template called [page]_popup)
 map.renderPopup = function(page) {
-    var owl = map.config.defaults.owl && require('wq/owl');
     return function(feat, layer) {
         var attrs = L.extend({'id': feat.id}, feat.properties);
         layer.bindPopup(
             tmpl.render(page + '_popup', attrs)
         );
-        if (owl) {
-            layer.on('click', function() {
-                owl('map:layerclick', {'page': page, 'id': feat.id});
-            });
-        }
     };
 };
 
@@ -505,13 +497,11 @@ map.getMap = function(routeInfo, mapname) {
 map.createMap = function(routeInfo, divid, mapname) {
     var mapid, mapconf, m, defaults,
         layerConfs, layers,
-        basemaps, basemap, div, owl;
+        basemaps, basemap, div;
 
     // Load configuration and div id
     mapconf = _getConf(routeInfo.page, routeInfo.mode, mapname);
     defaults = map.config.defaults;
-    // If defaults.owl, assume wq/owl has been async-loaded already
-    owl = defaults.owl && require('wq/owl');
     mapid = map.getMapId(routeInfo, mapname);
 
     if (!divid) {
@@ -619,25 +609,6 @@ map.createMap = function(routeInfo, divid, mapname) {
     if (map.config.defaults.autoZoom.sticky) {
         m.on('moveend', function() {
             map.config.defaults.lastBounds = m.getBounds();
-        });
-    }
-    if (owl) {
-        m.on('moveend', function() {
-            owl('map:moveend', {
-                'zoom': m.getZoom(),
-                'center': m.getCenter(),
-                'bounds': m.getBounds()
-            });
-        });
-        [
-            'baselayerchange',
-            'overlayadd',
-            'overlayremove'
-        ].forEach(_layerEvent);
-    }
-    function _layerEvent(name) {
-        m.on(name, function(evt) {
-            owl('map:' + name, {'layer': evt.name});
         });
     }
 

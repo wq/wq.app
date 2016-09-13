@@ -6,13 +6,12 @@ requirejs.config({
     }
 });
 
-require(['wq/app', 'wq/map', 'wq/owl',
+require(['wq/app', 'wq/map',
          'app/config', 'app/custom',
          'leaflet.draw'],
-function(app, map, owl, config, custom) {
+function(app, map, config, custom) {
     config.jqmInit = true;
     app.use(map);
-    app.use(owl);
     app.use(custom);
     app.init(config);
 });

@@ -9,7 +9,6 @@ return {
     'pages': wqConfig.pages,
     'map': {
         'bounds': [[44.95, -93.30], [45.01, -93.24]]
-//      'owl': true
     },
     'template': {
         'templates': templates,
