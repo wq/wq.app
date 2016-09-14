@@ -78,6 +78,7 @@ Library                 |  Version  |  Notes
 [leaflet.draw]          |    0.3.0  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |  e3f2218  | [#603]
+[memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.3  |  
 [mustache.js]           |    2.0.0  |  
 [proj4]                 |    2.3.6  |  
@@ -105,6 +106,7 @@ Library                 |  Version  |  Notes
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
 [localforage]:           https://github.com/localForage/localForage
+[memoryStorageDriver]:   https://github.com/localForage/localForage-memoryStorageDriver
 [#603]:                  https://github.com/localForage/localForage/pull/603
 [marked]:                https://github.com/chjj/marked
 [mustache.js]:           https://github.com/janl/mustache.js
