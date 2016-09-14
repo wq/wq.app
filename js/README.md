@@ -77,7 +77,7 @@ Library                 |  Version  |  Notes
 [leaflet]               |    0.7.7  | [#3359]
 [leaflet.draw]          |    0.3.0  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
-[localforage]           |    1.2.7  |  expose blob support detection for use by wq/store.js (see [#380])
+[localforage]           |  e3f2218  | [#603]
 [marked]                |    0.3.3  |  
 [mustache.js]           |    2.0.0  |  
 [proj4]                 |    2.3.6  |  
@@ -104,8 +104,8 @@ Library                 |  Version  |  Notes
 [#3359]:                 https://github.com/Leaflet/Leaflet/pull/3559
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
-[localforage]:           https://github.com/mozilla/localForage
-[#380]:                  https://github.com/mozilla/localForage/issues/380
+[localforage]:           https://github.com/localForage/localForage
+[#603]:                  https://github.com/localForage/localForage/pull/603
 [marked]:                https://github.com/chjj/marked
 [mustache.js]:           https://github.com/janl/mustache.js
 [proj4]:                 https://github.com/proj4js/proj4js
