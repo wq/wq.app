@@ -5,8 +5,9 @@
  * https://wq.io/license
  */
 
-define(['localforage', './json', './console', 'es5-shim'],
-function(lf, json, console) {
+define(['localforage', 'localforage-memoryStorageDriver',
+        './json', './console', 'es5-shim'],
+function(localForage, memoryStorageDriver, json, console) {
 
 var _stores = {};
 
@@ -29,6 +30,10 @@ var _verbosity = {
     'Values': 3
 };
 
+localForage.defineDriver(
+    memoryStorageDriver
+);
+
 return store;
 
 function _Store(name) {
@@ -46,11 +51,7 @@ function _Store(name) {
     // Default parameters (e.g f=json)
     self.defaults = {};
 
-    var _prefix = name + '_'; // Used to prefix keys
     var _promises = {}; // Save promises to prevent redundant fetches
-
-    var _getItem, _getItemFn, _setItem, _setItemFn, _removeItem, _removeItemFn,
-        _keys, _keysFn;
 
     self.init = function(opts) {
         if (typeof opts == "string" || arguments.length > 1) {
@@ -105,7 +106,7 @@ function _Store(name) {
         }
 
         // Check storage first
-        var promise = _getItem(_prefix + key).then(function(result) {
+        var promise = self.lf.getItem(key).then(function(result) {
             if (!result) {
                 return fetchData();
             }
@@ -140,7 +141,7 @@ function _Store(name) {
             if (self.debugLookup) {
                 console.log('deleting ' + key);
             }
-            return _removeItem(_prefix + key);
+            return self.lf.removeItem(key);
         } else {
             if (self.debugLookup) {
                 console.log('saving new value for ' + key);
@@ -148,7 +149,7 @@ function _Store(name) {
                     console.log(value);
                 }
             }
-            return _setItem(_prefix + key, value).then(function(d) {
+            return self.lf.setItem(key, value).then(function(d) {
                 return d;
             }, function(err) {
                 self.storageFail(value, err);
@@ -171,26 +172,7 @@ function _Store(name) {
         });
     };
 
-    // Simple computation for quota usage
-    self.storageUsage = function() {
-        return lf.keys().then(function(keys) {
-            var results = keys.map(function(key) {
-                return lf.getItem(key).then(function(item) {
-                    // FIXME: This won't handle binary values
-                    return JSON.stringify(item).length;
-                });
-            });
-            return Promise.all(results).then(function(lengths) {
-                var usage = 0;
-                lengths.forEach(function(l) {
-                    usage += l;
-                });
-                // UTF-16 means two bytes per character in storage
-                // FIXME: Is this true for non-localStorage backends?
-                return usage * 2;
-            });
-        });
-    };
+    self.storageUsage = _globalStorageUsage;
 
     // Convert "/url" to {'url': "url"} (simplify common use case)
     self.normalizeQuery = function(query) {
@@ -299,251 +281,40 @@ function _Store(name) {
     self.reset = function(all) {
         if (all) {
             // Clear out everything - will affect other stores!
-            return lf.clear();
+            return _clearAll();
         } else {
-            // Only clear items matching this store's key prefix
-            self.keys().then(function(keys) {
-                return Promise.all(keys.map(function(key) {
-                    return _removeItem(_prefix + key);
-                }));
-            });
+            // Only clear items for this store
+            return self.lf.clear();
         }
     };
 
     // List storage keys matching this store's key prefix
     self.keys = function() {
-        return _keys().then(function(keys) {
-            return keys.filter(function(key) {
-                return key.indexOf(_prefix) === 0;
-            }).map(function(key){
-                return key.replace(_prefix, "");
+        return self.lf.keys();
+    };
+
+    self.lf = {};
+    [
+        'getItem', 'setItem', 'removeItem', 'keys', 'clear'
+    ].forEach(function(key) {
+        self.lf[key] = function() {
+            var args = arguments;
+            return self.ready.then(function() {
+                return self.lf[key].apply(this, args);
             });
-        });
-    };
-
-    // Some localForage drivers (i.e. localStorage and WebSQL) require
-    // serialization of Blob values.  localForage does this automatically, but
-    // not for Blobs nested within other Objects.  As a workaround, extract
-    // any blobs into separate keys and replace them with references ("refs").
-    // When indexedDB is universally supported, the following can be removed.
-
-    // Override the following to save blobs somewhere else.
-    self.getBlob = function(ref) {
-        return lf.getItem(_prefix + ref);
-    };
-    self.setBlob = function(ref, blob) {
-        return lf.setItem(_prefix + ref, blob);
-    };
-    self.removeBlob = function(ref) {
-        return lf.removeItem(_prefix + ref);
-    };
-    self.makeRef = function(blob) {
-         /* jshint unused: false */
-         return Promise.resolve('blob' + Math.round(
-             Math.random() * 100000000
-         ));
-    };
-
-    // localForage function proxies
-    // (twice-wrapped since self.ready may overwrite implementation.)
-    _getItem = function(key) {
-        return self.ready.then(function() {
-            return _getItemFn(key);
-        });
-    };
-    _getItemFn = function(key) {
-        return lf.getItem(key).then(function(value) {
-            return _insertBlobs(value);
-        });
-    };
-
-    _setItem = function(key, newValue) {
-        return self.ready.then(function() {
-            return _setItemFn(key, newValue);
-        });
-    };
-    _setItemFn = function(key, newValue) {
-        // Extract blobs and also load previous value into memory to see if
-        // there are any refs that need updating.
-        return Promise.all([
-            _extractBlobs(newValue),
-            lf.getItem(key)
-        ]).then(function(values) {
-            var newRefs = _findRefs(values[0]);
-            var oldRefs = _findRefs(values[1]);
-            return _cleanupBlobs(oldRefs, newRefs).then(function() {
-                return lf.setItem(key, values[0]);
-            });
-        });
-    };
-
-    _removeItem = function(key) {
-        return self.ready.then(function() {
-            return _removeItemFn(key);
-        });
-    };
-    _removeItemFn = function(key) {
-        return lf.getItem(key).then(function(oldValue) {
-            var oldRefs = _findRefs(oldValue);
-            return _cleanupBlobs(oldRefs, []).then(function() {
-                return lf.removeItem(key);
-            });
-        });
-    };
-
-    _keys = function() {
-        return self.ready.then(function() {
-            return _keysFn();
-        });
-    };
-
-    _keysFn = function() {
-        return lf.keys();
-    };
-
-    // Recursively extract blobs into separate values & replace with refs
-    function _extractBlobs(value) {
-        if (!(value instanceof Object) || !window.Blob) {
-            return Promise.resolve(value);
-        } else if (json.isArray(value)) {
-            return Promise.all(value.map(_extractBlobs));
-        } else if (value instanceof Blob) {
-            if (value._ref) {
-                if (self.debugValues) {
-                     console.log('blob already saved: ' + value._ref);
-                }
-                return Promise.resolve('_ref_' + value._ref);
-            }
-            return self.makeRef(value).then(function(ref) {
-                if (self.debugValues) {
-                     console.log('saving blob ' + ref);
-                }
-                return self.setBlob(ref, value).then(function() {
-                    return '_ref_' + ref;
-                });
-            });
-        }
-        var keys = Object.keys(value);
-        var results = keys.map(function(key) {
-            return _extractBlobs(value[key]);
-        });
-        return Promise.all(results).then(function(values) {
-            var result = {};
-            values.forEach(function(value, i) {
-                var key = keys[i];
-                result[key] = value;
-                // Check for and propagate _nested property
-                if (!json.isArray(value)) {
-                    value = [value];
-                }
-                value.forEach(function(val) {
-                    if (!val) {
-                        return;
-                    }
-                    if ((val.match && val.match(/^_ref_/)) || val._nested) {
-                        result._nested = true;
-                    }
-                });
-            });
-            return result;
-        });
-    }
-
-    // Recursively replace refs with associated blobs
-    function _insertBlobs(value) {
-        var match = value && value.match && value.match(/^_ref_(.+)/);
-        var ref = match && match[1];
-        if (ref) {
-            if (self.debugValues) {
-                 console.log('loading blob ' + ref);
-            }
-            return lf.getItem(_prefix + ref).then(function(blob) {
-                if (blob) {
-                    blob._ref = ref;
-                }
-                return blob;
-            });
-        } else if (json.isArray(value)) {
-            return Promise.all(value.map(_insertBlobs));
-        } else if (!(value instanceof Object) || !value._nested) {
-            return Promise.resolve(value);
-        }
-        var keys = Object.keys(value);
-        var results = keys.map(function(key) {
-            return _insertBlobs(value[key]);
-        });
-        return Promise.all(results).then(function(values) {
-            var result = {};
-            values.forEach(function(value, i) {
-                if (keys[i] == "_nested") {
-                   return;
-                }
-                result[keys[i]] = value;
-            });
-            return result;
-        });
-    }
-
-    // List all refs in object (and any nested objects)
-    function _findRefs(value) {
-        var match = value && value.match && value.match(/^_ref_(.+)/);
-        var refs = [];
-        if (match) {
-            return [match[1]];
-        }
-        if (json.isArray(value)) {
-            value.map(_findRefs).forEach(function(r) {
-                refs = refs.concat(r);
-            });
-            return refs;
-        }
-        if (!(value instanceof Object) || !value._nested) {
-            return [];
-        }
-        Object.keys(value).forEach(function(key) {
-            refs = refs.concat(_findRefs(value[key]));
-        });
-        return refs;
-    }
-
-    // Clean up refs after an update
-    function _cleanupBlobs(oldRefs, newRefs) {
-        var newRefMap = {};
-        newRefs.forEach(function(ref) {
-            newRefMap[ref] = true;
-        });
-        var deletedRefs = oldRefs.filter(function(ref) {
-            return !(newRefMap[ref]);
-        });
-        return Promise.all(deletedRefs.map(function(ref) {
-            if (self.debugValues) {
-                 console.log('deleting blob ' + ref);
-            }
-            return self.removeBlob(ref);
-        }));
-    }
+        };
+    });
 
     function _ready(resolve) {
         var resolved = false;
-        lf.ready().then(function() {
-            lf.setItem('wq-store-test', true).then(function() {
-                // localForage is available; continue as normal
-
-                // Disable blob extraction if it's not needed
-                lf.supportsBlobs().then(function(supportsBlobs) {
-                    if (!self.alwaysExtractBlobs && supportsBlobs) {
-                        _setItemFn = _setItem = lf.setItem.bind(lf);
-                        _getItemFn = _getItem = lf.getItem.bind(lf);
-                        _removeItemFn = _removeItem = lf.removeItem.bind(lf);
-                        _keysFn = _keys = lf.keys.bind(lf);
-                    }
-                    resolved = true;
-                    resolve();
-                });
-
-            // Couldn't store wq-store-test for some reason
-            }, fallback);
-
+        self.lf = localForage.createInstance({
+            'name': self.name
+        });
+        self.lf.ready().then(function() {
+            self.lf.setItem('wq-store-test', true).then(function() {
+                resolved = true;
+                return self.lf.removeItem('wq-store-test');
+            }).then(resolve, fallback);
         // localForage.ready() failed for some reason
         }, fallback);
 
@@ -558,40 +329,52 @@ function _Store(name) {
 
         function fallback() {
             if (!resolved) {
-                _inMemoryFallback();
-                resolve();
+                if (self.debug) {
+                    console.warn(
+                        "Offline storage is not working; using in-memory store"
+                    );
+                }
+                self.lf.setDriver(memoryStorageDriver._driver).then(resolve);
             }
             resolved = true;
         }
     }
+}
 
-    function _inMemoryFallback() {
-        // localForage isn't working for whatever reason
-        // Replace with in-memory store to avoid breaking other code
-        if (self.debug) {
-            console.warn(
-                "localForage is not working; using in-memory store"
-            );
-        }
-        var inMemoryStore = {};
-        _setItemFn = _setItem = function(key, value) {
-            inMemoryStore[key] = value;
-            return Promise.resolve(value);
-        };
-        _getItemFn = _getItem = function(key) {
-            if (inMemoryStore.hasOwnProperty(key)) {
-                return Promise.resolve(inMemoryStore[key]);
-            }
-            return Promise.resolve(null);
-        };
-        _removeItemFn = _removeItem = function(key) {
-            delete inMemoryStore[key];
-            return Promise.resolve();
-        };
-        _keysFn = _keys = function() {
-            return Promise.resolve(Object.keys(inMemoryStore));
-        };
-    }
+// Simple computation for quota usage across stores
+function _globalStorageUsage() {
+    return Promise.all(Object.keys(_stores).map(function(storeName) {
+        var lf = _stores[storeName].lf;
+        return lf.keys().then(function(keys) {
+            var results = keys.map(function(key) {
+                return lf.getItem(key).then(function(item) {
+                    // FIXME: This won't handle binary values
+                    return JSON.stringify(item).length;
+                });
+            });
+            return Promise.all(results).then(function(lengths) {
+                var usage = 0;
+                lengths.forEach(function(l) {
+                    usage += l;
+                });
+                // UTF-16 means two bytes per character in storage
+                // FIXME: Is this true for non-localStorage backends?
+                return usage * 2;
+            });
+        });
+    })).then(function(allResults) {
+        var total = 0;
+        allResults.forEach(function(result) {
+            total += result;
+        });
+        return total;
+    });
+}
+
+function _clearAll() {
+    return Promise.all(Object.keys(_stores).map(function(storeName) {
+        return _stores[storeName].reset();
+    }));
 }
 
 });
