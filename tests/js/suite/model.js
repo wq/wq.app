@@ -32,4 +32,26 @@ QUnit.test("find item", function(assert) {
     });
 });
 
+QUnit.test("filter by single value", function(assert) {
+    var done = assert.async();
+    items.filter({'type_id': 1}).then(function(items) {
+        assert.equal(items.length, 2, "filter should return two results");
+        assert.equal(items[0].id, "one", "first result should be item 'one'");
+        assert.equal(items[1].id, "two", "second result should be item 'two'");
+        done();
+    });
+});
+
+QUnit.test("filter by multiple values", function(assert) {
+    var done = assert.async();
+    items.filter({'color': ['#f00', '#00f']}).then(function(items) {
+        assert.equal(items.length, 2, "filter should return two results");
+        assert.equal(items[0].id, "one", "first result should be item 'one'");
+        assert.equal(
+            items[1].id, "three", "second result should be item 'three'"
+        );
+        done();
+    });
+});
+
 });

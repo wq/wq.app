@@ -1545,9 +1545,26 @@ function _getConfByUrl(url) {
 }
 
 function _computeFilter(filter, context) {
-    // FIXME: "render" filter with attributes from context
-    /* jshint unused: false */
-    return filter;
+    var computedFilter = {};
+    Object.keys(filter).forEach(function(key) {
+        var values = filter[key];
+        if (!$.isArray(values)) {
+            values = [values];
+        }
+        values = values.map(function(value) {
+            if (value.indexOf && value.indexOf('{{') > -1) {
+                return tmpl.render(value, context);
+            } else {
+                return value;
+            }
+        });
+        if (values.length > 1) {
+            computedFilter[key] = values;
+        } else {
+            computedFilter[key] = values[0];
+        }
+    });
+    return computedFilter;
 }
 
 function _loadFromServer(url, ui) {

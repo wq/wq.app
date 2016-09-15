@@ -367,7 +367,7 @@ function Model(config) {
         if (json.isArray(value)) {
             // Assume multivalued query, return all matching groups
             var results = value.map(function(v) {
-                return self.getGroup(v);
+                return self.getGroup(attr, v);
             });
             return Promise.all(results).then(function(groups) {
                 var result = [];
