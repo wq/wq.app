@@ -128,13 +128,18 @@ map.init = function(defaults) {
 map.run = function($page, routeInfo) {
     var mapconf = map.config.maps[routeInfo.page],
         mode = routeInfo.mode,
-        maps = mapconf && mapconf[mode] && mapconf[mode].maps;
-
-    if (maps) {
-        Object.keys(maps).forEach(function(mapname) {
-            map.createMap(routeInfo, null, mapname);
-        });
+        maps = [];
+    if (!mapconf) {
+        return;
     }
+    if (mapconf[mode] && mapconf[mode].maps) {
+        maps = Object.keys(mapconf[mode].maps);
+    } else {
+        maps = ['main'];
+    }
+    maps.forEach(function(mapname) {
+        map.createMap(routeInfo, null, mapname);
+    });
 };
 
 // Add a layer configuration (layerconf) to a map configuration
