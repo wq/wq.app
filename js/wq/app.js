@@ -1325,7 +1325,7 @@ function _addLookups(page, context, editable, routeInfo) {
                 nested = [nested];
             }
             nested.forEach(function(row) {
-                row[parts[1]] = result;
+                row[parts[1]] = row[parts[1]] || result;
             });
         });
         return Promise.all(_callPlugins(
@@ -1422,7 +1422,12 @@ function _item_choice_lookup(page, field, context) {
 // Simple foreign key lookup
 function _parent_lookup(field, context) {
     var model = app.models[field['wq:ForeignKey']];
-    return model.find(context[field.name + '_id']);
+    var id = context[field.name + '_id'];
+    if (id) {
+        return model.find(id);
+    } else {
+        return null;
+    }
 }
 
 // Foreign key lookup for objects other than root
@@ -1552,7 +1557,7 @@ function _computeFilter(filter, context) {
             values = [values];
         }
         values = values.map(function(value) {
-            if (value.indexOf && value.indexOf('{{') > -1) {
+            if (value && value.indexOf && value.indexOf('{{') > -1) {
                 return tmpl.render(value, context);
             } else {
                 return value;
