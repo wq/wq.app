@@ -68,7 +68,7 @@ Library                 |  Version  |  Notes
 [d3.js]                 |    4.2.6  |  
 [es5-shim.js]           |    4.1.1  |  
 [esri-leaflet]          |    1.0.2  |
-[highlight.js]          |      8.5  |  `node tools/build.js -t amd -n bash css javascript markdown python scss xml`
+[highlight.js]          |    9.7.0  |  `node tools/build.js -t amd -n bash css javascript markdown python scss xml`
 [jquery]                |   1.11.3  |  
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first; `autoInitializePage: false`
 [jquery.mobile.router]  |  443d352  |  
