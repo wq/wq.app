@@ -84,7 +84,7 @@ Library                 |  Version  |  Notes
 [proj4]                 |    2.3.6  |  
 [proj4leaflet]          |    0.7.1  |  
 [rbush]                 |    1.4.0  |
-[requirejs], [r.js]     |   2.1.17  |  r.js is in /build
+[requirejs], [r.js]     |    2.3.2  |  r.js is in /build
 [qunit]                 |   1.22.0  |
 
 [wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
