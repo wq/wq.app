@@ -80,7 +80,7 @@ Library                 |  Version  |  Notes
 [localforage]           |  e3f2218  | [#603]
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
-[mustache.js]           |    2.0.0  |  
+[mustache.js]           |    2.2.1  |  
 [proj4]                 |    2.3.6  |  
 [proj4leaflet]          |    0.7.1  |  
 [rbush]                 |    1.4.0  |
