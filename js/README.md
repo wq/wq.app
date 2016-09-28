@@ -79,7 +79,7 @@ Library                 |  Version  |  Notes
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |  e3f2218  | [#603]
 [memoryStorageDriver]   |  a2396b3  |
-[marked]                |    0.3.3  |  
+[marked]                |    0.3.6  |  
 [mustache.js]           |    2.0.0  |  
 [proj4]                 |    2.3.6  |  
 [proj4leaflet]          |    0.7.1  |  
