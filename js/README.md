@@ -65,7 +65,7 @@ function(d3, $, L)(
 
 Library                 |  Version  |  Notes
 ------------------------| --------- | -------------------------------------------
-[d3.js]                 |    3.5.5  |  
+[d3.js]                 |    4.2.6  |  
 [es5-shim.js]           |    4.1.1  |  
 [esri-leaflet]          |    1.0.2  |
 [highlight.js]          |      8.5  |  `node tools/build.js -t amd -n bash css javascript markdown python scss xml`
