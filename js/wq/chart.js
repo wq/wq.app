@@ -46,12 +46,12 @@ chart.base = function() {
         chartover=false,
         chartout=false,
         xscale = null,
-        xscalefn = d3.scale.linear,
+        xscalefn = d3.scaleLinear,
         xnice = null,
         xticks = null,
         yscales = {},
-        yscalefn = d3.scale.linear,
-        cscale = d3.scale.category20(),
+        yscalefn = d3.scaleLinear,
+        cscale = d3.scaleOrdinal(d3.schemeCategory20),
         outerFill = '#f3f3f3',
         innerFill = '#eee',
         legend = null,
@@ -203,7 +203,7 @@ chart.base = function() {
             _positionLegend.call(this, legendItems(data));
         }
         _computeScales(datasets(data));
-        var ordinal = xscalefn().rangePoints || false;
+        var ordinal = xscalefn().bandwidth || false;
         var svg = d3.select(this);
         var uid = svg.attr('data-wq-uid') || Math.round(
             Math.random() * 1000000
@@ -278,7 +278,8 @@ chart.base = function() {
         if (ordinal) {
             xscale.scale
                 .domain(xset(data).sort(d3.ascending))
-                .rangePoints([0, gwidth], 1);
+                .range([0, gwidth])
+                .padding(0.5);
         } else {
             xscale.scale
                 .domain([xscale.xmin, xscale.xmax])
@@ -288,31 +289,32 @@ chart.base = function() {
             xscale.scale.nice(xnice);
         }
 
-        xscale.axis = d3.svg.axis()
-            .scale(xscale.scale)
-            .orient('bottom')
-            .tickSize(4, 2, 1);
+        xscale.axis = d3.axisBottom()
+            .scale(xscale.scale);
         if (xticks) {
             xscale.axis.ticks(xticks);
         }
 
         for (var scaleid in yscales) {
             var scale = yscales[scaleid];
-            var domain;
+            var domain, axisfn;
             if (scale.invert) {
                 domain = [scale.ymax, scale.ymin];
             } else {
                 domain = [scale.ymin, scale.ymax];
+            }
+            if (scale.orient == 'right') {
+                axisfn = d3.axisRight;
+            } else {
+                axisfn = d3.axisLeft;
             }
             scale.scale = yscalefn()
                 .domain(domain)
                 .nice()
                 .range([gheight, 0]);
 
-            scale.axis = d3.svg.axis()
-                .scale(scale.scale)
-                .orient(scale.orient)
-                .tickSize(4, 2, 1);
+            scale.axis = axisfn()
+                .scale(scale.scale);
         }
 
         // Render each dataset
@@ -338,8 +340,7 @@ chart.base = function() {
         // Render axes
         _selectOrAppend(outer, 'g', 'xaxis')
             .attr('transform', _trans(margins.left, cbottom))
-            .call(xscale.axis)
-            .selectAll('line').attr('stroke', '#000');
+            .call(xscale.axis);
 
         var yaxes = outer.selectAll('g.axis')
             .data(d3.values(yscales), function(s){ return s.id; });
@@ -357,22 +358,22 @@ chart.base = function() {
             })
             .each(function(d) {
                 var axis = d3.select(this);
-                axis.call(d.axis)
-                   .selectAll('line').attr('stroke', '#000');
+                axis.call(d.axis);
                 axis.select('text')
                     .text(d.id || '')
                     .attr('text-anchor', 'middle')
                     .attr('font-weight', 'bold')
+                    .attr('fill', '#000')
                     .attr('transform', function() {
                         if (d.orient == 'left') {
                             return (
                                 'rotate(-90),' +
-                                'translate(-' + gheight / 2 + ',-60)'
+                                'translate(-' + gheight / 2 + ',-30)'
                             );
                         } else {
                             return (
                                 'rotate(90),' +
-                                'translate(' + gheight / 2 + ',-60)'
+                                'translate(' + gheight / 2 + ',-30)'
                             );
                         }
                     });
@@ -391,13 +392,13 @@ chart.base = function() {
         if (rows > 5) {
             plot.legend({
                 'position': 'right',
-                'size': 150,
+                'size': 120,
                 'auto': true
             });
         } else {
             plot.legend({
                 'position': 'bottom',
-                'size': (rows * 22 + 20),
+                'size': (rows * 19 + 19),
                 'auto': true
             });
         }
@@ -444,9 +445,9 @@ chart.base = function() {
                 yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
             }
         });
-        var ymargin = {'left': 70};
+        var ymargin = {'left': 35};
         if (d3.keys(yscales).length > 1) {
-            ymargin.right = 70;
+            ymargin.right = 35;
         }
         plot.setMargin('yaxis', ymargin);
     }
@@ -487,13 +488,15 @@ chart.base = function() {
             var g = d3.select(this),
                 sid = legendItemId(d);
             g.append(legendItemShape(sid));
-            g.append('text');
+            g.append('text')
+                .attr('font-family', 'sans-serif')
+                .attr('font-size', '13px');
         });
         legitems.exit().remove();
         legitems.each(function(d, i) {
             var g = d3.select(this).select('g.data'),
                 sid = legendItemId(d);
-            g.attr('transform', _trans(20, 20 + i * 22));
+            g.attr('transform', _trans(14, 18 + i * 20));
             g.select(legendItemShape(sid)).call(legendItemStyle(sid));
             g.select('text')
                 .text(legendItemLabel(d))
@@ -981,7 +984,7 @@ chart.scatter = function() {
             yscaled = plot.yscaled()(yunits),
             g       = d3.select(this),
             path    = g.select('path.data'),
-            line    = d3.svg.line()
+            line    = d3.line()
                         .x(xscaled)
                         .y(yscaled);
         d3.select(g.node().parentNode.parentNode)
@@ -1103,13 +1106,14 @@ chart.scatter = function() {
 // Time series scatter plot
 chart.timeSeries = function() {
     var plot = chart.scatter(),
-        format = d3.time.format('%Y-%m-%d');
+        format = d3.timeFormat('%Y-%m-%d'),
+        parse = d3.timeParse('%Y-%m-%d');
 
     plot.xvalue(function(d) {
-        return format.parse(d.date);
+        return parse(d.date);
     })
-    .xscalefn(d3.time.scale)
-    .xnice(d3.time.year)
+    .xscalefn(d3.scaleTime)
+    .xnice(d3.timeYear)
     .yvalue(function(d) {
         return d.value;
     })
@@ -1129,51 +1133,11 @@ chart.timeSeries = function() {
         if (!arguments.length) {
             return format;
         }
-        format = d3.time.format(val);
+        format = d3.timeFormat(val);
+        parse = d3.timeParse(val);
         return plot;
     };
 
-    return plot;
-};
-
-// Contours (precomputed)
-chart.contour = function() {
-    var plot = chart.scatter();
-
-    plot.legendItemShape(function(sid) {
-        /* jshint unused: false */
-        return 'rect';
-    }).legendItemStyle(
-        plot.rectStyle()
-    );
-
-    plot.render(function(dataset) {
-        var x = plot.xvalue(),
-            y = plot.yvalue(),
-            yunits = plot.yunits(),
-            xscale = plot.xscale().scale,
-            yscale = plot.yscales()[yunits(dataset)].scale,
-            cscale = plot.cscale(),
-            id = plot.id(),
-            items = plot.items();
-
-        var path = d3.svg.line()
-            .x(function(d) {
-                return xscale(x(d));
-            })
-            .y(function(d) {
-                return yscale(y(d));
-            });
-
-        var contours = d3.select(this).selectAll('path.contour')
-           .data(items(dataset), id);
-        contours.enter()
-           .append('path')
-           .attr('class', 'contour');
-        contours.exit().remove();
-        contours.attr('d', path)
-           .attr('fill', cscale(id(dataset)));
-    });
     return plot;
 };
 
@@ -1218,7 +1182,7 @@ chart.boxplot = function() {
         return d[prefix + 'whislo'];
     };
 
-    plot.xscalefn(d3.scale.ordinal)
+    plot.xscalefn(d3.scalePoint)
         .itemid(function(d) { return plot.xvalue()(d); })
         .ymin(function(dataset) {
             var items = plot.items();
