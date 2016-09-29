@@ -8,8 +8,7 @@
 
 define(['jquery', 'jquery.mobile', 'json-forms',
         './store', './model', './outbox', './router', './template',
-        './spinner', './console',
-        'es5-shim'],
+        './spinner', './console'],
 function($, jqm, jsonforms, ds, model, outbox, router, tmpl, spin, console) {
 
 var app = {

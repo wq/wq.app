@@ -6,7 +6,7 @@
  */
 
 define(['leaflet', 'jquery', './json', './spinner',
-        './template', './console', 'es5-shim'],
+        './template', './console'],
 function(L, $, json, spin, tmpl, console) {
 
 // module variable

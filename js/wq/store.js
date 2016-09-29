@@ -6,7 +6,7 @@
  */
 
 define(['localforage', 'localforage-memoryStorageDriver',
-        './json', './console', 'es5-shim'],
+        './json', './console'],
 function(localForage, memoryStorageDriver, json, console) {
 
 var _stores = {};
