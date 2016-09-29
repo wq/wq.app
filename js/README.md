@@ -83,7 +83,6 @@ Library                 |  Version  |  Notes
 [mustache.js]           |    2.2.1  |  
 [proj4]                 |    2.3.6  |  
 [proj4leaflet]          |    0.7.1  |  
-[rbush]                 |    1.4.0  |
 [requirejs], [r.js]     |    2.3.2  |  r.js is in /build
 [qunit]                 |    2.0.1  |
 
@@ -112,7 +111,6 @@ Library                 |  Version  |  Notes
 [mustache.js]:           https://github.com/janl/mustache.js
 [proj4]:                 https://github.com/proj4js/proj4js
 [proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
-[rbush]:                 https://github.com/mourner/rbush
 [requirejs]:             https://github.com/jrburke/requirejs
 [r.js]:                  https://github.com/jrburke/r.js
 [qunit]:                 https://qunitjs.com/
