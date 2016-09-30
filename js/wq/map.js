@@ -188,6 +188,10 @@ map.createIcon = function(name, options) {
     return map.icons[name];
 };
 
+map.onEachFeature = function(name, callback) {
+    map.onEachFeature[name] = callback;
+};
+
 // Compute default layer configuration for wq REST API
 map.addAutoLayers = function(page) {
     var listConf = _getConf(page, 'list', 'main');
@@ -361,7 +365,7 @@ map.addOverlayType('geojson', function(layerconf) {
 
     // Load layer content as JSON
     overlay.ready = map.loadLayer(layerconf.url).then(function(geojson) {
-        var options = {}, popup;
+        var options = {}, popup, oneach;
         if (!geojson || !geojson.type) {
             console.warn("Ignoring empty or malformed GeoJSON result.");
             return overlay;
@@ -369,13 +373,20 @@ map.addOverlayType('geojson', function(layerconf) {
         if (layerconf.popup) {
             popup = map.renderPopup(layerconf.popup);
         }
-        if (layerconf.oneach && popup) {
+        if (layerconf.oneach) {
+            if (typeof layerconf.oneach == 'function') {
+                oneach = layerconf.oneach;
+            } else {
+                oneach = map.onEachFeature[layerconf.oneach];
+            }
+        }
+        if (oneach && popup) {
             options.onEachFeature = function(feat, layer) {
                 popup(feat, layer);
-                layerconf.oneach(feat, layer);
+                oneach(feat, layer);
             };
-        } else if (layerconf.oneach) {
-            options.onEachFeature = layerconf.oneach;
+        } else if (oneach) {
+            options.onEachFeature = oneach;
         } else if (popup) {
             options.onEachFeature = popup;
         }
