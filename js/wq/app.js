@@ -173,11 +173,14 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
+    Object.keys(app.wq_config.pages).forEach(function(page) {
+        app.wq_config.pages[page].name = page;
+    });
+
     _callPlugins('init', app.config);
 
     // Register routes with wq/router.js
     Object.keys(app.wq_config.pages).forEach(function(page) {
-        app.wq_config.pages[page].name = page;
         var conf = _getConf(page);
         if (conf.list) {
             conf.modes.forEach(function(mode) {

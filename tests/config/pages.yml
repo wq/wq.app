@@ -46,3 +46,80 @@ contacttype:
     label: 'Contact Types'
     list: true
     form: []
+
+listmap1:
+    url: 'listmap1'
+    list: true
+    form: []
+    map:
+       mode: list
+       layers:
+         - type: geojson
+           url: test.geojson
+           name: Map Test
+listmap2:
+    url: 'listmap2'
+    list: true
+    form: []
+    map:
+     - mode: list
+       layers:
+         - type: geojson
+           url: test.geojson
+           name: Map Test
+listmap3:
+    url: 'listmap3'
+    list: true
+    form: []
+    map:
+     - mode: all
+       layers:
+         - type: geojson
+           url: test.geojson
+           name: Map Test
+     - mode: list
+       layers: []
+     - mode: detail
+       layers: []
+listmap4:
+    url: 'listmap4'
+    list: true
+    form: []
+    map:
+     - mode: list
+       map: second
+       layers:
+         - type: geojson
+           url: test2.geojson
+           name: Map Test2
+     - mode: list
+       map: main
+       layers:
+         - type: geojson
+           url: test.geojson
+           name: Map Test
+
+othermap1:
+    url: 'othermap1'
+    map:
+       layers:
+         - type: geojson
+           url: test.geojson
+           name: Map Test
+othermap2:
+    url: 'othermap2'
+    map:
+      - mode: all
+        layers:
+         - type: geojson
+           url: test.geojson
+           name: Map Test
+othermap3:
+    url: 'othermap3'
+    map:
+       - mode: all
+         map: main
+         layers:
+           - type: geojson
+             url: test.geojson
+             name: Map Test

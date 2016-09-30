@@ -74,48 +74,64 @@ map.init = function(defaults) {
 
     // Define map configuration for all app pages with map=True
     Object.keys(app.config.pages).forEach(function(page) {
-        var pconf = app.config.pages[page];
-        if (!pconf.map) {
+        var pconf = app.config.pages[page],
+            mconf = pconf.map;
+
+        if (!mconf) {
             return;
+        } else if (mconf === true) {
+            mconf = [];
+        } else if (!$.isArray(mconf)) {
+            mconf = [mconf];
         }
 
-        var mapconf = (pconf.map instanceof Object) ? pconf.map : {};
-        if (!mapconf.name) {
-            mapconf.name = pconf.name;
-        }
-        if (!mapconf.url) {
-            mapconf.url = pconf.url;
-        }
-
-        // Initialize map configurations for each page display mode
-        var modes = ['defaults'];
-        if (pconf.modes) {
-            modes = modes.concat(pconf.modes);
-        } else if (pconf.list) {
-            modes = modes.concat(['list', 'detail', 'edit']);
-        }
-        modes.forEach(function(mode) {
-            if (!mapconf[mode]) {
-                mapconf[mode] = {};
-            }
-            if (!mapconf[mode].maps) {
-                mapconf[mode] = {
-                    'maps': {
-                        'main': mapconf[mode]
-                    }
-                };
-            }
-            Object.keys(mapconf[mode].maps).forEach(function(mapname) {
-                var maps = mapconf[mode].maps;
-                if (!maps[mapname].layers) {
-                    maps[mapname].layers = [];
-                    if (mode != 'defaults' && mapname == 'main') {
-                        maps[mapname].autoLayers = true;
+        var mapconf = {
+            'name': pconf.name,
+            'url': pconf.url,
+            'defaults': {
+                'maps': {
+                    'main': {
+                        'layers': []
                     }
                 }
-            });
+            }
+        };
+
+        // Initialize map configurations for each page display mode
+        mconf.forEach(function(conf) {
+            var mode = conf.mode || 'defaults',
+                map = conf.map || 'main';
+            if (mode == 'all') {
+                mode = 'defaults';
+            }
+            if (!mapconf[mode]) {
+                mapconf[mode] = {
+                    maps: {}
+                };
+            }
+            mapconf[mode].maps[map] = conf;
         });
 
+        // Ensure map configurations exist for all list page modes
+        var modes = [];
+        if (pconf.modes) {
+            modes = pconf.modes;
+        } else if (pconf.list) {
+            modes = ['list', 'detail', 'edit'];
+        }
+        modes.forEach(function(mode) {
+            if (mapconf[mode]) {
+                return;
+            }
+            mapconf[mode] = {
+                'maps': {
+                    'main': {
+                        'autoLayers': true,
+                        'layers': []
+                    }
+                }
+            };
+        });
         map.config.maps[page] = mapconf;
 
         if (pconf.list) {

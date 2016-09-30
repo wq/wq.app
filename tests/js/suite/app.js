@@ -1,6 +1,6 @@
 define(['jquery', 'jquery.mobile', 'json-forms',
-        'wq/app', 'wq/outbox', 'data/config', 'data/templates'],
-function($, jqm, jsonforms, app, outbox, config, templates) {
+        'wq/app', 'wq/map', 'wq/outbox', 'data/config', 'data/templates'],
+function($, jqm, jsonforms, app, map, outbox, config, templates) {
 
 QUnit.module('wq/app');
 
@@ -15,6 +15,7 @@ config.template = {
 config.backgroundSync = -1;
 config.loadMissingAsJson = true;
 
+app.use(map);
 app.use({
     'context': function(context, routeInfo) {
         return Promise.resolve({
