@@ -59,7 +59,7 @@ pandas.parse = function(str) {
     if (str.charAt(0) != ',') {
         // Assume plain CSV (single series with one-row header)
         data = [];
-        d3.csv.parse(str).forEach(function(row) {
+        d3.csvParse(str).forEach(function(row) {
             var key, val;
             for (key in row) {
                 val = row[key];
@@ -73,7 +73,7 @@ pandas.parse = function(str) {
     }
 
     // Parse CSV headers and data
-    rows = d3.csv.parseRows(str);
+    rows = d3.csvParseRows(str);
     rows.forEach(function(row, i) {
         if (data) {
             parseData(row);
@@ -182,7 +182,7 @@ pandas.parse = function(str) {
 };
 
 pandas.get = function(errback, callback) {
-    d3.xhr(errback, function(response) {
+    d3.request(errback, function(response) {
         var data = pandas.parse(response.responseText);
         callback(data);
     });
