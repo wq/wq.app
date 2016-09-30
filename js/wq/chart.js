@@ -1032,7 +1032,8 @@ chart.scatter = function() {
             .on('mouseover', pointover(sid))
             .on('mouseout',  pointout(sid))
             .attr('transform', translate(yunits))
-            .select(pointShape(sid)).call(pointStyle(sid))
+            .select(pointShape(sid)).call(pointStyle(sid));
+        newpoints.merge(points)
             .select('title').text(pointLabel(sid));
 
         points.exit().remove();
