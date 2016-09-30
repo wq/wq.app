@@ -24,7 +24,8 @@ data[0].list.push({
 });
 
 // Main loop
-var anim = setInterval(_update, 100);
+var anim;
+_update();
 function _update() {
     if (Math.random() > 0.97 && data.length < 12) {
         _newDataset();

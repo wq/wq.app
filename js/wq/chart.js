@@ -324,18 +324,20 @@ chart.base = function() {
                .data(datasets(data), id);
             background.enter()
                 .append('g')
-                .attr('class', 'dataset-background');
+                .attr('class', 'dataset-background')
+                .merge(background)
+                .each(renderBackground);
             background.exit().remove();
-            background.each(renderBackground);
         }
         var series = _selectOrAppend(inner, 'g', 'datasets')
             .selectAll('g.dataset')
             .data(datasets(data), id);
         series.enter()
             .append('g')
-            .attr('class', 'dataset');
+            .attr('class', 'dataset')
+            .merge(series)
+            .each(render);
         series.exit().remove();
-        series.each(render);
 
         // Render axes
         _selectOrAppend(outer, 'g', 'xaxis')
@@ -344,40 +346,40 @@ chart.base = function() {
 
         var yaxes = outer.selectAll('g.axis')
             .data(d3.values(yscales), function(s){ return s.id; });
-        yaxes.enter().append('g').attr('class', 'axis').append('text');
+        var newaxes = yaxes.enter().append('g').attr('class', 'axis');
+        newaxes.append('text');
+        newaxes.merge(yaxes).attr('transform', function(d) {
+            var x;
+            if (d.orient == 'left') {
+                x = margins.left;
+            } else {
+                x = cwidth - margins.right;
+            }
+            var y = margins.top;
+            return _trans(x, y);
+        }).each(function(d) {
+            var axis = d3.select(this);
+            axis.call(d.axis);
+            axis.select('text')
+                .text(d.id || '')
+                .attr('text-anchor', 'middle')
+                .attr('font-weight', 'bold')
+                .attr('fill', '#000')
+                .attr('transform', function() {
+                    if (d.orient == 'left') {
+                        return (
+                            'rotate(-90),' +
+                            'translate(-' + gheight / 2 + ',-30)'
+                        );
+                    } else {
+                        return (
+                            'rotate(90),' +
+                            'translate(' + gheight / 2 + ',-30)'
+                        );
+                    }
+                });
+        });
         yaxes.exit().remove();
-        yaxes.attr('transform', function(d) {
-                var x;
-                if (d.orient == 'left') {
-                    x = margins.left;
-                } else {
-                    x = cwidth - margins.right;
-                }
-                var y = margins.top;
-                return _trans(x, y);
-            })
-            .each(function(d) {
-                var axis = d3.select(this);
-                axis.call(d.axis);
-                axis.select('text')
-                    .text(d.id || '')
-                    .attr('text-anchor', 'middle')
-                    .attr('font-weight', 'bold')
-                    .attr('fill', '#000')
-                    .attr('transform', function() {
-                        if (d.orient == 'left') {
-                            return (
-                                'rotate(-90),' +
-                                'translate(-' + gheight / 2 + ',-30)'
-                            );
-                        } else {
-                            return (
-                                'rotate(90),' +
-                                'translate(' + gheight / 2 + ',-30)'
-                            );
-                        }
-                    });
-            });
 
         if (legend && legend.position) {
             _renderLegend.call(this, legendItems(data), opts);
@@ -481,19 +483,18 @@ chart.base = function() {
         var legitems = leg.selectAll('g.legenditem')
             .data(items, legendItemId);
         var newitems = legitems.enter().append('g')
-            .attr('class', 'legenditem')
-            .append('g')
-                .attr('class', 'data');
-        newitems.each(function(d) {
-            var g = d3.select(this),
-                sid = legendItemId(d);
-            g.append(legendItemShape(sid));
-            g.append('text')
-                .attr('font-family', 'sans-serif')
-                .attr('font-size', '13px');
-        });
-        legitems.exit().remove();
-        legitems.each(function(d, i) {
+            .attr('class', 'legenditem');
+        newitems.append('g')
+            .attr('class', 'data')
+            .each(function(d) {
+                var g = d3.select(this),
+                    sid = legendItemId(d);
+                g.append(legendItemShape(sid));
+                g.append('text')
+                    .attr('font-family', 'sans-serif')
+                    .attr('font-size', '13px');
+            });
+        newitems.merge(legitems).each(function(d, i) {
             var g = d3.select(this).select('g.data'),
                 sid = legendItemId(d);
             g.attr('transform', _trans(14, 18 + i * 20));
@@ -502,6 +503,7 @@ chart.base = function() {
                 .text(legendItemLabel(d))
                 .attr('transform', _trans(10, 5));
         });
+        legitems.exit().remove();
     }
 
     // Getters/setters for chart configuration
@@ -962,15 +964,15 @@ chart.scatter = function() {
             });
             var hover = inner.selectAll('g.line-hover').data(hoverData);
             hover.enter().append('g')
-                .attr('class', 'line-hover');
-            hover.each(function(d) {
-                var g = d3.select(this).datum(d.data);
-                _selectOrAppend(g, pointShape(d.id))
-                    .call(pointStyle(d.id))
-                    .attr('transform', translate(d.units));
-                _selectOrAppend(g, 'title')
-                    .text(pointLabel(d.id));
-            });
+                .attr('class', 'line-hover')
+                .merge(hover).each(function(d) {
+                    var g = d3.select(this).datum(d.data);
+                    _selectOrAppend(g, pointShape(d.id))
+                        .call(pointStyle(d.id))
+                        .attr('transform', translate(d.units));
+                    _selectOrAppend(g, 'title')
+                        .text(pointLabel(d.id));
+                });
             hover.exit().remove();
         };
     });
@@ -1025,14 +1027,15 @@ chart.scatter = function() {
         newpoints.append('title');
         newpoints.append(pointShape(sid));
 
-        points.exit().remove();
-
         // Update elements for new or existing data
-        points.on('mouseover', pointover(sid))
-            .on('mouseout',  pointout(sid));
-        points.attr('transform', translate(yunits));
-        points.select(pointShape(sid)).call(pointStyle(sid));
-        points.select('title').text(pointLabel(sid));
+        newpoints.merge(points)
+            .on('mouseover', pointover(sid))
+            .on('mouseout',  pointout(sid))
+            .attr('transform', translate(yunits))
+            .select(pointShape(sid)).call(pointStyle(sid))
+            .select('title').text(pointLabel(sid));
+
+        points.exit().remove();
     });
 
     // Getters/setters for chart configuration
@@ -1227,10 +1230,11 @@ chart.boxplot = function() {
             var boxes = d3.select(this).selectAll('g.data').data(
                 items, plot.itemid()
             );
-            boxes.enter().append('g').attr('class', 'data');
-            boxes.exit().remove();
-            boxes.attr('transform', translate(yunits))
+            boxes.enter().append('g').attr('class', 'data')
+                .merge(boxes)
+                .attr('transform', translate(yunits))
                 .each(box(sid, yunits));
+            boxes.exit().remove();
         });
 
     function box(sid, yunits) {
