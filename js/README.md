@@ -23,7 +23,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile.router]  |  443d352  |  
 [jquery.validate]       |   1.13.1  |
 [json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions
-[leaflet]               |    0.7.7  | [#3359]
+[leaflet]               |    1.0.1  |
 [leaflet.draw]          |    0.3.0  |  wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |  e3f2218  | [#603]
@@ -48,7 +48,6 @@ Library                 |  Version  |  Notes
 [jquery.validate]:       https://github.com/jzaefferer/jquery-validation
 [json-forms]:            https://github.com/cezary/JSONForms
 [leaflet]:               https://github.com/Leaflet/Leaflet
-[#3359]:                 https://github.com/Leaflet/Leaflet/pull/3559
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
 [localforage]:           https://github.com/localForage/localForage
