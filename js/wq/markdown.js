@@ -5,30 +5,35 @@
  * https://wq.io/license
  */
 
-define(["marked", "highlight", "./template"],
-function(marked, highlight, tmpl) {
+define(["marked", "highlight"],
+function(marked, highlight) {
 
 // Exported module object
 var md = {};
 
-// md.init registers a context function to process markdown within templates
-// Should be called after tmpl.init()
-md.init = function(tmplvar, contextvar) {
+md.init = function(config) {
+    if (!config) {
+        config = {};
+    }
 
     // Default variable names
-    if (!tmplvar) {
-        tmplvar = "html"; // Look for {{html}} in template
+    if (!config.output) {
+        config.output = "html"; // Look for {{html}} in template
     }
-    if (!contextvar) {
-        contextvar = "markdown"; // Replace w/parse(this.markdown)
+    if (!config.input) {
+        config.input = "markdown"; // Replace w/parse(this.markdown)
     }
+    md.config = config;
+};
 
-    tmpl.setDefault(tmplvar, function() {
-        if (!this[contextvar]) {
-            return "";
-        }
-        return md.parse(this[contextvar]);
-    });
+md.context = function(context) {
+    var output = "";
+    if (context[md.config.input]) {
+        output = md.parse(context[md.config.input]);
+    }
+    var result = {};
+    result[md.config.output] = output;
+    return result;
 };
 
 // Parsing function (can be used directly)
@@ -38,7 +43,11 @@ md.parse = function(value) {
 
 // Override with custom post-processing function
 md.postProcess = function(html) {
-    return html;
+    if (md.config.postProcess) {
+        return md.config.postProcess(html);
+    } else {
+        return html;
+    }
 };
 
 // Connect markdown processor to code highlighter

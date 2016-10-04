@@ -1,5 +1,6 @@
 {
     "id": "four",
     "label": "FOUR",
-    "type_id": 2
+    "type_id": 2,
+    "markdown": "# Item Four\nThis is a test."
 }

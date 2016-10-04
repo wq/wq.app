@@ -1,6 +1,7 @@
 define(['jquery', 'jquery.mobile', 'json-forms',
-        'wq/app', 'wq/map', 'wq/outbox', 'data/config', 'data/templates'],
-function($, jqm, jsonforms, app, map, outbox, config, templates) {
+        'wq/app', 'wq/map', 'wq/outbox', 'wq/markdown',
+        'data/config', 'data/templates'],
+function($, jqm, jsonforms, app, map, outbox, markdown, config, templates) {
 
 QUnit.module('wq/app');
 
@@ -16,6 +17,7 @@ config.backgroundSync = -1;
 config.loadMissingAsJson = true;
 
 app.use(map);
+app.use(markdown);
 app.use({
     'context': function(context, routeInfo) {
         return Promise.resolve({
@@ -55,6 +57,12 @@ testPage("item detail page", 'items/one', function($page, assert) {
         "Owner: Contact One",
         "child record label"
     );
+
+    // Markdown+syntax plugin
+    var $code = $page.find('code'),
+        $keywords = $code.find('span.hljs-keyword');
+    assert.equal($code.length, 1, "markdown code block");
+    assert.equal($keywords.length, 2, "highlighted keywords");
 });
 
 testPage("item edit page", 'items/two/edit', function($page, assert) {

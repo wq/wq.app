@@ -6,13 +6,14 @@ requirejs.config({
     }
 });
 
-require(['wq/app', 'wq/map', 'wq/locate',
+require(['wq/app', 'wq/map', 'wq/locate', 'wq/markdown',
          'app/config', 'app/custom',
          'leaflet.draw'],
-function(app, map, locate, config, custom) {
+function(app, map, locate, markdown, config, custom) {
     config.jqmInit = true;
     app.use(map);
     app.use(locate);
+    app.use(markdown);
     app.use(custom);
-    app.init(config);
+    app.init(config).then(app.models.item.prefetch);
 });
