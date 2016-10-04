@@ -1,0 +1,69 @@
+{{>header}}
+<form action="{{rt}}/points/{{id}}" method="post" data-ajax="false"
+    {{#outbox_id}}data-wq-outbox-id="{{outbox_id}}"{{/outbox_id}}>
+  {{#id}}
+  <input type="hidden" name="_method" value="put">
+  {{/id}}
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+  <input type="hidden" name="geometry">
+  <ul data-role="listview">
+    <li>
+      <label for="label">Name</label>
+      <input name="label" id="label" value="{{label}}">
+      <p class="error point-label-errors"></p>
+    </li>
+    <li>
+      <fieldset data-role="controlgroup" data-type="horizontal">
+        <legend>Method</legend>
+        <input type='radio' value='gps' id='toggle-gps' name='toggle' checked>
+        <label for='toggle-gps'>GPS</label>
+        <input type='radio' value='interactive' id='toggle-interactive' name='toggle'>
+        <label for='toggle-interactive'>Interactive</label>
+        <input type='radio' value='manual' id='toggle-manual' name='toggle'>
+        <label for='toggle-manual'>Manual</label>
+      </fieldset>
+    </li>
+    <li>
+      <label for="latitude">Latitude</label>
+      <input type="tel" name="latitude" id="latitude">
+      <p class="error point-latitude-errors"></p>
+    </li>
+    <li>
+      <label for="longitude">Longitude</label>
+      <input type="tel" name="longitude" id="longitude">
+      <p class="error point-longitude-errors"></p>
+    </li>
+    <li>
+      <label for="accuracy">Accuracy</label>
+      <input type="tel" name="accuracy" id="accuracy">
+      <p class="error point-accuracy-errors"></p>
+    </li>
+    <li>
+      <div id="point-{{id}}{{^id}}new{{/id}}-edit-map" style="height:500px;"></div>
+    </li>
+    <li>
+      <p class="error point-errors"></p>
+      <div class="ui-grid-a">
+        <div class="ui-block-a">
+          <a data-role="button" data-icon="back" data-transition="flip"
+             {{#outbox_id}}
+             href="{{rt}}/outbox/{{outbox_id}}"
+             {{/outbox_id}}
+             {{^outbox_id}}
+             href="{{rt}}/points/{{id}}"
+             {{/outbox_id}}
+             data-direction="reverse">
+            Back
+          </a>
+        </div>
+        <div class="ui-block-b">
+          <button type="submit" data-theme="b" data-icon="check">
+            Submit
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</form>
+{{>context_test}}
+{{>footer}}

@@ -47,6 +47,16 @@ contacttype:
     list: true
     form: []
 
+point:
+    url: 'points'
+    label: 'Points'
+    list: true
+    map:
+      - mode: edit
+        layers: []
+    locate: true
+    form: []
+
 listmap1:
     url: 'listmap1'
     list: true
