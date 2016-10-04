@@ -21,7 +21,6 @@ Library                 |  Version  |  Notes
 [jquery]                |   1.11.3  |  
 [jquery.mobile]         |    1.4.5  |  custom deps to ensure router loads first; `autoInitializePage: false`
 [jquery.mobile.router]  |  443d352  |  
-[jquery.validate]       |   1.13.1  |
 [json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions
 [leaflet]               |    1.0.1  |
 [leaflet.draw]          |  31c7738  |  [#596]; wrapped as AMD module
@@ -44,7 +43,6 @@ Library                 |  Version  |  Notes
 [jquery]:                https://jquery.com/
 [jquery.mobile]:         https://jquerymobile.com/
 [jquery.mobile.router]:  https://github.com/azicchetti/jquerymobile-router
-[jquery.validate]:       https://github.com/jzaefferer/jquery-validation
 [json-forms]:            https://github.com/cezary/JSONForms
 [leaflet]:               http://leafletjs.com/
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
