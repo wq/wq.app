@@ -25,7 +25,7 @@ Library                 |  Version  |  Notes
 [json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions
 [leaflet]               |    1.0.1  |
 [leaflet.draw]          |  31c7738  |  [#596]; wrapped as AMD module
-[leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
+[leaflet.markercluster] |    1.0.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |  e3f2218  | [#603]
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
