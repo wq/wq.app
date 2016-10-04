@@ -30,8 +30,6 @@ Library                 |  Version  |  Notes
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
 [mustache.js]           |    2.2.1  |  
-[proj4]                 |    2.3.6  |  
-[proj4leaflet]          |    0.7.1  |  
 [requirejs], [r.js]     |    2.3.2  |  r.js is in /build
 [qunit]                 |    2.0.1  |
 
@@ -56,8 +54,6 @@ Library                 |  Version  |  Notes
 [#603]:                  https://github.com/localForage/localForage/pull/603
 [marked]:                https://github.com/chjj/marked
 [mustache.js]:           http://mustache.github.io/
-[proj4]:                 https://github.com/proj4js/proj4js
-[proj4leaflet]:          https://github.com/kartena/Proj4Leaflet
 [requirejs]:             http://requirejs.org
 [r.js]:                  https://github.com/jrburke/r.js
 [qunit]:                 https://qunitjs.com/
