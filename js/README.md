@@ -26,6 +26,7 @@ Library                 |  Version  |  Notes
 [leaflet]               |    1.0.1  |
 [leaflet.draw]          |  31c7738  |  [#596]; wrapped as AMD module
 [leaflet.markercluster] |    1.0.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
+[leaflet.wms]           |  35f5d69  | 
 [localforage]           |  e3f2218  | [#603]
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
@@ -49,6 +50,7 @@ Library                 |  Version  |  Notes
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
 [#596]:                  https://github.com/Leaflet/Leaflet.draw/pull/596
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
+[leaflet.wms]:           https://github.com/heigeo/leaflet.wms
 [localforage]:           https://localforage.github.io/localForage/
 [memoryStorageDriver]:   https://github.com/localForage/localForage-memoryStorageDriver
 [#603]:                  https://github.com/localForage/localForage/pull/603
