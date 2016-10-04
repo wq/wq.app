@@ -5,8 +5,8 @@
  * https://wq.io/license
  */
 
-define(['wq/map', 'leaflet', 'esri-leaflet'],
-function(map, L, esri) {
+define(['wq/map', 'leaflet', 'esri-leaflet', 'leaflet.wms'],
+function(map, L, esri, wms) {
 
 map.addBasemapType('esri-basemap', function(conf) {
     var layer;
@@ -31,6 +31,18 @@ map.addOverlayType('esri-dynamic', function(conf) {
 
 map.addOverlayType('esri-tiled', function(conf) {
     return esri.tiledMapLayer(conf);
+});
+
+map.addBasemapType('wms-tiled', function(conf) {
+    return wms.tileLayer(conf.url, conf);
+});
+
+map.addOverlayType('wms', function(conf) {
+    return wms.overlay(conf.url, conf);
+});
+
+map.addOverlayType('wms-tiled', function(conf) {
+    return wms.tileLayer(conf.url, conf);
 });
 
 return map;
