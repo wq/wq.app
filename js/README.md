@@ -24,7 +24,7 @@ Library                 |  Version  |  Notes
 [jquery.validate]       |   1.13.1  |
 [json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions
 [leaflet]               |    1.0.1  |
-[leaflet.draw]          |    0.3.0  |  wrapped as AMD module
+[leaflet.draw]          |  31c7738  |  [#596]; wrapped as AMD module
 [leaflet.markercluster] |    0.4.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [localforage]           |  e3f2218  | [#603]
 [memoryStorageDriver]   |  a2396b3  |
@@ -49,6 +49,7 @@ Library                 |  Version  |  Notes
 [json-forms]:            https://github.com/cezary/JSONForms
 [leaflet]:               https://github.com/Leaflet/Leaflet
 [leaflet.draw]:          https://github.com/Leaflet/Leaflet.draw
+[#596]:                  https://github.com/Leaflet/Leaflet.draw/pull/596
 [leaflet.markercluster]: https://github.com/Leaflet/Leaflet.markercluster
 [localforage]:           https://github.com/localForage/localForage
 [memoryStorageDriver]:   https://github.com/localForage/localForage-memoryStorageDriver
