@@ -152,8 +152,10 @@ function _Outbox(store) {
 
     // Send a single item from the outbox to the server
     self.sendItem = function(item, once) {
-        if (!item || item.synced || (item.parents && item.parents.length)) {
+        if (!item || item.synced) {
             return Promise.resolve(null);
+        } else if (item.parents && item.parents.length) {
+            return Promise.resolve(item);
         }
 
         var data = item.data;
