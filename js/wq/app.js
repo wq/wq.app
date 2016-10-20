@@ -1079,6 +1079,11 @@ function _handleForm(evt) {
     }
 
     options.modelConf = conf;
+
+    if (conf.label_template) {
+        options.label = tmpl.render(conf.label_template, vals);
+    }
+
     $form.find('.error').html('');
     Promise.all([ds.get('csrf_token'), ready]).then(function(results) {
         options.csrftoken = results[0];
@@ -1418,7 +1423,11 @@ function _parent_lookup(field, context) {
     var model = app.models[field['wq:ForeignKey']];
     var id = context[field.name + '_id'];
     if (id) {
-        return model.find(id);
+        if (id.match && id.match(/^outbox/)) {
+            return _getOutboxRecord(model, id);
+        } else {
+            return model.find(id);
+        }
     } else {
         return null;
     }
@@ -1427,19 +1436,24 @@ function _parent_lookup(field, context) {
 // Foreign key lookup for objects other than root
 function _this_parent_lookup(field) {
     var model = app.models[field['wq:ForeignKey']];
-    return model.getIndex('id').then(function(index) {
-        return function() {
-            return index[this[field.name + '_id']];
-        };
-    });
+    return Promise.all([
+        _getOutboxRecordLookup(model),
+        model.getIndex('id')
+    ]).then(
+        function(results) {
+            return function() {
+                var parentId = this[field.name + '_id'];
+                return results[0][parentId] || results[1][parentId];
+            };
+        }
+    );
 }
 
 // Foreign key label
 function _parent_label_lookup(field) {
-    var model = app.models[field['wq:ForeignKey']];
-    return model.getIndex('id').then(function(index) {
+    return _this_parent_lookup(field).then(function(lookup) {
         return function() {
-            var p = index[this[field.name + '_id']];
+            var p = lookup.call(this);
             return p && p.label;
         };
     });
@@ -1453,7 +1467,9 @@ function _parent_dropdown_lookup(field, context) {
         result = model.filter(_computeFilter(field.filter, context));
     } else {
         result = model.load().then(function(data) {
-            return data.list;
+            return _getOutboxRecords(model).then(function(records) {
+                return records.concat(data.list);
+            });
         });
     }
     return result.then(function(choices) {
@@ -1464,10 +1480,39 @@ function _parent_dropdown_lookup(field, context) {
                 if (item.id == this[field.name + '_id']) {
                     item.selected = true; // Currently selected item
                 }
+                if (item.id.match && item.id.match(/^outbox/)) {
+                    item.outbox = true;
+                }
                 parents.push(item);
             }, this);
             return parents;
         };
+    });
+}
+
+function _getOutboxRecords(model) {
+    return model.unsyncedItems().then(function(items) {
+        return items.map(function(item) {
+            item.data.label = item.label;
+            item.data.id = 'outbox-' + item.id;
+            return item.data;
+        });
+    });
+}
+
+function _getOutboxRecordLookup(model) {
+    return _getOutboxRecords(model).then(function(records) {
+        var lookup = {};
+        records.forEach(function(record) {
+            lookup[record.id] = record;
+        });
+        return lookup;
+    });
+}
+
+function _getOutboxRecord(model, id) {
+    return _getOutboxRecordLookup(model).then(function(records) {
+        return records[id];
     });
 }
 

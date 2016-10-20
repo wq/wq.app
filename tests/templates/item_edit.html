@@ -29,6 +29,7 @@
         <option value="">Select a type...</option>
       {{#type_list}}
         <option value="{{id}}"{{#selected}} selected{{/selected}}>
+          {{#outbox}}*{{/outbox}}
           {{label}}
         </option>
       {{/type_list}}

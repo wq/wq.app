@@ -118,6 +118,21 @@ function _Outbox(store) {
                     options: options
                 };
             }
+            if (options.label) {
+                item.label = options.label;
+                delete options.label;
+            }
+            Object.keys(data).forEach(function(key) {
+                var match = (
+                    data[key].match && data[key].match(/^outbox-(\d+)$/)
+                );
+                if (match) {
+                    if (!item.parents) {
+                        item.parents = [];
+                    }
+                    item.parents.push(match[1]);
+                }
+            });
 
             return self.model.update([item]).then(function() {
                 if (noSend) {
@@ -137,7 +152,7 @@ function _Outbox(store) {
 
     // Send a single item from the outbox to the server
     self.sendItem = function(item, once) {
-        if (!item || item.synced) {
+        if (!item || item.synced || (item.parents && item.parents.length)) {
             return Promise.resolve(null);
         }
 
@@ -234,9 +249,22 @@ function _Outbox(store) {
             }
             self.applyResult(item, result);
             return self.updateModels(item, result).then(function() {
-                return self.model.update([item]).then(function() {
-                    return item;
+                return self.model.filter({'parents': item.id});
+            }).then(function(relItems) {
+                relItems.forEach(function(relItem) {
+                    relItem.parents = relItem.parents.filter(function(p) {
+                        return p != item.id;
+                    });
+                    Object.keys(relItem.data).forEach(function(key) {
+                        if (relItem.data[key] === 'outbox-' + item.id) {
+                            relItem.data[key] = result.id;
+                        }
+                    });
                 });
+                relItems.push(item);
+                return self.model.update(relItems);
+            }).then(function() {
+                return item;
             });
         }
 

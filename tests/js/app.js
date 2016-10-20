@@ -15,5 +15,8 @@ function(app, map, locate, markdown, config, custom) {
     app.use(locate);
     app.use(markdown);
     app.use(custom);
-    app.init(config).then(app.models.item.prefetch);
+    app.init(config).then(function() {
+        app.models.item.prefetch();
+        app.models.itemtype.prefetch();
+    });
 });

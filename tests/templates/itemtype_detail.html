@@ -7,24 +7,14 @@
        href="{{rt}}/outbox/{{outbox_id}}/edit"
        {{/outbox_id}}
        {{^outbox_id}}
-       href="{{rt}}/items/{{id}}/edit"
+       href="{{rt}}/itemtypes/{{id}}/edit"
        {{/outbox_id}}
        >Edit</a>
   </div>
   <div role="main" class="ui-content">
     <p id="label">{{label}}</p>
-    <p id="color"><span style="color:{{color}}">{{color_label}}</span></p>
-    <p id="type">{{#type}}
-      <a href="{{rt}}/itemtypes/{{id}}">
-        {{label}}
-      </a>
-    {{/type}}</p>
-    {{#contacts}}
-    <p class="contact" id="contact-{{type_id}}">{{#type}}{{label}}{{/type}}: {{name}}</p>
-    {{/contacts}}
-    <hr>
-    {{{html}}}
-    <hr>
-    <div id="item-{{id}}-map" style="height:400px;"></div>
+    <ul data-role="listview" data-inset="true">
+      <li><a href="{{rt}}/itemtypes/{{id}}/items">Items</a></li>
+    </ul>
     {{>context_test}}
 {{>footer}}

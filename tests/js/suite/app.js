@@ -47,7 +47,7 @@ testPage("item detail page", 'items/one', function($page, assert) {
     // Foreign key lookup
     var $fk = $page.find('p#type a');
     assert.equal($fk.text().trim(), "Type #1", "foreign key");
-    assert.equal($fk.attr('href'), "/tests/itemtypes/1/items", "parent url");
+    assert.equal($fk.attr('href'), "/tests/itemtypes/1", "parent url");
 
     // Nested items
     var $children = $page.find('p.contact');

@@ -1,0 +1,40 @@
+{{>header}}
+<form action="{{rt}}/itemtypes/{{id}}" method="post" data-ajax="false"
+    {{#outbox_id}}data-wq-outbox-id="{{outbox_id}}"{{/outbox_id}}>
+  {{#id}}
+  <input type="hidden" name="_method" value="put">
+  {{/id}}
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+  <input type="hidden" name="geometry">
+  <ul data-role="listview">
+    <li>
+      <label for="label">Name</label>
+      <input name="label" id="label" value="{{label}}">
+      <p class="error itemtype-label-errors"></p>
+    </li>
+    <li>
+      <p class="error itemtype-errors"></p>
+      <div class="ui-grid-a">
+        <div class="ui-block-a">
+          <a data-role="button" data-icon="back" data-transition="flip"
+             {{#outbox_id}}
+             href="{{rt}}/outbox/{{outbox_id}}"
+             {{/outbox_id}}
+             {{^outbox_id}}
+             href="{{rt}}/itemtypes/{{id}}"
+             {{/outbox_id}}
+             data-direction="reverse">
+            Back
+          </a>
+        </div>
+        <div class="ui-block-b">
+          <button type="submit" data-theme="b" data-icon="check">
+            Submit
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</form>
+{{>context_test}}
+{{>footer}}

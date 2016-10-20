@@ -1,0 +1,30 @@
+<div data-role='page' data-wq-sync-refresh="true">
+<div data-role='header'>
+  {{>home}}
+  <h1>Manage Item Types</h1>
+</div>
+<div role="main" class="ui-content">
+  <ul data-role='listview' data-inset='true'>
+    {{#list}}
+    <li>
+      <a href='{{rt}}/itemtypes/{{id}}'>{{label}}</a>
+      <a data-icon="edit" href='{{rt}}/itemtypes/{{id}}/edit'>
+        Edit
+      </a>
+    </li>
+    {{/list}}
+    {{#unsynced}}
+    <li data-role="list-divider">Outbox</li>
+    {{#unsyncedItems}}
+    <li{{#error}} data-icon="alert"{{/error}}>
+      <a href='{{rt}}/outbox/{{id}}'>{{label}}</a>
+    </li>
+    {{/unsyncedItems}}
+    {{/unsynced}}
+    <li data-icon="plus" data-theme="b">
+      <a href="{{rt}}/itemtypes/new">Add Item Type</a>
+    </li>
+  </ul>
+</div>
+{{>context_test}}
+{{>footer}}
