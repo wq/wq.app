@@ -36,6 +36,18 @@
       </select>
     </li>
     <li>
+      <label for="parent_id">Related Item</label>
+      <select name="parent_id" id="parent_id">
+        <option value="">Select item...</option>
+      {{#parent_list}}
+        <option value="{{id}}"{{#selected}} selected{{/selected}}>
+          {{#outbox}}*{{/outbox}}
+          {{label}}
+        </option>
+      {{/parent_list}}
+      </select>
+    </li>
+    <li>
       <label for="image">Image</label>
       <input type="file" name="image" id="image">
     </li>

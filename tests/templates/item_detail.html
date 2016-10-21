@@ -19,6 +19,13 @@
         {{label}}
       </a>
     {{/type}}</p>
+    {{#parent}}
+    <p id="parent">
+      <a href="{{rt}}/items/{{id}}">
+        {{label}}
+      </a>
+    </p>
+    {{/parent}}
     {{#contacts}}
     <p class="contact" id="contact-{{type_id}}">{{#type}}{{label}}{{/type}}: {{name}}</p>
     {{/contacts}}

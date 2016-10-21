@@ -355,20 +355,45 @@ function _Outbox(store) {
             return Promise.resolve(items);
         }
 
-        var results = items.map(function(item) {
+        // Sort items into those that are ready to be sent now vs. those that
+        // are pending on another item.
+        var allIds = [], pendingIds = [], readyItems = [];
+        items.forEach(function(item) {
+            allIds.push(item.id);
+            if (item.parents && item.parents.length) {
+                pendingIds.push(item.id);
+            } else {
+                readyItems.push(item);
+            }
+        });
+
+        // Send ready items and retrieve results
+        var results = readyItems.map(function(item) {
             return self.sendItem(item);
         });
 
-        return Promise.all(results).then(function(items) {
-            items.forEach(function(item) {
+        return Promise.all(results).then(function(sentItems) {
+            sentItems.forEach(function(item) {
                 if (item && !item.synced) {
                     // sendItem did not result in sync
                     item.retryCount = item.retryCount || 0;
                     item.retryCount++;
                 }
             });
-            return self.model.update(items).then(function() {
-                return items;
+            return self.model.update(sentItems).then(function() {
+                // Now try sending previously pending items (unless there are
+                // only pending items, in which case something has gone wrong)
+                if (pendingIds.length == allIds.length) {
+                    return;
+                }
+                return self.model.filter(
+                    {'id': pendingIds}
+                ).then(self.sendItems);
+            }).then(function() {
+                // Reload data and return final result
+                return self.model.filter(
+                    {'id': allIds}
+                );
             });
         });
     };

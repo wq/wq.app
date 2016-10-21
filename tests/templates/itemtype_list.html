@@ -20,6 +20,11 @@
       <a href='{{rt}}/outbox/{{id}}'>{{label}}</a>
     </li>
     {{/unsyncedItems}}
+    <li>
+      <button data-icon="refresh" onclick="require('wq/app').sync(true);">
+        Retry
+      </button>
+    </li>
     {{/unsynced}}
     <li data-icon="plus" data-theme="b">
       <a href="{{rt}}/itemtypes/new">Add Item Type</a>

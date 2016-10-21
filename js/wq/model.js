@@ -237,6 +237,9 @@ function Model(config) {
         if (config.reversed) {
             update = update.reverse();
         }
+        update = update.filter(function(obj) {
+            return obj && obj[idcol];
+        });
         var updateById = {};
         update.forEach(function(obj) {
             updateById[obj[idcol]] = obj;
