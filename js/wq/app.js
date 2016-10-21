@@ -1480,9 +1480,6 @@ function _parent_dropdown_lookup(field, context) {
                 if (item.id == this[field.name + '_id']) {
                     item.selected = true; // Currently selected item
                 }
-                if (item.id.match && item.id.match(/^outbox/)) {
-                    item.outbox = true;
-                }
                 parents.push(item);
             }, this);
             return parents;
@@ -1493,9 +1490,12 @@ function _parent_dropdown_lookup(field, context) {
 function _getOutboxRecords(model) {
     return model.unsyncedItems().then(function(items) {
         return items.map(function(item) {
-            item.data.label = item.label;
-            item.data.id = 'outbox-' + item.id;
-            return item.data;
+            var record = item.data;
+            record.label = item.label;
+            record.id = 'outbox-' + item.id;
+            record.outbox_id = item.id;
+            record.outbox = true;
+            return record;
         });
     });
 }

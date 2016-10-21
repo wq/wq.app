@@ -15,13 +15,13 @@
     <p id="label">{{label}}</p>
     <p id="color"><span style="color:{{color}}">{{color_label}}</span></p>
     <p id="type">{{#type}}
-      <a href="{{rt}}/itemtypes/{{id}}">
+      <a href="{{rt}}{{#outbox}}/outbox/{{outbox_id}}{{/outbox}}{{^outbox}}/itemtypes/{{id}}{{/outbox}}">
         {{label}}
       </a>
     {{/type}}</p>
     {{#parent}}
     <p id="parent">
-      <a href="{{rt}}/items/{{id}}">
+      <a href="{{rt}}{{#outbox}}/outbox/{{outbox_id}}{{/outbox}}{{^outbox}}/items/{{id}}{{/outbox}}">
         {{label}}
       </a>
     </p>
