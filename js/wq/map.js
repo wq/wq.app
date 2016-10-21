@@ -121,6 +121,12 @@ map.init = function(defaults) {
         }
         modes.forEach(function(mode) {
             if (mapconf[mode]) {
+                if (mapconf[mode].maps &&
+                        mapconf[mode].maps.main &&
+                        mapconf[mode].maps.main.autoLayers &&
+                        !mapconf[mode].maps.main.layers) {
+                    mapconf[mode].maps.main.layers = [];
+                }
                 return;
             }
             mapconf[mode] = {
