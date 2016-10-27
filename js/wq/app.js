@@ -1269,17 +1269,25 @@ function _addLookups(page, context, editable, routeInfo) {
 
         // Foreign key lookups
         if (field['wq:ForeignKey']) {
+            var nkey;
             if (nested) {
-                lookups[fname] = _this_parent_lookup(field);
+                nkey = fname.match(/^\w+\.(\w+)\[(\w+)\]$/);
             } else {
-                lookups[fname] = _parent_lookup(field, context);
+                nkey = fname.match(/^(\w+)\[(\w+)\]$/);
             }
-            if (!context[fname + '_label']) {
-                lookups[fname + '_label'] = _parent_label_lookup(field);
+            if (!nkey) {
+                if (nested) {
+                    lookups[fname] = _this_parent_lookup(field);
+                } else {
+                    lookups[fname] = _parent_lookup(field, context);
+                }
+                if (!context[fname + '_label']) {
+                    lookups[fname + '_label'] = _parent_label_lookup(field);
+                }
             }
             if (editable) {
                 lookups[fname + '_list'] = _parent_dropdown_lookup(
-                    field, context
+                    field, context, nkey
                 );
             }
         }
@@ -1460,7 +1468,7 @@ function _parent_label_lookup(field) {
 }
 
 // List of all potential foreign key values (useful for generating dropdowns)
-function _parent_dropdown_lookup(field, context) {
+function _parent_dropdown_lookup(field, context, nkey) {
     var model = app.models[field['wq:ForeignKey']];
     var result;
     if (field.filter) {
@@ -1474,10 +1482,15 @@ function _parent_dropdown_lookup(field, context) {
     }
     return result.then(function(choices) {
         return function() {
-            var parents = [];
+            var parents = [], current;
+            if (nkey) {
+                current = this[nkey[1]] && this[nkey[1]][nkey[2]];
+            } else {
+                current = this[field.name + '_id'];
+            }
             choices.forEach(function(v) {
                 var item = $.extend({}, v);
-                if (item.id == this[field.name + '_id']) {
+                if (item.id == current) {
                     item.selected = true; // Currently selected item
                 }
                 parents.push(item);
