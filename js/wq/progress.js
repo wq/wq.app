@@ -5,38 +5,42 @@
  * https://wq.io/license
  */
 
-define(['./router', './json'], function(router, json) {
+define(['./json'], function(json) {
 
 // Exported module variable
 var progress = {
-    'interval': 0.5 // Polling interval (in seconds)
+    'name': 'progress',
+    'config': {
+        'interval': 0.5 // Polling interval (in seconds)
+    }
 };
 
 // Internal setInterval ids
 var _timers = {};
 var _last = {};
 
-// Optionally initialize wq/progress with a page path to auto start polling
-progress.init = function(path, onComplete, onFail, onProgress) {
-    router.addRoute(path, 's', _startProgress);
-    router.addRoute(path, 'h', _stopProgress);
-    progress.onComplete = onComplete;
-    progress.onFail = onFail;
-    progress.onProgress = onProgress;
+progress.init = function(conf) {
+    json.extend(progress.config, conf || {});
+};
 
-    function _startProgress(match, ui, params, hash, evt, $page) {
-        progress.start($page.find('progress'));
+// wq/app.js plugin
+progress.run = function($page) {
+    var $progress = $page.find('progress');
+    if (!$progress.length) {
+        return;
     }
-    function _stopProgress(match, ui, params, hash, evt, $page) {
-        progress.stop($page.find('progress'));
-    }
+
+    progress.start($progress);
+    $page.on('pagehide', function() {
+        progress.stop($progress);
+    });
 };
 
 // progress.start accepts a jQuery-wrapped progress element and looks for a
 // data-wq-url attribute to poll (and an optional data-interval attribute)
 progress.start = function($progress) {
     var url = $progress.data('wq-url');
-    var interval = $progress.data('wq-interval') || progress.interval;
+    var interval = $progress.data('wq-interval') || progress.config.interval;
     if (!url || _timers[url]) {
         return;
     }
@@ -59,15 +63,15 @@ progress.stop = function($progress) {
 // with a hook for custom response
 progress.complete = function($progress, data) {
     progress.stop($progress);
-    if (progress.onComplete) {
-        progress.onComplete($progress, data);
+    if (progress.config.onComplete) {
+        progress.config.onComplete($progress, data);
     }
 };
 
 progress.fail = function($progress, data) {
     progress.stop($progress);
-    if (progress.onFail) {
-        progress.onFail($progress, data);
+    if (progress.config.onFail) {
+        progress.config.onFail($progress, data);
     }
 };
 
@@ -107,8 +111,11 @@ progress.timer = function($progress, url) {
             if (data.status == "FAILURE") {
                 $progress.attr('value', 0);
                 progress.fail($progress, data);
-            } else if (!done && progress.onProgress) {
-                progress.onProgress($progress, data);
+            } else if (!done && progress.config.onProgress) {
+                progress.config.onProgress($progress, data);
+            }
+            if (data.location && progress.app) {
+                progress.app.nav(data.location.substring(1));
             }
         });
     };
