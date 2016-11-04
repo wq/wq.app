@@ -195,7 +195,9 @@ app.init = function(config) {
             });
             app.models[page] = model(conf);
         } else if (conf) {
-            _registerOther(page);
+            if (!conf.server_only) {
+                _registerOther(page);
+            }
             _onShowOther(page);
         }
     });
