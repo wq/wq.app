@@ -76,10 +76,11 @@ chartapp.create = function(data, type, elem) {
 
     if (type == 'boxplot') {
         plot.xvalue(function(d) {
-            var prefix = plot.prefix();
-            return Object.keys(d).filter(function(key) {
-                return key.indexOf(prefix) == -1;
-            })[0];
+            var prefix = plot.prefix(),
+                key = Object.keys(d).filter(function(key) {
+                    return key.indexOf(prefix) == -1;
+                })[0];
+            return d[key];
         });
     } else if (type == 'scatter') {
         if ((!scatterX || !scatterY) && data.length) {
