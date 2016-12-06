@@ -33,6 +33,10 @@ map.addOverlayType('esri-tiled', function(conf) {
     return esri.tiledMapLayer(conf);
 });
 
+map.addOverlayType('esri-feature', function(conf) {
+    return esri.featureLayer(conf);
+});
+
 map.addBasemapType('wms-tiled', function(conf) {
     return wms.tileLayer(conf.url, conf);
 });
