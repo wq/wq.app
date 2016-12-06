@@ -160,7 +160,9 @@ map.run = function($page, routeInfo) {
         maps = ['main'];
     }
     maps.forEach(function(mapname) {
-        map.createMap(routeInfo, null, mapname);
+        var divid = map.getMapId(routeInfo, mapname) + '-map',
+            $div = $page.find('#' + divid);
+        map.createMap(routeInfo, $div[0], mapname);
     });
 };
 
