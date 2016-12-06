@@ -7,15 +7,31 @@ QUnit.test("pandas.parse()", function(assert) {
         'site': 'SITE1',
         'parameter': 'PARAM1',
         'data': [
-            {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3}
+            {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3},
+            {'date': '2014-01-02', 'val1': 0.9}
         ]
     }], pandas.parse(
         ",val1,val2\n" +
         "site,SITE1,SITE1\n" +
         "parameter,PARAM1,PARAM1\n" +
         "date,,\n" +
-        "2014-01-01,0.6,0.3\n"
+        "2014-01-01,0.6,0.3\n" +
+        "2014-01-02,0.9,\n"
     ), 'parsed csv string');
+});
+
+
+QUnit.test("pandas.parse() with plain csv", function(assert) {
+    assert.deepEqual([{
+        'data': [
+            {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3},
+            {'date': '2014-01-02', 'val1': 0.9, 'val2': ''}
+        ]
+    }], pandas.parse(
+        "date,val1,val2\n" +
+        "2014-01-01,0.6,0.3\n" +
+        "2014-01-02,0.9,\n"
+    ), 'parsed plain csv string');
 });
 
 

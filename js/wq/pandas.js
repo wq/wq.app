@@ -63,7 +63,9 @@ pandas.parse = function(str) {
             var key, val;
             for (key in row) {
                 val = row[key];
-                row[key] = val.length>0 ? (isNaN(+val) ? val : +val) : '';
+                if (row[key] !== "") {
+                    row[key] = isNaN(+val) ? val : +val;
+                }
             }
             data.push(row);
         });
