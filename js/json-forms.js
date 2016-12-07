@@ -75,6 +75,7 @@ function parsePath(path) {
 }
 
 function setValue(context, step, currentValue, entryValue, isFile) {
+  /*
   if (isFile) {
     entryValue = {
       name: 'filename',
@@ -82,6 +83,7 @@ function setValue(context, step, currentValue, entryValue, isFile) {
       body: 'filebody'
     }
   }
+  */
   if (step.last) {
     if (typeof currentValue === 'undefined') {
       if (step.append) {
