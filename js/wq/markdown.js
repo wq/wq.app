@@ -57,6 +57,13 @@ marked.setOptions({
     }
 });
 
+// Run for server-rendered markdown
+md.run = function($page) {
+    $page.find('pre code:not(.hljs)').each(function(i, el) {
+         highlight.highlightBlock(el);
+    });
+};
+
 return md;
 
 });
