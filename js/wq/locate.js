@@ -15,6 +15,7 @@ var locate = {
         'fieldNames': {
             'latitude': 'latitude',
             'longitude': 'longitude',
+            'geometry': 'geometry',
             'accuracy': 'accuracy',
             'toggle': 'toggle',
             'mode': 'mode'
@@ -173,6 +174,12 @@ locate.Locator = function(map, fields, opts) {
                 fields.longitude.val(
                     L.Util.formatNum(loc.lng, opts.precision)
                 );
+            }
+            if (fields.geometry) {
+                fields.geometry.val(JSON.stringify({
+                    'type': "Point",
+                    'coordinates': [loc.lng, loc.lat]
+                }));
             }
             if (fields.accuracy) {
                 fields.accuracy.val(accuracy);
