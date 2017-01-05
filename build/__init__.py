@@ -1,6 +1,19 @@
-from .appcache import appcache  # NOQA
-from .builder import build  # NOQA
-from .collect import collectjson  # NOQA
-from .compilers import optimize, scss, mustache  # NOQA
-from .init import init  # NOQA
-from .setversion import setversion  # NOQA
+from .appcache import appcache
+from .builder import build
+from .collect import collectjson
+from .compilers import optimize, scss, mustache
+from .init import init
+from .setversion import setversion
+from .phonegap import phonegap
+
+__all__ = (
+    "appcache",
+    "build",
+    "collectjson",
+    "optimize",
+    "scss",
+    "mustache",
+    "init",
+    "setversion",
+    "phonegap",
+)

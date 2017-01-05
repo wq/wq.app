@@ -79,6 +79,8 @@ setup(
         'pyScss>=1.3',
         'compass-stylesheets==0.12.6',
         'PyYAML',
+        'requests',
+        'pystache',
     ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),

@@ -6,6 +6,10 @@ import subprocess
 import random
 import json
 
+import scss as pyScss
+import logging
+import pystache
+
 from .collect import readfiles
 
 
@@ -57,9 +61,7 @@ def scss(**conf):
     for *.scss files, which will be compiled to corresponding *.css files in
     the output directory.
     """
-    import scss
-    import logging
-    compiler = scss.Scss(scss_opts={'compress': 0})
+    compiler = pyScss.Scss(scss_opts={'compress': 0})
     logging.getLogger("scss").addHandler(logging.StreamHandler())
 
     def compile(path, source):
@@ -69,7 +71,7 @@ def scss(**conf):
         outfile.close()
 
     files = readfiles(conf['indir'], "scss")
-    scss.config.LOAD_PATHS = [
+    pyScss.config.LOAD_PATHS = [
         conf['indir'],
         os.path.join(conf['indir'], 'lib'),
 
@@ -117,7 +119,6 @@ def mustache(**conf):
 
     wq mustache --template tmpl.html --partials partials/ --context conf/
     """
-    import pystache
     template = conf['template']
     if template is None:
         return
