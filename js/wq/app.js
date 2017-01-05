@@ -173,9 +173,28 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
+    var root = false;
     Object.keys(app.wq_config.pages).forEach(function(page) {
-        app.wq_config.pages[page].name = page;
+        var conf = app.wq_config.pages[page];
+        if (!conf.url) {
+            root = true;
+        }
     });
+    if (!root && !app.wq_config.pages.index &&
+            config.template.templates.index) {
+        app.wq_config.pages.index = {
+            'name': 'index',
+            'url': '',
+            'pages': Object.keys(app.wq_config.pages).map(function(page) {
+                var conf = app.wq_config.pages[page];
+                return {
+                    'name': page,
+                    'url': conf.url,
+                    'list': conf.list
+                };
+            })
+        };
+    }
 
     _callPlugins('init', app.config);
 
