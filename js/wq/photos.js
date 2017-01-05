@@ -7,8 +7,9 @@
 
 /* global Camera */
 
-define(['jquery', 'jquery.mobile', './template', './store', './spinner'],
-function($, jqm, tmpl, ds, spin) {
+define(['jquery', 'jquery.mobile', 'localforage',
+        './template', './store', './spinner'],
+function($, jqm, localForage, tmpl, ds, spin) {
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
@@ -91,13 +92,8 @@ function _start(options, input, preview) {
 }
 
 photos.base64toBlob = function(data) {
-    return new Promise(function(resolve) {
-        // localforageSerializer is defined by localstorage.js, but might not
-        // be loaded already - so use async require.
-        require(['localforageSerializer'], function(serializer) {
-            var blob = serializer.deserialize(LOCALFORAGE_PREFIX + data);
-            resolve(blob);
-        });
+    return localForage.getSerializer().then(function(serializer) {
+        return serializer.deserialize(LOCALFORAGE_PREFIX + data);
     });
 };
 

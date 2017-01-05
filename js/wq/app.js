@@ -173,34 +173,19 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
-    var root = false;
     Object.keys(app.wq_config.pages).forEach(function(page) {
-        var conf = app.wq_config.pages[page];
-        if (!conf.url) {
-            root = true;
-        }
+        app.wq_config.pages[page].name = page;
     });
-    if (!root && !app.wq_config.pages.index &&
-            config.template.templates.index) {
-        app.wq_config.pages.index = {
-            'name': 'index',
-            'url': '',
-            'pages': Object.keys(app.wq_config.pages).map(function(page) {
-                var conf = app.wq_config.pages[page];
-                return {
-                    'name': page,
-                    'url': conf.url,
-                    'list': conf.list
-                };
-            })
-        };
-    }
 
     _callPlugins('init', app.config);
 
     // Register routes with wq/router.js
+    var root = false;
     Object.keys(app.wq_config.pages).forEach(function(page) {
         var conf = _getConf(page);
+        if (!conf.url) {
+            root = true;
+        }
         if (conf.list) {
             conf.modes.forEach(function(mode) {
                 var register = _register[mode] || _register.detail;
@@ -226,6 +211,25 @@ app.init = function(config) {
     router.register('outbox/', _outboxList);
     router.register('outbox/<slug>', _outboxItem('detail'));
     router.register('outbox/<slug>/edit', _outboxItem('edit'));
+
+    // Fallback index page
+    if (!root && !app.wq_config.pages.index &&
+            config.template.templates.index) {
+        router.register('', function(match, ui) {
+            var context = {};
+            context.pages = Object.keys(app.wq_config.pages).map(
+		function(page) {
+		    var conf = app.wq_config.pages[page];
+		    return {
+			'name': page,
+			'url': conf.url,
+			'list': conf.list
+		    };
+		}
+            );
+            router.go('', 'index', context, ui);
+        });
+    }
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
@@ -524,6 +528,19 @@ app.nav = function(url, options) {
     }
     options.allowSamePageTransition = true;
     jqm.changePage(url, options);
+};
+
+app.replaceState = function(url) {
+    app.nav(url, {
+        'transition': 'none',
+        'changeHash': false
+    });
+    setTimeout(function() {
+        window.history.replaceState(null, '', app.base_url + '/' + url);
+        var hist = jqm.navigate.history;
+        hist.stack = [hist.stack[hist.stack.length - 1]];
+        hist.activeIndex = 0;
+    }, 300);
 };
 
 app.refresh = function() {
