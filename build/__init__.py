@@ -4,6 +4,7 @@ from .collect import collectjson
 from .compilers import optimize, scss, mustache
 from .init import init
 from .setversion import setversion
+from .icons import icons
 from .phonegap import phonegap
 
 __all__ = (
@@ -15,5 +16,6 @@ __all__ = (
     "mustache",
     "init",
     "setversion",
+    "icons",
     "phonegap",
 )

@@ -6,12 +6,14 @@ import yaml
 import json
 import shutil
 import pystache
+from .icons import icons, SIZES
 
 
 @wq.command()
 @click.option(
     '--source', type=click.Path(), help="Directory containing app assets"
 )
+@click.option('--icon', type=click.Path(), help="Source image for icons")
 @click.option('--config-xml', type=click.Path(), help="config.xml template")
 @click.option('--index-html', type=click.Path(), help="index.html template")
 @click.option(
@@ -28,7 +30,8 @@ import pystache
 )
 @click.argument('version')
 @wq.pass_config
-def phonegap(config, version, **conf):
+@click.pass_context
+def phonegap(ctx, config, version, **conf):
     """
     Upload application to PhoneGap Build.  Specifically,
 
@@ -84,6 +87,8 @@ def phonegap(config, version, **conf):
         directory=directory,
         source=source,
         version=version,
+        context=ctx,
+        icon=conf['icon'],
         config_xml=conf['config_xml'],
         index_html=conf['index_html'],
     )
@@ -96,21 +101,52 @@ def phonegap(config, version, **conf):
     upload_zipfile(directory, filename, token, conf['pgb_api'])
 
 
-def create_zipfile(directory, source, version,
-                   config_xml=None, index_html=None):
+def create_zipfile(directory, source, version, context,
+                   icon=None, config_xml=None, index_html=None):
     folder = os.path.join(directory, 'build')
     if os.path.exists(folder):
         shutil.rmtree(folder)
     shutil.copytree(source, folder)
 
+    template_context = {
+        'version': version,
+    }
+
+    if icon:
+        icon_dir = 'icons'
+        filename = 'icon-{size}.png'
+        platforms = ('android', 'ios', 'windows')
+
+        icon_path = os.path.join(directory, 'build', icon_dir)
+        os.mkdir(icon_path)
+        context.invoke(
+            icons,
+            source=icon,
+            outdir=icon_path,
+            filename=filename,
+            size=platforms,
+        )
+        for platform in platforms:
+            template_context[platform] = {
+                'icons': [{
+                    'width': size,
+                    'height': size,
+                    'alias': alias,
+                    'filename': os.path.join(
+                        icon_dir,
+                        filename.format(size=size)
+                    )
+                } for size, alias in sorted(SIZES[platform].items())]
+            }
+
     if config_xml:
         xml = click.open_file(config_xml).read()
-        xml = pystache.render(xml, {'version': version})
+        xml = pystache.render(xml, template_context)
         click.open_file(os.path.join(folder, 'config.xml'), 'w').write(xml)
 
     if index_html:
         html = click.open_file(index_html).read()
-        html = pystache.render(html, {'version': version})
+        html = pystache.render(html, template_context)
         click.open_file(os.path.join(folder, 'index.html'), 'w').write(html)
 
     return shutil.make_archive(folder, 'zip', folder)
