@@ -46,7 +46,7 @@ tmpl.render = function(template, data) {
 };
 
 // Render page and inject it into DOM (replace existing page if it exists)
-tmpl.inject = function(template, context, url, pageid) {
+function inject(template, context, url, pageid) {
     var html  = tmpl.render(template, context);
     if (!html.match(/<div/)) {
         throw "No content found in template '" + template + "'!";
@@ -106,7 +106,19 @@ tmpl.inject = function(template, context, url, pageid) {
         $page.page();
     }
     return $page;
-};
+}
+
+if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
+    tmpl.inject = function(template, context, url, pageid) {
+        var $page;
+        window.MSApp.execUnsafeLocalFunction(function() {
+            $page = inject(template, context, url, pageid);
+        });
+        return $page;
+    };
+} else {
+    tmpl.inject = inject;
+}
 
 // Render template only once
 tmpl.injectOnce = function(template, context, url, id) {

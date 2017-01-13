@@ -631,7 +631,7 @@ map.createMap = function(routeInfo, divid, mapname) {
             var layerBounds = layers[lname].getBounds();
             if (bounds) {
                  bounds.extend(layerBounds);
-            } else {
+            } else if (layerBounds.isValid()) {
                  bounds = layerBounds;
             }
         });

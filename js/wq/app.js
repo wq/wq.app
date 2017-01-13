@@ -326,7 +326,13 @@ app.runPlugins = function(page, mode, itemid, url, parentInfo) {
     }
     getItem.then(function(item) {
         routeInfo.item = item;
-        _callPlugins('run', undefined, [jqm.activePage, routeInfo]);
+        if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
+            window.MSApp.execUnsafeLocalFunction(function() {
+                _callPlugins('run', undefined, [jqm.activePage, routeInfo]);
+            });
+        } else {
+            _callPlugins('run', undefined, [jqm.activePage, routeInfo]);
+        }
     });
 };
 
@@ -350,7 +356,22 @@ app.sync = function(retryAll) {
     });
 };
 
-app.emptyOutbox = function() {
+app.emptyOutbox = function(confirmFirst) {
+    /* global confirm */
+    if (confirmFirst) {
+        if (navigator.notification && navigator.notification.confirm) {
+            navigator.notification.confirm('Empty Outbox?', function(button) {
+                if (button == 1) {
+                    app.emptyOutbox();
+                }
+            });
+            return;
+        } else {
+            if (!confirm('Empty Outbox?')) {
+                return;
+            }
+        }
+    }
     return outbox.model.overwrite([]).then(function() {
         app.syncRefresh([null]);
     });
