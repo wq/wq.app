@@ -115,10 +115,11 @@ def create_zipfile(directory, source, version, context,
     if icon:
         icon_dir = 'icons'
         filename = 'icon-{size}.png'
-        platforms = ('android', 'ios', 'windows')
+        platforms = ('android', 'ios', 'windows', 'windows-splash')
 
         icon_path = os.path.join(directory, 'build', icon_dir)
         os.mkdir(icon_path)
+        click.open_file(os.path.join(icon_path, '.pgbomit'), 'w').write('')
         context.invoke(
             icons,
             source=icon,
@@ -127,16 +128,22 @@ def create_zipfile(directory, source, version, context,
             size=platforms,
         )
         for platform in platforms:
+            sizes = [(
+                size if isinstance(size, int) else int(size.split('x')[0]),
+                size if isinstance(size, int) else int(size.split('x')[1]),
+                size,
+                alias,
+            ) for size, alias in SIZES[platform].items()]
             template_context[platform] = {
                 'icons': [{
-                    'width': size,
-                    'height': size,
+                    'width': width,
+                    'height': height,
                     'alias': alias,
                     'filename': os.path.join(
                         icon_dir,
                         filename.format(size=size)
                     )
-                } for size, alias in sorted(SIZES[platform].items())]
+                } for width, height, size, alias in sorted(sizes)]
             }
 
     if config_xml:

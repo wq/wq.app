@@ -2,7 +2,7 @@ from wq.core import wq
 import click
 
 import os
-from PIL import Image
+from PIL import Image, ImageOps
 
 SIZES = {
     'web': {
@@ -53,7 +53,14 @@ SIZES = {
         150: 'Square150x150Logo',
         170: 'Square71x71Logo.scale-240',
         310: 'Square310x310Logo',
+        '310x150': 'Wide310x150Logo',
         360: 'Square150x150Logo.scale-240',
+        '744x360': 'Wide310x150Logo.scale-240',
+    },
+
+    'windows-splash': {
+        '620x300': 'SplashScreen',
+        '1152x1920': 'SplashScreenPhone.scale-240',
     }
 }
 
@@ -93,18 +100,44 @@ def icons(**conf):
             sizes.add(size)
         elif size.isdigit():
             sizes.add(int(size))
+        elif len(size.split('x')) == 2:
+            sizes.add(size)
 
     if not sizes:
         click.echo("Size not recognized: %s" % str(conf['size']))
         return
 
-    click.echo("Generating icons: %s" % ", ".join(map(str, sorted(sizes))))
+    def sortkey(size):
+        if isinstance(size, int):
+            return size
+        else:
+            return max(int(s) for s in size.split('x'))
+
+    sort_sizes = [str(size) for size in sorted(sizes, key=sortkey)]
+    click.echo("Generating icons: %s" % ", ".join(sort_sizes))
+
     if conf['outdir'] and not os.path.exists(conf['outdir']):
         os.mkdir(conf['outdir'])
+
     img = Image.open(conf['source'])
     for size in sizes:
+        if isinstance(size, int):
+            width = height = minsize = size
+        else:
+            width, height = (int(s) for s in size.split('x'))
+            minsize = min(width, height)
+        minsize = min(minsize, img.width, img.height)
+
         icon = img.copy()
-        icon.thumbnail((size, size), Image.ANTIALIAS)
+        icon.thumbnail((minsize, minsize), Image.ANTIALIAS)
+        if width != minsize or height != minsize:
+            left = (width - minsize) // 2
+            right = width - minsize - left
+            top = (height - minsize) // 2
+            bottom = height - minsize - top
+            fill = img.load()[0, 0]
+            icon = ImageOps.expand(icon, (left, top, right, bottom), fill)
+
         name = conf['filename'].format(size=size)
         if conf['outdir']:
             name = os.path.join(conf['outdir'], name)
