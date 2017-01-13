@@ -110,11 +110,9 @@ function inject(template, context, url, pageid) {
 
 if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
     tmpl.inject = function(template, context, url, pageid) {
-        var $page;
-        window.MSApp.execUnsafeLocalFunction(function() {
-            $page = inject(template, context, url, pageid);
+        return window.MSApp.execUnsafeLocalFunction(function() {
+            return inject(template, context, url, pageid);
         });
-        return $page;
     };
 } else {
     tmpl.inject = inject;
