@@ -81,6 +81,7 @@ setup(
         'PyYAML',
         'requests',
         'pystache',
+        'Pillow',
     ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
