@@ -106,7 +106,11 @@ pandas.parse = function(str) {
             if (!metadata[i]) {
                 metadata[i] = {};
             }
-            metadata[i][metaname] = d;
+            if (d == '-') {
+                metadata[i][metaname] = null;
+            } else {
+                metadata[i][metaname] = d;
+            }
         });
     }
 
