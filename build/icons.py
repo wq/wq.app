@@ -42,6 +42,20 @@ SIZES = {
         144: 'icon-72@2x',
     },
 
+    'ios-splash': {
+        '320x480': 'Default',
+        '640x960': 'Default@2x',
+        '640x1136': 'Default-568h@2x',
+        '750x1334': 'Default-667h@2x',
+        '768x1024': 'Default-Portrait~ipad',
+        '1024x768': 'Default-Landscape~ipad',
+        '1242x2208': 'Default-Portrait-736h@3x',
+        '1536x2048': 'Default-Portrait@2x~ipad',
+        '2048x1536': 'Default-Landscape@2x~ipad',
+        '2208x1242': 'Default-Landscape-736h@3x',
+        2732: 'Default@2x~universal~anyany',
+    },
+
     'windows': {
         30: 'Square30x30Logo',
         44: 'Square44x44Logo',
@@ -64,9 +78,14 @@ SIZES = {
     }
 }
 
+PLATFORMS = set()
+ALIASES = {}
 for platform, aliases in list(SIZES.items()):
+    PLATFORMS.add(platform)
     for size, alias in aliases.items():
         SIZES[alias] = {size: alias}
+        ALIASES.setdefault(size, {})
+        ALIASES[size][platform] = alias
 
 
 @wq.command()
@@ -92,10 +111,14 @@ def icons(**conf):
     elif all([isinstance(c, str) and len(c) == 1 for c in conf['size']]):
         conf['size'] = ("".join(conf['size']),)
 
+    platform = None
     sizes = set()
     for size in conf['size']:
         if size in SIZES:
             sizes.update(SIZES[size].keys())
+            if size in PLATFORMS and not platform:
+                # Use first specified platform as default for icon aliases
+                platform = size
         elif isinstance(size, int):
             sizes.add(size)
         elif size.isdigit():
@@ -114,7 +137,13 @@ def icons(**conf):
             return max(int(s) for s in size.split('x'))
 
     sort_sizes = [str(size) for size in sorted(sizes, key=sortkey)]
-    click.echo("Generating icons: %s" % ", ".join(sort_sizes))
+    if platform and len(conf['size']) == 1:
+        platform_note = " for %s" % platform
+    else:
+        platform_note = ""
+    click.echo(
+        "Generating icons%s: %s" % (platform_note, ", ".join(sort_sizes))
+    )
 
     if conf['outdir'] and not os.path.exists(conf['outdir']):
         os.mkdir(conf['outdir'])
@@ -138,7 +167,18 @@ def icons(**conf):
             fill = img.load()[0, 0]
             icon = ImageOps.expand(icon, (left, top, right, bottom), fill)
 
-        name = conf['filename'].format(size=size)
+        aliases = ALIASES.get(size, {})
+        if len(aliases.keys()) == 1:
+            alias = list(aliases.values())[0]
+        elif platform and platform in aliases:
+            alias = aliases[platform]
+        else:
+            alias = 'icon-%s' % size
+
+        name = conf['filename'].format(
+            size=size,
+            alias=alias,
+        )
         if conf['outdir']:
             name = os.path.join(conf['outdir'], name)
         icon.save(name, 'PNG')
