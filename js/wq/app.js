@@ -1606,7 +1606,10 @@ function _default_attachments(field, context) {
     if (typeof field.initial == 'string' || typeof field.initial == 'number') {
         var attachments = [];
         for (var i = 0; i < +field.initial; i++) {
-            attachments.push({'@index': i});
+            attachments.push({
+                '@index': i,
+                'new_attachment': true
+            });
         }
         return Promise.resolve(attachments);
     }
@@ -1625,10 +1628,12 @@ function _default_attachments(field, context) {
     return model.filter(filter).then(function(types) {
         var attachments = [];
         types.forEach(function(t, i) {
-            var obj = {};
+            var obj = {
+                '@index': i,
+                'new_attachment': true
+            };
             obj[typeField.name + '_id'] = t.id;
             obj[typeField.name + '_label'] = t.label;
-            obj['@index'] = i;
             attachments.push(obj);
         });
         return attachments;

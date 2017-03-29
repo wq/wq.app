@@ -49,7 +49,8 @@ function addAttachment(page, section, index, $button, mode) {
     }
 
     context = {
-        '@index': index
+        '@index': index,
+        'new_attachment': true
     };
     for (var key in _pageContext) {
         context[key.replace(section + '.', '')] = _pageContext[key];
