@@ -1047,7 +1047,12 @@ function _handleForm(evt) {
     var conf = _getConfByUrl(url);
     var vals = {};
     var $files = $form.find('input[type=file]');
-    var has_files = ($files.length > 0 && $files.val().length > 0);
+    var has_files = false;
+    $files.each(function(i, input) {
+        if ($(input).val().length > 0) {
+            has_files = true;
+        }
+    });
     var ready;
 
     if (has_files && !window.Blob) {
