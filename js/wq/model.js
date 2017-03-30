@@ -13,6 +13,42 @@ function model(config) {
 
 model.Model = Model;
 
+model.cacheOpts = {
+    // First page (e.g. 50 records) is stored locally; subsequent pages can be
+    // loaded from server.
+    'first_page': {
+        'server': true,
+        'client': true,
+        'page': 1,
+        'reversed': true
+    },
+
+    // All data is prefetched and stored locally, no subsequent requests are
+    // necessary.
+    'all': {
+        'server': false,
+        'client': true,
+        'page': 0,
+        'reversed': true
+    },
+
+    // "Important" data is cached; other data can be accessed via pagination.
+    'filter': {
+        'server': true,
+        'client': true,
+        'page': 0,
+        'reversed': true
+    },
+
+    // No data is cached locally; all data require a network request.
+    'none': {
+        'server': true,
+        'client': false,
+        'page': 0,
+        'reversed': true
+    }
+};
+
 return model;
 
 // Retrieve a stored list as an object with helper functions
@@ -26,9 +62,19 @@ function Model(config) {
     if (typeof config == "string") {
         config = {'query': config};
     }
-    if (!config.max_local_pages) {
-        config.max_local_pages = 1;
+
+    if (!config.cache) {
+        config.cache = 'first_page';
     }
+    self.opts = model.cacheOpts[config.cache];
+    if (!self.opts) {
+        throw "Unknown cache option " + config.cache;
+    }
+    ['max_local_pages', 'partial', 'reversed'].forEach(function(name) {
+        if (name in config) {
+            throw '"' + name + '" is deprecated in favor of "cache"';
+        }
+    });
 
     // Default to main store, but allow overriding
     if (config.store) {
@@ -61,12 +107,12 @@ function Model(config) {
             query = self.query;
         } else {
             query = json.extend({}, self.query);
-            if (page_num > 1) {
+            if (page_num !== null) {
                 query.page = page_num;
             }
         }
         return fn(query).then(_processData).then(function(data) {
-            if (!data.page) {
+            if (page_num !== null && !data.page) {
                 data.page = page_num;
             }
             return data;
@@ -98,7 +144,7 @@ function Model(config) {
     }
 
     self.load = function() {
-        return getPage(1, self.store.get);
+        return getPage(null, self.store.get);
     };
 
     self.info = function() {
@@ -115,7 +161,7 @@ function Model(config) {
     // Load data for the given page number
     self.page = function(page_num) {
         var fn;
-        if (!config.url || page_num <= config.max_local_pages) {
+        if (!config.url || page_num <= self.opts.page) {
             // Store data locally
             fn = self.store.get;
         } else {
@@ -147,7 +193,7 @@ function Model(config) {
                 return json.extend(true, {}, ilist[value]);
             } else if (attr == "id" && value !== undefined) {
                 // Not found in local list; try server
-                if (!localOnly && config.partial && config.url) {
+                if (!localOnly && self.opts.server && config.url) {
                     return self.store.fetch('/' + config.url + '/' + value);
                 }
             }
@@ -234,7 +280,7 @@ function Model(config) {
         if (!idcol) {
             idcol = 'id';
         }
-        if (config.reversed) {
+        if (self.opts.reversed) {
             update = update.reverse();
         }
         update = update.filter(function(obj) {
@@ -256,7 +302,7 @@ function Model(config) {
                 if (!updateById[obj[idcol]]) {
                      return;
                 }
-                if (config.reversed) {
+                if (self.opts.reversed) {
                     data.list.unshift(obj);
                 } else {
                     data.list.push(obj);
@@ -280,7 +326,7 @@ function Model(config) {
     // Prefetch list
     self.prefetch = function() {
         resetCaches();
-        return getPage(1, self.store.prefetch);
+        return getPage(null, self.store.prefetch);
     };
 
     // Helper for partial list updates (useful for large lists)

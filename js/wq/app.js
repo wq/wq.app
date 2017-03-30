@@ -687,7 +687,7 @@ function _displayList(page, ui, params, url, context) {
 
     var conf = _getConf(page);
     var model = app.models[page];
-    var pnum = 1, next = null, prev = null, filter;
+    var pnum = model.opts.page, next = null, prev = null, filter;
     if (url === undefined) {
         url = conf.url;
         if (url) {
@@ -718,21 +718,37 @@ function _displayList(page, ui, params, url, context) {
     if (filter && !Object.keys(filter).length) {
         filter = null;
     }
-    if (pnum > conf.max_local_pages || filter && conf.partial) {
-        // Set max_local_pages to avoid filling up local storage and
-        // instead attempt to load HTML directly from the server
-        // (using built-in jQM loader)
-        if (app.config.loadMissingAsHtml) {
+
+    // Load from server if data might not exist locally
+    if (app.config.loadMissingAsHtml) {
+        if (!model.opts.client) {
+            return _loadFromServer(url, ui);
+        }
+        if (filter && model.opts.server) {
+            return _loadFromServer(url, ui);
+        }
+        if (pnum > model.opts.page) {
             return _loadFromServer(url, ui);
         }
     }
 
-    var result1 = filter ? model.filterPage(filter) : model.page(pnum);
+    var result1;
+    if (!pnum && !model.opts.client) {
+        pnum = 1;
+    }
+    if (filter) {
+        result1 = model.filterPage(filter);
+    } else if (pnum > model.opts.page) {
+        result1 = model.page(pnum);
+    } else {
+        result1 = model.load();
+    }
     var result2 = model.unsyncedItems();
     return Promise.all([result1, result2]).then(function(results) {
         var data = results[0],
             unsyncedItems = results[1],
-            parentInfo = {}, routeInfo;
+            parentInfo = {}, routeInfo,
+            prevIsLocal, currentIsLocal;
         ['parent_id', 'parent_url', 'parent_page'].forEach(function(key) {
             if (context && context[key]) {
                 parentInfo[key] = context[key];
@@ -740,20 +756,32 @@ function _displayList(page, ui, params, url, context) {
         });
 
         routeInfo = _getRouteInfo(page, 'list', null, url, parentInfo);
-        if (pnum > 1) {
-            var prevp = {'page': +pnum - 1};
-            prev = conf.url + '/?' + $.param(prevp);
+        if (pnum > model.opts.page && (model.opts.client || pnum > 1)) {
+            prev = conf.url + '/';
+            if (+pnum - 1 > model.opts.page &&
+                   (model.opts.client || pnum > 2)) {
+                prev += '?' + $.param({
+                    'page': +pnum - 1
+                });
+            } else if (pnum == 1) {
+                prevIsLocal = true;
+            }
         }
 
-        if (pnum < data.pages) {
+        if (pnum < data.pages && (model.opts.server || pnum)) {
             var nextp = {'page': +pnum + 1};
             next = conf.url + '/?' + $.param(nextp);
+            if (nextp.page == 1) {
+                currentIsLocal = true;
+            }
         }
 
         context = $.extend({'page_config': conf}, data, {
             'previous': prev ? '/' + prev : null,
             'next':     next ? '/' + next : null,
-            'multiple': data.pages > 1
+            'multiple': model.opts.server && data.pages > model.opts.page,
+            'previous_is_local': prevIsLocal,
+            'current_is_local': currentIsLocal
         }, context);
 
         // Add any outbox items to context
@@ -844,6 +872,7 @@ _onShow.edit = function(page) {
 
 function _displayItem(itemid, item, page, ui, params, mode, url, context) {
     var conf = _getConf(page);
+    var model = app.models[page];
     spin.stop();
     if (url === undefined) {
         url = conf.url;
@@ -865,13 +894,13 @@ function _displayItem(itemid, item, page, ui, params, mode, url, context) {
             return _renderDetail(item, page, mode, ui, params, url, context);
         }
     } else {
-        if (conf.partial && app.config.loadMissingAsHtml) {
-            // conf.partial indicates that the local list does not represent
+        if (model.opts.server && app.config.loadMissingAsHtml) {
+            // opts.server indicates that the local list does not represent
             // the entire dataset; if an item is not found, attempt to load
             // HTML directly from the server (using built-in jQM loader)
             return _loadFromServer(url, ui);
         } else {
-            // If conf.partial is not set, locally stored list is assumed to
+            // If opts.server is false, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
             return router.notFound(url);
         }
