@@ -1677,7 +1677,13 @@ function _default_attachments(field, context) {
     }
 
     var model = app.models[typeField['wq:ForeignKey']];
-    var filter = _computeFilter(field.initial.filter, context);
+    var filterConf = field.initial.filter;
+    if (!filterConf || !Object.keys(filterConf).length) {
+        if (typeField.filter) {
+            filterConf = typeField.filter;
+        }
+    }
+    var filter = _computeFilter(filterConf, context);
     return model.filter(filter).then(function(types) {
         var attachments = [];
         types.forEach(function(t, i) {
