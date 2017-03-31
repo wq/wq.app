@@ -312,6 +312,18 @@ function Model(config) {
         });
     };
 
+    self.remove = function(id, idcol) {
+        if (!idcol) {
+            idcol = 'id';
+        }
+        return self.load().then(function(data) {
+            data.list = data.list.filter(function(obj) {
+                return obj[idcol] != id;
+            });
+            return self.overwrite(data);
+        });
+    };
+
     // Overwrite entire list
     self.overwrite = function(data) {
         resetCaches();

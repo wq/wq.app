@@ -393,10 +393,14 @@ app.postsave = function(item, backgroundSync) {
 
     // conf.postsave can be set redirect to another page
     modelConf = item.options.modelConf;
-    postsave = modelConf.postsave;
+    if (item.deletedId) {
+        postsave = modelConf.postdelete || modelConf.postsave;
+    } else {
+        postsave = modelConf.postsave;
+    }
     if (!postsave) {
         // Otherwise, default is to return the page for the item just saved
-        if (backgroundSync) {
+        if (backgroundSync || item.deletedId) {
             // If backgroundSync, return to list view while syncing
             postsave = modelConf.name + '_list';
         } else {
@@ -419,9 +423,13 @@ app.postsave = function(item, backgroundSync) {
     if (!pconf) {
         // If conf.postsave is not the name of a list page, assume it's a
         // simple page or a URL
-        url = app.base_url + '/' + tmpl.render(
-            postsave, item.result || item.data
-        );
+        var urlContext;
+        if (item.deletedId) {
+            urlContext = {'deleted': true};
+        } else {
+            urlContext = item.result || item.data;
+        }
+        url = app.base_url + '/' + tmpl.render(postsave, urlContext);
     } else if (!pconf.list) {
         url = app.base_url + '/' + pconf.url;
     } else {
@@ -1177,10 +1185,11 @@ function _handleForm(evt) {
             options.preserve = preserve.split(/,/);
         }
     }
-    if (url == conf.url + "/" || !conf.list) {
-        options.method = "POST"; // REST API uses POST for new records
+    if (vals._method) {
+        options.method = vals._method;
+        delete vals._method;
     } else {
-        options.method = "PUT";  // .. but PUT to update existing records
+        options.method = "POST";
     }
 
     options.modelConf = conf;
@@ -1303,11 +1312,16 @@ function _submitClick() {
 function _updateModels(item, result) {
     var modelConf = item.options.modelConf;
     if (modelConf.list && item.synced) {
-        return app.models[modelConf.name].update([result]).then(function() {
-            return Promise.all(_callPlugins(
-                'onsave', undefined, [item, result]
-            ));
-        });
+        model = app.models[modelConf.name];
+        if (item.deletedId) {
+            return model.remove(item.deletedId);
+        } else {
+            return model.update([result]).then(function() {
+                return Promise.all(_callPlugins(
+                    'onsave', undefined, [item, result]
+                ));
+            });
+        }
     } else if (app.can_login && result && result.user && result.config) {
         return _saveLogin(result);
     }

@@ -406,6 +406,13 @@ function _Outbox(store) {
         if (result) {
             item.synced = true;
             item.result = result;
+        } else if (item.options.method == 'DELETE') {
+            item.synced = true;
+            if (item.options.modelConf) {
+                item.deletedId = item.options.url.replace(
+                    item.options.modelConf.url + '/', ''
+                );
+            }
         }
     };
 
@@ -416,9 +423,13 @@ function _Outbox(store) {
                 {'store': self.store},
                 item.options.modelConf
             );
-            return model(conf).update([result]).then(function() {
-                return result;
-            });
+            if (item.deletedId) {
+                return model(conf).remove(item.deletedId);
+            } else {
+                return model(conf).update([result]).then(function() {
+                    return result;
+                });
+            }
         } else {
             return Promise.resolve();
         }
