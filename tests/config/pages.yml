@@ -10,7 +10,6 @@ item:
     label: 'Items'
     list: true
     map: true
-    partial: true
     label_template: "{{label}}"
     form:
         - name: type
