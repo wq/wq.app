@@ -62,11 +62,11 @@ app.init = function(config) {
     }
 
     // Load missing (non-local) content as JSON, or as server-rendered HTML?
-    // Default is server-rendered HTML
-    config.loadMissingAsHtml = (
-        config.loadMissingAsHtml || !config.loadMissingAsJson
+    // Default (as of 1.0) is to load JSON and render on client.
+    config.loadMissingAsJson = (
+        config.loadMissingAsJson || !config.loadMissingAsHtml
     );
-    config.loadMissingAsJson = !config.loadMissingAsHtml;
+    config.loadMissingAsHtml = !config.loadMissingAsJson;
 
     // After a form submission, sync in the background, or wait before
     // continuing?  Default (as of 0.8) is to sync in the background.
@@ -313,14 +313,19 @@ app.go = function(page, ui, params, itemid, mode, url, context) {
 
 // Run any/all plugins on the specified page
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
-    var routeInfo, getItem;
+    var lastRoute = router.info, routeInfo, getItem;
     routeInfo = _getRouteInfo(
         page, mode, itemid,
         url.replace(app.base_url + '/', ''),
         parentInfo
     );
     if (itemid) {
-        getItem = app.models[page].find(itemid);
+        if (lastRoute.path == routeInfo.path && lastRoute.context &&
+                lastRoute.context.id == itemid) {
+            getItem = Promise.resolve(lastRoute.context);
+        } else {
+            getItem = app.models[page].find(itemid);
+        }
     } else {
         getItem = Promise.resolve({});
     }
@@ -743,7 +748,12 @@ function _displayList(page, ui, params, url, context) {
     } else {
         result1 = model.load();
     }
-    var result2 = model.unsyncedItems();
+    var result2;
+    if (pnum == model.opts.page || (pnum == 1 && !model.opts.client)) {
+        result2 = model.unsyncedItems();
+    } else {
+        result2 = [];
+    }
     return Promise.all([result1, result2]).then(function(results) {
         var data = results[0],
             unsyncedItems = results[1],

@@ -128,7 +128,7 @@ router.setPath = _updateInfo;
 
 // Inject and display page
 router.go = function(path, template, context, ui, once, pageid) {
-    _updateInfo(path);
+    _updateInfo(path, context);
     var url = router.info.full_path;
     if (router.config.debug) {
         console.log(
@@ -137,7 +137,6 @@ router.go = function(path, template, context, ui, once, pageid) {
             "' and context:"
         );
         console.log(context);
-        router.info.context = context;
     }
     var $page, role, options;
     once = once || router.config.injectOnce;
@@ -201,13 +200,16 @@ router.info = {
     'base_url': ""
 };
 
-function _updateInfo(path) {
+function _updateInfo(path, context) {
     router.info.prev_path = router.info.path;
     router.info.path = path;
     router.info.path_enc = escape(path);
     router.info.full_path = router.info.base_url + "/" + path;
     router.info.full_path_enc = escape(router.info.full_path);
     router.info.params = router.getParams(path.split('?')[1]);
+    if (context) {
+        router.info.context = context;
+    }
     tmpl.setDefault('router_info', router.info);
     tmpl.setDefault('rt', router.info.base_url);
 }
