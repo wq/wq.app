@@ -5,9 +5,8 @@
  * https://wq.io/license
  */
 
-define(['leaflet', 'jquery', './json', './spinner',
-        './template', './console'],
-function(L, $, json, spin, tmpl, console) {
+define(['leaflet', './json', './spinner', './template', './console'],
+function(L, json, spin, tmpl, console) {
 
 // module variable
 var map = {
@@ -81,7 +80,7 @@ map.init = function(defaults) {
             return;
         } else if (mconf === true) {
             mconf = [];
-        } else if (!$.isArray(mconf)) {
+        } else if (!json.isArray(mconf)) {
             mconf = [mconf];
         }
 
@@ -162,7 +161,7 @@ map.run = function($page, routeInfo) {
     maps.forEach(function(mapname) {
         var divid = map.getMapId(routeInfo, mapname) + '-map',
             $div = $page.find('#' + divid);
-        map.createMap(routeInfo, $div[0], mapname);
+        map.createMap(routeInfo, $div[0], mapname, $page);
     });
 };
 
@@ -244,7 +243,8 @@ map.addAutoLayers = function(page) {
 // Load map configuration for the given page
 map.getLayerConfs = function(routeInfo, mapname) {
     var page = routeInfo.page, itemid = routeInfo.item_id,
-        mode = routeInfo.mode, url = routeInfo.path;
+        mode = routeInfo.mode, url = routeInfo.path,
+        outboxId = routeInfo.outbox_id;
     if (!mode) {
         if (map.app.config.pages[page].list) {
             mode = itemid ? 'list' : 'detail';
@@ -275,6 +275,17 @@ map.getLayerConfs = function(routeInfo, mapname) {
                 params = params.replace(/^\?/, "&");
             }
             layerconf.url += params;
+        }
+        if (outboxId && layerconf.draw) {
+            var geomname = layerconf.geometryField || 'geometry';
+            var geom = (routeInfo.context || {})[geomname];
+            if (geom) {
+                layerconf.initData = JSON.parse(geom);
+            } else {
+                layerconf.initData = {
+                   'type': 'FeatureCollection', 'features': []
+                };
+            }
         }
         layers.push(layerconf);
     });
@@ -374,8 +385,15 @@ map.addOverlayType('geojson', function(layerconf) {
         overlay = L.featureGroup();
     }
 
+    var getData;
+    if (layerconf.initData) {
+        getData = Promise.resolve(layerconf.initData);
+    } else {
+        getData = map.loadLayer(layerconf.url);
+    }
+
     // Load layer content as JSON
-    overlay.ready = map.loadLayer(layerconf.url).then(function(geojson) {
+    overlay.ready = getData.then(function(geojson) {
         var options = {}, popup, oneach;
         if (!geojson || !geojson.type) {
             console.warn("Ignoring empty or malformed GeoJSON result.");
@@ -406,6 +424,9 @@ map.addOverlayType('geojson', function(layerconf) {
         }
         if (layerconf.style) {
             options.style = layerconf.style;
+        }
+        if (geojson.type == 'GeometryCollection') {
+            geojson = {'type': 'Feature', 'geometry': geojson};
         }
         if (layerconf.draw && geojson.type == 'Feature' &&
                 geojson.geometry.type == 'GeometryCollection') {
@@ -440,9 +461,9 @@ map.createLayerControl = function(basemaps, layers, routeInfo, mapname) {
     return L.control.layers(basemaps, layers);
 };
 
-map.addDrawControl = function(m, layer, opts, $geom) {
+map.addDrawControl = function(m, layer, layerconf, $geom) {
     var control = new L.Control.Draw({
-        'draw': opts.draw,
+        'draw': layerconf.draw,
         'edit': {'featureGroup': layer}
     }).addTo(m);
 
@@ -462,6 +483,8 @@ map.addDrawControl = function(m, layer, opts, $geom) {
     m.on('draw:drawstop draw:editstop draw:deletestop', function() {
         $submit.attr('disabled', false);
     });
+
+    save();
 
     return control;
 
@@ -491,7 +514,7 @@ map.addDrawControl = function(m, layer, opts, $geom) {
 
     function save() {
         var geojson = layer.toGeoJSON();
-        if (opts.flatten) {
+        if (layerconf.flatten) {
             // Flatten FeatureCollection into single Geometry (or
             // GeometryCollection).
             geojson = flatten(geojson);
@@ -537,7 +560,7 @@ map.getMap = function(routeInfo, mapname) {
 };
 
 // Primary map routine
-map.createMap = function(routeInfo, divid, mapname) {
+map.createMap = function(routeInfo, divid, mapname, $page) {
     var mapid, mapconf, m, defaults,
         layerConfs, layers,
         basemaps, basemap, div;
@@ -660,8 +683,11 @@ map.createMap = function(routeInfo, divid, mapname) {
         m.invalidateSize();
     }, 100);
 
+    if (!$page) {
+        return;
+    }
     // Try to ensure no Leaflet widgets are enhanced by jQuery Mobile
-    var $controls = $(div).find(".leaflet-control-container");
+    var $controls = $page.find(".leaflet-control-container");
     $controls.find("input").attr("data-role", "none");
 
     if (mapconf.onshow) {
@@ -677,7 +703,7 @@ map.createMap = function(routeInfo, divid, mapname) {
         });
         if (drawLayer) {
             var geomname = drawLayer.geometryField || 'geometry';
-            var $geom = $.mobile.activePage.find('[name=' + geomname + ']');
+            var $geom = $page.find('[name=' + geomname + ']');
             layers[drawLayer.name].ready.then(function(layer) {
                 map.addDrawControl(m, layer, drawLayer, $geom);
             });

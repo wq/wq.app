@@ -209,8 +209,10 @@ app.init = function(config) {
     // Register outbox
     router.register('outbox', _outboxList);
     router.register('outbox/', _outboxList);
-    router.register('outbox/<slug>', _outboxItem('detail'));
-    router.register('outbox/<slug>/edit', _outboxItem('edit'));
+    router.register('outbox/<slug>', _renderOutboxItem('detail'));
+    router.register('outbox/<slug>/edit', _renderOutboxItem('edit'));
+    router.addRoute('outbox/<slug>', 's', _showOutboxItem('detail'));
+    router.addRoute('outbox/<slug>/edit', 's', _showOutboxItem('edit'));
 
     // Fallback index page
     if (!root && !app.wq_config.pages.index &&
@@ -218,14 +220,14 @@ app.init = function(config) {
         router.register('', function(match, ui) {
             var context = {};
             context.pages = Object.keys(app.wq_config.pages).map(
-		function(page) {
-		    var conf = app.wq_config.pages[page];
-		    return {
-			'name': page,
-			'url': conf.url,
-			'list': conf.list
-		    };
-		}
+                function(page) {
+                    var conf = app.wq_config.pages[page];
+                    return {
+                        'name': page,
+                        'url': conf.url,
+                        'list': conf.list
+                    };
+                }
             );
             router.go('', 'index', context, ui);
         });
@@ -313,16 +315,21 @@ app.go = function(page, ui, params, itemid, mode, url, context) {
 
 // Run any/all plugins on the specified page
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
-    var lastRoute = router.info, routeInfo, getItem;
+    var lastRoute = router.info,
+        context = lastRoute.context,
+        routeInfo, getItem;
     routeInfo = _getRouteInfo(
         page, mode, itemid,
         url.replace(app.base_url + '/', ''),
         parentInfo
     );
     if (itemid) {
-        if (lastRoute.path == routeInfo.path && lastRoute.context &&
-                lastRoute.context.id == itemid) {
-            getItem = Promise.resolve(lastRoute.context);
+        if (lastRoute.path == routeInfo.path && context &&
+                (context.id || 'new') == itemid) {
+            getItem = Promise.resolve(context);
+            if (context.outbox_id) {
+                routeInfo.outbox_id = context.outbox_id;
+            }
         } else {
             getItem = app.models[page].find(itemid);
         }
@@ -928,6 +935,9 @@ function _displayItem(itemid, item, page, ui, params, mode, url, context) {
 function _renderDetail(item, page, mode, ui, params, url, context) {
     var conf = _getConf(page),
         routeInfo = _getRouteInfo(page, mode, item.id || 'new', url, null);
+    if (context && context.outbox_id) {
+        routeInfo.outbox_id = context.outbox_id;
+    }
     context = $.extend({'page_config': conf}, item, context);
     return _addLookups(page, context, false, routeInfo).then(
         function(context) {
@@ -942,6 +952,9 @@ function _renderDetail(item, page, mode, ui, params, url, context) {
 function _renderEdit(itemid, item, page, ui, params, url, context) {
     var conf = _getConf(page),
         routeInfo = _getRouteInfo(page, 'edit', itemid, url, null);
+    if (context && context.outbox_id) {
+        routeInfo.outbox_id = context.outbox_id;
+    }
     if (itemid == "new") {
         // Create new item
         context = $.extend(
@@ -1028,7 +1041,7 @@ function _outboxList(match, ui) {
     });
 }
 
-function _outboxItem(mode) {
+function _renderOutboxItem(mode) {
     // Display outbox item using model-specific detail/edit view
     return function(match, ui, params) {
         outbox.model.find(match[1]).then(function(item) {
@@ -1065,6 +1078,21 @@ function _outboxItem(mode) {
                 }
             });
         });
+    };
+}
+
+function _showOutboxItem(mode) {
+    return function(match) {
+        var context = router.info.context || {};
+        if (context.outbox_id != match[1]) {
+            return;
+        }
+        app.runPlugins(
+            context.page_config.name,
+            mode,
+            context.id || 'new',
+            match[0]
+        );
     };
 }
 
