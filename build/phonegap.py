@@ -117,12 +117,29 @@ def create_zipfile(directory, source, version, context,
         filename = '{alias}.png'
         platforms = (
             'android', 'ios', 'windows',
-            'ios-splash', 'windows-splash'
+            'android-splash', 'ios-splash', 'windows-splash'
         )
 
         icon_path = os.path.join(directory, 'build', icon_dir)
         os.mkdir(icon_path)
         click.open_file(os.path.join(icon_path, '.pgbomit'), 'w').write('')
+
+        def get_width(size):
+            if isinstance(size, int):
+                return size
+            elif size.endswith('.9'):
+                return int(size.replace('.9', ''))
+            else:
+                return int(size.split('x')[0])
+
+        def get_height(size):
+            if isinstance(size, int):
+                return size
+            elif size.endswith('.9'):
+                return int(size.replace('.9', ''))
+            else:
+                return int(size.split('x')[1])
+
         for platform in platforms:
             context.invoke(
                 icons,
@@ -132,8 +149,8 @@ def create_zipfile(directory, source, version, context,
                 size=[platform],
             )
             sizes = [(
-                size if isinstance(size, int) else int(size.split('x')[0]),
-                size if isinstance(size, int) else int(size.split('x')[1]),
+                get_width(size),
+                get_height(size),
                 size,
                 alias,
             ) for size, alias in SIZES[platform].items()]
@@ -142,6 +159,9 @@ def create_zipfile(directory, source, version, context,
                     'width': width,
                     'height': height,
                     'alias': alias,
+                    'density': (
+                        alias.replace('.9', '') if 'dpi' in alias else None
+                    ),
                     'filename': os.path.join(
                         icon_dir,
                         filename.format(alias=alias)

@@ -20,6 +20,15 @@ SIZES = {
         192: 'xxxhdpi',
     },
 
+    'android-splash': {
+        '100.9': 'ldpi.9',
+        '160.9': 'mdpi.9',
+        '240.9': 'hdpi.9',
+        '360.9': 'xhdpi.9',
+        '480.9': 'xxhdpi.9',
+        '640.9': 'xxxhdpi.9',
+    },
+
     'ios': {
         29: 'icon-small',
         40: 'icon-40',
@@ -125,6 +134,8 @@ def icons(**conf):
             sizes.add(int(size))
         elif len(size.split('x')) == 2:
             sizes.add(size)
+        elif size.endswith('.9'):
+            sizes.add(size)
 
     if not sizes:
         click.echo("Size not recognized: %s" % str(conf['size']))
@@ -133,6 +144,8 @@ def icons(**conf):
     def sortkey(size):
         if isinstance(size, int):
             return size
+        elif size.endswith('.9'):
+            return float(size)
         else:
             return max(int(s) for s in size.split('x'))
 
@@ -150,8 +163,12 @@ def icons(**conf):
 
     img = Image.open(conf['source'])
     for size in sizes:
+        nine_patch = False
         if isinstance(size, int):
             width = height = minsize = size
+        elif size.endswith('.9'):
+            width = height = minsize = int(size.replace('.9', ''))
+            nine_patch = True
         else:
             width, height = (int(s) for s in size.split('x'))
             minsize = min(width, height)
@@ -174,6 +191,12 @@ def icons(**conf):
             alias = aliases[platform]
         else:
             alias = 'icon-%s' % size
+
+        if nine_patch:
+            icon = ImageOps.expand(icon, (1, 1, 1, 1), (0, 0, 0, 0))
+            data = icon.load()
+            data[0, 1] = data[1, 0] = (0, 0, 0, 255)
+            data[0, height] = data[width, 0] = (0, 0, 0, 255)
 
         name = conf['filename'].format(
             size=size,
