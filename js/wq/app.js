@@ -389,6 +389,28 @@ app.emptyOutbox = function(confirmFirst) {
     });
 };
 
+app.confirmSubmit = function(form, message) {
+    /* global confirm */
+    var $form;
+    if (navigator.notification && navigator.notification.confirm) {
+        $form = $(form);
+        if ($form.data('wq-confirm-submit')) {
+            return true;
+        }
+        navigator.notification.confirm(message, function(button) {
+            if (button == 1) {
+                $form.data('wq-confirm-submit', true);
+                $form.trigger('submit');
+            }
+        });
+    } else {
+        if (confirm(message)) {
+            return true;
+        }
+    }
+    return false;
+};
+
 // Hook for handling navigation after form submission
 app.postsave = function(item, backgroundSync) {
     var options = {
@@ -1270,6 +1292,13 @@ function _handleForm(evt) {
 }
 
 app.showOutboxErrors = function(item, $page) {
+    if ($page.is('form') && item.options.method == 'DELETE') {
+        if (!$page.find('.error').length) {
+            // Delete form does not contain error placeholders
+            // but main form might
+            $page = $page.parents('.ui-page');
+        }
+    }
     if (!item.error) {
         showError("Error saving data.");
         return;
