@@ -7,7 +7,7 @@ env:
 install:
  - pip install .
  - pip install html-json-forms
- - npm install https://github.com/sheppard/node-qunit-phantomjs/tarball/patch-1
+ - npm install node-qunit-phantomjs
  - npm install jshint
 before_script:
  - python -m tests.server &
