@@ -56,9 +56,14 @@ function addAttachment(page, section, index, $button, mode) {
         context[key.replace(section + '.', '')] = _pageContext[key];
     }
     $attachment = $(tmpl.render(match[1], context));
-    $button.parents('li').before($attachment);
-    $attachment.enhanceWithin();
-    $button.parents('ul').listview('refresh');
+    if ($attachment.is('tr')) {
+        $button.parents('tr').before($attachment);
+        $attachment.enhanceWithin();
+    } else {
+        $button.parents('li').before($attachment);
+        $attachment.enhanceWithin();
+        $button.parents('ul').listview('refresh');
+    }
 }
 
 if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
