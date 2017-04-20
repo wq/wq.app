@@ -206,7 +206,7 @@ function Model(config) {
 
         // If partial list, we can never be 100% sure all filter matches are
         // stored locally. In that case, run query on server.
-        if (!localOnly && config.partial && config.url) {
+        if (!localOnly && self.opts.server && config.url) {
             // FIXME: won't work as expected if any == true
             var query = json.extend({'url': config.url}, filter);
             return self.store.fetch(query).then(_processData);
