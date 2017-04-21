@@ -64,7 +64,7 @@ map.init = function(defaults) {
 
     // Assign after module load in case L.Icon.Default.imagePath is overridden
     map.config.defaults.icon.shadowUrl = (
-        L.Icon.Default.imagePath + '/marker-shadow.png'
+        map.icons['default']._getIconUrl('shadow')
     );
 
     if (defaults) {
