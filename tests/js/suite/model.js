@@ -9,7 +9,11 @@ ds.init({
         'format': 'json'
     }
 });
-var items = model({'url': 'items', 'store': ds});
+var items = model({
+    'url': 'items',
+    'store': ds,
+    'cache': 'all',
+});
 
 QUnit.test("load data list", function(assert) {
     var done = assert.async();
