@@ -261,7 +261,7 @@ map.getLayerConfs = function(routeInfo, mapname) {
              url += '/' + itemid;
         }
     }
-    mapconf.layers.forEach(function(layerconf) {
+    (mapconf.layers || []).forEach(function(layerconf) {
         var parts = url.split('?'),
             baseurl = parts[0].replace(/\/$/, ''),
             params = parts[1] && ("?" + parts[1]) || "";
