@@ -13,6 +13,8 @@ before_script:
  - python -m tests.server &
  - cd tests
  - wq collectjson
+ - wq init
+ - wq scss --indir scss --outdir css
  - cd ..
 script:
  - ./runtests.sh
