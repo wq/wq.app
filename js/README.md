@@ -23,7 +23,7 @@ Library                 |  Version  |  Notes
 [jquery.mobile.router]  |  443d352  |  
 [json-forms]            |  d22b545  |  wrapped as AMD module; split JSONEncode into two functions; disable unneeded isFile code
 [leaflet]               |    1.0.3  |
-[leaflet.draw]          |    0.4.2  |  wrapped as AMD module
+[leaflet.draw]          |    0.4.9  |  wrapped as AMD module
 [leaflet.markercluster] |    1.0.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
 [leaflet.wms]           |  1f35421  | 
 [localforage]           |  e3f2218  | [#603]
