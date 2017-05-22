@@ -25,7 +25,7 @@ Library                 |  Version  |  Notes
 [leaflet]               |    1.0.1  |
 [leaflet.draw]          |    0.4.2  |  wrapped as AMD module
 [leaflet.markercluster] |    1.0.0  |  wrapped as AMD module; `cat *.css > leaflet.markercluster.css`
-[leaflet.wms]           |    0.2.0  | 
+[leaflet.wms]           |  1f35421  | 
 [localforage]           |  e3f2218  | [#603]
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
