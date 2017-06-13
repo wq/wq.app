@@ -25,12 +25,16 @@ progress.init = function(conf) {
 
 // wq/app.js plugin
 progress.run = function($page) {
-    var $progress = $page.find('progress');
+    var $progress = $page.find('progress'),
+        $status;
     if (!$progress.length) {
         return;
     }
 
-    progress.start($progress);
+    if ($progress.data('wq-status')) {
+        $status = $page.find('#' + $progress.data('wq-status'));
+    }
+    progress.start($progress, $status);
     $page.on('pagehide', function() {
         progress.stop($progress);
     });
@@ -38,14 +42,14 @@ progress.run = function($page) {
 
 // progress.start accepts a jQuery-wrapped progress element and looks for a
 // data-wq-url attribute to poll (and an optional data-interval attribute)
-progress.start = function($progress) {
+progress.start = function($progress, $status) {
     var url = $progress.data('wq-url');
     var interval = $progress.data('wq-interval') || progress.config.interval;
     if (!url || _timers[url]) {
         return;
     }
     _timers[url] = setInterval(
-        progress.timer($progress, url),
+        progress.timer($progress, url, $status),
         interval * 1000
     );
 };
@@ -77,7 +81,7 @@ progress.fail = function($progress, data) {
 
 // progress.timer generates a function suitable for setInterval
 // (with $progress and url bound to scope).
-progress.timer = function($progress, url) {
+progress.timer = function($progress, url, $status) {
     return function() {
         json.get(url).then(function(data) {
             var done = false;
@@ -113,6 +117,9 @@ progress.timer = function($progress, url) {
                 progress.fail($progress, data);
             } else if (!done && progress.config.onProgress) {
                 progress.config.onProgress($progress, data);
+            }
+            if ((data.error || data.message) && $status) {
+                $status.text(data.error || data.message);
             }
             if (data.location && progress.app) {
                 progress.app.nav(data.location.substring(1));
