@@ -774,24 +774,44 @@ function _displayList(page, ui, params, url, context) {
         }
     }
 
-    var result1;
     if (!pnum && !model.opts.client) {
         pnum = 1;
     }
-    if (filter) {
-        result1 = model.filterPage(filter);
-    } else if (pnum > model.opts.page) {
-        result1 = model.page(pnum);
-    } else {
-        result1 = model.load();
+
+    function getData() {
+        if (filter) {
+            return model.filterPage(filter);
+        } else if (pnum > model.opts.page) {
+            return model.page(pnum);
+        } else {
+            return model.load();
+        }
     }
-    var result2;
-    if (pnum == model.opts.page || (pnum == 1 && !model.opts.client)) {
-        result2 = model.unsyncedItems();
-    } else {
-        result2 = [];
+    function getUnsynced() {
+        if (pnum == model.opts.page || (pnum == 1 && !model.opts.client)) {
+            return model.unsyncedItems();
+        } else {
+            return Promise.resolve([]);
+        }
     }
-    return Promise.all([result1, result2]).then(function(results) {
+
+    // If the number of unsynced records changes while loading the data,
+    // load the data a second time to make sure the list is up to date.
+    // (this is rare except for cache=none lists with background sync)
+    return getUnsynced().then(function(unsynced1) {
+        return getData().then(function(data1) {
+            return getUnsynced().then(function(unsynced2) {
+                if (unsynced1 && unsynced2 &&
+                        unsynced1.length != unsynced2.length) {
+                    return getData().then(function(data2) {
+                        return [data2, unsynced2];
+                    });
+                } else {
+                    return [data1, unsynced2];
+                }
+            });
+        });
+    }).then(function(results) {
         var data = results[0],
             unsyncedItems = results[1],
             parentInfo = {}, routeInfo,
