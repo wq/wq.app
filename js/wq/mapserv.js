@@ -1,7 +1,7 @@
 /*!
- * wq.app 1.0.0-dev - wq/mapserv.js
+ * wq.app 1.0.0rc2 - wq/mapserv.js
  * Extension to wq/map.js with support for WMS (coming soon) and ESRI services.
- * (c) 2016, S. Andrew Sheppard
+ * (c) 2016-2017, S. Andrew Sheppard
  * https://wq.io/license
  */
 

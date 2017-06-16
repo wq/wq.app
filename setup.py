@@ -61,7 +61,7 @@ for folder in ['js', 'css', 'scss']:
 
 setup(
     name='wq.app',
-    version='1.0.0-dev',
+    version='1.0.0rc2',
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='https://wq.io/wq.app',
@@ -88,7 +88,7 @@ setup(
     long_description=parse_markdown_readme(),
     entry_points={'wq': 'wq.app=wq.app.build'},
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
