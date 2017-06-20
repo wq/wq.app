@@ -252,8 +252,15 @@ function Model(config) {
                     var match = true;
                     afilter.forEach(function(f) {
                         // FIXME: What about multi-valued filters?
-                        if (f.value != obj[f.name]) {
-                            match = false;
+                        var val = obj[f.name];
+                        if (isRawBoolean(val)) {
+                            if (toBoolean(f.value) != val) {
+                                match = false;
+                            }
+                        } else {
+                            if (f.value != val) {
+                                match = false;
+                            }
                         }
                     });
                     if (match) {
@@ -439,13 +446,48 @@ function Model(config) {
             });
         }
         return self.getGroups(attr).then(function(groups) {
-            if (groups && groups[value] && groups[value].length > 0) {
+            if (!groups) {
+                return [];
+            }
+            var isBoolean = true;
+            (Object.keys(groups).forEach(function(key) {
+                if (!isBoolean) {
+                    return;
+                }
+                if (!isBooleanKey(key)) {
+                    isBoolean = false;
+                }
+            }));
+            if (isBoolean) {
+                value = toBoolean(value);
+            }
+            if (groups[value] && groups[value].length > 0) {
                 return groups[value];
             } else {
                 return [];
             }
         });
     };
+}
+
+function isRawBoolean(value) {
+    return [null, true, false].indexOf(value) > -1;
+}
+
+function isBooleanKey(value) {
+    return ['null', 'true', 'false'].indexOf(value) > -1;
+}
+
+function toBoolean(value) {
+    if ([true, 'true', 1, '1', 't', 'y'].indexOf(value) > -1) {
+        return true;
+    } else if ([false, 'false', 0, '0', 'f', 'n'].indexOf(value) > -1) {
+        return false;
+    } else if ([null, 'null'].indexOf(value) > -1) {
+        return null;
+    } else {
+        return value;
+    }
 }
 
 });

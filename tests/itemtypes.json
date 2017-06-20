@@ -1,4 +1,5 @@
 [
-    {"id": 1, "label": "Type #1"},
-    {"id": 2, "label": "Type #2"}
+    {"id": 1, "label": "Type #1", "is_active": true},
+    {"id": 2, "label": "Type #2", "is_active": false},
+    {"id": 3, "label": "Type #3", "is_active": null}
 ]

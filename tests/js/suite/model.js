@@ -14,6 +14,11 @@ var items = model({
     'store': ds,
     'cache': 'all',
 });
+var itemtypes = model({
+    'url': 'itemtypes',
+    'store': ds,
+    'cache': 'all',
+});
 
 QUnit.test("load data list", function(assert) {
     var done = assert.async();
@@ -56,6 +61,72 @@ QUnit.test("filter by multiple values", function(assert) {
         );
         done();
     });
+});
+
+QUnit.test("filter by boolean (true)", function(assert) {
+    var done = assert.async();
+    Promise.all([
+        testBooleanResult(assert, true, '1'),
+        testBooleanResult(assert, 1, '1'),
+        testBooleanResult(assert, 't', '1')
+    ]).then(done).catch(done);
+});
+
+QUnit.test("filter by boolean (false)", function(assert) {
+    var done = assert.async();
+    Promise.all([
+        testBooleanResult(assert, false, '2'),
+        testBooleanResult(assert, 0, '2'),
+        testBooleanResult(assert, 'f', '2')
+    ]).then(done).catch(done);
+});
+
+QUnit.test("filter by boolean (null)", function(assert) {
+    var done = assert.async();
+    Promise.all([
+        testBooleanResult(assert, null, '3'),
+        testBooleanResult(assert, 'null', '3')
+    ]).then(done).catch(done);
+});
+
+QUnit.test("filter by boolean (empty)", function(assert) {
+    var done = assert.async();
+    Promise.all([
+        testBooleanResult(assert, undefined, null),
+        testBooleanResult(assert, '', null),
+        testBooleanResult(assert, 'foo', null)
+    ]).then(done).catch(done);
+});
+
+function testBooleanResult(assert, value, expectId) {
+    var expectCount = expectId ? 1 : 0;
+    return itemtypes.filter({'is_active': value}).then(function(items) {
+        assert.equal(
+            items.length, expectCount,
+            "is_active=" + value +
+            " should return " + expectCount + " result(s)"
+        );
+        if (expectId) {
+            assert.equal(
+                items[0].id, expectId,
+                "is_active=" + value +
+                " should return itemtype '" + expectId + "'"
+            );
+        }
+    });
+}
+
+QUnit.test("filter by boolean & non-boolean", function(assert) {
+    var done = assert.async();
+    Promise.all([
+        itemtypes.filter({'is_active': 'true', 'id': '1'}),
+        itemtypes.filter({'id': '1', 'is_active': 'true'})
+    ]).then(function(results) {
+        assert.equal(
+            results[0].length, results[1].length,
+            'key order should not affect filter result'
+        );
+    }).then(done).catch(done);
 });
 
 });
