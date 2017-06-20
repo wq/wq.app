@@ -420,7 +420,7 @@ app.postsave = function(item, backgroundSync) {
     // conf.postsave can be set redirect to another page
     modelConf = item.options.modelConf;
     if (item.deletedId) {
-        postsave = modelConf.postdelete || modelConf.postsave;
+        postsave = modelConf.postdelete;
     } else {
         postsave = modelConf.postsave;
     }
@@ -451,7 +451,7 @@ app.postsave = function(item, backgroundSync) {
         // simple page or a URL
         var urlContext;
         if (item.deletedId) {
-            urlContext = {'deleted': true};
+            urlContext = $.extend({'deleted': true}, router.info.context);
         } else {
             urlContext = item.result || item.data;
         }
