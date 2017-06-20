@@ -54,9 +54,6 @@ function _Store(name) {
     var _promises = {}; // Save promises to prevent redundant fetches
 
     self.init = function(opts) {
-        if (typeof opts == "string" || arguments.length > 1) {
-            throw "ds.init() now takes a single configuration argument";
-        }
         var optlist = [
             'service',
             'defaults',

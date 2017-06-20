@@ -25,9 +25,6 @@ var _saveTransition = "none",
     _onShow = {};
 
 app.init = function(config) {
-    if (arguments.length > 1) {
-        throw "app.init() now takes a single configuration argument";
-    }
     // Router (wq/router.js) configuration
     if (!config.router) {
         config.router = {
@@ -69,7 +66,7 @@ app.init = function(config) {
     config.loadMissingAsHtml = !config.loadMissingAsJson;
 
     // After a form submission, sync in the background, or wait before
-    // continuing?  Default (as of 0.8) is to sync in the background.
+    // continuing?  Default is to sync in the background.
     config.backgroundSync = (
         config.backgroundSync || !config.noBackgroundSync
     );

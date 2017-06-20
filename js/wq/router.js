@@ -26,9 +26,6 @@ var _jqmRouter;
 // Configuration
 router.init = function(config) {
     // Define baseurl (without trailing slash) if it is not /
-    if (typeof config == "string" || arguments.length > 1) {
-        throw "router.init() now takes a single configuration argument";
-    }
     if (config && config.base_url) {
         router.info.base_url = config.base_url;
     }

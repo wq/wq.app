@@ -18,10 +18,6 @@ var _defaults  = {};
 var _debug;
 
 tmpl.init = function(config) {
-    if (arguments.length > 1 ||
-            (config && !config.templates && !config.defaults)) {
-        throw "tmpl.init() now takes a single configuration argument";
-    }
     _templates = config.templates || {};
     _partials = config.partials || config.templates.partials || {};
     _defaults = config.defaults || {};

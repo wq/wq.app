@@ -1151,38 +1151,18 @@ chart.boxplot = function() {
 
     // Accessors for individual items
     var q1 = function(d) {
-        if ('p25' in d) {
-             // Backwards compatibility with old names; remove in 1.0
-            return d.p25;
-        }
         return d[prefix + 'q1'];
     };
     var q3 = function(d) {
-        if ('p75' in d) {
-             // Backwards compatibility with old names; remove in 1.0
-            return d.p75;
-        }
         return d[prefix + 'q3'];
     };
     var med = function(d) {
-        if ('median' in d) {
-             // Backwards compatibility with old names; remove in 1.0
-            return d.median;
-        }
         return d[prefix + 'med'];
     };
     var whishi = function(d) {
-        if ('max' in d) {
-             // Backwards compatibility with old names; remove in 1.0
-            return d.max;
-        }
         return d[prefix + 'whishi'];
     };
     var whislo = function(d) {
-        if ('min' in d) {
-             // Backwards compatibility with old names; remove in 1.0
-            return d.min;
-        }
         return d[prefix + 'whislo'];
     };
 
