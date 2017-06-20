@@ -1,5 +1,5 @@
 /*
- * wq.app 1.0.0rc2 - wq/console.js
+ * wq.app 1.0.0-dev - wq/console.js
  * Fallback for code using console.log
  * (c) 2012-2017, S. Andrew Sheppard
  * https://wq.io/license
