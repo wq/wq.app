@@ -1577,51 +1577,6 @@ function _choice_dropdown_lookup(name, choices) {
     return Promise.resolve(choiceDropdown);
 }
 
-/* jshint ignore:start */
-function _item_choice_lookup(page, field, context) {
-    // FIXME: restore this for e.g. relate pattern
-    var info = app.attachmentTypes[aname];
-    var tmodel = app.models[info.type];
-    var tfilter = info.getTypeFilter(page, context);
-    return tmodel.filter(tfilter).then(function(types) {
-        if (!types.length) {
-            return [];
-        }
-        var queue = types.map(function(type) {
-            var lname = info.getChoiceList(type, context);
-            var lmodel = app.models[lname];
-            var lfilter = info.getChoiceListFilter(type, context);
-            return lmodel.filter(lfilter).then(function(items) {
-                items = items.map(function(item) {
-                    return $.extend({}, item);
-                });
-                return function() {
-                    items.forEach(function(item) {
-                        if (item.id == this.item_id) {
-                            item.selected = true;
-                        } else {
-                            item.selected = false;
-                        }
-                    }, this);
-                    return items;
-                };
-            });
-        });
-        return Promise.all(queue).then(function(results) {
-            var listLookup = {};
-            results.forEach(function(fn, i) {
-                listLookup[types[i].id] = fn;
-            });
-            return function() {
-                if (this.type_id) {
-                    return listLookup[this.type_id].call(this);
-                }
-            };
-        });
-    });
-}
-/* jshint ignore:end */
-
 // Simple foreign key lookup
 function _parent_lookup(field, context) {
     var model = app.models[field['wq:ForeignKey']];
