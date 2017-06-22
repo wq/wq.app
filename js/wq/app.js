@@ -971,7 +971,7 @@ function _addLookups(page, context, editable, callback) {
             lookups[col + '_list'] = _parent_dropdown_lookup(
                 page, ppage, col + '_id'
             );
-            if (pconf.url && col == ppage)
+            if (pconf.url && col == ppage && pconf.url != col)
                 lookups[pconf.url] = lookups[col + '_list'];
         }
     }
