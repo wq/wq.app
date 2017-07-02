@@ -72,6 +72,12 @@ app.init = function(config) {
     );
     config.noBackgroundSync = !config.backgroundSync;
 
+    // Query parameters which should be ignored when filtering list views.
+    // By default all query parameters are used for filtering.
+    config.listIgnorePrefix = (
+        config.listIgnorePrefix || false
+    );
+
     app.config = config;
     app.wq_config = config;
 
@@ -750,8 +756,9 @@ function _displayList(page, ui, params, url, context) {
             pnum = params.page;
         }
         filter = {};
+        var prefix = app.config.listIgnorePrefix;
         for (var key in params || {}) {
-            if (key != 'page') {
+            if (key != 'page' && (key.substr(0, prefix.length) !== prefix)) {
                 filter[key] = params[key];
             }
         }
