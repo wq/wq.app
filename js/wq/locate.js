@@ -71,7 +71,7 @@ locate.Locator = function(map, fields, opts) {
     if (!fields) fields = {};
     if (!opts) opts = {};
 
-    var _mode, _marker, _circle, _locate;
+    var _mode, _marker, _circle, _locate, _lastSource, _hasSource;
 
     // Mode switching functions (define fields.toggle for default usage)
     self.setMode = function(mode) {
@@ -98,7 +98,7 @@ locate.Locator = function(map, fields, opts) {
     self.gpsStart = function() {
         locate.init(map);
         _locate = locate.locate(function(evt) {
-            self.update(evt.latlng, evt.accuracy);
+            self.update(evt.latlng, evt.accuracy, _lastSource);
         }, function(evt) {
             self.onerror(evt);
         }, true, true, {'setView': true});
@@ -141,7 +141,7 @@ locate.Locator = function(map, fields, opts) {
     };
 
     // Display and save updates to location
-    self.update = function(loc, accuracy) {
+    self.update = function(loc, accuracy, source) {
         if (!_marker)
             _marker = self.makeMarker().addTo(map);
         if (!_circle)
@@ -156,6 +156,23 @@ locate.Locator = function(map, fields, opts) {
             if (fields.longitude) fields.longitude.val(loc.lng);
             if (fields.accuracy)  fields.accuracy.val(accuracy);
             if (fields.mode)      fields.mode.val(_mode);
+            if (fields.source && _hasSource) {
+                var sourceInfo;
+                if (!source) {
+                    source = {};
+                }
+                if (source.type == 'external') {
+                    sourceInfo = source.identifier;
+                } else if (source.type == 'internal') {
+                    sourceInfo = 'Device Location Services';
+                } else {
+                    sourceInfo = source.type || 'Unknown';
+                }
+                if (source.typeIsGuess) {
+                    sourceInfo += ' (guess)';
+                }
+                fields.source.val(sourceInfo);
+            }
         }
 
         // User-defined callback (FIXME: make event?)
@@ -207,6 +224,15 @@ locate.Locator = function(map, fields, opts) {
 
     // Leaflet events
     map.on('click', _clickMap);
+
+    // Detect cordova-plugin-bluetooth-geolocation
+    _hasSource = navigator.geolocation && navigator.geolocation.hasSource;
+    if (_hasSource) {
+        map._handleGeolocationResponse = function(pos) {
+            _lastSource = pos.source;
+            L.Map.prototype._handleGeolocationResponse.call(map, pos);
+        }
+    }
 
     // jQuery Events
     if (fields.toggle) {
