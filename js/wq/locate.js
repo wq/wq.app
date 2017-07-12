@@ -269,7 +269,7 @@ locate.Locator = function(map, fields, opts) {
         map._handleGeolocationResponse = function(pos) {
             _lastSource = pos.source;
             L.Map.prototype._handleGeolocationResponse.call(map, pos);
-        }
+        };
     }
 
     // jQuery Events
