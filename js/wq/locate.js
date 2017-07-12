@@ -18,7 +18,8 @@ var locate = {
             'geometry': 'geometry',
             'accuracy': 'accuracy',
             'toggle': 'toggle',
-            'mode': 'mode'
+            'mode': 'mode',
+            'source': 'source'
         }
     }
 };
@@ -67,7 +68,7 @@ locate.Locator = function(map, fields, opts) {
         opts.precision = 6;
     }
 
-    var _mode, _marker, _circle;
+    var _mode, _marker, _circle, _lastSource, _hasSource;
 
     // Mode switching functions (define fields.toggle for default usage)
     self.setMode = function(mode) {
@@ -108,7 +109,7 @@ locate.Locator = function(map, fields, opts) {
         map.on('locationerror', error);
         map.locate(locateOpts);
         function success(evt) {
-            self.update(evt.latlng, evt.accuracy);
+            self.update(evt.latlng, evt.accuracy, _lastSource);
         }
         function error(evt) {
             self.onerror(evt);
@@ -152,7 +153,7 @@ locate.Locator = function(map, fields, opts) {
     };
 
     // Display and save updates to location
-    self.update = function(loc, accuracy) {
+    self.update = function(loc, accuracy, source) {
         if (!_marker) {
             _marker = self.makeMarker().addTo(map);
         }
@@ -186,6 +187,23 @@ locate.Locator = function(map, fields, opts) {
             }
             if (fields.mode) {
                 fields.mode.val(_mode);
+            }
+            if (fields.source && _hasSource) {
+                var sourceInfo;
+                if (!source) {
+                    source = {};
+                }
+                if (source.type == 'external') {
+                    sourceInfo = source.identifier;
+                } else if (source.type == 'internal') {
+                    sourceInfo = 'Device Location Services';
+                } else {
+                    sourceInfo = source.type || 'Unknown';
+                }
+                if (source.typeIsGuess) {
+                    sourceInfo += ' (guess)';
+                }
+                fields.source.val(sourceInfo);
             }
         }
 
@@ -244,6 +262,15 @@ locate.Locator = function(map, fields, opts) {
 
     // Leaflet events
     map.on('click', _clickMap);
+
+    // Detect cordova-plugin-bluetooth-geolocation
+    _hasSource = navigator.geolocation && navigator.geolocation.hasSource;
+    if (_hasSource) {
+        map._handleGeolocationResponse = function(pos) {
+            _lastSource = pos.source;
+            L.Map.prototype._handleGeolocationResponse.call(map, pos);
+        }
+    }
 
     // jQuery Events
     if (fields.toggle) {
