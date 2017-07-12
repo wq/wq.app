@@ -1,0 +1,9 @@
+language: python
+sudo: false
+python: 3.6
+env:
+ - LINT=1
+install:
+ - npm install jshint
+script:
+ - ./runtests.sh

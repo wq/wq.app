@@ -9,7 +9,11 @@
     "nonew": true,
     "unused": true,
     "undef": true,
+    "latedef": false,
+    "-W021": true,
     "globals": {
-        "define": false
+        "define": false,
+        "JSON": false,
+        "escape": false
     }
 }
