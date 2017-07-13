@@ -51,14 +51,14 @@
       <label for="image">Image</label>
       <input type="file" name="image" id="image">
     </li>
-    <li data-role="list-divider">Contacts</li>
-    {{#contacts}}
+    <li data-role="list-divider">Values</li>
+    {{#values}}
     <li>
-      <label for="contacts-{{@index}}-name">{{#type}}{{label}}{{/type}}</label>
-      <input type="hidden" name="contacts[{{@index}}][type_id]" value="{{type_id}}">
-      <input name="contacts[{{@index}}][name]" id="contacts-{{@index}}-name" value="{{name}}">
+      <label for="values-{{@index}}-name">{{#attribute}}{{label}}{{/attribute}}</label>
+      <input attribute="hidden" name="values[{{@index}}][attribute_id]" value="{{attribute_id}}">
+      <input name="values[{{@index}}][value]" id="values-{{@index}}-value" value="{{value}}">
     </li>
-    {{/contacts}}
+    {{/values}}
     <li data-role="list-divider">Location</li>
     <li>
       <div id="item-{{id}}{{^id}}new{{/id}}-edit-map" style="height:500px;"></div>

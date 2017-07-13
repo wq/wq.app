@@ -36,7 +36,7 @@ QUnit.test("find item", function(assert) {
     items.find("one").then(function(item) {
         assert.equal(item.id, "one", "item identifier");
         assert.equal(item.label, "ONE", "item label");
-        assert.equal(item.contacts.length, 2, "nested array");
+        assert.equal(item.values.length, 2, "nested array");
         done();
     });
 });

@@ -26,9 +26,9 @@
       </a>
     </p>
     {{/parent}}
-    {{#contacts}}
-    <p class="contact" id="contact-{{type_id}}">{{#type}}{{label}}{{/type}}: {{name}}</p>
-    {{/contacts}}
+    {{#values}}
+    <p class="value" id="value-{{attribute_id}}">{{#attribute}}{{label}}{{/attribute}}: {{value}}</p>
+    {{/values}}
     <hr>
     {{{html}}}
     <hr>

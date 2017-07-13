@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "label": "Width",
+        "name": "Width",
+        "is_active": true,
+        "campaign_id": 1,
+        "category": "dimension"
+    },
+    {
+        "id": 2,
+        "label": "Height",
+        "name": "Height",
+        "is_active": false,
+        "campaign_id": 1,
+        "category": "dimension"
+    },
+    {
+        "id": 3,
+        "label": "Color",
+        "name": "Color",
+        "is_active": true,
+        "campaign_id": 2,
+        "category": "color"
+    },
+    {
+        "id": 4,
+        "label": "Size",
+        "name": "Size",
+        "is_active": false,
+        "campaign_id": 2,
+        "category": ""
+    }
+]
