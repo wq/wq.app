@@ -28,12 +28,15 @@ locate.init = function(conf) {
     L.extend(locate.config, conf || {});
 };
 
+locate.locators = {};
+
 // wq/app.js plugin
 locate.run = function($page, routeInfo) {
     if (!routeInfo.page_config.locate) {
         return;
     }
-    var map = require('wq/map').getMap(routeInfo);
+    var map = require('wq/map').getMap(routeInfo),
+        mapId = require('wq/map').getMapId(routeInfo);
     if (!map) {
         return;
     }
@@ -50,6 +53,7 @@ locate.run = function($page, routeInfo) {
     $page.on('pagehide', function() {
         locator.stop();
     });
+    locate.locators[mapId] = locator;
 };
 
 // Interactive GPS & map-based locator tool
