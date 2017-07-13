@@ -1769,10 +1769,12 @@ function _computeFilter(filter, context) {
         }
         values = values.map(function(value) {
             if (value && value.indexOf && value.indexOf('{{') > -1) {
-                return tmpl.render(value, context);
-            } else {
-                return value;
+                value = tmpl.render(value, context);
+                if (value === '') {
+                    return null;
+                }
             }
+            return value;
         });
         if (values.length > 1) {
             computedFilter[key] = values;
