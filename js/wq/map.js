@@ -42,6 +42,8 @@ map.config = {
 
 // References to generated map objects
 map.maps = {};
+map.layers = {};
+map.basemaps = {};
 
 // References to generated icons
 map.icons = {
@@ -559,6 +561,16 @@ map.getMap = function(routeInfo, mapname) {
     return map.maps[mapid] || null;
 };
 
+map.getLayers = function(routeInfo, mapname) {
+    var mapid = map.getMapId(routeInfo, mapname);
+    return map.layers[mapid] || null;
+};
+
+map.getBasemaps = function(routeInfo, mapname) {
+    var mapid = map.getMapId(routeInfo, mapname);
+    return map.basemaps[mapid] || null;
+};
+
 // Primary map routine
 map.createMap = function(routeInfo, divid, mapname, $page) {
     var mapid, mapconf, m, defaults,
@@ -607,6 +619,7 @@ map.createMap = function(routeInfo, divid, mapname, $page) {
     basemaps = map.createBasemaps();
     basemap = Object.keys(basemaps)[0];
     basemaps[basemap].addTo(m);
+    map.basemaps[mapid] = basemaps;
 
     // Load layerconfs and add empty layer groups to map
     layers = {};
@@ -623,6 +636,7 @@ map.createMap = function(routeInfo, divid, mapname, $page) {
             layer.addTo(m);
         }
     });
+    map.layers[mapid] = layers;
 
     if (!mapconf.noLayerControl) {
         map.createLayerControl(
@@ -691,7 +705,7 @@ map.createMap = function(routeInfo, divid, mapname, $page) {
     $controls.find("input").attr("data-role", "none");
 
     if (mapconf.onshow) {
-        mapconf.onshow(m, layers, basemaps, routeInfo, mapname);
+        console.error("wq/map onshow removed in 1.0 - use a wq/app plugin");
     }
 
     if (routeInfo.mode == 'edit' && L.Control.Draw) {
