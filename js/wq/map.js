@@ -268,7 +268,7 @@ map.getLayerConfs = function(routeInfo, mapname) {
             baseurl = parts[0].replace(/\/$/, ''),
             params = parts[1] && ("?" + parts[1]) || "";
         layerconf = L.extend({}, layerconf);
-        if (layerconf.url.indexOf('{{') > -1) {
+        if (layerconf.url && layerconf.url.indexOf('{{') > -1) {
             layerconf.url = tmpl.render(layerconf.url, L.extend({
                 'id': itemid,
                 'url': baseurl
