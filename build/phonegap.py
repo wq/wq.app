@@ -14,6 +14,10 @@ from .icons import icons, SIZES
     '--source', type=click.Path(), help="Directory containing app assets"
 )
 @click.option('--icon', type=click.Path(), help="Source image for icons")
+@click.option(
+    '--splash', type=click.Path(),
+    help="Source image for splash screen (defaults to icon)",
+)
 @click.option('--config-xml', type=click.Path(), help="config.xml template")
 @click.option('--index-html', type=click.Path(), help="index.html template")
 @click.option(
@@ -89,6 +93,7 @@ def phonegap(ctx, config, version, **conf):
         version=version,
         context=ctx,
         icon=conf['icon'],
+        splash=conf['splash'] or conf['icon'],
         config_xml=conf['config_xml'],
         index_html=conf['index_html'],
     )
@@ -102,7 +107,7 @@ def phonegap(ctx, config, version, **conf):
 
 
 def create_zipfile(directory, source, version, context,
-                   icon=None, config_xml=None, index_html=None):
+                   icon=None, splash=None, config_xml=None, index_html=None):
     folder = os.path.join(directory, 'build')
     if os.path.exists(folder):
         shutil.rmtree(folder)
@@ -112,13 +117,14 @@ def create_zipfile(directory, source, version, context,
         'version': version,
     }
 
-    if icon:
+    if icon or splash:
         icon_dir = 'icons'
         filename = '{alias}.png'
-        platforms = (
-            'android', 'ios', 'windows',
-            'android-splash', 'ios-splash', 'windows-splash'
-        )
+        platforms = tuple()
+        if icon:
+            platforms += ('android', 'ios', 'windows')
+        if splash:
+            platforms += ('android-splash', 'ios-splash', 'windows-splash')
 
         icon_path = os.path.join(directory, 'build', icon_dir)
         os.mkdir(icon_path)
@@ -143,7 +149,7 @@ def create_zipfile(directory, source, version, context,
         for platform in platforms:
             context.invoke(
                 icons,
-                source=icon,
+                source=splash if platform.endswith('splash') else icon,
                 outdir=icon_path,
                 filename=filename,
                 size=[platform],

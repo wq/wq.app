@@ -172,15 +172,17 @@ def icons(**conf):
         else:
             width, height = (int(s) for s in size.split('x'))
             minsize = min(width, height)
-        minsize = min(minsize, img.width, img.height)
+        minsize = min(minsize, max(img.width, img.height))
 
         icon = img.copy()
         icon.thumbnail((minsize, minsize), Image.ANTIALIAS)
-        if width != minsize or height != minsize:
-            left = (width - minsize) // 2
-            right = width - minsize - left
-            top = (height - minsize) // 2
-            bottom = height - minsize - top
+        if icon.width < width or icon.height < height:
+            lrpad = (width - icon.width)
+            left = lrpad // 2
+            right = lrpad - left
+            tbpad = (height - icon.height)
+            top = tbpad // 2
+            bottom = tbpad - top
             fill = img.load()[0, 0]
             icon = ImageOps.expand(icon, (left, top, right, bottom), fill)
 
