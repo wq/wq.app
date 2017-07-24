@@ -53,13 +53,6 @@ map.icons = {
 // This will be called by app.init()
 map.init = function(defaults) {
     var app = map.app;
-    if (!app) {
-        console.warn(
-            "Call app.use(map) rather than calling map.init() directly"
-        );
-        app = require('wq/app');
-        app.use(map);
-    }
 
     // Auto-detect whether CRS-aware GeoJSON parser is available
     map.geoJson = L.Proj ? L.Proj.geoJson : L.geoJson;
