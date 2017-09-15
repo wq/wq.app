@@ -7,8 +7,8 @@ env:
 install:
  - pip install .
  - pip install html-json-forms
- - npm install node-qunit-phantomjs
- - npm install jshint
+ - npm install -g node-qunit-phantomjs
+ - npm install -g jshint
 before_script:
  - python -m tests.server &
  - cd tests
