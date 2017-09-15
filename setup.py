@@ -55,7 +55,7 @@ def create_wq_namespace():
 
 
 create_wq_namespace()
-package_data = [os.path.join("build", "r.js")]
+package_data = []
 for folder in ['js', 'css', 'scss']:
     package_data.extend(list_package_data(folder))
 
@@ -82,6 +82,7 @@ setup(
         'requests',
         'pystache',
         'Pillow',
+        'requirejs',
     ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),

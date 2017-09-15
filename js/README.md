@@ -30,7 +30,7 @@ Library                 |  Version  |  Notes
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
 [mustache.js]           |    2.2.1  |  
-[requirejs], [r.js]     |    2.3.2  |  r.js is in /build
+[requirejs]             |    2.3.2  |  r.js is provided by [python-requirejs]
 [qunit]                 |    2.0.1  |
 
 [wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
@@ -60,3 +60,4 @@ Library                 |  Version  |  Notes
 [default project layout]: https://github.com/wq/wq-django-template
 [wq/app.js]:             https://wq.io/docs/app-js
 [wq/map.js]:             https://wq.io/docs/map-js
+[python-requirejs]:      https://github.com/wq/python-requirejs

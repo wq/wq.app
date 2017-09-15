@@ -2,8 +2,6 @@ from wq.core import wq
 import click
 
 import os
-import subprocess
-import random
 import json
 
 import scss as pyScss
@@ -11,6 +9,7 @@ import logging
 import pystache
 
 from .collect import readfiles
+import requirejs
 
 
 @wq.command()
@@ -27,23 +26,15 @@ def optimize(config):
         raise click.UsageError(
             "optimize section not found in %s" % config.filename
         )
-    outdir = conf.get('dir', None)
-
-    bfile = "rjsconf%s" % (random.random() * 10000)
-    bjs = open(bfile, 'w')
-    json.dump(conf, bjs)
-    bjs.close()
 
     # Defer to r.js for actual processing
-    click.echo('#' * 20)
-    click.echo("Optimizing with r.js")
-    rjs = os.path.dirname(__file__) + "/r.js"
-    subprocess.call(["node", rjs, "-o", bfile])
-    os.remove(bfile)
-    if outdir:
-        os.remove(outdir + '/' + bfile)
+    click.echo("Optimizing with r.js...")
+    try:
+        requirejs.optimize(conf)
+    except requirejs.RJSException as e:
+        raise click.ClickException(e.args[0])
+
     click.echo("Optimization complete")
-    click.echo('#' * 20)
 
 
 @wq.command()
