@@ -164,7 +164,7 @@ function _Outbox(store) {
 
     // Send a single item from the outbox to the server
     self.sendItem = function(item, once) {
-        if (!item || item.synced) {
+        if (!item || item.synced || !item.data) {
             return Promise.resolve(null);
         } else if (item.parents && item.parents.length) {
             return Promise.resolve(item);
@@ -262,6 +262,11 @@ function _Outbox(store) {
                 console.log("Item successfully sent to " + url);
             }
             self.applyResult(item, result);
+            if (!item.synced) {
+                // sendItem did not result in sync
+                item.retryCount = item.retryCount || 0;
+                item.retryCount++;
+            }
             return self.updateModels(item, result).then(function() {
                 return self.model.filter({'parents': item.id});
             }).then(function(relItems) {
@@ -277,7 +282,7 @@ function _Outbox(store) {
                         }
                     });
                 });
-                relItems.push(item);
+                relItems.push(_withoutData(item));
                 return self.model.update(relItems);
             }).then(function() {
                 return item;
@@ -300,7 +305,9 @@ function _Outbox(store) {
             if (once) {
                 item.locked = true;
             }
-            return self.model.update([item]).then(function() {
+            item.retryCount = item.retryCount || 0;
+            item.retryCount++;
+            return self.model.update([_withoutData(item)]).then(function() {
                 return item;
             });
         }
@@ -387,29 +394,22 @@ function _Outbox(store) {
             return self.sendItem(item);
         });
 
-        return Promise.all(results).then(function(sentItems) {
-            sentItems.forEach(function(item) {
-                if (item && !item.synced) {
-                    // sendItem did not result in sync
-                    item.retryCount = item.retryCount || 0;
-                    item.retryCount++;
-                }
-            });
-            return self.model.update(sentItems).then(function() {
-                // Now try sending previously pending items (unless there are
-                // only pending items, in which case something has gone wrong)
-                if (pendingIds.length == allIds.length) {
-                    return;
-                }
-                return self.model.filter(
-                    {'id': pendingIds}
-                ).then(self.sendItems);
-            }).then(function() {
-                // Reload data and return final result
-                return self.model.filter(
-                    {'id': allIds}
-                );
-            });
+        return Promise.all(results).then(function() {
+            // Now try sending previously pending items (unless there are
+            // only pending items, in which case something has gone wrong)
+            if (pendingIds.length == allIds.length) {
+                return;
+            }
+            return self.model.filter(
+                {'id': pendingIds}
+            ).then(function(items) {
+                return Promise.all(items.map(_loadItemData));
+            }).then(self.sendItems);
+        }).then(function() {
+            // Reload data and return final result
+            return self.model.filter(
+                {'id': allIds}
+            );
         });
     };
 
@@ -593,12 +593,12 @@ function _Outbox(store) {
         }
         if (item.options.storage == 'temporary') {
             _memoryItems[item.id] = item.data;
-            return withoutData(item);
+            return _withoutData(item);
         } else {
             return self.store.set(
                 'outbox_' + item.id, item.data
             ).then(function() {
-                return withoutData(item);
+                return _withoutData(item);
             }, function() {
                 console.warn(
                     "could not save form contents to storage"
@@ -608,15 +608,22 @@ function _Outbox(store) {
                 return _updateItemData(item);
             });
         }
-        function withoutData(item) {
-            var obj = {};
-            Object.keys(item).filter(function(key) {
-                return key != 'data';
-            }).forEach(function(key) {
-                obj[key] = item[key];
-            });
-            return obj;
+    }
+
+    function _withoutData(item) {
+        if (!item.data) {
+            return item;
         }
+        if (!item.options || !item.options.storage) {
+            return item;
+        }
+        var obj = {};
+        Object.keys(item).filter(function(key) {
+            return key != 'data';
+        }).forEach(function(key) {
+            obj[key] = item[key];
+        });
+        return obj;
     }
 
     function _cleanUpItemData(validItems) {
