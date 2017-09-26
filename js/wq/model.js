@@ -362,7 +362,7 @@ function Model(config) {
     };
 
     // Unsaved form items related to this list
-    self.unsyncedItems = function() {
+    self.unsyncedItems = function(withData) {
         // Note: wq/outbox needs to have already been loaded for this to work
         var outbox;
         try {
@@ -372,7 +372,7 @@ function Model(config) {
         }
         return outbox.getOutbox(
             self.store
-        ).unsyncedItems(self.query);
+        ).unsyncedItems(self.query, withData);
     };
 
     // Apply a predefined function to a retreived item

@@ -83,46 +83,56 @@ function _Outbox(store) {
 
     // Queue data for server use; use outbox to cache unsynced items
     self.save = function(data, options, noSend) {
+        if (!options) {
+            options = {};
+        }
         if (!self.validate(data, options)) {
             return Promise.resolve(null);
         }
-        return self.model.load().then(function(obdata) {
-            var item, maxId = 0;
-            if (!options) {
-                options = {};
-            }
-            obdata.list.forEach(function(obj) {
-                if (options.id && obj.id == options.id) {
-                    item = obj;
-                }
-                if (obj.id > maxId) {
-                    maxId = obj.id;
+        var getItem;
+        if (options.id) {
+            getItem = self.loadItem(options.id).then(function(item) {
+                if (item && !item.synced) {
+                    // reuse existing item
+                    (options.preserve || []).forEach(function(field) {
+                        if (data[field] === undefined) {
+                            data[field] = item.data[field];
+                        }
+                    });
+                    item.data = data;
+                    item.retryCount = 0;
+                    item.error = null;
+                    item.options = options;
+                    return item;
+                } else {
+                    return newItem();
                 }
             });
+        } else {
+            getItem = newItem();
+        }
 
-            if (item && !item.synced) {
-                // reuse existing item
-                (options.preserve || []).forEach(function(field) {
-                    if (data[field] === undefined) {
-                        data[field] = item.data[field];
+        function newItem() {
+            return self.model.load().then(function(obdata) {
+                var maxId = 0;
+                obdata.list.forEach(function(obj) {
+                    if (obj.id > maxId) {
+                        maxId = obj.id;
                     }
                 });
-                item.data = data;
-                item.retryCount = 0;
-                item.error = null;
-                item.options = options;
-            } else {
-                // create new item
-                item = {
+                return {
                     data: data,
                     synced: false,
                     id: maxId + 1,
                     options: options
                 };
-            }
-            if (options.label) {
-                item.label = options.label;
-                delete options.label;
+            });
+        }
+
+        return getItem.then(function(item) {
+            if (item.options.label) {
+                item.label = item.options.label;
+                delete item.options.label;
             }
             Object.keys(data).forEach(function(key) {
                 var match = (
@@ -254,6 +264,8 @@ function _Outbox(store) {
             self.applyResult(item, result);
             return self.updateModels(item, result).then(function() {
                 return self.model.filter({'parents': item.id});
+            }).then(function(relItems) {
+                 return Promise.all(relItems.map(_loadItemData));
             }).then(function(relItems) {
                 relItems.forEach(function(relItem) {
                     relItem.parents = relItem.parents.filter(function(p) {

@@ -1659,12 +1659,12 @@ function _parent_dropdown_lookup(field, context, nkey) {
 function _getOutboxRecords(model) {
     return model.unsyncedItems().then(function(items) {
         return items.map(function(item) {
-            var record = item.data;
-            record.label = item.label;
-            record.id = 'outbox-' + item.id;
-            record.outbox_id = item.id;
-            record.outbox = true;
-            return record;
+            return {
+                'id': 'outbox-' + item.id,
+                'label': item.label,
+                'outbox_id': item.id,
+                'outbox': true
+            };
         });
     });
 }
