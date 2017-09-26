@@ -149,7 +149,7 @@ function _Store(name) {
             return self.lf.setItem(key, value).then(function(d) {
                 return d;
             }, function(err) {
-                self.storageFail(value, err);
+                return self.storageFail(value, err);
             });
         }
     };
@@ -157,7 +157,7 @@ function _Store(name) {
     // Callback for localStorage failure - override to inform the user
     self.storageFail = function(item, error) {
         /* jshint unused: false */
-        self.storageUsage().then(function(usage) {
+        return self.storageUsage().then(function(usage) {
             var msg;
             if (usage > 0) {
                 msg = "Storage appears to be full.";
@@ -166,6 +166,7 @@ function _Store(name) {
             }
             console.warn(msg + "  Caught Error:");
             console.warn(error && error.stack || error);
+            throw new Error(msg);
         });
     };
 

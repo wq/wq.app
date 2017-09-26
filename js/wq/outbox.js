@@ -5,8 +5,9 @@
  * https://wq.io/license
  */
 
-define(['jquery', 'localforage', './store', './model', './json', './console'],
-function($, lf, ds, model, json, console) {
+define(['jquery', 'localforage', 'json-forms',
+        './store', './model', './json', './console'],
+function($, lf, jsonforms, ds, model, json, console) {
 
 var _outboxes = {};
 var outbox = new _Outbox(ds);
@@ -26,6 +27,7 @@ function _Outbox(store) {
 
     self.store = store;
     self.model = model({'query': 'outbox', 'store': store});
+    self.model.overwrite = _wrapOverwrite(self.model.overwrite);
     self.syncMethod = 'POST';
     self.cleanOutbox = true;
     self.maxRetries = 3;
@@ -295,7 +297,8 @@ function _Outbox(store) {
     // Send all unsynced items, using batch service if available
     self.sendAll = function(retryAll) {
 
-        var result = retryAll ? self.unsyncedItems() : self.pendingItems();
+        var fn = retryAll ? self.unsyncedItems : self.pendingItems,
+            result = fn(null, true);
 
         // Utilize batch service if it exists
         if (self.batchService) {
@@ -443,12 +446,26 @@ function _Outbox(store) {
     };
 
     // Actual unsynced items
-    self.unsyncedItems = function(modelConf) {
+    self.unsyncedItems = function(modelConf, withData) {
         var result = self.model.filter({'synced': false});
+
+        // Exclude temporary items from list
+        result = result.then(function(items) {
+            return items.filter(function(item) {
+                if (item.options.storage == 'temporary') {
+                    if (item.options.desiredStorage) {
+                        return true;
+                    }
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+        });
 
         // Return all unsynced items by default
         if (!modelConf) {
-            return result;
+            return result.then(loadData);
         }
 
         // Otherwise, only match items corresponding to the specified list
@@ -464,12 +481,22 @@ function _Outbox(store) {
                 }
                 return true;
             });
-        });
+        }).then(loadData);
+
+        function loadData(items) {
+            if (withData) {
+                return Promise.all(items.map(_loadItemData));
+            } else {
+                return items;
+            }
+        }
     };
 
     // Unsynced items that have been sent less than maxRetries times
-    self.pendingItems = function(modelConf) {
-        return self.unsyncedItems(modelConf).then(function(unsynced) {
+    self.pendingItems = function(modelConf, withData) {
+        return self.unsyncedItems(
+            modelConf, withData
+        ).then(function(unsynced) {
             var items = [];
             unsynced.forEach(function(item) {
                 if (self.maxRetries && item.retryCount >= self.maxRetries) {
@@ -483,6 +510,124 @@ function _Outbox(store) {
             return items;
         });
     };
+
+    self.loadItem = function(itemId) {
+        return self.model.find(itemId)
+                   .then(_loadItemData)
+                   .then(_parseJsonForm);
+    };
+
+    var _memoryItems = {};
+    function _loadItemData(item) {
+        if (!item || !item.options || !item.options.storage) {
+            return item;
+        } else if (item.options.storage == 'temporary') {
+            return setData(item, _memoryItems[item.id]);
+        } else {
+            return self.store.get('outbox_' + item.id).then(function(data) {
+                return setData(item, data);
+            }, function() {
+                return setData(item, null);
+            });
+        }
+        function setData(obj, data) {
+            if (data) {
+                obj.data = data;
+            } else {
+                obj.label = '[Form Data Missing]';
+                obj.missing = true;
+            }
+            return obj;
+        }
+    }
+
+    function _parseJsonForm(item) {
+        var values = [], key;
+        for (key in item.data) {
+            values.push({
+                'name': key,
+                'value': item.data[key]
+            });
+        }
+        item.data = jsonforms.convert(values);
+        for (key in item.data) {
+            if ($.isArray(item.data[key])) {
+                item.data[key].forEach(function(row, i) {
+                    row['@index'] = i;
+                });
+            }
+        }
+        return item;
+    }
+
+    function _wrapOverwrite(defaultOverwrite) {
+        return function(newData) {
+            newData = self.model._processData(newData);
+            return Promise.all(
+                newData.list.map(_updateItemData)
+            ).then(function(items) {
+                _cleanUpItemData(items);
+                return defaultOverwrite(items);
+            });
+        };
+    }
+
+    function _updateItemData(item) {
+        if (!item.data) {
+            return item;
+        }
+        if (!item.options || !item.options.storage) {
+            return item;
+        }
+        if (item.options.storage == 'temporary') {
+            _memoryItems[item.id] = item.data;
+            return withoutData(item);
+        } else {
+            return self.store.set(
+                'outbox_' + item.id, item.data
+            ).then(function() {
+                return withoutData(item);
+            }, function() {
+                console.warn(
+                    "could not save form contents to storage"
+                );
+                item.options.desiredStorage = item.options.storage;
+                item.options.storage = 'temporary';
+                return _updateItemData(item);
+            });
+        }
+        function withoutData(item) {
+            var obj = {};
+            Object.keys(item).filter(function(key) {
+                return key != 'data';
+            }).forEach(function(key) {
+                obj[key] = item[key];
+            });
+            return obj;
+        }
+    }
+
+    function _cleanUpItemData(validItems) {
+        var validId = {};
+        validItems.forEach(function(item) {
+            validId[item.id] = true;
+        });
+        Object.keys(_memoryItems).forEach(function(itemId) {
+            if (!validId[itemId]) {
+                delete _memoryItems[itemId];
+            }
+        });
+        return self.store.keys().then(function(keys) {
+            return Promise.all(keys.map(function(key) {
+                if (key.indexOf('outbox_') === 0) {
+                    var itemId = key.replace('outbox_', '');
+                    if (!validId[itemId]) {
+                        return self.store.set(key, null);
+                    }
+                }
+            }));
+        });
+    }
 }
 
 });

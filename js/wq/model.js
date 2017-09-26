@@ -119,6 +119,8 @@ function Model(config) {
         });
     }
 
+    self._processData = _processData;
+
     function _processData(data) {
         if (!data) {
             data = [];

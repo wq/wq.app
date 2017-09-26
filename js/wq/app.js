@@ -6,10 +6,10 @@
  * https://wq.io/license
  */
 
-define(['jquery', 'jquery.mobile', 'json-forms',
+define(['jquery', 'jquery.mobile',
         './store', './model', './outbox', './router', './template',
         './spinner', './console'],
-function($, jqm, jsonforms, ds, model, outbox, router, tmpl, spin, console) {
+function($, jqm, ds, model, outbox, router, tmpl, spin, console) {
 
 var app = {
     'OFFLINE': 'offline',
@@ -204,8 +204,9 @@ app.init = function(config) {
     });
 
     // Register outbox
-    router.register('outbox', _outboxList);
-    router.register('outbox/', _outboxList);
+    router.register('outbox', _renderOutboxList);
+    router.register('outbox/', _renderOutboxList);
+    router.addRoute('outbox', 's', _showOutboxList);
     router.register('outbox/<slug>', _renderOutboxItem('detail'));
     router.register('outbox/<slug>/edit', _renderOutboxItem('edit'));
     router.addRoute('outbox/<slug>', 's', _showOutboxItem('detail'));
@@ -636,7 +637,15 @@ function _callPlugins(method, lookup, args) {
 }
 
 function _getRouteInfo(page, mode, itemid, url, parentInfo) {
-    var conf = _getConf(page);
+    var conf = _getConf(page, true);
+    if (!conf) {
+        conf = {
+            'name': page,
+            'page': page,
+            'form': [],
+            'modes': []
+        };
+    }
     router.setPath(url);
     return $.extend(
         parentInfo || {},
@@ -1055,36 +1064,30 @@ function _renderOther(page, ui, params, url, context) {
     });
 }
 
-function _parseJsonForm(item) {
-    var values = [], key;
-    for (key in item.data) {
-        values.push({
-            'name': key,
-            'value': item.data[key]
-        });
-    }
-    item.data = jsonforms.convert(values);
-    for (key in item.data) {
-        if ($.isArray(item.data[key])) {
-            item.data[key].forEach(function(row, i) {
-                row['@index'] = i;
+function _renderOutboxList(match, ui) {
+    var routeInfo = _getRouteInfo(
+        'outbox', null, null, 'outbox', null
+    );
+    outbox.model.load().then(function(context) {
+        Promise.all(_callPlugins(
+            'context', undefined, [context, routeInfo]
+        )).then(function(pluginContext) {
+            pluginContext.forEach(function(pc) {
+                $.extend(context, pc);
             });
-        }
-    }
+            router.go('outbox', 'outbox', context, ui);
+        });
+    });
 }
 
-function _outboxList(match, ui) {
-    outbox.model.load().then(function(data) {
-        data.list.forEach(_parseJsonForm);
-        router.go('outbox', 'outbox', data, ui);
-    });
+function _showOutboxList() {
+    app.runPlugins('outbox', null, null, 'outbox');
 }
 
 function _renderOutboxItem(mode) {
     // Display outbox item using model-specific detail/edit view
     return function(match, ui, params) {
-        outbox.model.find(match[1]).then(function(item) {
-            _parseJsonForm(item);
+        outbox.loadItem(match[1]).then(function(item) {
             var id, idMatch = item.options.url.match(new RegExp(
                 item.options.modelConf.url + '/([^\/]+)$'
             ));
@@ -1169,7 +1172,6 @@ function _handleForm(evt) {
             has_files = true;
         }
     });
-    var ready;
 
     if (has_files && !window.Blob) {
         // Files present but there's no Blob API.  Looks like we're in a an old
@@ -1195,7 +1197,6 @@ function _handleForm(evt) {
             vals[name] = val;
         }
     }
-    ready = Promise.resolve();
     $.each($form.serializeArray(), function(i, v) {
         addVal(v.name, v.value);
     });
@@ -1221,22 +1222,24 @@ function _handleForm(evt) {
     }
     // Handle blob-stored files created by (e.g.) wq/photos.js
     $form.find('input[data-wq-type=file]').each(function() {
-         // wq/photo.js files are already in storage, copy over to form
+         // wq/photo.js files in memory, copy over to form
          var name = this.name;
          var value = this.value;
          var curVal = $.isArray(vals[name]) ? vals[name][0] : vals[name];
+         var photos = app.plugins.photos;
          if (curVal && typeof curVal === "string") {
              delete vals[name];
          }
-         if (!value) {
+         if (!value || !photos) {
              return;
          }
-         ready = ready.then(ds.get(value).then(function(data) {
-             if (data) {
-                 addVal(name, data);
-                 return ds.set(value, null);
-             }
-         }));
+
+         var data = photos._files[value];
+         if (data) {
+             has_files = true;
+             addVal(name, data);
+             delete photos._files[value];
+         }
     });
 
     if ($submitVal) {
@@ -1246,6 +1249,11 @@ function _handleForm(evt) {
     var options = {
         'url': url
     };
+    if (!backgroundSync) {
+        options.storage = 'temporary';
+    } else if (has_files) {
+        options.storage = 'store';
+    }
     if (outboxId) {
         options.id = outboxId;
         if (preserve && preserve.split) {
@@ -1266,8 +1274,8 @@ function _handleForm(evt) {
     }
 
     $form.find('.error').html('');
-    Promise.all([ds.get('csrf_token'), ready]).then(function(results) {
-        options.csrftoken = results[0];
+    ds.get('csrf_token').then(function(token) {
+        options.csrftoken = token;
         outbox.save(vals, options, true).then(function(item) {
             if (backgroundSync) {
                 // Send user to next screen while app syncs in background

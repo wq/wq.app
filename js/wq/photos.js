@@ -8,8 +8,8 @@
 /* global Camera */
 
 define(['jquery', 'jquery.mobile', 'localforage',
-        './template', './store', './spinner'],
-function($, jqm, localForage, tmpl, ds, spin) {
+        './template', './spinner'],
+function($, jqm, localForage, tmpl, spin) {
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
@@ -97,6 +97,8 @@ photos.base64toBlob = function(data) {
     });
 };
 
+photos._files = {};
+
 photos.storeFile = function(name, type, blob, input) {
     // Save blob data for later retrieval
     var file = {
@@ -104,11 +106,10 @@ photos.storeFile = function(name, type, blob, input) {
         'type': type,
         'body': blob
     };
-    return ds.set(name, file).then(function() {
-        if (input) {
-            $('#' + input).val(name);
-        }
-    });
+    photos._files[name] = file;
+    if (input) {
+        $('#' + input).val(name);
+    }
 };
 
 function load(data, input, preview) {
@@ -116,12 +117,11 @@ function load(data, input, preview) {
     photos.base64toBlob(data).then(function(blob) {
         var number = Math.round(Math.random() * 1e10);
         var name = $('#' + input).val() || ('photo' + number + '.jpg');
-        photos.storeFile(name, 'image/jpeg', blob, input).then(function() {
-            spin.stop();
-            if (preview) {
-                photos.preview(preview, blob);
-            }
-        });
+        photos.storeFile(name, 'image/jpeg', blob, input);
+        spin.stop();
+        if (preview) {
+            photos.preview(preview, blob);
+        }
     });
 }
 
