@@ -347,6 +347,29 @@ function _Outbox(store) {
         });
     };
 
+    // Get names of models sorted parent-first
+    self.getModelSyncOrder = function() {
+        var app = require('wq/app');
+        var modelPages = Object.values(app.config.pages).filter(
+            function(page) { return page.list; }
+        );
+        var prev_ready = [];
+        var result = [];
+        do {
+            var new_ready = modelPages.filter(function(page) {
+                return !page.form.some(function(field) {
+                    return field['wq:ForeignKey'] &&
+                        prev_ready.indexOf(field['wq:ForeignKey']) == -1;
+                });
+            }).map(function(page) { return page.name; });
+            result = result.concat(new_ready.filter(function(model) {
+                return prev_ready.indexOf(model) == -1;
+            }));
+            prev_ready = new_ready;
+        } while (result.length < modelPages.length);
+        return result;
+    };
+
     self.sendItems = function(items) {
         // No batch service; emulate batch mode by sending each item to
         // the server and summarizing the result
@@ -355,20 +378,24 @@ function _Outbox(store) {
             return Promise.resolve(items);
         }
 
-        // Sort items into those that are ready to be sent now vs. those that
-        // are pending on another item.
-        var allIds = [], pendingIds = [], readyItems = [];
+        // Assign items model's position in parents-first list
+        var order = self.getModelSyncOrder();
+        if (self.debugNetwork) {
+            console.log('calculated model sync order is ', order);
+        }
+        var allIds = [];
         items.forEach(function(item) {
             allIds.push(item.id);
-            if (item.parents && item.parents.length) {
-                pendingIds.push(item.id);
-            } else {
-                readyItems.push(item);
-            }
+            item.syncOrder = order.indexOf(item.options.modelConf.name);
         });
 
-        // Send ready items and retrieve results
-        var results = readyItems.map(function(item) {
+        // Sort them accordingly
+        items = items.sort(function(a, b) {
+            return a.syncOrder - b.syncOrder;
+        });
+
+        // Send items and retrieve results
+        var results = items.map(function(item) {
             return self.sendItem(item);
         });
 
@@ -381,15 +408,6 @@ function _Outbox(store) {
                 }
             });
             return self.model.update(sentItems).then(function() {
-                // Now try sending previously pending items (unless there are
-                // only pending items, in which case something has gone wrong)
-                if (pendingIds.length == allIds.length) {
-                    return;
-                }
-                return self.model.filter(
-                    {'id': pendingIds}
-                ).then(self.sendItems);
-            }).then(function() {
                 // Reload data and return final result
                 return self.model.filter(
                     {'id': allIds}
