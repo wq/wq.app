@@ -154,8 +154,6 @@ function _Outbox(store) {
     self.sendItem = function(item, once) {
         if (!item || item.synced) {
             return Promise.resolve(null);
-        } else if (item.parents && item.parents.length) {
-            return Promise.resolve(item);
         }
 
         var data = item.data;
@@ -407,15 +405,22 @@ function _Outbox(store) {
 
         var funcs = items.map(function(a) {
             return function() {
-                return self.sendItem(a).then(function(item) {
-                    if (item && !item.synced) {
-                        // sendItem did not result in sync
-                        item.retryCount = item.retryCount || 0;
-                        item.retryCount++;
-                    }
-                    return item;
-                }).then(function(item) {
-                    return self.model.update([item]);
+                // "a".data could have been updated after syncing its parents
+                // let's fetch it again
+                return self.unsyncedItems().then(function(allUnsynced) {
+                    var updated = allUnsynced.filter(function(item) {
+                        return item.id == a.id; })[0];
+                    a.data = updated.data;
+                    return self.sendItem(a).then(function(item) {
+                        if (item && !item.synced) {
+                            // sendItem did not result in sync
+                            item.retryCount = item.retryCount || 0;
+                            item.retryCount++;
+                        }
+                        return item;
+                    }).then(function(item) {
+                        return self.model.update([item]);
+                    });
                 });
             };
         });
