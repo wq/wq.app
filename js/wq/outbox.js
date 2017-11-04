@@ -394,12 +394,24 @@ function _Outbox(store) {
             return a.syncOrder - b.syncOrder;
         });
 
-        // Send items and retrieve results
-        var results = items.map(function(item) {
-            return self.sendItem(item);
+        // Send items in sequence and retrieve results
+        // based on: https://hackernoon.com/functional-javascript-resolving-promises-sequentially-7aac18c4431e
+        // coverted with: https://closure-compiler.appspot.com
+        var promiseSerial = function(funcs) {
+            return funcs.reduce(function(promise, func) {
+                return promise.then(function(result) {
+                    return func().then(Array.prototype.concat.bind(result));
+                });
+            }, Promise.resolve([]));
+        };
+
+        var funcs = items.map(function(a) {
+            return function() {
+                return self.sendItem(a);
+            };
         });
 
-        return Promise.all(results).then(function(sentItems) {
+        return promiseSerial(funcs).then(function(sentItems) {
             sentItems.forEach(function(item) {
                 if (item && !item.synced) {
                     // sendItem did not result in sync
