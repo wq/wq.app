@@ -407,24 +407,24 @@ function _Outbox(store) {
 
         var funcs = items.map(function(a) {
             return function() {
-                return self.sendItem(a);
+                return self.sendItem(a).then(function(item) {
+                    if (item && !item.synced) {
+                        // sendItem did not result in sync
+                        item.retryCount = item.retryCount || 0;
+                        item.retryCount++;
+                    }
+                    return item;
+                }).then(function(item) {
+                    return self.model.update([item]);
+                });
             };
         });
 
         return promiseSerial(funcs).then(function(sentItems) {
-            sentItems.forEach(function(item) {
-                if (item && !item.synced) {
-                    // sendItem did not result in sync
-                    item.retryCount = item.retryCount || 0;
-                    item.retryCount++;
-                }
-            });
-            return self.model.update(sentItems).then(function() {
-                // Reload data and return final result
-                return self.model.filter(
-                    {'id': allIds}
-                );
-            });
+            // Reload data and return final result
+            return self.model.filter(
+                {'id': allIds}
+            );
         });
     };
 
