@@ -689,7 +689,8 @@ _register.list = function(page) {
                 spin.stop();
                 var context = {
                     'parent_id': match[1],
-                    'parent_url': pitem && (pconf.url + '/' + pitem.id),
+                    'parent_url': (pitem && (pconf.url + '/' + pitem.id)) ||
+                                  ('outbox/' + match[1].split('-')[1]),
                     'parent_label': pitem && pitem.label,
                     'parent_page': ppage
                 };
