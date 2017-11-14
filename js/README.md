@@ -30,7 +30,7 @@ Library                 |  Version  |  Notes
 [memoryStorageDriver]   |  a2396b3  |
 [marked]                |    0.3.6  |  
 [mustache.js]           |    2.2.1  |  
-[requirejs]             |    2.3.2  |  r.js is provided by [python-requirejs]
+[requirejs]             |    2.3.5  |  r.js is provided by [python-requirejs]
 [qunit]                 |    2.0.1  |
 
 [wq.app/js]:             https://github.com/wq/wq.app/blob/master/js
