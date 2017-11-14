@@ -3,6 +3,8 @@ import json
 import yaml
 from wq.core import wq
 import click
+from collections import OrderedDict
+
 
 NEST = {
     'json': json,
@@ -11,11 +13,11 @@ NEST = {
 
 
 def readfiles(basedir, ftype=None, fext=None):
-    obj = {}
+    obj = OrderedDict()
     if fext is None:
         fext = ftype
 
-    for path, dirs, files in os.walk(basedir):
+    for path, dirs, files in sorted(os.walk(basedir)):
         if '.svn' in dirs:
             dirs.remove('.svn')
         o = obj
@@ -28,7 +30,7 @@ def readfiles(basedir, ftype=None, fext=None):
                 o = o[subdir]
             path = os.sep.join(apath) + os.sep
 
-        for filename in files:
+        for filename in sorted(files):
             name, ext = os.path.splitext(filename)
             if ftype and ext != '.' + fext:
                 continue
@@ -45,8 +47,8 @@ def readfiles(basedir, ftype=None, fext=None):
             else:
                 o[name] = data.read()
 
-        for name in dirs:
-            o[name] = {}
+        for name in sorted(dirs):
+            o[name] = OrderedDict()
 
     return obj
 
@@ -87,7 +89,7 @@ def collectjson(config, **conf):
         if not conf['paths']:
             conf['paths'] = ['.']
 
-    obj = {}
+    obj = OrderedDict()
     for d in conf['paths']:
         obj.update(readfiles(d, conf['type'], conf['extension']))
 

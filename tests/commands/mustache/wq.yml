@@ -1,0 +1,9 @@
+mustache:
+    template: "<html><body>{{>header}}{{>footer}}</body></html>"
+    partials:
+        header: "<h3>{{title}}</h3>"
+        footer: "<a href='mailto:{{email}}'>{{email}}</a>"
+    context:
+        title: "Example"
+        email: "email@example.com"
+    output: output/index.html
