@@ -4,7 +4,7 @@ import click
 from .collect import collectjson
 from .setversion import setversion
 from .appcache import appcache
-from .compilers import optimize, scss, mustache
+from .compilers import optimize, babel, scss, mustache
 from .init import init
 
 
@@ -24,6 +24,7 @@ def build(ctx, config, version):
         wq scss        (if configured)
         wq mustache    (if configured)
         wq optimize
+        wq babel       (if configured)
         wq appcache    (if configured)
     """
     if 'optimize' not in config:
@@ -50,6 +51,10 @@ def build(ctx, config, version):
 
     # Compile Javascript / CSS (using r.js)
     ctx.invoke(optimize)
+
+    # Convert to ES5 via babel.js
+    if 'babel' in config:
+        ctx.invoke(babel)
 
     # Generate HTML5 Cache manifests
     if 'appcache' in config:

@@ -83,6 +83,7 @@ setup(
         'pystache',
         'Pillow',
         'requirejs',
+        'PyBabeljs',
     ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
