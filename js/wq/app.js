@@ -562,13 +562,43 @@ app.postsync = function(items) {
     app.syncRefresh(items);
 };
 
+app.calc_url_after_sync = function(items) {
+    var parts = window.location.pathname.split('/');
+    if (parts.length == 4 && parts[2].indexOf('outbox-') == 0) {
+        // location is like /parents/outbox-4/items
+        var outbox_id = parseInt(parts[2].split('-')[1], 10);
+        var synced_parent = false;
+        $.each(items, function(idx, item) {
+            if (item.id == outbox_id) {
+                synced_parent = item;
+                return false;
+            }
+        });
+        if (synced_parent) {
+            parts[2] = synced_parent.result.id;  // swap with id from server
+            var new_url = parts.join('/');
+            if (new_url[0] == '/') {
+                new_url = new_url.substr(1);
+            }
+            return new_url;
+        }
+    } else {
+        return false;
+    }
+};
+
 app.syncRefresh = function(items) {
     if (!items.length || !jqm.activePage.data('wq-sync-refresh')) {
         return;
     }
     outbox.unsynced().then(function(unsynced) {
         tmpl.setDefault('unsynced', unsynced);
-        app.refresh();
+        var changed_url = app.calc_url_after_sync(items);
+        if (changed_url) {
+            app.replaceState(changed_url);
+        } else {
+            app.refresh();
+        }
     });
 };
 
