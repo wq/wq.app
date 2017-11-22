@@ -115,6 +115,7 @@ app.init = function(config) {
         'postsave',
         'saveerror',
         'showOutboxErrors',
+        '_addOutboxItemsToContext',
         'presync',
         'postsync'
     ].forEach(function(hook) {
@@ -721,6 +722,12 @@ _onShow.list = function(page) {
     }
 };
 
+app._addOutboxItemsToContext = function(context, unsyncedItems) {
+    // Add any outbox items to context
+    context.unsynced = unsyncedItems.length;
+    context.unsyncedItems = unsyncedItems;
+};
+
 function _displayList(page, ui, params, url, context) {
     spin.stop();
 
@@ -848,9 +855,7 @@ function _displayList(page, ui, params, url, context) {
             'current_is_local': currentIsLocal
         }, context);
 
-        // Add any outbox items to context
-        context.unsynced = unsyncedItems.length;
-        context.unsyncedItems = unsyncedItems;
+        app._addOutboxItemsToContext(context, unsyncedItems);
 
         return _addLookups(page, context, false, routeInfo).then(
             function(context) {
