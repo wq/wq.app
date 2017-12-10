@@ -348,7 +348,9 @@ function _Outbox(store) {
     // Get names of models sorted parent-first
     self.getModelSyncOrder = function() {
         var app = require('wq/app');
-        var modelPages = Object.values(app.config.pages).filter(
+        var modelPages = Object.keys(app.config.pages).map(function(key) {
+            return app.config.pages[key];
+        }).filter(
             function(page) { return page.list; }
         );
         var prev_ready = [];
