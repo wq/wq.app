@@ -1,4 +1,5 @@
-define(['./app', 'wq/store', 'wq/outbox'], function(appTests, ds, outbox) {
+define(['./app', 'wq/app', 'wq/store', 'wq/outbox', 'data/config'],
+function(appTests, app, ds, outbox, config) {
 
 QUnit.module('wq/outbox');
 
@@ -102,5 +103,119 @@ function testOutbox(test) {
         );
     }).then(done);
 }
+
+QUnit.test('sync dependent records in order', function(assert) {
+    var done = assert.async();
+
+    var itemtype = {
+        'data': {
+            'label': 'New ItemType'
+        },
+        'options': {
+            'url': config.pages.itemtype.url,
+            'modelConf': config.pages.itemtype
+        }
+    };
+
+    var attribute = {
+        'data': {
+            'label': 'New Attribute'
+        },
+        'options': {
+            'url': config.pages.attribute.url,
+            'modelConf': config.pages.attribute
+        }
+    };
+
+    var item = {
+        'data': {
+            'type_id': 'outbox-1',
+            'color': 'red',
+            'values[0][attribute_id]': 'outbox-2',
+            'values[0][value]': 'Test Value',
+        },
+        'options': {
+             'url': config.pages.item.url,
+             'modelConf': config.pages.item
+        }
+    };
+
+    // Save three records to outbox
+    outbox.model.overwrite([]).then(function() {
+        return outbox.save(itemtype.data, itemtype.options, true);
+    }).then(function() {
+        return outbox.save(attribute.data, attribute.options, true);
+    }).then(function() {
+        return outbox.save(item.data, item.options, true);
+    }).then(function() {
+        return ds.get('outbox');
+    }).then(function(actualOutbox) {
+        var expectOutbox = {
+            "list": [{
+                 'id': 3,
+                 'data': item.data,
+                 'options': item.options,
+                 'synced': false,
+                 'parents': ["1", "2"],
+            }, {
+                 'id': 2,
+                 'data': attribute.data,
+                 'options': attribute.options,
+                 'synced': false,
+            }, {
+                 'id': 1,
+                 'data': itemtype.data,
+                 'options': itemtype.options,
+                 'synced': false,
+            }],
+            "pages": 1,
+            "count": 3,
+            "per_page": 3
+        };
+        assert.deepEqual(
+            actualOutbox,
+            expectOutbox,
+            "outbox should contain itemtype, attribute, and item records"
+        );
+
+        // Sync records.  sendAll() should automatically sync the parent
+        // records (itemtype, attribute) before syncing item.
+        return outbox.sendAll();
+    }).then(function() {
+        return ds.get('outbox');
+    }).then(function(actualOutbox) {
+        // All records should now be synced and have results
+        var results = {};
+        actualOutbox.list.forEach(function(item) {
+            var name = (
+                item.options &&
+                item.options.modelConf &&
+                item.options.modelConf.name
+            );
+            assert.ok(item.synced, name + ' synced');
+            results[name] = item.result;
+        });
+
+        assert.equal(
+            results.item.type_id,
+            results.itemtype.id,
+            "item should get type_id from synced itemtype"
+        );
+
+        assert.equal(
+            results.item.values[0].attribute_id,
+            results.attribute.id,
+            "item.values[0] should get attribute_id from synced attribute"
+        );
+
+    }).then(function() {
+        // Reset models
+        return Promise.all([
+            app.models.itemtype.prefetch(),
+            app.models.attribute.prefetch(),
+            app.models.item.prefetch(),
+        ]);
+    }).then(done);
+});
 
 });

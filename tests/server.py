@@ -2,6 +2,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from html_json_forms import parse_json_form
 from urllib.parse import parse_qs
 import json
+import time
 import random
 
 
@@ -21,6 +22,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
+        # FIXME: This is to avoid a race condition in wq/outbox
+        time.sleep(random.random())
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
     def do_POST(self):
