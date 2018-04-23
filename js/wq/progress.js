@@ -1,5 +1,5 @@
 /*
- * wq.app 1.0.1-dev - wq/progress.js
+ * wq.app 1.1.0 - wq/progress.js
  * Simple AJAX polling for HTML5 <progress> element
  * (c) 2014-2017, S. Andrew Sheppard
  * https://wq.io/license
