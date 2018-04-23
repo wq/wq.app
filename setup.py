@@ -45,7 +45,7 @@ def create_wq_namespace():
     """
     Generate the wq namespace package
     (not checked in, as it technically is the parent of this folder)
-    """
+>    """
     if os.path.isdir("wq"):
         return
     os.makedirs("wq")
@@ -82,7 +82,7 @@ setup(
         'requests',
         'pystache',
         'Pillow',
-        'requirejs',
+        'requirejs>=0.2.0',
         'PyBabeljs',
     ],
     namespace_packages=['wq'],
