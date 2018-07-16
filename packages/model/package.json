@@ -1,0 +1,31 @@
+{
+  "name": "@wq/model",
+  "version": "2.0.0-dev",
+  "description": "A simple model API for working with stored lists",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wq/wq.app.git"
+  },
+  "keywords": [
+    "wq",
+    "model",
+    "collection",
+    "query"
+  ],
+  "author": "S. Andrew Sheppard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wq/wq.app/issues"
+  },
+  "homepage": "https://wq.io/wq.app",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.4.1"
+  }
+}
