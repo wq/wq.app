@@ -1,13 +1,6 @@
-/*!
- * wq.app 1.1.1 - wq/store.js
- * Locally-persistent, optionally server-populated JSON datastore(s)
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import localForage from 'localforage';
+import memoryStorageDriver from 'localforage-memoryStorageDriver';
 
-define(['jquery', 'localforage', 'localforage-memoryStorageDriver',
-        './json', './console'],
-function($, localForage, memoryStorageDriver, json, console) {
 
 var _stores = {};
 
@@ -34,7 +27,7 @@ localForage.defineDriver(
     memoryStorageDriver
 );
 
-return store;
+export default store;
 
 function _Store(name) {
     if (_stores[name]) {
@@ -393,5 +386,3 @@ function _clearAll() {
         return _stores[storeName].reset();
     }));
 }
-
-});

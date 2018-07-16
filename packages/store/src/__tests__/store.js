@@ -1,9 +1,6 @@
-define(['wq/store'], function(ds) {
+import ds from '../store';
 
-QUnit.module('wq/store');
 
-QUnit.test("store should have init function", function(assert) {
-    assert.ok(ds.init);
-});
-
+test("store should have init function", () => {
+    expect(ds.init).toBeTruthy();
 });
