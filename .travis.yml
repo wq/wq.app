@@ -9,6 +9,7 @@ install:
  - pip install html-json-forms
 # - npm install -g node-qunit-phantomjs
  - npm install -g jshint
+ - npm install
  - npm run bootstrap
 before_script:
 # - python -m tests.server &
