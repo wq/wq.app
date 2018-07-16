@@ -7,3 +7,4 @@ dist/
 build/*/
 README.rst
 wq/__init__.py
+node_modules

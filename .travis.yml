@@ -7,10 +7,11 @@ env:
 install:
  - pip install .
  - pip install html-json-forms
- - npm install -g node-qunit-phantomjs
+# - npm install -g node-qunit-phantomjs
  - npm install -g jshint
+ - npm run bootstrap
 before_script:
- - python -m tests.server &
+# - python -m tests.server &
  - cd tests
  - wq collectjson
  - mkdir css && wq init && wq scss --indir scss --outdir css
