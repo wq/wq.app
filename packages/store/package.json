@@ -23,7 +23,8 @@
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
     "localforage": "^1.7.2",
-    "localforage-memoryStorageDriver": "^0.9.2"
+    "localforage-memoryStorageDriver": "^0.9.2",
+    "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",

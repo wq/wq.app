@@ -1,12 +1,15 @@
-define(['wq/store', 'wq/model'], function(store, model) {
+import store from '@wq/store';
+import model from '../model';
+import {URLSearchParams} from 'url';
+global.URLSearchParams = URLSearchParams;
 
-QUnit.module('wq/model');
 
 var ds = store.getStore('model-test');
 ds.init({
-    'service': '/tests',
+    'service': 'http://localhost:8080/tests',
     'defaults': {
-        'format': 'json'
+        'format': 'json',
+        'extra': 1,
     }
 });
 var items = model({
@@ -20,113 +23,73 @@ var itemtypes = model({
     'cache': 'all',
 });
 
-QUnit.test("load data list", function(assert) {
-    var done = assert.async();
-    items.load().then(function(data) {
-        assert.ok(data);
-        assert.equal(data.list.length, 3, "list should have 3 items");
-        assert.equal(data.count, 3, "count should reflect list length");
-        assert.equal(data.pages, 1, "assume one page unless specified");
-        done();
-    });
+
+test("load data list", async () => {
+    const data = await items.load();
+    expect(data).toBeTruthy();
+    expect(data.list).toHaveLength(3);
+    expect(data.count).toEqual(3);
+    expect(data.pages).toEqual(1);
 });
 
-QUnit.test("find item", function(assert) {
-    var done = assert.async();
-    items.find("one").then(function(item) {
-        assert.equal(item.id, "one", "item identifier");
-        assert.equal(item.label, "ONE", "item label");
-        assert.equal(item.values.length, 2, "nested array");
-        done();
-    });
+test("find item", async () => {
+    const item = await items.find("one");
+    expect(item.id).toEqual("one");
+    expect(item.label).toEqual("ONE");
+    expect(item.values).toHaveLength(2);
 });
 
-QUnit.test("filter by single value", function(assert) {
-    var done = assert.async();
-    items.filter({'type_id': 1}).then(function(items) {
-        assert.equal(items.length, 2, "filter should return two results");
-        assert.equal(items[0].id, "one", "first result should be item 'one'");
-        assert.equal(items[1].id, "two", "second result should be item 'two'");
-        done();
-    });
+test("filter by single value", async () => {
+    const fitems = await items.filter({'type_id': 1});
+    expect(fitems).toHaveLength(2);
+    expect(fitems[0].id).toEqual("one");
+    expect(fitems[1].id).toEqual("two");
 });
 
-QUnit.test("filter by multiple values", function(assert) {
-    var done = assert.async();
-    items.filter({'color': ['#f00', '#00f']}).then(function(items) {
-        assert.equal(items.length, 2, "filter should return two results");
-        assert.equal(items[0].id, "one", "first result should be item 'one'");
-        assert.equal(
-            items[1].id, "three", "second result should be item 'three'"
-        );
-        done();
-    });
+
+test("filter by multiple values", async () => {
+    const fitems = await items.filter({'color': ['#f00', '#00f']});
+    expect(fitems).toHaveLength(2);
+    expect(fitems[0].id).toEqual("one");
+    expect(fitems[1].id).toEqual("three");
 });
 
-QUnit.test("filter by boolean (true)", function(assert) {
-    var done = assert.async();
-    Promise.all([
-        testBooleanResult(assert, true, '1'),
-        testBooleanResult(assert, 1, '1'),
-        testBooleanResult(assert, 't', '1')
-    ]).then(done).catch(done);
+test("filter by boolean (true)", async () => {
+    await testBooleanResult(true, 1),
+    await testBooleanResult(1, 1),
+    await testBooleanResult('t', 1)
 });
 
-QUnit.test("filter by boolean (false)", function(assert) {
-    var done = assert.async();
-    Promise.all([
-        testBooleanResult(assert, false, '2'),
-        testBooleanResult(assert, 0, '2'),
-        testBooleanResult(assert, 'f', '2')
-    ]).then(done).catch(done);
+test("filter by boolean (false)", async () => {
+    await testBooleanResult(false, 2),
+    await testBooleanResult(0, 2),
+    await testBooleanResult('f', 2)
 });
 
-QUnit.test("filter by boolean (null)", function(assert) {
-    var done = assert.async();
-    Promise.all([
-        testBooleanResult(assert, null, '3'),
-        testBooleanResult(assert, 'null', '3')
-    ]).then(done).catch(done);
+test("filter by boolean (null)", async () => {
+    await testBooleanResult(null, 3),
+    await testBooleanResult('null', 3);
 });
 
-QUnit.test("filter by boolean (empty)", function(assert) {
-    var done = assert.async();
-    Promise.all([
-        testBooleanResult(assert, undefined, null),
-        testBooleanResult(assert, '', null),
-        testBooleanResult(assert, 'foo', null)
-    ]).then(done).catch(done);
+test("filter by boolean (empty)", async () => {
+    await testBooleanResult(undefined, null),
+    await testBooleanResult('', null),
+    await testBooleanResult('foo', null)
 });
 
-function testBooleanResult(assert, value, expectId) {
-    var expectCount = expectId ? 1 : 0;
-    return itemtypes.filter({'is_active': value}).then(function(items) {
-        assert.equal(
-            items.length, expectCount,
-            "is_active=" + value +
-            " should return " + expectCount + " result(s)"
-        );
-        if (expectId) {
-            assert.equal(
-                items[0].id, expectId,
-                "is_active=" + value +
-                " should return itemtype '" + expectId + "'"
-            );
-        }
-    });
+async function testBooleanResult(value, expectId) {
+    const expectCount = expectId ? 1 : 0;
+    const types = await itemtypes.filter({'is_active': value});
+    if (expectId) {
+        expect(types).toHaveLength(1);
+        expect(types[0].id).toEqual(expectId);
+    } else {
+        expect(types).toHaveLength(0);
+    }
 }
 
-QUnit.test("filter by boolean & non-boolean", function(assert) {
-    var done = assert.async();
-    Promise.all([
-        itemtypes.filter({'is_active': 'true', 'id': '1'}),
-        itemtypes.filter({'id': '1', 'is_active': 'true'})
-    ]).then(function(results) {
-        assert.equal(
-            results[0].length, results[1].length,
-            'key order should not affect filter result'
-        );
-    }).then(done).catch(done);
-});
-
+test("filter by boolean & non-boolean", async () => {
+    const types1 = await itemtypes.filter({'is_active': 'true', 'id': '1'});
+    const types2 = await itemtypes.filter({'id': '1', 'is_active': 'true'});
+    expect(types1).toEqual(types2);
 });

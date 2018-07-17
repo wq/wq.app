@@ -1,5 +1,6 @@
 import localForage from 'localforage';
 import memoryStorageDriver from 'localforage-memoryStorageDriver';
+import 'whatwg-fetch';
 
 
 var _stores = {};
@@ -53,7 +54,7 @@ function _Store(name) {
             'parseData',
             'storageFail',
             'fetchFail',
-            'jsonp',
+            // 'jsonp',  # FIXME: Restore or deprecate
             'ajax',
             'debug',
             'formatKeyword',
@@ -85,7 +86,7 @@ function _Store(name) {
 
     // Get value from datastore
     self.get = function(query) {
-        if (json.isArray(query)) {
+        if (Array.isArray(query)) {
             var promises = query.map(self.get);
             return Promise.all(promises);
         }
@@ -183,7 +184,7 @@ function _Store(name) {
         if (typeof query == "string") {
             return query;
         } else {
-            return json.param(query);
+            return (new URLSearchParams(query)).toString();
         }
     };
 
@@ -205,7 +206,7 @@ function _Store(name) {
     self.fetch = function(query, cache) {
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
-        var data = json.extend({}, self.defaults, query);
+        var data = {...self.defaults, ...query};
         var url = self.service;
         if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
@@ -253,8 +254,14 @@ function _Store(name) {
 
     // Hook to allow full AJAX customization
     self.ajax = function(url, data, method, headers) {
+        var urlObj = new URL(url);
         if (!method || method.toUpperCase() == 'GET') {
-            return json.get(url, data, self.jsonp);
+            Object.entries(data).forEach(
+                ([key, value]) => urlObj.searchParams.append(key, value)
+            );
+            return fetch(urlObj).then(function(response) {
+                return response.json();
+            });
         } else {
             var useFormData = (data instanceof window.FormData);
             return Promise.resolve($.ajax(url, {

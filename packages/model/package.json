@@ -23,6 +23,8 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
+    "@wq/store": "^2.0.0-dev",
+    "deepcopy": "^1.0.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",

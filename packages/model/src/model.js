@@ -1,11 +1,5 @@
-/*!
- * wq.app 1.1.1 - wq/model.js
- * A simple model API for working with stored lists
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
-
-define(['./store', './json', './console'], function(ds, json, console) {
+import ds from '@wq/store';
+import deepcopy from 'deepcopy';
 
 function model(config) {
     return new Model(config);
@@ -49,7 +43,7 @@ model.cacheOpts = {
     }
 };
 
-return model;
+export default model;
 
 // Retrieve a stored list as an object with helper functions
 //  - especially useful for server-paginated lists
@@ -106,7 +100,7 @@ function Model(config) {
         if (typeof self.query == "string") {
             query = self.query;
         } else {
-            query = json.extend({}, self.query);
+            query = {...self.query};
             if (page_num !== null) {
                 query.page = page_num;
             }
@@ -125,7 +119,7 @@ function Model(config) {
         if (!data) {
             data = [];
         }
-        if (json.isArray(data)) {
+        if (Array.isArray(data)) {
             data = {'list': data};
         }
         if (!data.pages) {
@@ -192,7 +186,7 @@ function Model(config) {
         }
         return self.getIndex(attr).then(function(ilist) {
             if (ilist && ilist[value]) {
-                return json.extend(true, {}, ilist[value]);
+                return deepcopy(ilist[value]);
             } else if (attr == "id" && value !== undefined) {
                 // Not found in local list; try server
                 if (!localOnly && self.opts.server && config.url) {
@@ -210,7 +204,7 @@ function Model(config) {
         // stored locally. In that case, run query on server.
         if (!localOnly && self.opts.server && config.url) {
             // FIXME: won't work as expected if any == true
-            var query = json.extend({'url': config.url}, filter);
+            var query = {'url': config.url, ...filter};
             return self.store.fetch(query).then(_processData);
         }
 
@@ -229,7 +223,7 @@ function Model(config) {
                 groups.forEach(function(group) {
                     result = result.concat(group);
                 });
-                return json.extend(true, {}, _processData(result));
+                return deepcopy(_processData(result));
             });
         } else {
             // Default: require match on all filter attributes
@@ -245,7 +239,7 @@ function Model(config) {
             return self.getGroup(f.name, f.value).then(function(group) {
                 // If only one filter attribute was given, return group as-is
                 if (!afilter.length) {
-                    return json.extend(true, {}, _processData(group));
+                    return deepcopy(_processData(group));
                 }
 
                 var result = [];
@@ -269,7 +263,7 @@ function Model(config) {
                         result.push(obj);
                     }
                 });
-                return json.extend(true, {}, _processData(result));
+                return deepcopy(_processData(result));
             });
         }
     };
@@ -283,7 +277,7 @@ function Model(config) {
 
     // Merge new/updated items into list
     self.update = function(update, idcol) {
-        if (!json.isArray(update)) {
+        if (!Array.isArray(update)) {
             throw "Data is not an array!";
         }
         if (!idcol) {
@@ -303,7 +297,7 @@ function Model(config) {
             data.list.forEach(function(obj) {
                 var id = obj[idcol];
                 if (updateById[id]) {
-                    json.extend(obj, updateById[id]);
+                    Object.assign(obj, updateById[id]);
                     delete updateById[id];
                 }
             });
@@ -355,7 +349,7 @@ function Model(config) {
     // items from server; idcol should be a unique identifier for the list
     self.fetchUpdate = function(params, idcol) {
         // Update local list with recent items from server
-        var q = json.extend({}, self.query, params);
+        var q = {...self.query, ...params};
         return self.store.fetch(q).then(function(data) {
             return self.update(data, idcol);
         });
@@ -418,7 +412,7 @@ function Model(config) {
                 }
 
                 // Allow multivalued attribute (e.g. M2M relationship)
-                if (!json.isArray(value)) {
+                if (!Array.isArray(value)) {
                     value = [value];
                 }
                 value.forEach(function(v) {
@@ -434,7 +428,7 @@ function Model(config) {
 
     // Get individual subset from grouped list
     self.getGroup = function(attr, value) {
-        if (json.isArray(value)) {
+        if (Array.isArray(value)) {
             // Assume multivalued query, return all matching groups
             var results = value.map(function(v) {
                 return self.getGroup(attr, v);
@@ -491,5 +485,3 @@ function toBoolean(value) {
         return value;
     }
 }
-
-});
