@@ -247,15 +247,12 @@ function _Outbox(store) {
             }
         }
 
-        return Promise.resolve($.ajax(url, {
-            data: useFormData ? formData : data,
-            type: method,
-            dataType: "json",
-            processData: !useFormData,
-            contentType: useFormData ? false : undefined,
-            async: true,
-            headers: headers
-        })).then(success, error);
+        return self.store.ajax(
+            url,
+            useFormData ? formData : data,
+            method,
+            headers
+        ).then(success, error);
 
         function success(result) {
             if (self.debugNetwork) {

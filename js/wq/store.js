@@ -5,9 +5,9 @@
  * https://wq.io/license
  */
 
-define(['localforage', 'localforage-memoryStorageDriver',
+define(['jquery', 'localforage', 'localforage-memoryStorageDriver',
         './json', './console'],
-function(localForage, memoryStorageDriver, json, console) {
+function($, localForage, memoryStorageDriver, json, console) {
 
 var _stores = {};
 
@@ -61,6 +61,7 @@ function _Store(name) {
             'storageFail',
             'fetchFail',
             'jsonp',
+            'ajax',
             'debug',
             'formatKeyword',
             'alwaysExtractBlobs',
@@ -230,7 +231,7 @@ function _Store(name) {
             console.log("fetching " + key);
         }
 
-        var promise = json.get(url, data, self.jsonp);
+        var promise = self.ajax(url, data, 'GET');
         _promises[key] = promise.then(function(result) {
             var data = self.parseData(result);
             delete _promises[key];
@@ -255,6 +256,24 @@ function _Store(name) {
             self.fetchFail(query, "Error parsing data!");
         });
         return _promises[key];
+    };
+
+    // Hook to allow full AJAX customization
+    self.ajax = function(url, data, method, headers) {
+        if (!method || method.toUpperCase() == 'GET') {
+            return json.get(url, data, self.jsonp);
+        } else {
+            var useFormData = (data instanceof window.FormData);
+            return Promise.resolve($.ajax(url, {
+                data: data,
+                type: method,
+                dataType: "json",
+                processData: !useFormData,
+                contentType: useFormData ? false : undefined,
+                async: true,
+                headers: headers
+            }));
+        }
     };
 
     // Callback for fetch() failures - override to inform the user
