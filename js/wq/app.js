@@ -42,6 +42,11 @@ app.init = function(config) {
     if (!config.store.fetchFail) {
         config.fetchFail = _fetchFail;
     }
+    for (var plugin in app.plugins) {
+        if (app.plugins[plugin].ajax) {
+            config.store.ajax = app.plugins[plugin].ajax;
+        }
+    }
 
     // Outbox (wq/outbox.js) configuration
     if (!config.outbox) {
