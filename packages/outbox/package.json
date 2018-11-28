@@ -23,10 +23,12 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-    "@wq/model": "^2.0.0-dev"
+    "@wq/model": "^2.0.0-dev",
+    "@wq/store": "^2.0.0-dev"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",
+    "@wq/jest-env-jsdom-idb": "^2.0.0-dev",
     "jest": "^23.4.1"
   }
 }

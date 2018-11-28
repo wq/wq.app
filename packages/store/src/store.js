@@ -255,25 +255,22 @@ function _Store(name) {
     // Hook to allow full AJAX customization
     self.ajax = function(url, data, method, headers) {
         var urlObj = new URL(url);
-        if (!method || method.toUpperCase() == 'GET') {
+        if (!method) {
+            method = 'GET';
+        } else {
+            method = method.toUpperCase();
+        }
+        if (method == 'GET') {
             Object.entries(data).forEach(
                 ([key, value]) => urlObj.searchParams.append(key, value)
             );
-            return fetch(urlObj).then(function(response) {
-                return response.json();
-            });
-        } else {
-            var useFormData = (data instanceof window.FormData);
-            return Promise.resolve($.ajax(url, {
-                data: data,
-                type: method,
-                dataType: "json",
-                processData: !useFormData,
-                contentType: useFormData ? false : undefined,
-                async: true,
-                headers: headers
-            }));
+            data = null;
         }
+        return fetch(urlObj, {
+            method: method,
+            body: data,
+            headers: headers
+        }).then(result => result.json());
     };
 
     // Callback for fetch() failures - override to inform the user
@@ -361,8 +358,13 @@ function _Store(name) {
 // Simple computation for quota usage across stores
 function _globalStorageUsage() {
     return Promise.all(Object.keys(_stores).map(function(storeName) {
-        var lf = _stores[storeName].lf;
-        return lf.keys().then(function(keys) {
+        var lf = _stores[storeName].lf, keyPromise;
+        try {
+            keyPromise = lf.keys();
+        } catch (e) {
+            return 0;
+        }
+        keyPromise.then(function(keys) {
             var results = keys.map(function(key) {
                 return lf.getItem(key).then(function(item) {
                     // FIXME: This won't handle binary values

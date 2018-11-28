@@ -1,11 +1,27 @@
-define(['./app', 'wq/app', 'wq/store', 'wq/outbox', 'data/config'],
-function(appTests, app, ds, outbox, config) {
+/**
+ * @jest-environment @wq/jest-env-jsdom-idb
+ */
 
-QUnit.module('wq/outbox');
+import store from '@wq/store';
+import model from '@wq/model';
+import outboxMod from '../outbox';
 
-QUnit.test("form with no explicit storage", function(assert) {
-    testOutbox({
-        'assert': assert,
+
+const ds = store.getStore('outbox-test');
+ds.init({
+    'service': 'http://localhost:8080/tests',
+    'defaults': {
+        'format': 'json',
+    }
+});
+
+
+const outbox = outboxMod.getOutbox(ds);
+outbox.init({});
+
+
+test("form with no explicit storage", async () => {
+    await testOutbox({
         'data': {'test': 123},
         'options': {},
         'expectItem': {
@@ -18,10 +34,9 @@ QUnit.test("form with no explicit storage", function(assert) {
     });
 });
 
-QUnit.test("form with storage=store", function(assert) {
+test("form with storage=store", async () => {
     var blob = new Blob([1,2,3], {'type': 'text/plain'});
-    testOutbox({
-        'assert': assert,
+    await testOutbox({
         'data': {
             'file': {
                   'type': 'text/plain',
@@ -49,9 +64,8 @@ QUnit.test("form with storage=store", function(assert) {
     });
 });
 
-QUnit.test("form with storage=temporary", function(assert) {
-    testOutbox({
-        'assert': assert,
+test("form with storage=temporary", async () => {
+    await testOutbox({
         'data': {'secret': 'code'},
         'options': {
             'storage': 'temporary'
@@ -67,53 +81,36 @@ QUnit.test("form with storage=temporary", function(assert) {
     });
 });
 
-function testOutbox(test) {
-    var assert = test.assert,
-        done = assert.async();
-    outbox.model.overwrite([]).then(function() {
-        return outbox.save(test.data, test.options, true);
-    }).then(function() {
-        return ds.get('outbox');
-    }).then(function(actualOutbox) {
-        var expectOutbox = {
-            "list": [test.expectItem],
-            "pages": 1,
-            "count": 1,
-            "per_page": 1
-        };
-        assert.deepEqual(
-            actualOutbox,
-            expectOutbox,
-            'inlined item data should be: ' +
-            JSON.stringify(test.expectItem.data)
-        );
-        return ds.get('outbox_1');
-    }).then(function(actualStored) {
-        assert.deepEqual(
-            actualStored,
-            test.expectStored,
-            'stored item data should be: ' + JSON.stringify(test.expectStored)
-        );
-        return outbox.loadItem(1);
-    }).then(function(actualItem) {
-        assert.deepEqual(
-            actualItem.data,
-            test.data,
-            'reconstituted item data should be: ' + JSON.stringify(test.data)
-        );
-    }).then(done);
+
+async function testOutbox(test) {
+    expect(ds.lf.driver()).toEqual('asyncStorage');
+    await outbox.model.overwrite([]);
+    await outbox.save(test.data, test.options, true);
+
+    const actualOutbox = await ds.get('outbox'),
+          actualStored = await ds.get('outbox_1'),
+          actualItem = await outbox.loadItem(1);
+
+    const expectOutbox = {
+        "list": [test.expectItem],
+        "pages": 1,
+        "count": 1,
+        "per_page": 1
+    };
+    expect(actualOutbox).toEqual(expectOutbox);
+    expect(actualStored).toEqual(test.expectStored);
+    expect(actualItem.data).toEqual(test.data);
 }
 
-QUnit.test('sync dependent records in order', function(assert) {
-    var done = assert.async();
 
-    var itemtype = {
+test('sync dependent records in order', async () => {
+   const itemtype = {
         'data': {
             'label': 'New ItemType'
         },
         'options': {
-            'url': config.pages.itemtype.url,
-            'modelConf': config.pages.itemtype
+            'url': 'itemtypes',
+            'modelConf': {'name': 'itemtype', 'url': 'itemtypes'}
         }
     };
 
@@ -122,8 +119,8 @@ QUnit.test('sync dependent records in order', function(assert) {
             'label': 'New Attribute'
         },
         'options': {
-            'url': config.pages.attribute.url,
-            'modelConf': config.pages.attribute
+            'url': 'attributes',
+            'modelConf': {'name': 'attribute', 'url': 'attributes'}
         }
     };
 
@@ -135,87 +132,56 @@ QUnit.test('sync dependent records in order', function(assert) {
             'values[0][value]': 'Test Value',
         },
         'options': {
-             'url': config.pages.item.url,
-             'modelConf': config.pages.item
+            'url': 'items',
+            'modelConf': {'name': 'item', 'url': 'items'}
         }
     };
 
     // Save three records to outbox
-    outbox.model.overwrite([]).then(function() {
-        return outbox.save(itemtype.data, itemtype.options, true);
-    }).then(function() {
-        return outbox.save(attribute.data, attribute.options, true);
-    }).then(function() {
-        return outbox.save(item.data, item.options, true);
-    }).then(function() {
-        return ds.get('outbox');
-    }).then(function(actualOutbox) {
-        var expectOutbox = {
-            "list": [{
-                 'id': 3,
-                 'data': item.data,
-                 'options': item.options,
-                 'synced': false,
-                 'parents': ["1", "2"],
-            }, {
-                 'id': 2,
-                 'data': attribute.data,
-                 'options': attribute.options,
-                 'synced': false,
-            }, {
-                 'id': 1,
-                 'data': itemtype.data,
-                 'options': itemtype.options,
-                 'synced': false,
-            }],
-            "pages": 1,
-            "count": 3,
-            "per_page": 3
-        };
-        assert.deepEqual(
-            actualOutbox,
-            expectOutbox,
-            "outbox should contain itemtype, attribute, and item records"
+    await outbox.model.overwrite([]);
+    await outbox.save(itemtype.data, itemtype.options, true);
+    await outbox.save(attribute.data, attribute.options, true);
+    await outbox.save(item.data, item.options, true);
+    expect(await ds.get('outbox')).toEqual({
+        "list": [{
+             'id': 3,
+             'data': item.data,
+             'options': item.options,
+             'synced': false,
+             'parents': ["1", "2"],
+          }, {
+             'id': 2,
+             'data': attribute.data,
+             'options': attribute.options,
+             'synced': false,
+          }, {
+               'id': 1,
+               'data': itemtype.data,
+               'options': itemtype.options,
+               'synced': false,
+          }],
+          "pages": 1,
+          "count": 3,
+          "per_page": 3
+    });
+
+    // Sync records.  sendAll() should automatically sync the parent
+    // records (itemtype, attribute) before syncing item.
+    await outbox.sendAll();
+    const syncedOutbox = await ds.get('outbox');
+
+    // All records should now be synced and have results
+    let results = {};
+    syncedOutbox.list.forEach(function(item) {
+        const name = (
+            item.options &&
+            item.options.modelConf &&
+            item.options.modelConf.name
         );
+        expect(item.synced).toBeTruthy();
+        results[name] = item.result;
+    });
 
-        // Sync records.  sendAll() should automatically sync the parent
-        // records (itemtype, attribute) before syncing item.
-        return outbox.sendAll();
-    }).then(function() {
-        return ds.get('outbox');
-    }).then(function(actualOutbox) {
-        // All records should now be synced and have results
-        var results = {};
-        actualOutbox.list.forEach(function(item) {
-            var name = (
-                item.options &&
-                item.options.modelConf &&
-                item.options.modelConf.name
-            );
-            assert.ok(item.synced, name + ' synced');
-            results[name] = item.result;
-        });
-
-        assert.equal(
-            results.item.type_id,
-            results.itemtype.id,
-            "item should get type_id from synced itemtype"
-        );
-
-        assert.equal(
-            results.item.values[0].attribute_id,
-            results.attribute.id,
-            "item.values[0] should get attribute_id from synced attribute"
-        );
-
-    }).then(function() {
-        // Reset models
-        return Promise.all([
-            app.models.itemtype.prefetch(),
-            app.models.attribute.prefetch(),
-            app.models.item.prefetch(),
-        ]);
-    }).then(done);
-});
-
+    expect(results.item.type_id).toEqual(results.itemtype.id);
+    expect(results.item.values[0].attribute_id).toEqual(results.attribute.id);
 });

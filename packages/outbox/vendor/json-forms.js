@@ -1,5 +1,3 @@
-define(['module'], function(module) {
-
 'use strict';
 
 var Gn={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#x27;"}
@@ -225,15 +223,10 @@ function JSONFormSubmitHandler(e) {
   }
 }
 
-module.exports = {
-  enable: function() {
-    addEventListener('submit', JSONFormSubmitHandler);
-  },
-  encode: JSONEncode,
-  convert: convert,
-  disable: function() {
-    removeEventListener('submit', JSONFormSubmitHandler);
-  }
+export function enable() {
+  addEventListener('submit', JSONFormSubmitHandler);
 }
-
-});
+export {JSONEncode as encode, convert};
+export function disable() {
+  removeEventListener('submit', JSONFormSubmitHandler);
+}

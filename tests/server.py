@@ -4,15 +4,17 @@ from urllib.parse import parse_qs
 import json
 import time
 import random
+import cgi
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
     def echo(self, **update):
-        length = int(self.headers.get('content-length'))
-        qs = self.rfile.read(length).decode('utf-8')
+        ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+        pdict = {key: val.encode('utf-8') for key, val in pdict.items()}
+        form = cgi.parse_multipart(self.rfile, pdict)
         data = parse_json_form({
-            key: val[0]
-            for key, val in parse_qs(qs).items()
+            key: val[0].decode('utf-8')
+            for key, val in form.items()
         })
         for value in data.values():
             if isinstance(value, list):

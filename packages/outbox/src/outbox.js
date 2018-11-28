@@ -1,13 +1,7 @@
-/*!
- * wq.app 1.1.1 - wq/outbox.js
- * Queue submitted forms for eventual syncing to the server
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import ds from '@wq/store';
+import model from '@wq/model';
+import { convert } from '../vendor/json-forms';
 
-define(['jquery', 'localforage', 'json-forms',
-        './store', './model', './json', './console'],
-function($, lf, jsonforms, ds, model, json, console) {
 
 var _outboxes = {};
 var outbox = new _Outbox(ds);
@@ -20,7 +14,7 @@ outbox.getOutbox = function(store) {
     }
 };
 
-return outbox;
+export default outbox;
 
 function _Outbox(store) {
     var self = _outboxes[store.name] = this;
@@ -183,53 +177,39 @@ function _Outbox(store) {
         var csrftoken = self.csrftoken || options.csrftoken;
         if (csrftoken) {
             headers['X-CSRFToken'] = csrftoken;
-            data = json.extend({}, data);
-            data[self.csrftokenField] = csrftoken;
+            data = {
+               ...data,
+               [self.csrftokenField]: csrftoken
+            }
         }
 
-        var defaults = json.extend({}, self.defaults);
+        var defaults = {...self.defaults};
         if (defaults.format && !self.formatKeyword) {
             url = url.replace(/\/$/, '');
             url += '.' + defaults.format;
             delete defaults.format;
         }
-        if (json.param(defaults)) {
-            url += '?' + json.param(defaults);
-        }
+        var urlObj = new URL(url);
+        Object.entries(defaults).forEach(
+            ([key, value]) => urlObj.searchParams.append(key, value)
+        );
 
         if (self.debugNetwork) {
-            console.log("Sending item to " + url);
+            console.log("Sending item to " + urlObj.href);
             if (self.debugValues) {
                 console.log(data);
             }
         }
 
-        // If files/blobs are present, use a FormData object to submit
-        var formData = (window.FormData && new FormData());
-        var useFormData = false;
-        var key, val, blob, slice;
-        for (key in data) {
-            val = data[key];
-            if (!val) {
-                continue;
-            }
-            if (json.isArray(val) || (val.name && val.type && val.body)) {
-                useFormData = true;
-            }
-        }
-        if (useFormData) {
-            if (!formData) {
-                throw "FormData needed but not present!";
-            }
-            for (key in data) {
-                val = data[key];
-                if (json.isArray(val)) {
-                    val.forEach(appendValue.bind(this, key));
-                } else {
-                    appendValue(key, val);
-                }
-            }
-        }
+        // Use a FormData object to submit
+        var formData = new FormData();
+        Object.entries(data).forEach(([key, val]) => {
+	    if (Array.isArray(val)) {
+		val.forEach(appendValue.bind(this, key));
+	    } else {
+		appendValue(key, val);
+	    }
+	});
 
         function appendValue(key, val) {
             if (val && val.name && val.type && val.body) {
@@ -248,8 +228,8 @@ function _Outbox(store) {
         }
 
         return self.store.ajax(
-            url,
-            useFormData ? formData : data,
+            urlObj,
+            formData,
             method,
             headers
         ).then(success, error);
@@ -431,10 +411,10 @@ function _Outbox(store) {
     // Update any corresponding models with synced data
     self.updateModels = function(item, result) {
         if (item.options.modelConf && item.synced) {
-            var conf = json.extend(
-                {'store': self.store},
-                item.options.modelConf
-            );
+            var conf = {
+                'store': self.store,
+                ...item.options.modelConf
+            };
             if (item.deletedId) {
                 return model(conf).remove(item.deletedId);
             } else {
@@ -558,9 +538,9 @@ function _Outbox(store) {
                 'value': item.data[key]
             });
         }
-        item.data = jsonforms.convert(values);
+        item.data = convert(values);
         for (key in item.data) {
-            if ($.isArray(item.data[key])) {
+            if (Array.isArray(item.data[key])) {
                 item.data[key].forEach(function(row, i) {
                     row['@index'] = i;
                 });
@@ -645,5 +625,3 @@ function _Outbox(store) {
         });
     }
 }
-
-});
