@@ -1,12 +1,5 @@
-/*
- * wq.app 1.1.1 - wq/template.js
- * Render and inject Mustache templates
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import m from 'mustache';
 
-define(["mustache", "jquery", "jquery.mobile", "./console"],
-function(m, $, jqm, console) {
 
 // Exported module object
 var tmpl = {};
@@ -16,12 +9,15 @@ var _templates = {};
 var _partials  = {};
 var _defaults  = {};
 var _debug;
+var $, jqm;
 
 tmpl.init = function(config) {
     _templates = config.templates || {};
     _partials = config.partials || config.templates.partials || {};
     _defaults = config.defaults || {};
     _debug = config.debug || false;
+    $ = config.jQuery || window.jQuery;
+    jqm = $.mobile;
 };
 
 tmpl.setDefault = function(key, value) {
@@ -132,6 +128,4 @@ tmpl.injectOnce = function(template, context, url, id) {
     return $page;
 };
 
-return tmpl;
-
-});
+export default tmpl;
