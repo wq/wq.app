@@ -1,0 +1,33 @@
+{
+  "name": "@wq/template",
+  "version": "2.0.0-dev",
+  "description": "Render Mustache templates and inject as jQuery Mobile pages",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wq/wq.app.git"
+  },
+  "keywords": [
+    "wq",
+    "template",
+    "mustache",
+    "jquery-mobile"
+  ],
+  "author": "S. Andrew Sheppard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wq/wq.app/issues"
+  },
+  "homepage": "https://wq.io/wq.app",
+  "dependencies": {
+    "@wq/jquery-mobile": "^0.1.0",
+    "mustache": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.4.1"
+  }
+}
