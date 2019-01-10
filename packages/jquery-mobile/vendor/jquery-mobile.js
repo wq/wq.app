@@ -9,19 +9,12 @@
 *
 */
 
+module.exports = function (jQuery, window, document) {
 
-(function ( root, doc, factory ) {
-	if ( typeof define === "function" && define.amd ) {
-		// AMD. Register as an anonymous module.
-		define( [ "jquery", "jquery.mobile.router" ], function ( $ ) {
-			factory( $, root, doc );
-			return $.mobile;
-		});
-	} else {
-		// Browser globals
-		factory( root.jQuery, root, doc );
-	}
-}( this, document, function ( jQuery, window, document, undefined ) {
+var navigator = window.navigator,
+    location = window.location,
+    history = window.history;
+
 (function( $ ) {
 	$.mobile = {};
 }( jQuery ));
@@ -647,7 +640,7 @@ $.ui.plugin = {
 		return $.find( expr, null, null, [ node ] ).length > 0;
 	};
 
-})( jQuery, this );
+})( jQuery, window );
 
 (function( $, window, undefined ) {
 	$.extend( $.mobile, {
@@ -735,7 +728,7 @@ $.ui.plugin = {
 
 		dialogHashKey: "&ui-state=dialog"
 	});
-})( jQuery, this );
+})( jQuery, window );
 
 /*!
  * jQuery UI Widget c0ab71056b936627e8a7821f03c044aec6280a40
@@ -1369,7 +1362,7 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 
 	$.extend( $.find, oldFind );
 
-})( jQuery, this );
+})( jQuery, window );
 
 (function( $, undefined ) {
 
@@ -1538,7 +1531,7 @@ $.mobile.widget = $.Widget;
 		}
 	});
 
-})(jQuery, this);
+})(jQuery, window);
 
 
 /*!
@@ -1930,7 +1923,7 @@ $.mobile.widget = $.Widget;
     return self;
   })();
   
-})(jQuery,this);
+})(jQuery, window);
 
 
 (function( $, undefined ) {
@@ -2206,6 +2199,7 @@ nokiaLTE7_3 = (function() {
 // default enhanced qualifications are media query support OR IE 7+
 
 $.mobile.gradeA = function() {
+        return true;
 	return ( ( $.support.mediaquery && $.support.cssPseudoElement ) || $.mobile.browser.oldIE && $.mobile.browser.oldIE >= 8 ) && ( $.support.boundingRect || $.fn.jquery.match(/1\.[0-7+]\.[0-9+]?/) !== null );
 };
 
@@ -4137,7 +4131,7 @@ if ( eventCaptureSupported ) {
 		};
 	});
 
-})( jQuery, this );
+})( jQuery, window );
 
 
 	// throttled resize event
@@ -4317,7 +4311,7 @@ if ( eventCaptureSupported ) {
 		$.attrFn[ event_name ] = true;
 	}
 
-}( jQuery, this ));
+}( jQuery, window ));
 
 
 
@@ -6332,7 +6326,7 @@ $.widget( "mobile.page", {
 			return this.deferred.promise();
 		}
 	});
-})( jQuery, this );
+})( jQuery, window );
 
 
 (function( $ ) {
@@ -6423,7 +6417,7 @@ $.widget( "mobile.page", {
 
 $.mobile.transitionFallbacks.flip = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for flow in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6433,7 +6427,7 @@ $.mobile.transitionFallbacks.flip = "fade";
 
 $.mobile.transitionFallbacks.flow = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for pop in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6443,7 +6437,7 @@ $.mobile.transitionFallbacks.flow = "fade";
 
 $.mobile.transitionFallbacks.pop = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for slide in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6457,7 +6451,7 @@ $.mobile.transitionHandlers.slide = $.mobile.transitionHandlers.simultaneous;
 // Set the slide transitions's fallback to "fade"
 $.mobile.transitionFallbacks.slide = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for slidedown in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6467,7 +6461,7 @@ $.mobile.transitionFallbacks.slide = "fade";
 
 $.mobile.transitionFallbacks.slidedown = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for slidefade in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6478,7 +6472,7 @@ $.mobile.transitionFallbacks.slidedown = "fade";
 // Set the slide transitions's fallback to "fade"
 $.mobile.transitionFallbacks.slidefade = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for slideup in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6488,7 +6482,7 @@ $.mobile.transitionFallbacks.slidefade = "fade";
 
 $.mobile.transitionFallbacks.slideup = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 /*
 * fallback transition for turn in non-3D supporting browsers (which tend to handle complex transitions poorly in general
@@ -6498,7 +6492,7 @@ $.mobile.transitionFallbacks.slideup = "fade";
 
 $.mobile.transitionFallbacks.turn = "fade";
 
-})( jQuery, this );
+})( jQuery, window );
 
 
 (function( $, undefined ) {
@@ -6664,7 +6658,7 @@ $.widget( "mobile.page", $.mobile.page, {
 	}
 });
 
-})( jQuery, this );
+})( jQuery, window );
 
 (function( $, window, undefined ) {
 
@@ -6822,7 +6816,7 @@ $.widget( "mobile.dialog", {
 	}
 });
 
-})( jQuery, this );
+})( jQuery, window );
 
 (function( $, undefined ) {
 
@@ -15284,7 +15278,7 @@ $.widget( "ui.tabs", {
 		}
 	});
 
-}( jQuery, this ));
+}( jQuery, window ));
 
 (function( $, window, undefined ) {
 	var	$html = $( "html" ),
@@ -15448,7 +15442,7 @@ $.widget( "ui.tabs", {
 			);
 		}
 	});
-}( jQuery, this ));
+}( jQuery, window ));
 
 
-}));
+};
