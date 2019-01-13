@@ -1,0 +1,32 @@
+{
+  "name": "@wq/router",
+  "version": "2.0.0-dev",
+  "description": "Respond to URL changes with locally generated pages and custom events",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wq/wq.app.git"
+  },
+  "keywords": [
+    "wq",
+    "router",
+    "jquery-mobile"
+  ],
+  "author": "S. Andrew Sheppard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wq/wq.app/issues"
+  },
+  "homepage": "https://wq.io/wq.app",
+  "dependencies": {
+    "@wq/jquery-mobile": "^0.1.0",
+    "@wq/template": "^2.0.0-dev"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.4.1"
+  }
+}
