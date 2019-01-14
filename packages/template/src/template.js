@@ -25,6 +25,9 @@ tmpl.setDefault = function(key, value) {
 };
 
 tmpl.render = function(template, data) {
+    if (!$) {
+        throw new Error("Initialize template first!");
+    }
     var context = {}, key;
     for (key in _defaults) {
         context[key] = _defaults[key];

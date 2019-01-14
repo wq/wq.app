@@ -1,15 +1,5 @@
-/*!
- * wq.app 1.1.1 - wq/router.js
- * Respond to URL changes with locally generated pages and custom events
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
-
-/* global escape */
-
-define(['jquery', 'jquery.mobile', 'jquery.mobile.router',
-        './template', './console'],
-function($, jqm, jqmr, tmpl, console) {
+import tmpl from '@wq/template';
+import jqmr from '../vendor/jquery.mobile.router';
 
 // Exported module object
 var router = {
@@ -21,7 +11,7 @@ var router = {
     'slug': '([^/?#]+)',
     'query': '(?:[?](.*))?(?:[#](.*))?$'
 };
-var _jqmRouter;
+var jqm, _jqmRouter;
 
 // Configuration
 router.init = function(config) {
@@ -30,7 +20,14 @@ router.init = function(config) {
         router.info.base_url = config.base_url;
     }
 
-    router.config = $.extend(router.config, config || {});
+    router.config = {
+        ...router.config,
+        ...config
+    };
+
+    var $ = config.jQuery || window.jQuery;
+    jqmr($);
+    jqm = $.mobile;
 
     // Configuration options:
     // Define `tmpl404` if there is not a template named '404'
@@ -40,9 +37,13 @@ router.init = function(config) {
     _jqmRouter = new jqm.Router(undefined, undefined, {
         'ajaxApp': true
     });
+
+    router.jqmInit = jqm.initializePage;
 };
 
-router.jqmInit = jqm.initializePage;
+router.jqmInit = function() {
+    throw new Error("Initialize router first!");
+};
 
 // Register URL patterns to override default JQM behavior and inject router
 // Callback fn should call router.go() with desired template
@@ -211,6 +212,4 @@ function _updateInfo(path, context) {
     tmpl.setDefault('rt', router.info.base_url);
 }
 
-return router;
-
-});
+export default router;

@@ -7,15 +7,9 @@
  * http://github.com/azicchetti/jquerymobile-router/blob/master/MIT-LICENSE.txt
  * http://github.com/azicchetti/jquerymobile-router/blob/master/GPL-LICENSE.txt
  */
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(['jquery'], factory);
-  } else {
-    factory(jQuery);
-  }
-}(this, function($) {
 
-$(document).on("mobileinit", function(){
+module.exports = function($) {
+
   /* supports the following configurations:
     $.mobile.jqmRouter.fixFirstPageDataUrl=true
     $.mobile.jqmRouter.firstPageDataUrl="index.html"
@@ -372,7 +366,4 @@ $(document).on("mobileinit", function(){
     }
   });
 
-});
-return {};
-
-}));
+};
