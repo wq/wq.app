@@ -24,6 +24,7 @@
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
     "babel-preset-env": "^1.7.0",
+    "@wq/jest-env-jsdom-idb": "^0.1.0",
     "jest": "^23.4.1",
     "jquery": "^1.12.4"
   }
