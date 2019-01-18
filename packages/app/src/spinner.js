@@ -1,17 +1,15 @@
-/*
- * wq.app 1.1.1 - wq/spinner.js
- * Wrapper for jQuery Mobile's spinner
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
-
-define(['jquery.mobile'],
-function(jqm) {
-
 // Exported module object
 var spin = {};
 
+var jqm;
+
 spin.start = function(msg, duration, opts) {
+    if (window.jQuery) {
+        jqm = window.jQuery.mobile;
+    }
+    if (!jqm) {
+        return;
+    }
     if (!opts) {
         opts = {};
     }
@@ -27,9 +25,10 @@ spin.start = function(msg, duration, opts) {
 };
 
 spin.stop = function() {
+    if (!jqm) {
+        return;
+    }
     jqm.loading('hide');
 };
 
-return spin;
-
-});
+export default spin;

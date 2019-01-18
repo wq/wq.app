@@ -1,15 +1,10 @@
-/*!
- * wq.app 1.1.1 - wq/app.js
- * Utilizes store and pages to dynamically load and render
- * content from a wq.db-compatible REST service
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import ds from '@wq/store';
+import modelModule from '@wq/model';
+import outbox from '@wq/outbox';
+import tmpl from '@wq/template';
+import router from '@wq/router';
+import spin from './spinner';
 
-define(['jquery', 'jquery.mobile',
-        './store', './model', './outbox', './router', './template',
-        './spinner', './console'],
-function($, jqm, ds, model, outbox, router, tmpl, spin, console) {
 
 var app = {
     'OFFLINE': 'offline',
@@ -24,7 +19,12 @@ var _saveTransition = "none",
     _register = {},
     _onShow = {};
 
+var $, jqm;
+
 app.init = function(config) {
+    $ = config.jQuery || window.jQuery;
+    jqm = $.mobile;
+
     // Router (wq/router.js) configuration
     if (!config.router) {
         config.router = {
@@ -200,7 +200,7 @@ app.init = function(config) {
                 var onShow = _onShow[mode] || _onShow.detail;
                 onShow(page, mode);
             });
-            app.models[page] = model(conf);
+            app.models[page] = modelModule(conf);
         } else if (conf) {
             if (!conf.server_only) {
                 _registerOther(page);
@@ -1822,6 +1822,4 @@ function _fetchFail(query, error) {
     });
 }
 
-return app;
-
-});
+export default app;

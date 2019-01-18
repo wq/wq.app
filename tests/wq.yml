@@ -16,6 +16,21 @@ collectjson:
         json:
             indent: 4
         jsonp: define
+    -
+        paths:
+             - templates
+        type: html
+        output: ../packages/app/src/__tests__/templates.json
+        json:
+            indent: 4
+    -
+        paths:
+             - config
+        type: yaml
+        extension: yml
+        output: ../packages/app/src/__tests__/config.json
+        json:
+            indent: 4
 scss:
    indir: "scss"
    outdir: "css"

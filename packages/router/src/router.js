@@ -37,12 +37,13 @@ router.init = function(config) {
     _jqmRouter = new jqm.Router(undefined, undefined, {
         'ajaxApp': true
     });
-
-    router.jqmInit = jqm.initializePage;
 };
 
 router.jqmInit = function() {
-    throw new Error("Initialize router first!");
+    if (!router.config) {
+        throw new Error("Initialize router first!");
+    }
+    jqm.initializePage();
 };
 
 // Register URL patterns to override default JQM behavior and inject router

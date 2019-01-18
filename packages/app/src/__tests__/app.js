@@ -1,168 +1,154 @@
-define(['jquery', 'jquery.mobile', 'json-forms',
-        'wq/app', 'wq/router', 'wq/map', 'wq/outbox', 'wq/markdown',
-        'data/config', 'data/templates'],
-function($, jqm, jsonforms,
-         app, router, map, outbox, markdown,
-         config, templates) {
+/**
+ * @jest-environment @wq/jquery-mobile/env
+ */
 
-QUnit.module('wq/app');
 
-config.router = {
-    'base_url': '/tests'
-};
+import app from "../app";
+import outbox from "@wq/outbox";
+import router from "@wq/router";
+import routeConfig from "./config.json";
+import templates from "./templates.json";
+import { encode } from "@wq/outbox/vendor/json-forms";
+const jqm = $.mobile;
 
-config.template = {
-    'templates': templates
-};
 
-config.backgroundSync = -1;
-config.loadMissingAsJson = true;
+beforeAll(async () => {
+    const config = {
+        router: {
+            'base_url': '/tests'
+        },
+        template: {
+            templates
+        },
+        store: {
+            'service': 'http://localhost:8080/tests',
+            'defaults': {'format': 'json'}
+        },
+        backgroundSync: -1,
+        loadMissingAsJson: true,
+        ...routeConfig,
+    };
 
-app.use(map);
-app.use(markdown);
-app.use({
-    'context': function(context, routeInfo) {
-        return Promise.resolve({
-            'context_page_url': context.page_config.url,
-            'route_info_mode': routeInfo.mode,
-            'route_info_parent_page': routeInfo.parent_page
-        });
-    }
+    app.use({
+        'context': function(context, routeInfo) {
+            return Promise.resolve({
+                'context_page_url': context.page_config.url,
+                'route_info_mode': routeInfo.mode,
+                'route_info_parent_page': routeInfo.parent_page
+            });
+        }
+    });
+    await app.init(config);
+    app.service = app.base_url;
+    $('body').append('<div data-role=page></div>');
+    app.jqmInit();
 });
 
-return app.init(config).then(function() {
-app.jqmInit();
-
-QUnit.test("models defined", function(assert) {
-    assert.ok(app.models.item);
-    assert.ok(app.models.itemtype);
-    assert.ok(app.models.attribute);
+test("models defined", () => {
+    expect(app.models.item).toBeTruthy();
+    expect(app.models.itemtype).toBeTruthy();
+    expect(app.models.attribute).toBeTruthy();
 });
 
-testPage("item detail page", 'items/one', function($page, assert) {
-    assert.equal($page.data('title'), "ONE", "page title");
-    assert.equal($page.find('p#label').text(), "ONE", "item label");
+
+test("item detail page", async () => {
+    const $page = await changePage('items/one');
+    expect($page.data('title')).toBe("ONE");
+    expect($page.find('p#label').text()).toBe("ONE");
 
     // Choice label
-    assert.equal($page.find('p#color span').text(), "Red", "choice label");
+    expect($page.find('p#color span').text()).toBe("Red")
 
     // Foreign key lookup
     var $fk = $page.find('p#type a');
-    assert.equal($fk.text().trim(), "Type #1", "foreign key");
-    assert.equal($fk.attr('href'), "/tests/itemtypes/1", "parent url");
+    expect($fk.text().trim()).toBe("Type #1");
+    expect($fk.attr('href')).toBe("/tests/itemtypes/1");
 
     // Nested items
     var $children = $page.find('p.value');
-    assert.equal($children.length, 2, "nested child records");
-    assert.equal(
+    expect($children).toHaveLength(2);
+    expect(
         $children.filter('#value-1').text(),
+    ).toBe(
         "Width: Value One",
-        "child record label"
     );
 
-    // Markdown+syntax plugin
-    var $code = $page.find('code'),
-        $keywords = $code.find('span.hljs-keyword');
-    assert.equal($code.length, 1, "markdown code block");
-    assert.equal($keywords.length, 2, "highlighted keywords");
 });
 
-testPage("item edit page", 'items/two/edit', function($page, assert) {
-    var done = assert.async();
+test("item edit page", async () => {
+    var $page = await changePage('items/two/edit');
 
     // Compare rendered form fields with model data
-    var formdata = jsonforms.encode($page.find('form')[0]);
-    app.models.item.find('two').then(function(data) {
-        assert.equal(data.type_id, formdata.type_id, 'select field');
-        assert.equal(data.color, formdata.color, 'radio field');
-        assert.equal(
-            data.values[0].value,
-            formdata.values[0].value,
-            'nested field'
-        );
+    expect($page.find('form')).toHaveLength(1);
+    var formdata = encode($page.find('form')[0]);
+
+    const data = await app.models.item.find('two');
+    expect(data.type_id).toEqual(+formdata.type_id);
+    expect(data.color).toEqual(formdata.color);
+    expect(data.values[0].value).toEqual(formdata.values[0].value);
 
     // Submit form, confirm data is in outbox
-    }).then(app.emptyOutbox).then(function() {
-        $page.find('input#values-0-value').val("Test Change");
-        $('body').on('pageshow', checkOutbox);
-        $page.find('form').submit();
-    });
-    function checkOutbox() {
-        $('body').off('pageshow', checkOutbox);
-        assert.equal(
-            jqm.activePage.data('url'),
-            '/tests/items/',
-            'submit returns to list view'
-        );
-        outbox.model.load().then(function(data) {
-            assert.equal(data.list.length, 1, '1 item in outbox');
-            var obitem = data.list[0];
-            assert.equal(obitem.options.url, 'items/two', 'submission url');
-            $('body').on('pageshow', editOutbox);
-            $.mobile.changePage('/tests/outbox/1/edit');
-        });
-    }
+    await app.emptyOutbox();
+    $page.find('input#values-0-value').val("Test Change");
+    $page = await submitForm($page);
+
+    expect(jqm.activePage.data('url')).toBe('/tests/items/');
+    const obdata = await outbox.model.load();
+    expect(obdata.list).toHaveLength(1);
+    var obitem = obdata.list[0];
+    expect(obitem.options.url).toBe('items/two');
 
     // Open form again from outbox and confirm that nested records still render
-    function editOutbox() {
-        $('body').off('pageshow', editOutbox);
-        var $page = jqm.activePage;
-        var formdata = jsonforms.encode($page.find('form')[0]);
-        assert.equal(
-            $page.find('form').data('wq-outbox-id'),
-            1,
-            'form rendered from outbox has id'
-        );
-        assert.equal(
-            formdata.values.length,
-            2,
-            'form rendered from outbox has nested records'
-        );
-        done();
-    }
+    $page = await changePage('outbox/1/edit');
+    formdata = encode($page.find('form')[0]);
+    expect($page.find('form').data('wq-outbox-id')).toBe(1);
+    expect(formdata.values).toHaveLength(2);
 });
 
-testPage("async context - other", "about", function($page, assert) {
-    assert.equal(
+test("async context - other", async () => {
+    const $page = await changePage("about");
+    expect(
         $page.find("#async").html(),
+    ).toBe(
         "URL: about, Mode: ",
-        "async context plugin works on 'other' pages"
     );
 });
 
-testPage("async context - detail", "items/one", function($page, assert) {
-    assert.equal(
+test("async context - detail", async () => {
+    const $page = await changePage("items/one");
+    expect(
         $page.find("#async").html(),
+    ).toBe(
         "URL: items, Mode: detail",
-        "async context plugin works in 'detail' mode"
     );
 });
 
-testPage("async context - edit", "items/one/edit", function($page, assert) {
-    assert.equal(
+test("async context - edit", async () => {
+    const $page = await changePage("items/one/edit");
+    expect(
         $page.find("#async").html(),
+    ).toBe(
         "URL: items, Mode: edit",
-        "async context plugin works in 'edit' mode"
     );
 });
 
-testPage("async context - list", "items/", function($page, assert) {
-    assert.equal(
+test("async context - list", async () => {
+    const $page = await changePage("items/");
+    expect(
         $page.find("#async").html(),
+    ).toBe(
         "URL: items, Mode: list",
-        "async context plugin works in 'list' mode"
     );
 });
 
-testPage("async context - list (filtered)", "itemtypes/1/items",
-    function($page, assert) {
-        assert.equal(
-            $page.find("#async").html(),
-            "URL: items, Mode: list (filtered by itemtype)",
-            "async context plugin works on filtered list"
-        );
-    }
-);
+test("async context - list (filtered)", async () => {
+    const $page = await changePage("itemtypes/1/items");
+    expect(
+        $page.find("#async").html(),
+    ).toBe(
+        "URL: items, Mode: list (filtered by itemtype)",
+    );
+});
 
 
 testEAV(
@@ -220,39 +206,58 @@ testEAV(
     []
 );
 
-function testPage(name, path, tests, init) {
-    QUnit.test(name, function(assert) {
-        var done = assert.async();
-        if (init) {
-            init();
-        }
-        $('body').on('pageshow', test);
-        app.nav(path);
-        function test() {
-            $('body').off('pageshow', test);
-            tests(jqm.activePage, assert);
-            done();
-        }
+
+async function changePage(path) {
+    var done;
+    const promise = new Promise((resolve) => {
+        done = resolve;
     });
+
+    $('body').on('pageshow', next);
+    jqm.changePage("/tests/" + path, {'transition': 'none'});
+
+    function next() {
+        if (jqm.activePage.jqmData('url') != '/tests/' + path) {
+            // FIXME: Sometimes / is shown before navigating to path?
+            return;
+        }
+        $('body').off('pageshow', next);
+        done(jqm.activePage);
+    }
+
+    return promise;
+}
+
+async function submitForm($page) {
+    var done;
+    const promise = new Promise((resolve) => {
+        done = resolve;
+    });
+
+    $('body').on('pageshow', next);
+    $page.find('form').submit();
+
+    function next() {
+        $('body').off('pageshow', next);
+        done(jqm.activePage);
+    }
+
+    return promise;
 }
 
 function testEAV(name, filter, params, expected) {
-    testPage("eavfilter - " + name, "items/new?" + params,
-        function($page, assert) {
-            var ids = (router.info.context.values || []).map(function(value) {
-                return value.attribute_id;
-            }).join(',');
-            assert.equal(
-                ids, expected.join(','),
-                "expected " + expected.length + " attributes"
-            );
-            app.wq_config.pages.item.form[3].initial.filter = filter;
-        }, function() {
-            app.wq_config.pages.item.form[3].initial.filter = filter;
+    test("eavfilter - " + name, async () => {
+        app.wq_config.pages.item.form[3].initial.filter = filter;
+        var url = "items/new";
+        if (params) {
+            url += "?" + params;
         }
-    );
+        await changePage("items/");
+        await changePage(url);
+        var ids = (router.info.context.values || []).map(function(value) {
+            return value.attribute_id;
+        });
+        expect(ids).toEqual(expected);
+        app.wq_config.pages.item.form[3].initial.filter = filter;
+    });
 }
-
-});
-
-});
