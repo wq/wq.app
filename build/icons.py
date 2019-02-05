@@ -195,10 +195,14 @@ def icons(**conf):
             alias = 'icon-%s' % size
 
         if nine_patch:
-            icon = ImageOps.expand(icon, (1, 1, 1, 1), (0, 0, 0, 0))
+            icon = ImageOps.expand(icon, 1, 0)
             data = icon.load()
-            data[0, 1] = data[1, 0] = (0, 0, 0, 255)
-            data[0, height] = data[width, 0] = (0, 0, 0, 255)
+            if icon.mode == 'LA':
+                data[0, 1] = data[1, 0] = (0, 255)
+                data[0, height] = data[width, 0] = (0, 255)
+            else:
+                data[0, 1] = data[1, 0] = (0, 0, 0, 255)
+                data[0, height] = data[width, 0] = (0, 0, 0, 255)
 
         name = conf['filename'].format(
             size=size,
