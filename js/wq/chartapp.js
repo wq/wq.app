@@ -56,7 +56,7 @@ chartapp.run = function($page) {
 
 chartapp.create = function(data, type, elem) {
     var plot = chart[type](),
-        sel = d3.select(elem);
+        sel = d3.select(elem),
         id = chartapp.config.id_template,
         label = chartapp.config.label_template,
         timeseriesX = chartapp.config.timeseries_columns.x,
