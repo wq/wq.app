@@ -14,6 +14,11 @@ var chartapp = {
     'config': {
         'id_template': null,
         'label_template': null,
+        'timeseries_columns': {
+            'x': 'date',
+            'y': 'value',
+        },
+        'time_format': '%Y-%m-%d',
         'scatter_columns': {
             'x': null,
             'y': null
@@ -50,6 +55,9 @@ chartapp.create = function(data, type, elem) {
     var plot = chart[type](),
         id = chartapp.config.id_template,
         label = chartapp.config.label_template,
+        timeseriesX = chartapp.config.timeseries_columns.x,
+        timeFormat = chartapp.config.time_format,
+        timeseriesY = chartapp.config.timeseries_columns.y,
         scatterX = chartapp.config.scatter_columns.x,
         scatterY = chartapp.config.scatter_columns.y,
         keys;
@@ -97,6 +105,10 @@ chartapp.create = function(data, type, elem) {
         plot.yvalue(function(d) {
             return +d[scatterY];
         });
+    } else if (type == 'timeSeries') {
+        plot.timeField(timeseriesX);
+        plot.timeFormat(timeFormat);
+        plot.valueField(timeseriesY);
     }
 
     d3.select(elem).datum(data).call(plot);

@@ -1111,15 +1111,17 @@ chart.scatter = function() {
 chart.timeSeries = function() {
     var plot = chart.scatter(),
         format = d3.timeFormat('%Y-%m-%d'),
+        timeField = 'date',
+        valueField = 'value',
         parse = d3.timeParse('%Y-%m-%d');
 
     plot.xvalue(function(d) {
-        return parse(d.date);
+        return parse(d[timeField]);
     })
     .xscalefn(d3.scaleTime)
     .xnice(d3.timeYear)
     .yvalue(function(d) {
-        return d.value;
+        return +d[valueField];
     })
     .yunits(function(d) {
         return d.units;
@@ -1139,6 +1141,22 @@ chart.timeSeries = function() {
         }
         format = d3.timeFormat(val);
         parse = d3.timeParse(val);
+        return plot;
+    };
+
+    plot.timeField = function(val) {
+        if (!arguments.length) {
+            return timeField;
+        }
+        timeField = val;
+        return plot;
+    };
+
+    plot.valueField = function(val) {
+        if (!arguments.length) {
+            return valueField;
+        }
+        valueField = val;
         return plot;
     };
 
