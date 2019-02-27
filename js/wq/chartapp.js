@@ -57,16 +57,22 @@ chartapp.run = function($page) {
 chartapp.create = function(data, type, elem) {
     var plot = chart[type](),
         sel = d3.select(elem),
-        id = chartapp.config.id_template,
-        label = chartapp.config.label_template,
-        timeseriesX = chartapp.config.timeseries_columns.x,
-        timeFormat = chartapp.config.time_format,
-        timeseriesY = chartapp.config.timeseries_columns.y,
-        scatterX = chartapp.config.scatter_columns.x,
-        scatterY = chartapp.config.scatter_columns.y,
-        pointCutoff = chartapp.config.point_cutoff,
-        width = sel.attr('data-wq-width') || chartapp.config.width,
-        height = sel.attr('data-wq-height') || chartapp.config.height,
+        conf = function(name, parentName) {
+            var attrId = 'data-wq-' + name.replace('_', '-'),
+                root = chartapp.config,
+                obj = parentName ? root[parentName] : root;
+            return sel.attr(attrId) || obj[name];
+        },
+        id = conf('id_template'),
+        label = conf('label_template'),
+        timeseriesX = conf('x', 'timeseries_columns'),
+        timeFormat = conf('time_format'),
+        timeseriesY = conf('y', 'timeseries_columns'),
+        scatterX = conf('x', 'scatter_columns'),
+        scatterY = conf('y', 'scatter_columns'),
+        pointCutoff = conf('point_cutoff'),
+        width = conf('width'),
+        height = conf('height'),
         keys;
 
     if ((!id || !label) && data.length) {
