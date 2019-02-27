@@ -14,10 +14,12 @@ var chartapp = {
     'config': {
         'id_template': null,
         'label_template': null,
+        'width': 700,
+        'height': 300,
         'point_cutoff': 50,
         'timeseries_columns': {
             'x': 'date',
-            'y': 'value',
+            'y': 'value'
         },
         'time_format': '%Y-%m-%d',
         'scatter_columns': {
@@ -54,6 +56,7 @@ chartapp.run = function($page) {
 
 chartapp.create = function(data, type, elem) {
     var plot = chart[type](),
+        sel = d3.select(elem);
         id = chartapp.config.id_template,
         label = chartapp.config.label_template,
         timeseriesX = chartapp.config.timeseries_columns.x,
@@ -62,6 +65,8 @@ chartapp.create = function(data, type, elem) {
         scatterX = chartapp.config.scatter_columns.x,
         scatterY = chartapp.config.scatter_columns.y,
         pointCutoff = chartapp.config.point_cutoff,
+        width = sel.attr('data-wq-width') || chartapp.config.width,
+        height = sel.attr('data-wq-height') || chartapp.config.height,
         keys;
 
     if ((!id || !label) && data.length) {
@@ -82,7 +87,11 @@ chartapp.create = function(data, type, elem) {
         return tmpl.render(id, dataset);
     }).label(function(dataset) {
         return tmpl.render(label, dataset);
-    });
+    }).width(
+        width
+    ).height(
+        height
+    );
 
     if (type == 'boxplot') {
         plot.xvalue(function(d) {
@@ -115,7 +124,7 @@ chartapp.create = function(data, type, elem) {
         plot.pointCutoff(pointCutoff);
     }
 
-    d3.select(elem).datum(data).call(plot);
+    sel.datum(data).call(plot);
 };
 
 return chartapp;
