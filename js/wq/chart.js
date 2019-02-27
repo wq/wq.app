@@ -859,7 +859,10 @@ chart.base = function() {
 
 // Scatter plot
 chart.scatter = function() {
-    var plot = chart.base(), pointStyle = plot.circleStyle(), pointShape;
+    var plot = chart.base(),
+        pointStyle = plot.circleStyle(),
+        pointShape,
+        pointCutoff = 50;
 
     plot.xvalue(function(d) {
         return d.x;
@@ -913,11 +916,11 @@ chart.scatter = function() {
     };
     var drawPointsIf = function(dataset) {
         var items = plot.items()(dataset);
-        return items && items.length <= 50;
+        return items && items.length <= pointCutoff;
     };
     var drawLinesIf = function(dataset){
         var items = plot.items()(dataset);
-        return items && items.length > 50;
+        return items && items.length > pointCutoff;
     };
 
     plot.chartover(function(data) {
@@ -1085,6 +1088,14 @@ chart.scatter = function() {
             return pointLabel;
         }
         pointLabel = fn;
+        return plot;
+    };
+
+    plot.pointCutoff = function(val) {
+        if (!arguments.length) {
+            return pointCutoff;
+        }
+        pointCutoff = val;
         return plot;
     };
 

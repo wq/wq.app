@@ -14,6 +14,7 @@ var chartapp = {
     'config': {
         'id_template': null,
         'label_template': null,
+        'point_cutoff': 50,
         'timeseries_columns': {
             'x': 'date',
             'y': 'value',
@@ -60,6 +61,7 @@ chartapp.create = function(data, type, elem) {
         timeseriesY = chartapp.config.timeseries_columns.y,
         scatterX = chartapp.config.scatter_columns.x,
         scatterY = chartapp.config.scatter_columns.y,
+        pointCutoff = chartapp.config.point_cutoff,
         keys;
 
     if ((!id || !label) && data.length) {
@@ -105,10 +107,12 @@ chartapp.create = function(data, type, elem) {
         plot.yvalue(function(d) {
             return +d[scatterY];
         });
+        plot.pointCutoff(pointCutoff);
     } else if (type == 'timeSeries') {
         plot.timeField(timeseriesX);
         plot.timeFormat(timeFormat);
         plot.valueField(timeseriesY);
+        plot.pointCutoff(pointCutoff);
     }
 
     d3.select(elem).datum(data).call(plot);
