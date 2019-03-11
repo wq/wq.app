@@ -95,7 +95,7 @@ chart.base = function() {
     };
     var xunits = function(dataset) {
         /* jshint unused: false */
-        throw "xunits accessor not defined!";
+        return null;
     };
     var xmax = function(dataset) {
         return d3.max(items(dataset), xvalue);
@@ -203,6 +203,9 @@ chart.base = function() {
             _positionLegend.call(this, legendItems(data));
         }
         _computeScales(datasets(data));
+        if (xunits(data)){
+            plot.setMargin('xaxislabel', {'bottom': 15});
+        }
         var ordinal = xscalefn().bandwidth || false;
         var svg = d3.select(this);
         var uid = svg.attr('data-wq-uid') || Math.round(
@@ -340,9 +343,22 @@ chart.base = function() {
         series.exit().remove();
 
         // Render axes
-        _selectOrAppend(outer, 'g', 'xaxis')
+        var xaxis = _selectOrAppend(outer, 'g', 'xaxis')
             .attr('transform', _trans(margins.left, cbottom))
-            .call(xscale.axis);
+            .call(xscale.axis),
+            xlabel = xunits(data);
+        if (xlabel) {
+            _selectOrAppend(xaxis, 'text', 'axislabel')
+                .text(xlabel)
+                .attr('text-anchor', 'middle')
+                .attr('font-weight', 'bold')
+                .attr('fill', '#000')
+                .attr('transform', function() {
+                    return (
+                        'translate(' + gwidth / 2 +', 30)'
+                     );
+                });
+        }
 
         var yaxes = outer.selectAll('g.axis')
             .data(d3.values(yscales), function(s){ return s.id; });
@@ -420,6 +436,9 @@ chart.base = function() {
             if (xscale.auto) {
                 xscale.xmax = d3.max([xscale.xmax, xmax(dataset)]);
                 xscale.xmin = d3.min([xscale.xmin, xmin(dataset)]);
+                if (xscale.xmax == xscale.xmin) {
+                    xscale.xmax += 1;
+                }
             }
 
             var scaleid = yunits(dataset);
@@ -445,6 +464,9 @@ chart.base = function() {
             if (yscale.auto) {
                 yscale.ymax = d3.max([yscale.ymax, ymax(dataset)]);
                 yscale.ymin = d3.min([yscale.ymin, ymin(dataset)]);
+                if (yscale.ymax == yscale.ymin) {
+                    yscale.ymax += 1;
+                }
             }
         });
         var ymargin = {'left': 35};
@@ -457,7 +479,7 @@ chart.base = function() {
     function _renderLegend(items, opts) {
         var svg = d3.select(this),
             outer = svg.select('g.outer'),
-            margins = plot.getMargins(),
+            margins = plot.getMargins({'ignore': 'xaxislabel'}),
             legendX, legendY, legendW, legendH;
 
         if (legend.position == 'bottom') {
@@ -489,10 +511,14 @@ chart.base = function() {
             .each(function(d) {
                 var g = d3.select(this),
                     sid = legendItemId(d);
+                g.on('click', function(d) {
+                    _toggleSeries(d, svg);
+                });
                 g.append(legendItemShape(sid));
                 g.append('text')
                     .attr('font-family', 'sans-serif')
-                    .attr('font-size', '13px');
+                    .attr('font-size', '13px')
+                    .attr('cursor', 'pointer');
             });
         newitems.merge(legitems).each(function(d, i) {
             var g = d3.select(this).select('g.data'),
@@ -504,6 +530,37 @@ chart.base = function() {
                 .attr('transform', _trans(10, 5));
         });
         legitems.exit().remove();
+    }
+
+    var _hidden = {};
+
+    function _toggleSeries(dataset, svg) {
+        var sid = legendItemId(dataset);
+        _hidden[sid] = !_hidden[sid];
+        _updateHidden(svg);
+    }
+    function _updateHidden(svg) {
+        svg.selectAll('g.dataset-background')
+            .style('display', function(d) {
+                var sid = legendItemId(d);
+                if (_hidden[sid]) {
+                    return 'none';
+                }
+            });
+        svg.selectAll('g.dataset')
+            .style('display', function(d) {
+                var sid = legendItemId(d);
+                if (_hidden[sid]) {
+                    return 'none';
+                }
+            });
+        svg.selectAll('g.legenditem')
+            .style('opacity', function(d) {
+                var sid = legendItemId(d);
+                if (_hidden[sid]) {
+                    return 0.5;
+                }
+            });
     }
 
     // Getters/setters for chart configuration
@@ -836,7 +893,7 @@ chart.base = function() {
         return plot;
     };
 
-    plot.getMargins = function() {
+    plot.getMargins = function(opts) {
         var margins = {
             'left': 0,
             'right': 0,
@@ -844,6 +901,9 @@ chart.base = function() {
             'bottom': 0
         };
         for (var name in marginGroups) {
+            if (opts && name == opts.ignore) {
+                continue;
+            }
             for (var dir in marginGroups[name]) {
                 var val = marginGroups[name][dir];
                 if (val) {
@@ -862,16 +922,18 @@ chart.scatter = function() {
     var plot = chart.base(),
         pointStyle = plot.circleStyle(),
         pointShape,
+        xField = 'x',
+        yField = 'y',
         pointCutoff = 50;
 
     plot.xvalue(function(d) {
-        return d.x;
-    }).xunits(function(dataset) {
-        return dataset.xunits;
+        return +d[xField];
+    }).xunits(function(data) {
+        return data.xunits || xField;
     }).yvalue(function(d) {
-        return d.y;
+        return +d[yField];
     }).yunits(function(dataset) {
-        return dataset.yunits;
+        return dataset.yunits || yField;
     }).legendItemShape(function(sid) {
         return pointShape(sid);
     }).legendItemStyle(function(sid) {
@@ -1091,6 +1153,22 @@ chart.scatter = function() {
         return plot;
     };
 
+    plot.xField = function(val) {
+        if (!arguments.length) {
+            return xField;
+        }
+        xField = val;
+        return plot;
+    };
+
+    plot.yField = function(val) {
+        if (!arguments.length) {
+            return yField;
+        }
+        yField = val;
+        return plot;
+    };
+
     plot.pointCutoff = function(val) {
         if (!arguments.length) {
             return pointCutoff;
@@ -1122,18 +1200,20 @@ chart.scatter = function() {
 chart.timeSeries = function() {
     var plot = chart.scatter(),
         format = d3.timeFormat('%Y-%m-%d'),
-        timeField = 'date',
-        valueField = 'value',
         parse = d3.timeParse('%Y-%m-%d');
 
-    plot.xvalue(function(d) {
-        return parse(d[timeField]);
+    plot.xField('date')
+    .xvalue(function(d) {
+        var xField = plot.xField();
+        return parse(d[xField]);
     })
     .xscalefn(d3.scaleTime)
     .xnice(d3.timeYear)
-    .yvalue(function(d) {
-        return +d[valueField];
+    .xunits(function(data) {
+        /* jshint unused: false */
+        return null;
     })
+    .yField('value')
     .yunits(function(d) {
         return d.units;
     })
@@ -1152,22 +1232,6 @@ chart.timeSeries = function() {
         }
         format = d3.timeFormat(val);
         parse = d3.timeParse(val);
-        return plot;
-    };
-
-    plot.timeField = function(val) {
-        if (!arguments.length) {
-            return timeField;
-        }
-        timeField = val;
-        return plot;
-    };
-
-    plot.valueField = function(val) {
-        if (!arguments.length) {
-            return valueField;
-        }
-        valueField = val;
         return plot;
     };
 

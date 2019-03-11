@@ -14,6 +14,7 @@ var chartapp = {
     'config': {
         'id_template': null,
         'label_template': null,
+        'point_label_template': null,
         'width': 700,
         'height': 300,
         'point_cutoff': 50,
@@ -31,6 +32,22 @@ var chartapp = {
 
 chartapp.init = function(conf) {
     json.extend(chartapp.config, conf || {});
+};
+
+var customTypes = {};
+chartapp.addType = function(name, method, base) {
+    if (!base) {
+        base = 'base';
+    }
+    function makePlot() {
+        var plot = chart[base]();
+        if (method) {
+            method(plot);
+        }
+        return plot;
+    }
+    chart[name] = makePlot;
+    customTypes[name] = base;
 };
 
 // wq/app.js plugin
@@ -56,15 +73,17 @@ chartapp.run = function($page) {
 
 chartapp.create = function(data, type, elem) {
     var plot = chart[type](),
+        baseType = customTypes[type] || type,
         sel = d3.select(elem),
         conf = function(name, parentName) {
-            var attrId = 'data-wq-' + name.replace('_', '-'),
+            var attrId = 'data-wq-' + name.replace(/_/g, '-'),
                 root = chartapp.config,
                 obj = parentName ? root[parentName] : root;
             return sel.attr(attrId) || obj[name];
         },
         id = conf('id_template'),
         label = conf('label_template'),
+        pointLabel = conf('point_label_template'),
         timeseriesX = conf('x', 'timeseries_columns'),
         timeFormat = conf('time_format'),
         timeseriesY = conf('y', 'timeseries_columns'),
@@ -88,6 +107,9 @@ chartapp.create = function(data, type, elem) {
             label = keys.join(' ');
         }
     }
+    if (label.indexOf('[[') > -1 && label.indexOf('{{') == -1) {
+        label = '{{=[[ ]]=}}' + label;
+    }
 
     plot.id(function(dataset) {
         return tmpl.render(id, dataset);
@@ -99,7 +121,23 @@ chartapp.create = function(data, type, elem) {
         height
     );
 
-    if (type == 'boxplot') {
+    if (baseType == 'scatter' || baseType == 'timeSeries') {
+        plot.pointCutoff(pointCutoff);
+        if (pointLabel) {
+            if (pointLabel.indexOf('[[') > -1 &&
+                    pointLabel.indexOf('{{') == -1) {
+                pointLabel = '{{=[[ ]]=}}' + pointLabel;
+            }
+            plot.pointLabel(function(sid) {
+                /* jshint unused: false */
+                return function(d) {
+                    return tmpl.render(pointLabel, d);
+                };
+            });
+        }
+    }
+
+    if (baseType == 'boxplot') {
         plot.xvalue(function(d) {
             var prefix = plot.prefix(),
                 key = Object.keys(d).filter(function(key) {
@@ -107,7 +145,7 @@ chartapp.create = function(data, type, elem) {
                 })[0];
             return d[key];
         });
-    } else if (type == 'scatter') {
+    } else if (baseType == 'scatter') {
         if ((!scatterX || !scatterY) && data.length) {
             var firstPoint = (data[0].data || [{}])[0] || {};
             keys = Object.keys(firstPoint).filter(function(key) {
@@ -116,18 +154,12 @@ chartapp.create = function(data, type, elem) {
             scatterX = keys[0];
             scatterY = keys[1];
         }
-        plot.xvalue(function(d) {
-            return +d[scatterX];
-        });
-        plot.yvalue(function(d) {
-            return +d[scatterY];
-        });
-        plot.pointCutoff(pointCutoff);
-    } else if (type == 'timeSeries') {
-        plot.timeField(timeseriesX);
+        plot.xField(scatterX);
+        plot.yField(scatterY);
+    } else if (baseType == 'timeSeries') {
+        plot.xField(timeseriesX);
         plot.timeFormat(timeFormat);
-        plot.valueField(timeseriesY);
-        plot.pointCutoff(pointCutoff);
+        plot.yField(timeseriesY);
     }
 
     sel.datum(data).call(plot);
