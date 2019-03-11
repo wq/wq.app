@@ -5,30 +5,13 @@ LONG_DESCRIPTION = """
 Offline-capable HTML5 web and hybrid apps for citizen science field data collection.
 """
 
-
-def parse_markdown_readme():
-    """
-    Convert README.md to RST via pandoc, and load into memory
-    (fallback to LONG_DESCRIPTION on failure)
-    """
-    # Attempt to run pandoc on markdown file
-    import subprocess
+def readme():
     try:
-        subprocess.call(
-            ['pandoc', '-t', 'rst', '-o', 'README.rst', 'README.md']
-        )
-    except OSError:
-        return LONG_DESCRIPTION
-
-    # Attempt to load output
-    try:
-        readme = open(os.path.join(
-            os.path.dirname(__file__),
-            'README.rst'
-        ))
+        readme = open('README.md')
     except IOError:
         return LONG_DESCRIPTION
-    return readme.read()
+    else:
+        return readme.read()
 
 
 def list_package_data(root):
@@ -61,7 +44,7 @@ for folder in ['js', 'css', 'scss']:
 
 setup(
     name='wq.app',
-    version='1.1.1-dev',
+    use_scm_version=True,
     author='S. Andrew Sheppard',
     author_email='andrew@wq.io',
     url='https://wq.io/wq.app',
@@ -87,7 +70,8 @@ setup(
     ],
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
-    long_description=parse_markdown_readme(),
+    long_description=readme(),
+    long_description_content_type='text/markdown',
     entry_points={'wq': 'wq.app=wq.app.build'},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -109,5 +93,8 @@ setup(
     ],
     tests_require=[
         'html-json-forms',
+    ],
+    setup_requires=[
+        'setuptools_scm',
     ],
 )
