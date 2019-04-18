@@ -79,12 +79,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: JavaScript',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Text Processing :: Markup :: HTML',
         'Topic :: Scientific/Engineering :: GIS',
@@ -97,4 +96,12 @@ setup(
     setup_requires=[
         'setuptools_scm',
     ],
+    project_urls={
+        'Homepage': 'https://wq.io/wq.app',
+        'Documentation': 'https://wq.io/docs/',
+        'Source': 'https://github.com/wq/wq.app',
+        'Release Notes': 'https://github.com/wq/wq.app/releases',
+        'Issues': 'https://github.com/wq/wq.app/issues',
+        'CI': 'https://travis-ci.org/wq/wq.app',
+    },
 )
