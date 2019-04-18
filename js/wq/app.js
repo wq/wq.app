@@ -1155,6 +1155,7 @@ function _handleForm(evt) {
     if (evt.isDefaultPrevented()) {
         return;
     }
+    $form.find('[type=submit]').prop('disabled', true);
     if ($form.data('wq-submit-button-name')) {
         $submitVal = $("<input>")
            .attr("name", $form.data('wq-submit-button-name'))
