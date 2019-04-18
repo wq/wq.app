@@ -1,7 +1,7 @@
 /*!
- * wq.app 1.1.1-dev - wq/map.js
+ * wq.app 1.1.1 - wq/map.js
  * Leaflet integration for wq/app.js pages
- * (c) 2013-2017, S. Andrew Sheppard
+ * (c) 2013-2019, S. Andrew Sheppard
  * https://wq.io/license
  */
 

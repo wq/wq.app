@@ -1,7 +1,7 @@
 /*
- * wq.app 1.1.1-dev - wq/patterns.js
+ * wq.app 1.1.1 - wq/patterns.js
  * wq/app.js plugin to handle dynamically adding nested forms
- * (c) 2016-2017, S. Andrew Sheppard
+ * (c) 2016-2019, S. Andrew Sheppard
  * https://wq.io/license
  */
 

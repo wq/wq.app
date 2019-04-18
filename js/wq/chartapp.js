@@ -1,7 +1,7 @@
 /*!
- * wq.app 1.1.1-dev - wq/chartapp.js
+ * wq.app 1.1.1 - wq/chartapp.js
  * wq/chart.js+wq/pandas.js as a wq/app.js plugin
- * (c) 2016-2017, S. Andrew Sheppard
+ * (c) 2016-2019, S. Andrew Sheppard
  * https://wq.io/license
  */
 
