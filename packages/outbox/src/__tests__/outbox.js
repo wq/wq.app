@@ -102,6 +102,78 @@ async function testOutbox(test) {
     expect(actualItem.data).toEqual(test.data);
 }
 
+test('handle 200 success', async() => {
+    const simple = {
+        'data': {
+            'label': 'Test',
+        },
+        'options': {
+            'url': 'status/200',
+        },
+    };
+    await outbox.model.overwrite([]);
+    await outbox.save(simple.data, simple.options, true);
+    await outbox.sendAll();
+    const syncedOutbox = await ds.get('outbox');
+    const item = syncedOutbox.list[0];
+    expect(item).toEqual({
+        'id': 1,
+        'synced': true,
+        'result': {
+            'id': item.result.id,
+            ...simple.data,
+        },
+        ...simple,
+    });
+});
+
+test('handle 400 error', async() => {
+    const simple = {
+        'data': {
+            'label': 'Test',
+        },
+        'options': {
+            'url': 'status/400',
+        },
+    };
+    await outbox.model.overwrite([]);
+    await outbox.save(simple.data, simple.options, true);
+    await outbox.sendAll();
+    const syncedOutbox = await ds.get('outbox');
+    const item = syncedOutbox.list[0];
+    expect(item).toEqual({
+        'id': 1,
+        'synced': false,
+        'retryCount': 1,
+        'error': {
+            'label': 'Test',
+        },
+        ...simple,
+    });
+});
+
+test('handle 500 error', async() => {
+    const simple = {
+        'data': {
+            'label': 'Test',
+        },
+        'options': {
+            'url': 'status/500',
+        },
+    };
+    await outbox.model.overwrite([]);
+    await outbox.save(simple.data, simple.options, true);
+    await outbox.sendAll();
+    const syncedOutbox = await ds.get('outbox');
+    const item = syncedOutbox.list[0];
+    expect(item).toEqual({
+        'id': 1,
+        'synced': false,
+        'retryCount': 1,
+        'error': "SERVER ERROR",
+        ...simple,
+    });
+});
 
 test('sync dependent records in order', async () => {
    const itemtype = {

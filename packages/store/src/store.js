@@ -270,7 +270,22 @@ function _Store(name) {
             method: method,
             body: data,
             headers: headers
-        }).then(result => result.json());
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.text().then(result => {
+                    var error = new Error();
+                    try {
+                        error.json = JSON.parse(result);
+                    } catch (e) {
+                        error.text = result;
+                    }
+                    error.status = response.status;
+                    throw error;
+                })
+            }
+        });
     };
 
     // Callback for fetch() failures - override to inform the user

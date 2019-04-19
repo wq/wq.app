@@ -8,7 +8,7 @@ import cgi
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
-    def echo(self, **update):
+    def echo(self, status=200, **update):
         ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
         pdict = {key: val.encode('utf-8') for key, val in pdict.items()}
         form = cgi.parse_multipart(self.rfile, pdict)
@@ -21,7 +21,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
                 for i, val in enumerate(value):
                     val['@index'] = i
         data.update(**update)
-        self.send_response(200)
+        self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         # FIXME: This is to avoid a race condition in wq/outbox
@@ -29,8 +29,25 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
     def do_POST(self):
+        if 'status/400' in self.path:
+            self.status_400()
+        elif 'status/500' in self.path:
+            self.status_500()
+        else:
+            self.status_200()
+
+    def status_200(self):
         pk = ''.join([chr(ord('a') + random.randint(0, 25)) for o in range(3)])
         self.echo(id=pk)
+
+    def status_400(self):
+        self.echo(status=400)
+
+    def status_500(self):
+        self.send_response(500)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"SERVER ERROR")
 
     def do_PUT(self):
         pk = self.path.split('/')[-1].split('.')[0]

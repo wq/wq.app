@@ -266,19 +266,16 @@ function _Outbox(store) {
             });
         }
 
-        function error(jqxhr) {
+        function error(error) {
             if (self.debugNetwork) {
                 console.warn("Error sending item to " + url);
             }
-            if (jqxhr.responseText) {
-                try {
-                    item.error = JSON.parse(jqxhr.responseText);
-                } catch (e) {
-                    item.error = jqxhr.responseText;
-                }
+            if (error) {
+                error = error.json || error.text || error.status || ("" + error);
             } else {
-                item.error = jqxhr.status;
+                error = "Error";
             }
+            item.error = error;
             if (once) {
                 item.locked = true;
             }
