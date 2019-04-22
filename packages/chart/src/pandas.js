@@ -1,11 +1,6 @@
-/*
- * wq.app 1.1.1 - wq/pandas.js
- * Load and parse CSV with complex headers (e.g. from pandas DataFrames)
- * (c) 2014-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import * as d3 from 'd3';
+import 'whatwg-fetch';
 
-define(['d3'], function(d3) {
 
 var pandas = {};
 
@@ -187,11 +182,16 @@ pandas.parse = function(str) {
     return datasets;
 };
 
-pandas.get = function(errback, callback) {
-    d3.request(errback, function(response) {
-        var data = pandas.parse(response.responseText);
-        callback(data);
-    });
+pandas.get = function(url, callback) {
+    return fetch(
+        url
+    ).then(
+        response => response.text()
+    ).then(
+        text => pandas.parse(text)
+    ).then(
+        callback
+    );
 };
 
 function hash(obj) {
@@ -202,9 +202,4 @@ function hash(obj) {
     return str;
 }
 
-d3.pandas = pandas.get;
-d3.pandas.parse = pandas.parse;
-
-return pandas;
-
-});
+export default pandas;

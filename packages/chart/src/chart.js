@@ -1,12 +1,5 @@
-/*!
- * wq.app 1.1.1 - wq/chart.js
- * Reusable SVG charts for analyzing time-series data.
- * (c) 2013-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import * as d3 from 'd3';
 
-define(["d3"],
-function(d3) {
 
 var chart = {};
 
@@ -51,7 +44,7 @@ chart.base = function() {
         xticks = null,
         yscales = {},
         yscalefn = d3.scaleLinear,
-        cscale = d3.scaleOrdinal(d3.schemeCategory20),
+        cscale = d3.scaleOrdinal(d3.schemeCategory10),
         outerFill = '#f3f3f3',
         innerFill = '#eee',
         legend = null,
@@ -1438,6 +1431,4 @@ chart.boxplot = function() {
     return plot;
 };
 
-return chart;
-
-});
+export default chart;

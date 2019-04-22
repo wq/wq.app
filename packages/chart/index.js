@@ -6,4 +6,8 @@
  */
 
 var chart = require('./src/chart.js');
-module.exports = chart;
+var chartapp = require('./src/chartapp.js');
+var pandas = require('./src/pandas.js');
+chartapp.chart = chart;
+chartapp.pandas = pandas;
+module.exports = chartapp;

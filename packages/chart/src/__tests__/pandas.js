@@ -1,44 +1,49 @@
-define(['wq/pandas'], function(pandas) {
+import pandas from '../pandas';
+import mockFetch from 'jest-fetch-mock';
+import fs from 'fs';
 
-QUnit.module('wq/pandas');
+beforeAll(() => {
+    global.fetch = mockFetch;
+});
 
-QUnit.test("pandas.parse()", function(assert) {
-    assert.deepEqual([{
-        'site': 'SITE1',
-        'parameter': 'PARAM1',
-        'data': [
-            {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3},
-            {'date': '2014-01-02', 'val1': 0.9}
-        ]
-    }], pandas.parse(
+test("pandas.parse()", () => {
+    expect(pandas.parse(
         ",val1,val2\n" +
         "site,SITE1,SITE1\n" +
         "parameter,PARAM1,PARAM1\n" +
         "date,,\n" +
         "2014-01-01,0.6,0.3\n" +
         "2014-01-02,0.9,\n"
-    ), 'parsed csv string');
+    )).toEqual([{
+        'site': 'SITE1',
+        'parameter': 'PARAM1',
+        'data': [
+            {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3},
+            {'date': '2014-01-02', 'val1': 0.9}
+        ]
+    }]);
 });
 
 
-QUnit.test("pandas.parse() with plain csv", function(assert) {
-    assert.deepEqual([{
+test("pandas.parse() with plain csv", () => {
+    expect(pandas.parse(
+        "date,val1,val2\n" +
+        "2014-01-01,0.6,0.3\n" +
+        "2014-01-02,0.9,\n"
+    )).toEqual([{
         'data': [
             {'date': '2014-01-01', 'val1': 0.6, 'val2': 0.3},
             {'date': '2014-01-02', 'val1': 0.9, 'val2': ''}
         ]
-    }], pandas.parse(
-        "date,val1,val2\n" +
-        "2014-01-01,0.6,0.3\n" +
-        "2014-01-02,0.9,\n"
-    ), 'parsed plain csv string');
+    }]);
 });
 
 
-QUnit.test("pandas.get()", function(assert) {
-    var done = assert.async();
-    pandas.get('data.csv', function(data) {
-        assert.deepEqual([
+test("pandas.get()", async () => {
+    mockFetch.mockResponse(fs.readFileSync(__dirname + '/data.csv'));
+    var data = await pandas.get('data.csv');
+    expect(data).toEqual(
+        [
             {
                 'site': 'SITE1',
                 'parameter': 'PARAM1',
@@ -63,9 +68,6 @@ QUnit.test("pandas.get()", function(assert) {
                     {'date': '2014-01-02', 'value': 0.2}
                 ]
             }
-        ], data, 'parsed csv file');
-        done();
-    });
-});
-
+        ]
+    );
 });

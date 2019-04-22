@@ -1,12 +1,8 @@
-/*!
- * wq.app 1.1.1 - wq/chartapp.js
- * wq/chart.js+wq/pandas.js as a wq/app.js plugin
- * (c) 2016-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import * as d3 from 'd3';
+import chart from './chart';
+import pandas from './pandas';
+import tmpl from '@wq/template';
 
-define(["d3", "./chart", "./pandas", "./console", "./template", "./json"],
-function(d3, chart, pandas, console, tmpl, json) {
 
 // Exported module variable
 var chartapp = {
@@ -165,6 +161,4 @@ chartapp.create = function(data, type, elem) {
     sel.datum(data).call(plot);
 };
 
-return chartapp;
-
-});
+export default chartapp;

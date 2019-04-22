@@ -25,9 +25,12 @@
   "homepage": "https://wq.io/wq.app",
   "devDependencies": {
     "babel-preset-env": "^1.7.0",
-    "jest": "^23.4.1"
+    "jest": "^23.4.1",
+    "jest-fetch-mock": "^2.1.2"
   },
   "dependencies": {
-    "d3": "^5.9.2"
+    "d3": "^5.9.2",
+    "whatwg-fetch": "^3.0.0",
+    "@wq/template": "^2.0.0-dev"
   }
 }
