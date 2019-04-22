@@ -53,12 +53,17 @@
     </li>
     <li data-role="list-divider">Values</li>
     {{#values}}
-    <li>
+    <li class="section-values">
       <label for="values-{{@index}}-name">{{#attribute}}{{label}}{{/attribute}}</label>
       <input attribute="hidden" name="values[{{@index}}][attribute_id]" value="{{attribute_id}}">
       <input name="values[{{@index}}][value]" id="values-{{@index}}-value" value="{{value}}">
     </li>
     {{/values}}
+    <li>
+      <button id="addvalue" type="button" data-wq-action="addattachment" data-wq-section="values">
+	 Add Value
+      </button>
+    </li>
     <li data-role="list-divider">Location</li>
     <li>
       <div id="item-{{id}}{{^id}}new{{/id}}-edit-map" style="height:500px;"></div>

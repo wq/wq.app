@@ -4,6 +4,7 @@
 
 
 import app from "../app";
+import patterns from "../patterns";
 import outbox from "@wq/outbox";
 import router from "@wq/router";
 import routeConfig from "./config.json";
@@ -29,6 +30,7 @@ beforeAll(async () => {
         ...routeConfig,
     };
 
+    app.use(patterns);
     app.use({
         'context': function(context, routeInfo) {
             return Promise.resolve({
@@ -207,7 +209,12 @@ testEAV(
 );
 
 
-async function changePage(path) {
+async function changePage(path, path2) {
+    if (path2) {
+        await changePage(path);
+        await new Promise(res => setTimeout(res, 50));
+        return await changePage(path2);
+    }
     var done;
     const promise = new Promise((resolve) => {
         done = resolve;
@@ -252,12 +259,20 @@ function testEAV(name, filter, params, expected) {
         if (params) {
             url += "?" + params;
         }
-        await changePage("items/");
-        await changePage(url);
+        await changePage("items/", url);
         var ids = (router.info.context.values || []).map(function(value) {
             return value.attribute_id;
         });
         expect(ids).toEqual(expected);
-        app.wq_config.pages.item.form[3].initial.filter = filter;
+        app.wq_config.pages.item.form[3].initial.filter = {};
     });
 }
+
+test("patterns plugin", async () => {
+    var $page = await changePage("items/", "items/new"),
+        $button = $page.find('#addvalue');
+    expect($page.find('.section-values')).toHaveLength(4);
+    $button.click();
+    $button.click();
+    expect($page.find('.section-values')).toHaveLength(6);
+});

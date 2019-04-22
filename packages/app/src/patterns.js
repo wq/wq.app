@@ -1,22 +1,20 @@
-/*
- * wq.app 1.1.1 - wq/patterns.js
- * wq/app.js plugin to handle dynamically adding nested forms
- * (c) 2016-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import tmpl from '@wq/template';
 
-define(['jquery', 'wq/template'], function($, tmpl) {
 
 var patterns = {
     'name': 'patterns'
 };
 
-var _templates, _pageContext;
+var _templates, _pageContext, $;
 
 patterns.init = function(conf) {
     _templates = (
         conf && conf.templates ||
         this.app.config.template.templates
+    );
+    $ = (
+        conf && conf.jQuery ||
+        window.jQuery
     );
 };
 
@@ -76,6 +74,4 @@ if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
     patterns.addAttachment = addAttachment;
 }
 
-return patterns;
-
-});
+export default patterns;
