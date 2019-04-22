@@ -5,5 +5,7 @@
  * https://wq.io/license
  */
 
-var map = require('./src/map.js');
+var map = require('./src/mapserv.js');
+var locate = require('./src/locate.js');
+map.locate = locate;
 module.exports = map;

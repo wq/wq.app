@@ -27,7 +27,8 @@
     "leaflet": "^1.4.0",
     "leaflet-draw": "^1.0.4",
     "leaflet.markercluster": "^1.4.1",
-    "leaflet.wms": "^0.2.0"
+    "leaflet.wms": "^0.2.0",
+    "@wq/template": "^2.0.0-dev"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",

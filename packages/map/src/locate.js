@@ -1,12 +1,4 @@
-/*!
- * wq.app 1.1.1 - wq/locate.js
- * Geolocation utilities via Leaflet's Map.locate
- * (c) 2013-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
-
-define(['leaflet'],
-function(L) {
+import L from 'leaflet';
 
 // Exported module object
 var locate = {
@@ -35,8 +27,8 @@ locate.run = function($page, routeInfo) {
     if (!routeInfo.page_config.locate) {
         return;
     }
-    var map = require('wq/map').getMap(routeInfo),
-        mapId = require('wq/map').getMapId(routeInfo);
+    var map = locate.app.plugins.map.getMap(routeInfo),
+        mapId = locate.app.plugins.map.getMapId(routeInfo);
     if (!map) {
         return;
     }
@@ -295,6 +287,4 @@ locate.locator = function(map, fields, opts) {
     return new locate.Locator(map, fields, opts);
 };
 
-return locate;
-
-});
+export default locate;

@@ -24,6 +24,7 @@ var $, jqm;
 app.init = function(config) {
     $ = config.jQuery || window.jQuery;
     jqm = $.mobile;
+    app.spin = spin;
 
     // Router (wq/router.js) configuration
     if (!config.router) {
@@ -85,6 +86,7 @@ app.init = function(config) {
 
     // Initialize wq/store.js
     ds.init(config.store);
+    app.store = ds;
     app.service = ds.service;
 
     // Initialize wq/outbox.js

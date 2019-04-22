@@ -1,12 +1,7 @@
-/*!
- * wq.app 1.1.1 - wq/map.js
- * Leaflet integration for wq/app.js pages
- * (c) 2013-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import L from 'leaflet';
+import tmpl from '@wq/template';
+import loadDraw from './draw';
 
-define(['leaflet', './json', './spinner', './template', './console'],
-function(L, json, spin, tmpl, console) {
 
 // module variable
 var map = {
@@ -54,6 +49,8 @@ map.icons = {
 map.init = function(defaults) {
     var app = map.app;
 
+    loadDraw();
+
     // Auto-detect whether CRS-aware GeoJSON parser is available
     map.geoJson = L.Proj ? L.Proj.geoJson : L.geoJson;
 
@@ -75,7 +72,7 @@ map.init = function(defaults) {
             return;
         } else if (mconf === true) {
             mconf = [];
-        } else if (!json.isArray(mconf)) {
+        } else if (!Array.isArray(mconf)) {
             mconf = [mconf];
         }
 
@@ -298,13 +295,13 @@ map.loadLayer = function(url) {
     if (url.match(/\/(new)?(\/edit)?\.geojson$/)) {
         return Promise.resolve(null);
     }
-    spin.start();
-    return json.get(url).then(function(geojson) {
-        spin.stop();
+    map.app.spin.start();
+    return map.app.store.ajax(url).then(function(geojson) {
+        map.app.spin.stop();
         map.cache[url] = geojson;
         return geojson;
     }, function() {
-        spin.stop();
+        map.app.spin.stop();
         return null;
     });
 };
@@ -798,6 +795,4 @@ function _getConf(page, mode, mapname) {
     return mapconf;
 }
 
-return map;
-
-});
+export default map;

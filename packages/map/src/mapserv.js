@@ -1,12 +1,7 @@
-/*!
- * wq.app 1.1.1 - wq/mapserv.js
- * Extension to wq/map.js with support for WMS (coming soon) and ESRI services.
- * (c) 2016-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
-
-define(['wq/map', 'leaflet', 'esri-leaflet', 'leaflet.wms'],
-function(map, L, esri, wms) {
+import map from './map';
+import L from 'leaflet';
+import * as esri from 'esri-leaflet';
+import wms from 'leaflet.wms';
 
 map.addBasemapType('esri-basemap', function(conf) {
     var layer;
@@ -49,6 +44,4 @@ map.addOverlayType('wms-tiled', function(conf) {
     return wms.tileLayer(conf.url, conf);
 });
 
-return map;
-
-});
+export default map;
