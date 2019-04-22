@@ -1,0 +1,7 @@
+{
+    "id": "one",
+    "label": "ONE",
+    "type_id": 1,
+    "color": "#f00",
+    "markdown": "# Item One\nThis is a test.\n```python\nfrom tests.models import Item\nitem = Item.objects.find('one')\n```"
+}

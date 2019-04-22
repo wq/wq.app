@@ -1,12 +1,6 @@
-/*
- * wq.app 1.1.1 - wq/markdown.js
- * Adds markdown support to template.js
- * (c) 2013-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import marked from 'marked';
+import highlight from './highlight';
 
-define(["marked", "highlight"],
-function(marked, highlight) {
 
 // Exported module object
 var md = {};
@@ -64,6 +58,4 @@ md.run = function($page) {
     });
 };
 
-return md;
-
-});
+export default md;
