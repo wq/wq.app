@@ -1,0 +1,33 @@
+{
+  "name": "@wq/chart",
+  "version": "2.0.0-dev",
+  "description": "d3-powered CSV charts for @wq/app pages",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wq/wq.app.git"
+  },
+  "keywords": [
+    "wq",
+    "d3",
+    "csv",
+    "pandas",
+    "chart"
+  ],
+  "author": "S. Andrew Sheppard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wq/wq.app/issues"
+  },
+  "homepage": "https://wq.io/wq.app",
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.4.1"
+  },
+  "dependencies": {
+    "d3": "^5.9.2"
+  }
+}
