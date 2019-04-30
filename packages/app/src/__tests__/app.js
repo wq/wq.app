@@ -5,6 +5,7 @@
 
 import app from "../app";
 import patterns from "../patterns";
+import photos from "../photos";
 import outbox from "@wq/outbox";
 import router from "@wq/router";
 import routeConfig from "./config.json";
@@ -31,6 +32,7 @@ beforeAll(async () => {
     };
 
     app.use(patterns);
+    app.use(photos);
     app.use({
         'context': function(context, routeInfo) {
             return Promise.resolve({
@@ -275,4 +277,10 @@ test("patterns plugin", async () => {
     $button.click();
     $button.click();
     expect($page.find('.section-values')).toHaveLength(6);
+});
+
+test("photos plugin", async () => {
+    var blob = await app.plugins.photos.base64toBlob('ABCDE');
+    expect(blob.type).toEqual('image/jpeg');
+    expect(blob.size).toEqual(3);
 });

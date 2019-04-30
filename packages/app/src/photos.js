@@ -1,15 +1,4 @@
-/*
- * wq.app 1.1.1 - wq/photos.js
- * Helpers for working with Cordova photo library
- * (c) 2012-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
-
-/* global Camera */
-
-define(['jquery', 'jquery.mobile', 'localforage',
-        './template', './spinner'],
-function($, jqm, localForage, tmpl, spin) {
+import tmpl from '@wq/template';
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
@@ -22,7 +11,12 @@ var _defaults = {
     destinationType: 0 //Camera.DestinationType.DATA_URL
 };
 
-photos.init = function() {
+var $, jqm, spin;
+
+photos.init = function(config) {
+    $ = config && config.jQuery || window.jQuery;
+    spin = photos.app.spin;
+
     tmpl.setDefault('image_url', function() {
         try {
             return this.body && _getUrl(this.body);
@@ -91,10 +85,10 @@ function _start(options, input, preview) {
     options);
 }
 
-photos.base64toBlob = function(data) {
-    return localForage.getSerializer().then(function(serializer) {
-        return serializer.deserialize(LOCALFORAGE_PREFIX + data);
-    });
+photos.base64toBlob = async function(data) {
+    await photos.app.store.ready;
+    var serializer = await photos.app.store.lf.getSerializer();
+    return serializer.deserialize(LOCALFORAGE_PREFIX + data);
 };
 
 photos._files = {};
@@ -132,5 +126,4 @@ function error(msg) {
     });
 }
 
-return photos;
-});
+export default photos;
