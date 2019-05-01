@@ -1,18 +1,13 @@
----
-order: 18
-indent: true
----
-
-wq/template.js
+@wq/template
 ==============
 
-[wq/template.js]
+[@wq/template]
 
-**wq/template.js** is a [wq.app] module providing a simple API wrapper around **Mustache.js** that adds a way to cache template definitions and define global "default" context variables.  wq/template.js templates are used in [wq/router.js].
+**@wq/template** is a [wq.app] module providing a simple API wrapper around **Mustache.js** that adds a way to cache template definitions and define global "default" context variables.  @wq/template templates are used in [@wq/router].
 
 ### API
 
-wq/template.js is typically imported via AMD as `tmpl`, though any local variable name can be used.  `tmpl` provides an `init()` function which accepts a configuration object that defines a set of templates, a set of template partials, and a set of default context variables (all defined as key-value objects).  `tmpl.setDefault(name, value)` can be used after initialization to assign additional default context variables.  Like all Mustache variables, context defaults can be simple values or functions that will be called when the variable is encountered in a template.  `tmpl.render(template, context)` renders a template with the given context.  `template` can be either the name of an existing template or the content of a new template.
+@wq/template is typically imported via AMD as `tmpl`, though any local variable name can be used.  `tmpl` provides an `init()` function which accepts a configuration object that defines a set of templates, a set of template partials, and a set of default context variables (all defined as key-value objects).  `tmpl.setDefault(name, value)` can be used after initialization to assign additional default context variables.  Like all Mustache variables, context defaults can be simple values or functions that will be called when the variable is encountered in a template.  `tmpl.render(template, context)` renders a template with the given context.  `template` can be either the name of an existing template or the content of a new template.
 
 ```javascript
 define(['wq/template', ...], function(tmpl, ...) {
@@ -67,8 +62,8 @@ def year(request):
     }
 ```
 
-[wq/template.js]: https://github.com/wq/wq.app/blob/master/js/wq/template.js
+[@wq/template]: https://github.com/wq/wq.app/blob/master/packages/template
 [wq.app]: https://wq.io/wq.app
-[wq/router.js]: https://wq.io/docs/router-js
+[@wq/router]: https://wq.io/docs/router-js
 [wq collectjson]: https://wq.io/docs/collectjson
 [template context processors]: https://docs.djangoproject.com/en/1.8/ref/templates/api/#subclassing-context-requestcontext

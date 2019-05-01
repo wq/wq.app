@@ -1,18 +1,13 @@
----
-order: 2
-indent: true
----
-
-wq/model.js
+@wq/model
 ========
 
-[wq/model.js]
+[@wq/model]
 
-**wq/model.js** is a [wq.app] module providing a simple API for working with lists or collections of similar objects.  It uses [wq/store.js] to retrieve the underlying JSON data from e.g. a REST API.
+**@wq/model** is a [wq.app] module providing a simple API for working with lists or collections of similar objects.  It uses [@wq/store] to retrieve the underlying JSON data from e.g. a REST API.
 
 ## API
 
-`wq/model.js` is typically imported via [AMD] as `model`, though any local variable name can be used.
+`@wq/model` is typically imported via [AMD] as `model`, though any local variable name can be used.
 
 ```javascript
 // myapp.js
@@ -29,15 +24,15 @@ The full list of options is described below:
 
 name | purpose
 -----|---------
-`query` | The [wq/store.js] query to use when retrieving data for the model.  This is often an object of the form `{'url': url}`.
+`query` | The [@wq/store] query to use when retrieving data for the model.  This is often an object of the form `{'url': url}`.
 `functions` | A collection of computable attributes that can be applied to items in the model
-`store` | The [wq/store.js] instance to use for the model.  This defaults to the main instance (`ds`) if not set.
+`store` | The [@wq/store] instance to use for the model.  This defaults to the main instance (`ds`) if not set.
 `url` | A shortcut for setting `{'query': {'url': url}}`.
 `max_local_pages` | The maximum number of paginated server responses to store locally.  This should almost always be 1 (the default).  Most operations requiring fast and/or offline capabilities will be completed with the first page of data.  Subsequent pages (if any) will be loaded on-demand via `ds.fetch()`
 `partial` | Flag indicating that not all data is stored locally.  This should be set whenever you expect there to be more than `max_local_pages` worth of data in the server database.
 `reversed` | Set to true if the data is sorted in reverse chronological order.  If set, new items (added via `update()`) will be placed at the beginning of the list instead of the end.
 
-The wq/model.js constructor is designed to be flexible and easy to use.  If a string is provided, it is automatically converted to a configuration of the form `{"query": string}`.  The configuration is also designed to be compatible with the [wq configuration object], as can be seen by the last four options above which directly correspond to wq config options with the same names.
+The @wq/model constructor is designed to be flexible and easy to use.  If a string is provided, it is automatically converted to a configuration of the form `{"query": string}`.  The configuration is also designed to be compatible with the [wq configuration object], as can be seen by the last four options above which directly correspond to wq config options with the same names.
 
 The following are all equivalent:
 
@@ -65,7 +60,7 @@ var myModel = model(wqConfig.pages.item);
 ```
 
 ### Model API
-Like the [wq/store.js] API, the model functions are asynchronous, and each return a [Promise] that will resolve to the requested data.
+Like the [@wq/store] API, the model functions are asynchronous, and each return a [Promise] that will resolve to the requested data.
 
 #### `[model].load()`
 Loads the (local) contents of the model into memory.  The resolved value will be structured as follows:
@@ -173,7 +168,7 @@ nextThing(); // This will execute *before* loop is done!
 
 #### `[model].prefetch()`
 
-`prefetch()` prefetches all the local data pages in the list.  It's usually important to do this whenever the application starts up.  Note that [wq/app.js] includes a `prefetchAll()` method that can automatically prefetch data for all registered models.
+`prefetch()` prefetches all the local data pages in the list.  It's usually important to do this whenever the application starts up.  Note that [@wq/app] includes a `prefetchAll()` method that can automatically prefetch data for all registered models.
 
 #### `[model].update(items, [key])`
 `update()` updates the locally stored list with new and updated items.  The `items` should be an array of items to update, and the `key` should be the name of a primary key to use to differentiate between existing and new items (default `"id"`).  Any items that aren't found in the list will be appended to the end (or to the front if the model is initialized with `reversed: true`.)
@@ -186,7 +181,7 @@ myModel.update(items);
 
 As with `ds.set()` (which is called internally), it is not strictly necessary to wait for the promise returned by `update()` to resolve, but it's still a good idea.
 
-> Note: `[model].update()` is not designed to automatically publish local changes to a remote database.  Instead, [wq/outbox.js] can be used to sync changes back to the server.  The typical workflow (configured automatically by [wq/app.js]) is to have each `<form>` submission be processed by [wq/outbox.js], which will sync the form data to the server and then update any local models with the newly saved data.
+> Note: `[model].update()` is not designed to automatically publish local changes to a remote database.  Instead, [@wq/outbox] can be used to sync changes back to the server.  The typical workflow (configured automatically by [@wq/app]) is to have each `<form>` submission be processed by [@wq/outbox], which will sync the form data to the server and then update any local models with the newly saved data.
 
 #### `[model].fetchUpdate(params, [key])`
 `fetchUpdate()` retrieves and applies an update to a locally cached model.  The web query used to retrieve the original list will be combined with the `params` object to request a partial update from the server.  The `key` argument is passed on to `update()`.
@@ -205,12 +200,12 @@ Completely replace the current locally stored data with a new set of items.
 myModel.overwrite([]);
 ```
 
-[wq/model.js]: https://github.com/wq/wq.app/blob/master/js/wq/model.js
+[@wq/model]: https://github.com/wq/wq.app/blob/master/packages/model
 [wq.app]: https://wq.io/wq.app
-[wq/app.js]: https://wq.io/docs/app-js
-[wq/store.js]: https://wq.io/docs/store-js
+[@wq/app]: https://wq.io/docs/app-js
+[@wq/store]: https://wq.io/docs/store-js
 [AMD]: https://wq.io/docs/amd
 [wq.db]: https://wq.io/wq.db
 [wq configuration object]: https://wq.io/docs/config
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[wq/outbox.js]: https://wq.io/docs/outbox-js
+[@wq/outbox]: https://wq.io/docs/outbox-js

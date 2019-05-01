@@ -1,21 +1,16 @@
----
-order: 17
-indent: true
----
-
-wq/store.js
+@wq/store
 ========
 
-[wq/store.js]
+[@wq/store]
 
-**wq/store.js** is a [wq.app] module providing a persistent storage API for retrieving and querying JSON data from a web service via AJAX.  wq/store.js is used internally by [wq/app.js] to store application configuration values as well as model data (via [wq/model.js]).  wq/store.js relies on [localForage] to handle the work of storing data offline in IndexedDB, localStorage, or WebSQL.  The wq/store.js API uses [Promises][Promise] extensively to facilitate asynchronous usage.
+**@wq/store** is a [wq.app] module providing a persistent storage API for retrieving and querying JSON data from a web service via AJAX.  @wq/store is used internally by [@wq/app] to store application configuration values as well as model data (via [@wq/model]).  @wq/store relies on [localForage] to handle the work of storing data offline in IndexedDB, localStorage, or WebSQL.  The @wq/store API uses [Promises][Promise] extensively to facilitate asynchronous usage.
 
-Unlike other similar libraries, wq/store.js does not attempt to immediately and transparently mirror local data changes to the server via a REST API.  This is by design.  wq/store.js is meant to be used in offline-capable mobile data entry applications that require explicit control over when and how local changes are "synced" to the server.  Thus, wq/store.js is almost always used in conjunction with [wq/outbox.js] to sync changes back to the server.
+Unlike other similar libraries, @wq/store does not attempt to immediately and transparently mirror local data changes to the server via a REST API.  This is by design.  @wq/store is meant to be used in offline-capable mobile data entry applications that require explicit control over when and how local changes are "synced" to the server.  Thus, @wq/store is almost always used in conjunction with [@wq/outbox] to sync changes back to the server.
 
 
 ## API
 
-`wq/store.js` is typically imported via [AMD] as `ds` (i.e. "datastore"), though any local variable name can be used.
+`@wq/store` is typically imported via [AMD] as `ds` (i.e. "datastore"), though any local variable name can be used.
 
 ```javascript
 // myapp.js
@@ -57,7 +52,7 @@ A web query is usually stored locally after being loaded for the first time.
 
 `ds.init()` configures the datastore with the necessary information to communicate with a web service.  `ds.init()` must always be called before using the store.  `ds.init()` takes a configuration object specifying the web service URL and other options.
 
-For example, [wq/app.js] typically initializes `ds` like this:
+For example, [@wq/app] typically initializes `ds` like this:
 
 ```javascript
 var config = {
@@ -107,7 +102,7 @@ ds.get(['/items', '/types'], function(result) {
 });
 ```
 
-If you are working extensively with arrays or collections of similarly-structured objects, you may be interested in the [wq/model.js] API which wraps `ds` with some additional functionality useful for working with lists.
+If you are working extensively with arrays or collections of similarly-structured objects, you may be interested in the [@wq/model] API which wraps `ds` with some additional functionality useful for working with lists.
 
 #### `ds.set(query, value)`
 
@@ -122,7 +117,7 @@ ds.set('name', "Example").then(function() {
 });
 ```
 
-`ds.set()` is usually used with non-web `query` objects.  For web query objects, it's generally better to use `ds.prefetch()` which will call `ds.set()` internally to cache web query results.  If `ds.set()` is used with a web query, it is assumed that `value` contains the results of a `ds.fetch()`. `ds.set()` does **not** update the server with the new value, so this function is not symmetric with `ds.get()`.   Use [wq/outbox.js] for changes meant to be posted to the server.
+`ds.set()` is usually used with non-web `query` objects.  For web query objects, it's generally better to use `ds.prefetch()` which will call `ds.set()` internally to cache web query results.  If `ds.set()` is used with a web query, it is assumed that `value` contains the results of a `ds.fetch()`. `ds.set()` does **not** update the server with the new value, so this function is not symmetric with `ds.get()`.   Use [@wq/outbox] for changes meant to be posted to the server.
 
 #### `ds.exists(query)`
 
@@ -177,7 +172,7 @@ ds.prefetch('/types');
 ds.prefetch('/moreitems');
 ```
 
-Note that [wq/app.js] provides the function `app.prefetchAll()` which can automatically prefetch JSON data for all registered models.
+Note that [@wq/app] provides the function `app.prefetchAll()` which can automatically prefetch JSON data for all registered models.
 
 `ds.prefetch(query)` is equivalent to `ds.fetch(query, true)`.
 
@@ -191,15 +186,15 @@ function | loads from | saves to storage
 
 ## Browser Compatibility Notes
 
-wq/store.js effectively requires some kind of offline storage to function as designed.  Nearly all browsers in use  today (including Internet Explorer 8) have at at least one of `localStorage`, `WebSQL`, and `IndexedDB` available.  [localForage] handles most the heavy lifting on automatically determining browser capabilities.  However, note that a significant fraction of web users prefer to disable offline storage.  Most notably, the "Block Cookies" setting for iOS Safari will also disable other offline storage options.  If wq/store.js is unable to leverage localForage, it will fall back to using an in-memory cache.  This will work fine for most users, though any unsynced items in the outbox (see [wq/outbox.js]) will be lost if the browser window is closed.
+@wq/store effectively requires some kind of offline storage to function as designed.  Nearly all browsers in use  today (including Internet Explorer 8) have at at least one of `localStorage`, `WebSQL`, and `IndexedDB` available.  [localForage] handles most the heavy lifting on automatically determining browser capabilities.  However, note that a significant fraction of web users prefer to disable offline storage.  Most notably, the "Block Cookies" setting for iOS Safari will also disable other offline storage options.  If @wq/store is unable to leverage localForage, it will fall back to using an in-memory cache.  This will work fine for most users, though any unsynced items in the outbox (see [@wq/outbox]) will be lost if the browser window is closed.
 
-[wq/store.js]: https://github.com/wq/wq.app/blob/master/js/wq/store.js
+[@wq/store]: https://github.com/wq/wq.app/blob/master/packages/store
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [localForage]: https://mozilla.github.io/localForage/
 [wq.app]: https://wq.io/wq.app
-[wq/app.js]: https://wq.io/docs/app-js
-[wq/model.js]: https://wq.io/docs/model-js
-[wq/outbox.js]: https://wq.io/docs/outbox-js
+[@wq/app]: https://wq.io/docs/app-js
+[@wq/model]: https://wq.io/docs/model-js
+[@wq/outbox]: https://wq.io/docs/outbox-js
 [AMD]: https://wq.io/docs/amd
 [wq.db]: https://wq.io/wq.db
 [wq config object]: https://wq.io/docs/config

@@ -1,24 +1,19 @@
----
-order: 16
-indent: true
----
-
-wq/router.js
+@wq/router
 ========
 
-[wq/router.js]
+[@wq/router]
 
-**wq/router.js** is a [wq.app] module providing a convenient router API that overlays the [jQuery Mobile] page navigation system.  wq/router.js supports [PJAX-style] page navigation by capturing URL changes and "responding" with locally-rendered HTML pages.
+**@wq/router** is a [wq.app] module providing a convenient router API that overlays the [jQuery Mobile] page navigation system.  @wq/router supports [PJAX-style] page navigation by capturing URL changes and "responding" with locally-rendered HTML pages.
 
-If you are using both [wq.app] and [wq.db] together, you may be interested in [wq/app.js], a higher-level module that automatically registers the appropriate routes for applications via the [wq configuration object].  You should only need to use wq/router.js directly in the following cases:
+If you are using both [wq.app] and [wq.db] together, you may be interested in [@wq/app], a higher-level module that automatically registers the appropriate routes for applications via the [wq configuration object].  You should only need to use @wq/router directly in the following cases:
 
-  * When wq/app.js cannot be used due to an incompatible server structure
+  * When @wq/app cannot be used due to an incompatible server structure
   * When you need to register additional URL routes that have no server equivalent, or aren't easily described by the wq configuration object
   * When you need custom handlers for page events other than initial rendering, e.g. `pageshow`, `pageinit`, etc.
 
 ## API
 
-`wq/router.js` is typically imported via [AMD] as `router`, though any local variable name can be used.
+`@wq/router` is typically imported via [AMD] as `router`, though any local variable name can be used.
 
 ```javascript
 // myapp.js
@@ -128,7 +123,7 @@ name | purpose
 name | purpose
 -----|---------
 `path` | The URL path of the inserted page (relative to the base url).  This will be displayed in the location bar if the browser supports the `History.pushState` API.  For the best user experience, we [recommend] providing a server-rendered equivalent at the same URL.
-`template` | The name of a [Mustache template] to use.  This should have previously been registered with [wq/template.js], either directly or via [wq/app.js].
+`template` | The name of a [Mustache template] to use.  This should have previously been registered with [@wq/template], either directly or via [@wq/app].
 `context` | A context object to use with the template.
 `ui` | The jQuery Mobile [ui object] from the original navigation event, if applicable.
 `once` | If `once` is true (or if `injectOnce` is set in `init()`), the template will only be rendered if there isn't already a jQuery Mobile page with the same URL path.  If `false` (the default), any existing page will be overwritten with contents from newly rendered template.
@@ -153,14 +148,14 @@ For server rendering, wq.db includes a `router_info` context processor that mimi
 
 ### `router.notFound(url)`
 
-`router.notFound(url)` is a shortcut for `router.go()` that uses the pre-configured 404 template and a simple context of `{"url": url}`.  It is leveraged by [wq/app.js] when items are not found in the local store.
+`router.notFound(url)` is a shortcut for `router.go()` that uses the pre-configured 404 template and a simple context of `{"url": url}`.  It is leveraged by [@wq/app] when items are not found in the local store.
 
-[wq/router.js]: https://github.com/wq/wq.app/blob/master/js/wq/router.js
+[@wq/router]: https://github.com/wq/wq.app/blob/master/packages/router
 [wq.app]: https://wq.io/wq.app
 [jQuery Mobile]: http://jquerymobile.com
 [PJAX-style]: https://wq.io/docs/web-app
 [wq.db]: https://wq.io/wq.app
-[wq/app.js]: https://wq.io/docs/app-js
+[@wq/app]: https://wq.io/docs/app-js
 [wq configuration object]: https://wq.io/docs/config
 [AMD]: https://wq.io/docs/amd
 [app.init()]: https://wq.io/docs/app-js
@@ -169,4 +164,4 @@ For server rendering, wq.db includes a `router_info` context processor that mimi
 [jQueryMobile-router documentation]: https://github.com/azicchetti/jquerymobile-router
 [recommend]: https://wq.io/docs/website
 [Mustache template]: https://wq.io/docs/templates
-[wq/template.js]: https://wq.io/docs/other-modules
+[@wq/template]: https://wq.io/docs/other-modules
