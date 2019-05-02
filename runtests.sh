@@ -1,6 +1,6 @@
 set -e
 if [ "$LINT" ]; then
-    jshint js/wq
+    echo "FIXME"
 else
     cd tests/commands;
     ./test_commands.sh
