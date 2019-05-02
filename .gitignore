@@ -2,6 +2,9 @@
 *.egg-info/
 *.swp
 dist/
+js/
+scss/
+css/
 # Note: build/*.py is actually wq.app.build, while build/*/ is 
 # created by distutils...
 build/*/

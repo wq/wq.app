@@ -1,9 +1,19 @@
 import os
 from setuptools import setup
+from distutils.command.build import build
+import subprocess
+
 
 LONG_DESCRIPTION = """
 Offline-capable HTML5 web and hybrid apps for citizen science field data collection.
 """
+
+
+class BuildJS(build):
+    def run(self):
+        subprocess.check_call(['make'])
+        super().run()
+
 
 def readme():
     try:
@@ -96,6 +106,9 @@ setup(
     setup_requires=[
         'setuptools_scm',
     ],
+    cmdclass={
+        'build': BuildJS,
+    },
     project_urls={
         'Homepage': 'https://wq.io/wq.app',
         'Documentation': 'https://wq.io/docs/',
