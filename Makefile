@@ -2,7 +2,7 @@ all: js css scss
 
 init:
 	npm i
-	lerna bootstrap
+	npm run bootstrap
 	mkdir -p js/wq
 	mkdir -p css/wq
 	mkdir -p scss/wq
@@ -45,7 +45,7 @@ js_lib: init
 	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
 	cp -p node_modules/requirejs/require.js js/require.js
 
-V1_URL = https://raw.githubusercontent.com/wq/wq.app/v1.1.1/js/wq
+V1_URL = https://raw.githubusercontent.com/wq/wq.app/v1.1.1/js
 
 js_compat: init
 	curl -s $(V1_URL)/wq/autocomplete.js > js/wq/autocomplete.js
