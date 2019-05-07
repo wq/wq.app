@@ -1,5 +1,5 @@
 /**
- * @jest-environment @wq/jquery-mobile/env
+ * @jest-environment ./packages/jquery-mobile/env
  */
 
 

@@ -4,7 +4,7 @@
   "description": "Markdown and syntax highlighting for @wq/app",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cd ../../ && npm run jest packages/markdown"
   },
   "repository": {
     "type": "git",
@@ -24,9 +24,5 @@
   "dependencies": {
     "highlight.js": "^9.15.6",
     "marked": "^0.6.2"
-  },
-  "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "jest": "^23.4.1"
   }
 }

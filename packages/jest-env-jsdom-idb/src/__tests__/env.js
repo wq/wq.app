@@ -1,5 +1,5 @@
 /**
- * @jest-environment ./src/env
+ * @jest-environment ./packages/jest-env-jsdom-idb
  */
 
 import structuredClone from 'realistic-structured-clone';

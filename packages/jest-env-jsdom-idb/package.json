@@ -4,7 +4,7 @@
   "description": "Fake-IndexedDB environment for Jest",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cd ../../ && npm run jest packages/jest-env-jsdom-idb"
   },
   "repository": {
     "type": "git",
@@ -22,8 +22,6 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-    "babel-preset-env": "^1.7.0",
-    "fake-indexeddb": "2.0.3",
-    "jest": "^23.4.1"
+    "fake-indexeddb": "2.0.3"
   }
 }

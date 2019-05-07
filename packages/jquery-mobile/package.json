@@ -4,7 +4,7 @@
   "description": "Modified jQuery Mobile for use with Webpack and Jest",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cd ../../ && npm run jest packages/jquery-mobile"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,7 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-    "babel-preset-env": "^1.7.0",
     "@wq/jest-env-jsdom-idb": "^0.1.0",
-    "jest": "^23.4.1",
     "jquery": "^1.12.4"
   }
 }

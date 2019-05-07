@@ -4,7 +4,7 @@
   "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cd ../../ && npm run jest packages/store"
   },
   "repository": {
     "type": "git",
@@ -27,8 +27,6 @@
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "@wq/jest-env-jsdom-idb": "^0.1.0",
-    "jest": "^23.4.1"
+    "@wq/jest-env-jsdom-idb": "^0.1.0"
   }
 }

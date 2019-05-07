@@ -1,10 +1,17 @@
 {
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "jest": "jest"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "jest": "^24.8.0",
     "lerna": "^2.11.0",
     "requirejs": "^2.3.6"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.4.4"
   }
 }

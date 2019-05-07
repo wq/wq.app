@@ -4,7 +4,7 @@
   "description": "A simple model API for working with stored lists",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cd ../../ && npm run jest packages/outbox"
   },
   "repository": {
     "type": "git",
@@ -27,8 +27,6 @@
     "@wq/store": "^2.0.0-dev"
   },
   "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "@wq/jest-env-jsdom-idb": "^0.1.0",
-    "jest": "^23.4.1"
+    "@wq/jest-env-jsdom-idb": "^0.1.0"
   }
 }

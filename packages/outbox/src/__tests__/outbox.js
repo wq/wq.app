@@ -1,5 +1,5 @@
 /**
- * @jest-environment @wq/jest-env-jsdom-idb
+ * @jest-environment ./packages/jest-env-jsdom-idb
  */
 
 import store from '@wq/store';

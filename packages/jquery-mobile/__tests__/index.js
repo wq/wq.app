@@ -1,5 +1,5 @@
 /**
- * @jest-environment ./env
+ * @jest-environment ./packages/jquery-mobile/env
  */
 
 test("jQuery in environment", () => {

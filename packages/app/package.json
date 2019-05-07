@@ -4,7 +4,7 @@
   "description": "Utilizes @wq/store and @wq/pages to dynamically load and render content from a wq.db-compatible REST service",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "cd ../../ && npm run jest packages/app"
   },
   "repository": {
     "type": "git",
@@ -28,9 +28,5 @@
      "@wq/jquery-mobile": "^0.1.0",
      "@wq/template": "^2.0.0-dev",
      "@wq/router": "^2.0.0-dev"
-  },
-  "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "jest": "^23.4.1"
   }
 }
