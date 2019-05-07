@@ -4,7 +4,8 @@
   "description": "Leaflet integration for @wq/app pages",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/map"
+    "test": "cd ../../ && npm run jest packages/map",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js"
   },
   "repository": {
     "type": "git",

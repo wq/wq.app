@@ -1,11 +1,9 @@
-/*!
- * wq.app 2.0.0-dev - wq/map.js
- * Leaflet integration for @wq/app pages
- * (c) 2013-2019, S. Andrew Sheppard
- * https://wq.io/license
- */
+import map from './src/map.js';
+import locate from './src/locate.js';
+import mapserv from './src/mapserv.js';
 
-var map = require('./src/mapserv.js');
-var locate = require('./src/locate.js');
-map.locate = locate;
-module.exports = map;
+export default mapserv;
+
+export map;
+export locate;
+export mapserv;

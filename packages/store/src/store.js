@@ -1,6 +1,6 @@
 import localForage from 'localforage';
 import memoryStorageDriver from 'localforage-memoryStorageDriver';
-import 'whatwg-fetch';
+import "whatwg-fetch";
 
 
 var _stores = {};

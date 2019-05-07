@@ -4,7 +4,8 @@
   "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/store"
+    "test": "cd ../../ && npm run jest packages/store",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/store/rollup.config.js"
   },
   "repository": {
     "type": "git",

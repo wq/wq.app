@@ -2,14 +2,22 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "test": "lerna run test",
-    "jest": "jest"
+    "build:amd": "lerna run build:amd",
+    "jest": "jest",
+    "rollup": "WQ_VERSION=`python3 setup.py --version` rollup"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "jest": "^24.8.0",
     "lerna": "^2.11.0",
-    "requirejs": "^2.3.6"
+    "requirejs": "^2.3.6",
+    "rollup": "^1.11.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-ignore": "^1.0.5",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^4.2.3"
   },
   "dependencies": {
     "@babel/runtime": "^7.4.4"

@@ -4,7 +4,8 @@
   "description": "Utilizes @wq/store and @wq/pages to dynamically load and render content from a wq.db-compatible REST service",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/app"
+    "test": "cd ../../ && npm run jest packages/app",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/app/rollup.config.js"
   },
   "repository": {
     "type": "git",

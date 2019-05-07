@@ -9,38 +9,41 @@ init:
 
 js: js_wq js_lib js_compat
 
-js_wq: init
-        # TODO wq/app.js
-        # TODO wq/chart.js
-        # TODO wq/chartapp.js
-        # TODO wq/locate.js
-        # TODO wq/map.js
-        # TODO wq/mapserv.js
-        # TODO wq/markdown.js
-        # TODO wq/model.js
-        # TODO wq/outbox.js
-        # TODO wq/pandas.js
-        # TODO wq/patterns.js
-        # TODO wq/photos.js
-        # TODO wq/router.js
-        # TODO wq/spinner.js
-        # TODO wq/store.js
-        # TODO wq/template.js
+js_build: init
+	npm run build:amd
 
-js_lib: init
+js_wq: js_build
+	cp -p packages/app/dist/app.js js/wq/app.js
+	cp -p packages/chart/dist/chart.js js/wq/chart.js
+	cp -p packages/chart/dist/chartapp.js js/wq/chartapp.js
+	cp -p packages/map/dist/locate.js js/wq/locate.js
+	cp -p packages/map/dist/map.js js/wq/map.js
+	cp -p packages/map/dist/mapserv.js js/wq/mapserv.js
+	cp -p packages/markdown/dist/markdown.js js/wq/markdown.js
+	cp -p packages/model/dist/model.js js/wq/model.js
+	cp -p packages/outbox/dist/outbox.js js/wq/outbox.js
+	cp -p packages/chart/dist/pandas.js js/wq/pandas.js
+	cp -p packages/app/dist/patterns.js js/wq/patterns.js
+	cp -p packages/app/dist/photos.js js/wq/photos.js
+	cp -p packages/router/dist/router.js js/wq/router.js
+	cp -p packages/app/dist/spinner.js js/wq/spinner.js
+	cp -p packages/store/dist/store.js js/wq/store.js
+	cp -p packages/template/dist/template.js js/wq/template.js
+
+js_lib: js_build
 	cp -p packages/chart/node_modules/d3/dist/d3.js js/d3.js
 	cp -p packages/map/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
-	# TODO: higlight.js
+	cp -p packages/markdown/dist/highlight.js js/highlight.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
-	# TODO: jquery.mobile.js
-	# TODO: jquery.mobile.router.js
-	# TODO: json-forms.js
+	cp -p packages/jquery-mobile/dist/jquery.mobile.js js/jquery.mobile.js
+	cp -p packages/router/dist/jquery.mobile.router.js js/jquery.mobile.router.js
+	cp -p packages/outbox/dist/json-forms.js js/json-forms.js
 	cp -p packages/map/node_modules/leaflet-draw/dist/leaflet.draw-src.js js/leaflet.draw.js
 	cp -p packages/map/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
 	cp -p packages/map/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
 	cp -p packages/map/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
-	# TODO: localforage-memoryStorageDriver.js
-	# TODO: localforage.js
+	cp -p packages/store/node_modules/localforage-memoryStorageDriver/dist/localforage-memoryStorageDriver.js js/localforage-memoryStorageDriver.js
+	cp -p packages/store/node_modules/localforage/dist/localforage.js js/localforage.js
 	cp -p packages/markdown/node_modules/marked/lib/marked.js js/marked.js
 	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
 	cp -p node_modules/requirejs/require.js js/require.js

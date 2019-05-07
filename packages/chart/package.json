@@ -4,7 +4,8 @@
   "description": "d3-powered CSV charts for @wq/app pages",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/chart"
+    "test": "cd ../../ && npm run jest packages/chart",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/chart/rollup.config.js"
   },
   "repository": {
     "type": "git",

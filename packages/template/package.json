@@ -4,7 +4,8 @@
   "description": "Render Mustache templates and inject as jQuery Mobile pages",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/template"
+    "test": "cd ../../ && npm run jest packages/template",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/template/rollup.config.js"
   },
   "repository": {
     "type": "git",

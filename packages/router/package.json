@@ -4,7 +4,8 @@
   "description": "Respond to URL changes with locally generated pages and custom events",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/router"
+    "test": "cd ../../ && npm run jest packages/router",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
   },
   "repository": {
     "type": "git",

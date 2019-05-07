@@ -4,7 +4,8 @@
   "description": "Markdown and syntax highlighting for @wq/app",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/markdown"
+    "test": "cd ../../ && npm run jest packages/markdown",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/markdown/rollup.config.js"
   },
   "repository": {
     "type": "git",

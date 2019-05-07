@@ -4,7 +4,8 @@
   "description": "A simple model API for working with stored lists",
   "main": "index.js",
   "scripts": {
-    "test": "cd ../../ && npm run jest packages/model"
+    "test": "cd ../../ && npm run jest packages/model",
+    "build:amd": "cd ../../ && npm run rollup -- -c packages/model/rollup.config.js"
   },
   "repository": {
     "type": "git",
