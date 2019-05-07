@@ -1,16 +1,13 @@
 language: python
-sudo: false
 python: 3.6
 env:
  - LINT=
  - LINT=1
 install:
- - pip install .
+ - pip install --upgrade pip
  - pip install html-json-forms
-# - npm install -g node-qunit-phantomjs
- - npm install -g jshint
- - npm install
- - npm run bootstrap
+ - make
+ - pip install .
 before_script:
  - python -m tests.server &
  - cd tests
