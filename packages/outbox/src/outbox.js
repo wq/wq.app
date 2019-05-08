@@ -186,7 +186,7 @@ function _Outbox(store) {
             url += '.' + defaults.format;
             delete defaults.format;
         }
-        var urlObj = new URL(url);
+        var urlObj = new URL(url, window.location.origin);
         Object.entries(defaults).forEach(([key, value]) =>
             urlObj.searchParams.append(key, value)
         );

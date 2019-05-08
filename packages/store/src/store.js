@@ -261,14 +261,14 @@ function _Store(name) {
 
     // Hook to allow full AJAX customization
     self.ajax = function(url, data, method, headers) {
-        var urlObj = new URL(url);
+        var urlObj = new URL(url, window.location.origin);
         if (!method) {
             method = 'GET';
         } else {
             method = method.toUpperCase();
         }
         if (method == 'GET') {
-            Object.entries(data).forEach(([key, value]) =>
+            Object.entries(data || {}).forEach(([key, value]) =>
                 urlObj.searchParams.append(key, value)
             );
             data = null;
