@@ -1,18 +1,20 @@
-/**
- * @jest-environment ./packages/jquery-mobile/env
- */
-
 import tmpl from '../template';
+import jQM from '@wq/jquery-mobile';
 
-tmpl.init({
-    templates: {
-        test: '<html>{{>head}}<h1>{{title}}</h1></html>',
-        page:
-            '<html><div data-role=page><a data-role=button>{{link}}</a></div></html>'
-    },
-    partials: {
-        head: '<link>'
-    }
+var jQuery;
+beforeAll(() => {
+    jQuery = jQM(true);
+    tmpl.init({
+        jQuery,
+        templates: {
+            test: '<html>{{>head}}<h1>{{title}}</h1></html>',
+            page:
+                '<html><div data-role=page><a data-role=button>{{link}}</a></div></html>'
+        },
+        partials: {
+            head: '<link>'
+        }
+    });
 });
 
 test('render template', () => {

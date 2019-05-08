@@ -9,7 +9,7 @@
 *
 */
 
-module.exports = function (jQuery, window, document) {
+export default function (jQuery, window, document) {
 
 var navigator = window.navigator,
     location = window.location,

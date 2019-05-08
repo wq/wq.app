@@ -1,5 +1,5 @@
 /**
- * @jest-environment ./packages/jquery-mobile/env
+ * @jest-environment ./packages/jest-env-jsdom-idb
  */
 
 import app from '../app';
@@ -9,11 +9,16 @@ import outbox from '@wq/outbox';
 import router from '@wq/router';
 import routeConfig from './config.json';
 import templates from './templates.json';
+import jQM from '@wq/jquery-mobile';
 import { encode } from '@wq/outbox/vendor/json-forms';
-const jqm = $.mobile;
+
+var $, jqm;
 
 beforeAll(async () => {
+    $ = jQM(true);
+    jqm = $.mobile;
     const config = {
+        jQuery: $,
         router: {
             base_url: '/tests'
         },

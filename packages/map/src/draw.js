@@ -1,3 +1,7 @@
 export default function load() {
-    return require('leaflet-draw');
+    try {
+        return require('leaflet-draw');
+    } catch (e) {
+        return false;
+    }
 }

@@ -30,7 +30,12 @@ js_wq: js_build
 	cp -p packages/store/dist/store.js js/wq/store.js
 	cp -p packages/template/dist/template.js js/wq/template.js
 
-js_lib: js_build
+js_leaflet_draw:
+	echo "define('leaflet', function(L) {" > js/leaflet.draw.js
+	cat packages/map/node_modules/leaflet-draw/dist/leaflet.draw-src.js >> js/leaflet.draw.js
+	echo "\n});" >> js/leaflet.draw.js
+
+js_lib: js_build js_leaflet_draw
 	cp -p packages/chart/node_modules/d3/dist/d3.js js/d3.js
 	cp -p packages/map/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
 	cp -p packages/markdown/dist/highlight.js js/highlight.js
@@ -38,7 +43,6 @@ js_lib: js_build
 	cp -p packages/jquery-mobile/dist/jquery.mobile.js js/jquery.mobile.js
 	cp -p packages/router/dist/jquery.mobile.router.js js/jquery.mobile.router.js
 	cp -p packages/outbox/dist/json-forms.js js/json-forms.js
-	cp -p packages/map/node_modules/leaflet-draw/dist/leaflet.draw-src.js js/leaflet.draw.js
 	cp -p packages/map/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
 	cp -p packages/map/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
 	cp -p packages/map/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js

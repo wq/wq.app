@@ -4,7 +4,12 @@ import { CodeGenerator } from '@babel/generator';
 export function wqDeps(path = '..') {
     return {
         resolveId: source => {
-            if (source.match(/^@wq/)) {
+            if (source == '@wq/jquery-mobile') {
+                return {
+                    id: 'jquery.mobile',
+                    external: true
+                };
+            } else if (source.match(/^@wq/)) {
                 return {
                     id: source.replace('@wq', path),
                     external: true

@@ -1,18 +1,21 @@
-/**
- * @jest-environment ./packages/jquery-mobile/env
- */
-
 import router from '../router';
 import tmpl from '@wq/template';
+import jQM from '@wq/jquery-mobile';
 
-router.init({
-    debug: true
-});
-tmpl.init({
-    templates: {
-        test:
+var jQuery;
+beforeAll(() => {
+    jQuery = jQM(true);
+    router.init({
+        jQuery,
+        debug: true
+    });
+    tmpl.init({
+        jQuery,
+        templates: {
+            test:
             '<html><body><div data-role=page>TEST {{title}} {{params}}</div></body></html>'
-    }
+        }
+    });
 });
 
 test('register route and render page', done => {

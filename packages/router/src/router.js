@@ -11,7 +11,7 @@ var router = {
     slug: '([^/?#]+)',
     query: '(?:[?](.*))?(?:[#](.*))?$'
 };
-var jqm, _jqmRouter;
+var $, jqm, _jqmRouter;
 
 // Configuration
 router.init = function(config) {
@@ -25,7 +25,7 @@ router.init = function(config) {
         ...config
     };
 
-    var $ = config.jQuery || window.jQuery;
+    $ = config.jQuery || window.jQuery;
     jqmr($);
     jqm = $.mobile;
 

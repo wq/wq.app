@@ -1,3 +1,4 @@
+import jQM from '@wq/jquery-mobile';
 import ds from '@wq/store';
 import modelModule from '@wq/model';
 import outbox from '@wq/outbox';
@@ -21,8 +22,8 @@ var _saveTransition = 'none',
 var $, jqm;
 
 app.init = function(config) {
-    $ = config.jQuery || window.jQuery;
-    jqm = $.mobile;
+    app.jQuery = $ = config.jQuery || window.jQuery || jQM();
+    jqm = $.mobile || jQM().mobile;
     app.spin = spin;
 
     // Router (wq/router.js) configuration
@@ -62,6 +63,14 @@ app.init = function(config) {
         config.store.debug = config.debug;
         config.template.debug = config.debug;
     }
+
+    // Copy jQuery to plugins (in case not set globally)
+    ['router', 'template'].concat(Object.keys(app.plugins)).forEach(key => {
+        if (!config[key]) {
+            config[key] = {};
+        }
+        config[key].jQuery = $;
+    });
 
     // Load missing (non-local) content as JSON, or as server-rendered HTML?
     // Default (as of 1.0) is to load JSON and render on client.
@@ -480,7 +489,7 @@ app.postsave = function(item, backgroundSync) {
         // simple page or a URL
         var urlContext;
         if (item.deletedId) {
-            urlContext = $.extend({ deleted: true }, router.info.context);
+            urlContext = { deleted: true, ...router.info.context};
         } else {
             urlContext = item.result || item.data;
         }
@@ -680,12 +689,14 @@ function _getRouteInfo(page, mode, itemid, url, parentInfo) {
         };
     }
     router.setPath(url);
-    return $.extend(parentInfo || {}, router.info, {
+    return {
+        ...parentInfo,
+        ...router.info,
         page: page,
         page_config: conf,
         mode: mode,
         item_id: itemid
-    });
+    };
 }
 
 // Generate list view context and render with [url]_list template;
@@ -900,18 +911,16 @@ function _displayList(page, ui, params, url, context) {
                 }
             }
 
-            context = $.extend(
-                { page_config: conf },
-                data,
-                {
-                    previous: prev ? '/' + prev : null,
-                    next: next ? '/' + next : null,
-                    multiple: model.opts.server && data.pages > model.opts.page,
-                    previous_is_local: prevIsLocal,
-                    current_is_local: currentIsLocal
-                },
-                context
-            );
+            context = {
+                page_config: conf,
+                ...data,
+                previous: prev ? '/' + prev : null,
+                next: next ? '/' + next : null,
+                multiple: model.opts.server && data.pages > model.opts.page,
+                previous_is_local: prevIsLocal,
+                current_is_local: currentIsLocal,
+                ...context
+            };
 
             app._addOutboxItemsToContext(context, unsyncedItems);
 
@@ -1044,7 +1053,11 @@ function _renderDetail(item, page, mode, ui, params, url, context) {
     if (context && context.outbox_id) {
         routeInfo.outbox_id = context.outbox_id;
     }
-    context = $.extend({ page_config: conf }, item, context);
+    context = {
+        page_config: conf,
+        ...item,
+        ...context
+    };
     return _addLookups(page, context, false, routeInfo).then(function(context) {
         var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
             template = page + '_' + mode,
@@ -1061,16 +1074,20 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
     }
     if (itemid == 'new') {
         // Create new item
-        context = $.extend(
-            { page_config: conf },
-            params,
-            conf.defaults,
-            context
-        );
+        context = {
+            page_config: conf,
+            ...params,
+            ...conf.defaults,
+            ...context
+        };
         return _addLookups(page, context, 'new', routeInfo).then(done);
     } else {
         // Edit existing item
-        context = $.extend({ page_config: conf }, item, context);
+        context = {
+           page_config: conf,
+           ...item,
+           ...context
+        };
         return _addLookups(page, context, true, routeInfo).then(done);
     }
     function done(context) {
@@ -1107,12 +1124,15 @@ function _renderOther(page, ui, params, url, context) {
     if (params && $.param(params)) {
         url += '?' + $.param(params);
     }
-    context = $.extend({ page_config: conf }, context);
+    context = {
+        page_config: conf,
+        ...context
+    }
     routeInfo = _getRouteInfo(page, null, null, url, null);
     Promise.all(_callPlugins('context', undefined, [context, routeInfo])).then(
         function(pluginContext) {
             pluginContext.forEach(function(pc) {
-                $.extend(context, pc);
+                context = {...context, ...pc};
             });
             router.go(url, page, context, ui, conf.once ? true : false);
         }
@@ -1126,7 +1146,7 @@ function _renderOutboxList(match, ui) {
             _callPlugins('context', undefined, [context, routeInfo])
         ).then(function(pluginContext) {
             pluginContext.forEach(function(pc) {
-                $.extend(context, pc);
+                context = {...context, ...pc};
             });
             router.go('outbox', 'outbox', context, ui);
         });
@@ -1161,7 +1181,7 @@ function _renderOutboxItem(mode) {
                 error: item.error
             };
             if (id == 'new') {
-                $.extend(context, item.data);
+                context = {...context, ...item.data};
             } else {
                 context.id = id;
             }
@@ -1611,7 +1631,7 @@ function _addLookups(page, context, editable, routeInfo) {
         })
         .then(function(pluginContext) {
             pluginContext.forEach(function(pc) {
-                $.extend(context, pc);
+                context = {...context, ...pc};
             });
             spin.stop();
             return context;
@@ -1637,7 +1657,7 @@ function _choice_label_lookup(name, choices) {
 
 function _choice_dropdown_lookup(name, choices) {
     choices = choices.map(function(choice) {
-        return $.extend({}, choice);
+        return {...choice};
     });
     function choiceDropdown() {
         choices.forEach(function(choice) {
@@ -1714,7 +1734,7 @@ function _parent_dropdown_lookup(field, context, nkey) {
                 current = this[field.name + '_id'];
             }
             choices.forEach(function(v) {
-                var item = $.extend({}, v);
+                var item = {...v};
                 if (item.id == current) {
                     item.selected = true; // Currently selected item
                 }
@@ -1815,14 +1835,12 @@ function _getConf(page, silentFail) {
             throw 'Configuration for "' + page + '" not found!';
         }
     }
-    return $.extend(
-        {
-            page: page,
-            form: [],
-            modes: conf.list ? ['list', 'detail', 'edit'] : []
-        },
-        conf
-    );
+    return {
+        page: page,
+        form: [],
+        modes: conf.list ? ['list', 'detail', 'edit'] : [],
+        ...conf
+    };
 }
 
 // Helper to load configuration based on URL
