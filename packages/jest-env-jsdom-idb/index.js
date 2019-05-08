@@ -1,2 +1,2 @@
-import env from './src/env';
-export default env;
+var env = require('./src/env');
+module.exports = env;
