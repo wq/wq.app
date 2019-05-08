@@ -31,7 +31,7 @@ js_wq: js_build
 	cp -p packages/template/dist/template.js js/wq/template.js
 
 js_leaflet_draw:
-	echo "define('leaflet', function(L) {" > js/leaflet.draw.js
+	echo "define(['leaflet'], function(L) {" > js/leaflet.draw.js
 	cat packages/map/node_modules/leaflet-draw/dist/leaflet.draw-src.js >> js/leaflet.draw.js
 	echo "\n});" >> js/leaflet.draw.js
 
