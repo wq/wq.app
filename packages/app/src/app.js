@@ -490,7 +490,7 @@ app.postsave = function(item, backgroundSync) {
         // simple page or a URL
         var urlContext;
         if (item.deletedId) {
-            urlContext = { deleted: true, ...router.info.context};
+            urlContext = { deleted: true, ...router.info.context };
         } else {
             urlContext = item.result || item.data;
         }
@@ -1083,9 +1083,9 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
     } else {
         // Edit existing item
         context = {
-           page_config: conf,
-           ...item,
-           ...context
+            page_config: conf,
+            ...item,
+            ...context
         };
         return _addLookups(page, context, true, routeInfo).then(done);
     }
@@ -1126,12 +1126,12 @@ function _renderOther(page, ui, params, url, context) {
     context = {
         page_config: conf,
         ...context
-    }
+    };
     routeInfo = _getRouteInfo(page, null, null, url, null);
     Promise.all(_callPlugins('context', undefined, [context, routeInfo])).then(
         function(pluginContext) {
             pluginContext.forEach(function(pc) {
-                context = {...context, ...pc};
+                context = { ...context, ...pc };
             });
             router.go(url, page, context, ui, conf.once ? true : false);
         }
@@ -1145,7 +1145,7 @@ function _renderOutboxList(match, ui) {
             _callPlugins('context', undefined, [context, routeInfo])
         ).then(function(pluginContext) {
             pluginContext.forEach(function(pc) {
-                context = {...context, ...pc};
+                context = { ...context, ...pc };
             });
             router.go('outbox', 'outbox', context, ui);
         });
@@ -1180,7 +1180,7 @@ function _renderOutboxItem(mode) {
                 error: item.error
             };
             if (id == 'new') {
-                context = {...context, ...item.data};
+                context = { ...context, ...item.data };
             } else {
                 context.id = id;
             }
@@ -1630,7 +1630,7 @@ function _addLookups(page, context, editable, routeInfo) {
         })
         .then(function(pluginContext) {
             pluginContext.forEach(function(pc) {
-                context = {...context, ...pc};
+                context = { ...context, ...pc };
             });
             spin.stop();
             return context;
@@ -1656,7 +1656,7 @@ function _choice_label_lookup(name, choices) {
 
 function _choice_dropdown_lookup(name, choices) {
     choices = choices.map(function(choice) {
-        return {...choice};
+        return { ...choice };
     });
     function choiceDropdown() {
         choices.forEach(function(choice) {
@@ -1733,7 +1733,7 @@ function _parent_dropdown_lookup(field, context, nkey) {
                 current = this[field.name + '_id'];
             }
             choices.forEach(function(v) {
-                var item = {...v};
+                var item = { ...v };
                 if (item.id == current) {
                     item.selected = true; // Currently selected item
                 }
