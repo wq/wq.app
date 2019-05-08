@@ -333,7 +333,6 @@ map.loadLayer = function(url) {
 
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
-    /* jshint maxlen: false */
     var cdn = '//stamen-tiles-{s}.a.ssl.fastly.net/{layer}/{z}/{x}/{y}.jpg';
     var attr =
         'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.';
@@ -479,7 +478,7 @@ map.addOverlayType('geojson', function(layerconf) {
 
 // Hooks for customizing layer and draw controls
 map.createLayerControl = function(basemaps, layers, routeInfo, mapname) {
-    /* jshint unused: false */
+    /* eslint no-unused-vars: off */
     return L.control.layers(basemaps, layers);
 };
 

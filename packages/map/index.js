@@ -4,6 +4,4 @@ import mapserv from './src/mapserv.js';
 
 export default mapserv;
 
-export map;
-export locate;
-export mapserv;
+export { map, locate, mapserv };

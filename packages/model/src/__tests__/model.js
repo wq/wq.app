@@ -74,7 +74,6 @@ test('filter by boolean (empty)', async () => {
 });
 
 async function testBooleanResult(value, expectId) {
-    const expectCount = expectId ? 1 : 0;
     const types = await itemtypes.filter({ is_active: value });
     if (expectId) {
         expect(types).toHaveLength(1);

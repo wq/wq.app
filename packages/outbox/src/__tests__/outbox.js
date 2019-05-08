@@ -3,7 +3,6 @@
  */
 
 import store from '@wq/store';
-import model from '@wq/model';
 import outboxMod from '../outbox';
 
 const ds = store.getStore('outbox-test');

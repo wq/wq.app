@@ -1,5 +1,7 @@
 import tmpl from '@wq/template';
 
+/* global Camera */
+
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
 var photos = {

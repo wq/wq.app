@@ -3,6 +3,8 @@ import tmpl from '@wq/template';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
 
+/* global L */
+
 const mockApp = {
     config: routeConfig,
     spin: {

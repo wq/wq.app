@@ -474,6 +474,7 @@ app.postsave = function(item, backgroundSync) {
     }
 
     // conf.postsave should explicitly indicate which template mode to use
+    /* eslint no-useless-escape: off */
     match = postsave.match(/^([^\/]+)_([^_\/]+)$/);
     if (match) {
         postsave = match[1];
@@ -547,7 +548,6 @@ app.postsave = function(item, backgroundSync) {
 // Hook for handling navigation / alerts after a submission error
 // (only used when noBackgroundSync is set)
 app.saveerror = function(item, reason, $form) {
-    /* jshint unused: false */
     // Save failed for some reason, perhaps due to being offline
     // (override to customize behavior, e.g. display an outbox)
     if (app.config.debug) {
@@ -570,7 +570,6 @@ app.presync = function() {
 
 // Hook for handling alerts after a background sync event
 app.postsync = function(items) {
-    /* jshint unused: false */
     // Called after every sync with result from outbox.sendAll().
     // (override to customize behavior, e.g. update a status icon)
     var msg;
@@ -1478,7 +1477,7 @@ function _submitClick() {
 function _updateModels(item, result) {
     var modelConf = item.options.modelConf;
     if (modelConf.list && item.synced) {
-        model = app.models[modelConf.name];
+        var model = app.models[modelConf.name];
         if (item.deletedId) {
             return model.remove(item.deletedId);
         } else {
@@ -1894,7 +1893,7 @@ function _loadFromServer(url, ui) {
 }
 
 function _fetchFail(query, error) {
-    /* jshint unused: false */
+    /* eslint no-unused-vars: off */
     spin.start('Error Loading Data', 1.5, {
         theme: jqm.pageLoadErrorMessageTheme,
         textonly: true

@@ -149,7 +149,7 @@ function _Outbox(store) {
 
     // Validate a record before adding it to the outbox
     self.validate = function(data, options) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         return true;
     };
 
@@ -211,10 +211,10 @@ function _Outbox(store) {
         function appendValue(key, val) {
             if (val && val.name && val.type && val.body) {
                 // File (Blob) record; add with filename
-                blob = val.body;
+                var blob = val.body;
                 if (!blob.type) {
                     // Serialized blobs lose their type
-                    slice = blob.slice || blob.webkitSlice;
+                    var slice = blob.slice || blob.webkitSlice;
                     blob = slice.call(blob, 0, blob.size, val.type);
                 }
                 formData.append(key, blob, val.name);
@@ -309,6 +309,8 @@ function _Outbox(store) {
         items.forEach(function(item) {
             data.push(item.data);
         });
+
+        /* global $ */
 
         return Promise.resolve(
             $.ajax(self.batchService, {

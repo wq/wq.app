@@ -4,6 +4,4 @@ import pandas from './src/pandas.js';
 
 export default chartapp;
 
-export chart;
-export chartapp;
-export pandas;
+export { chart, chartapp, pandas };

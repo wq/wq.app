@@ -58,7 +58,7 @@ router.register = function(path, fn, obj, prevent) {
     }
     if (prevent === undefined) {
         prevent = function(match, ui, params) {
-            /* jshint unused: false */
+            /* eslint no-unused-vars: off */
             // By default, prevent default changePage behavior
             // (unless this is a form post and is not being handled by app.js)
             if (ui && ui.options && ui.options.data && ui.options.fromPage) {

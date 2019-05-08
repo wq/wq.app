@@ -156,7 +156,6 @@ function _Store(name) {
 
     // Callback for localStorage failure - override to inform the user
     self.storageFail = function(item, error) {
-        /* jshint unused: false */
         return self.storageUsage().then(function(usage) {
             var msg;
             if (usage > 0) {

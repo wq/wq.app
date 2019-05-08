@@ -80,15 +80,15 @@ chart.base = function() {
     };
 
     var xvalue = function(d) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         throw 'xvalue accessor not defined!';
     };
     var yvalue = function(d) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         throw 'yvalue accessor not defined!';
     };
     var xunits = function(dataset) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         return null;
     };
     var xmax = function(dataset) {
@@ -134,18 +134,18 @@ chart.base = function() {
 
     // Rendering functions (should be overridden)
     var init = function(datasets, opts) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
     };
     var render = function(dataset) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
     };
     var wrapup = function(datasets, opts) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
     };
 
     // Legend item rendering
     var legendItemShape = function(sid) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         return 'rect';
     };
     var rectStyle = function(sid) {
@@ -950,7 +950,7 @@ chart.scatter = function() {
 
     /* To customize points beyond just the color, override these functions */
     pointShape = function(sid) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         return 'circle';
     };
     // pointStyle function is initialized above
@@ -964,7 +964,7 @@ chart.scatter = function() {
     };
 
     var pointover = function(sid) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         return function(d) {
             d3.select(this)
                 .selectAll(pointShape(sid))
@@ -972,7 +972,7 @@ chart.scatter = function() {
         };
     };
     var pointout = function(sid) {
-        /* jshint unused: false */
+        /* eslint no-unused-vars: off */
         return function(d) {
             d3.select(this)
                 .selectAll(pointShape(sid))
@@ -1232,7 +1232,7 @@ chart.timeSeries = function() {
         .xscalefn(d3.scaleTime)
         .xnice(d3.timeYear)
         .xunits(function(data) {
-            /* jshint unused: false */
+            /* eslint no-unused-vars: off */
             return null;
         })
         .yField('value')

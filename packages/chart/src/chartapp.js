@@ -26,7 +26,7 @@ var chartapp = {
 };
 
 chartapp.init = function(conf) {
-    json.extend(chartapp.config, conf || {});
+    chartapp.config = { ...chartapp.config, conf };
 };
 
 var customTypes = {};
@@ -128,7 +128,7 @@ chartapp.create = function(data, type, elem) {
                 pointLabel = '{{=[[ ]]=}}' + pointLabel;
             }
             plot.pointLabel(function(sid) {
-                /* jshint unused: false */
+                /* eslint no-unused-vars: off */
                 return function(d) {
                     return tmpl.render(pointLabel, d);
                 };
