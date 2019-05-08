@@ -1,5 +1,5 @@
 import pkg from './package.json';
-import {makeBanner, wqDeps} from '../../rollup-utils.js';
+import {makeBanner, wqDeps, babel} from '../../rollup-utils.js';
 const banners = {
     'map': makeBanner(pkg, 2013),
     'locate': makeBanner({
@@ -16,7 +16,7 @@ const banners = {
 
 export default [{
     'input': 'packages/map/src/map.js',
-    'plugins': [wqDeps('.')],
+    'plugins': [wqDeps('.'), babel()],
     'external': ['leaflet'],
     'output': [
         {
@@ -29,6 +29,7 @@ export default [{
 }, {
     'input': 'packages/map/src/locate.js',
     'external': ['leaflet'],
+    'plugins': [babel()],
     'output': [
         {
             'banner': banners.locate,
@@ -40,6 +41,7 @@ export default [{
 }, {
     'input': 'packages/map/src/mapserv.js',
     'external': ['leaflet', 'esri-leaflet', 'leaflet.wms', './map'],
+    'plugins': [babel()],
     'output': [
         {
             'banner': banners.mapserv,

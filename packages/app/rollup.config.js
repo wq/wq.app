@@ -1,5 +1,5 @@
 import pkg from './package.json';
-import {makeBanner, wqDeps} from '../../rollup-utils.js';
+import {makeBanner, wqDeps, babel} from '../../rollup-utils.js';
 const banners = {
     'app': makeBanner(pkg, 2012),
     'patterns': makeBanner({
@@ -21,7 +21,7 @@ const banners = {
 
 export default [{
     'input': 'packages/app/src/app.js',
-    'plugins': [wqDeps('.')],
+    'plugins': [wqDeps('.'), babel()],
     'external': ['./spinner'],
     'output': [
         {
@@ -33,7 +33,7 @@ export default [{
     ]
 }, {
     'input': 'packages/app/src/patterns.js',
-    'plugins': [wqDeps('.')],
+    'plugins': [wqDeps('.'), babel()],
     'output': [
         {
             'banner': banners.patterns,
@@ -44,7 +44,7 @@ export default [{
     ]
 }, {
     'input': 'packages/app/src/photos.js',
-    'plugins': [wqDeps('.')],
+    'plugins': [wqDeps('.'), babel()],
     'output': [
         {
             'banner': banners.photos,
@@ -55,6 +55,7 @@ export default [{
     ]
 }, {
     'input': 'packages/app/src/spinner.js',
+    'plugins': [babel()],
     'output': [
         {
             'banner': banners.spinner,

@@ -1,13 +1,13 @@
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import pkg from './package.json';
-import { makeBanner, vendorLib } from '../../rollup-utils.js';
+import { makeBanner, vendorLib, babel } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2013);
 
 export default [{
     'input': 'packages/markdown/index.js',
     'external': ['marked'],
-    'plugins': [vendorLib('./highlight')],
+    'plugins': [vendorLib('./highlight'), babel()],
     'output': [
         {
             'banner': banner,

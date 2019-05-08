@@ -1,11 +1,15 @@
 import commonjs from 'rollup-plugin-commonjs';
 import pkg from './package.json';
-import {makeBanner, wqDeps, vendorLib} from '../../rollup-utils.js';
+import {makeBanner, wqDeps, vendorLib, babel} from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
 export default [{
     'input': 'packages/router/index.js',
-    'plugins': [wqDeps(), vendorLib('../vendor/jquery.mobile.router')],
+    'plugins': [
+        wqDeps(),
+        babel(),
+        vendorLib('../vendor/jquery.mobile.router')
+    ],
     'output': [
         {
             'banner': banner,

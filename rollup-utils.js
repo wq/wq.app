@@ -1,3 +1,7 @@
+import babelPlugin from 'rollup-plugin-babel';
+import { CodeGenerator } from '@babel/generator';
+
+
 export function wqDeps(path='..') {
     return {
         'resolveId': source => {
@@ -34,3 +38,25 @@ export function makeBanner(pkg, startYear) {
  */
 `;
 }
+
+
+export function babel() {
+    return babelPlugin({
+        'configFile': false,
+        'plugins': [
+            '@babel/plugin-proposal-object-rest-spread',
+            '@babel/plugin-transform-computed-properties',
+            '@babel/plugin-transform-arrow-functions',
+            generatorOverride,
+        ],
+    });
+}
+
+
+function generator(ast, opts, code) {
+    var generator = new CodeGenerator(ast, opts, code);
+    generator._generator.format.indent.style = "    ";
+    return generator.generate();
+}
+
+const generatorOverride = {'generatorOverride': generator};

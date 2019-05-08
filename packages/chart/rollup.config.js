@@ -1,6 +1,6 @@
 import ignore from 'rollup-plugin-ignore';
 import pkg from './package.json';
-import {makeBanner, wqDeps} from '../../rollup-utils.js';
+import {makeBanner, wqDeps, babel} from '../../rollup-utils.js';
 const banners = {
     'chart': makeBanner(pkg, 2013),
     'chartapp': makeBanner({
@@ -17,7 +17,7 @@ const banners = {
 
 export default [{
     'input': 'packages/chart/src/chart.js',
-    'plugins': [wqDeps()],
+    'plugins': [wqDeps(), babel()],
     'external': ['d3'],
     'output': [
         {
@@ -29,7 +29,7 @@ export default [{
     ]
 }, {
     'input': 'packages/chart/src/chartapp.js',
-    'plugins': [wqDeps(), ignore(['whatwg-fetch'])],
+    'plugins': [wqDeps(), ignore(['whatwg-fetch']), babel()],
     'external': ['d3', './chart', './pandas'],
     'output': [
         {
@@ -41,7 +41,7 @@ export default [{
     ]
 }, {
     'input': 'packages/chart/src/pandas.js',
-    'plugins': [wqDeps(), ignore(['whatwg-fetch'])],
+    'plugins': [wqDeps(), ignore(['whatwg-fetch']), babel()],
     'external': ['d3'],
     'output': [
         {
