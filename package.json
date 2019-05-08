@@ -5,9 +5,10 @@
     "build:amd": "lerna run build:amd",
     "jest": "jest",
     "rollup": "WQ_VERSION=`python3 setup.py --version` rollup",
-    "prettier": "prettier",
     "precise-commits": "precise-commits",
-    "lint": "eslint packages/*/{*.js,src/*.js,src/__tests__/*.js}"
+    "prettier": "prettier",
+    "prettier-all": "prettier --write *.js packages/*/{,src/,src/__tests__/}*.js",
+    "lint": "eslint *.js packages/*/{,src/,src/__tests__/}*.js"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.4.4",

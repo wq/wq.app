@@ -8,6 +8,7 @@
         "global": "readonly",
         "module": "readonly",
         "__dirname": "readonly",
+        "process": "readonly",
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
