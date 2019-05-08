@@ -5,17 +5,16 @@ import tmpl from '@wq/template';
 import router from '@wq/router';
 import spin from './spinner';
 
-
 var app = {
-    'OFFLINE': 'offline',
-    'FAILURE': 'failure',
-    'ERROR': 'error'
+    OFFLINE: 'offline',
+    FAILURE: 'failure',
+    ERROR: 'error'
 };
 
 app.models = {};
 app.plugins = {};
 
-var _saveTransition = "none",
+var _saveTransition = 'none',
     _register = {},
     _onShow = {};
 
@@ -29,15 +28,15 @@ app.init = function(config) {
     // Router (wq/router.js) configuration
     if (!config.router) {
         config.router = {
-            'base_url': ''
+            base_url: ''
         };
     }
 
     // Store (wq/store.js) configuration
     if (!config.store) {
         config.store = {
-            'service': config.router.base_url,
-            'defaults': {'format': 'json'}
+            service: config.router.base_url,
+            defaults: { format: 'json' }
         };
     }
     if (!config.store.fetchFail) {
@@ -66,16 +65,13 @@ app.init = function(config) {
 
     // Load missing (non-local) content as JSON, or as server-rendered HTML?
     // Default (as of 1.0) is to load JSON and render on client.
-    config.loadMissingAsJson = (
-        config.loadMissingAsJson || !config.loadMissingAsHtml
-    );
+    config.loadMissingAsJson =
+        config.loadMissingAsJson || !config.loadMissingAsHtml;
     config.loadMissingAsHtml = !config.loadMissingAsJson;
 
     // After a form submission, sync in the background, or wait before
     // continuing?  Default is to sync in the background.
-    config.backgroundSync = (
-        config.backgroundSync || !config.noBackgroundSync
-    );
+    config.backgroundSync = config.backgroundSync || !config.noBackgroundSync;
     config.noBackgroundSync = !config.backgroundSync;
 
     app.config = config;
@@ -134,7 +130,7 @@ app.init = function(config) {
     // Initialize authentication, if applicable
     var ready;
     if (app.can_login) {
-        router.register('logout\/?', app.logout);
+        router.register('logout/?', app.logout);
 
         // Load some values from store - not ready till this is done.
         ready = ds.get(['user', 'csrf_token']).then(function(values) {
@@ -165,7 +161,7 @@ app.init = function(config) {
 
     // Configure jQuery Mobile transitions
     if (config.transitions) {
-        var def = "default";
+        var def = 'default';
         if (config.transitions[def]) {
             jqm.defaultPageTransition = config.transitions[def];
         }
@@ -221,20 +217,23 @@ app.init = function(config) {
     router.addRoute('outbox/<slug>/edit', 's', _showOutboxItem('edit'));
 
     // Fallback index page
-    if (!root && !app.wq_config.pages.index &&
-            config.template.templates.index) {
+    if (
+        !root &&
+        !app.wq_config.pages.index &&
+        config.template.templates.index
+    ) {
         router.register('', function(match, ui) {
             var context = {};
-            context.pages = Object.keys(app.wq_config.pages).map(
-                function(page) {
-                    var conf = app.wq_config.pages[page];
-                    return {
-                        'name': page,
-                        'url': conf.url,
-                        'list': conf.list
-                    };
-                }
-            );
+            context.pages = Object.keys(app.wq_config.pages).map(function(
+                page
+            ) {
+                var conf = app.wq_config.pages[page];
+                return {
+                    name: page,
+                    url: conf.url,
+                    list: conf.list
+                };
+            });
             router.go('', 'index', context, ui);
         });
     }
@@ -261,9 +260,11 @@ app.use = function(plugin) {
 };
 
 app.prefetchAll = function() {
-    return Promise.all(Object.keys(app.models).map(function(name) {
-        return app.models[name].prefetch();
-    }));
+    return Promise.all(
+        Object.keys(app.models).map(function(name) {
+            return app.models[name].prefetch();
+        })
+    );
 };
 
 app.jqmInit = router.jqmInit;
@@ -303,35 +304,54 @@ app.go = function(page, ui, params, itemid, mode, url, context) {
     if (itemid) {
         if (itemid == 'new') {
             return _displayItem(
-                itemid, {}, page, ui, params, mode, url, context
+                itemid,
+                {},
+                page,
+                ui,
+                params,
+                mode,
+                url,
+                context
             );
         } else {
             var localOnly = !app.config.loadMissingAsJson;
             return model.find(itemid, 'id', localOnly).then(function(item) {
                 _displayItem(
-                    itemid, item, page, ui, params, mode, url, context
+                    itemid,
+                    item,
+                    page,
+                    ui,
+                    params,
+                    mode,
+                    url,
+                    context
                 );
             });
         }
     } else {
         return _displayList(page, ui, params, url, context);
     }
-
 };
 
 // Run any/all plugins on the specified page
 app.runPlugins = function(page, mode, itemid, url, parentInfo) {
     var lastRoute = router.info,
         context = lastRoute.context,
-        routeInfo, getItem;
+        routeInfo,
+        getItem;
     routeInfo = _getRouteInfo(
-        page, mode, itemid,
+        page,
+        mode,
+        itemid,
         url.replace(app.base_url + '/', ''),
         parentInfo
     );
     if (itemid) {
-        if (lastRoute.path == routeInfo.path && context &&
-                (context.id || 'new') == itemid) {
+        if (
+            lastRoute.path == routeInfo.path &&
+            context &&
+            (context.id || 'new') == itemid
+        ) {
             getItem = Promise.resolve(context);
             if (context.outbox_id) {
                 routeInfo.outbox_id = context.outbox_id;
@@ -420,9 +440,9 @@ app.confirmSubmit = function(form, message) {
 // Hook for handling navigation after form submission
 app.postsave = function(item, backgroundSync) {
     var options = {
-        'reverse': true,
-        'transition': _saveTransition,
-        'allowSamePageTransition': true
+        reverse: true,
+        transition: _saveTransition,
+        allowSamePageTransition: true
     };
     var postsave, pconf, match, mode, url, itemid, modelConf;
 
@@ -460,7 +480,7 @@ app.postsave = function(item, backgroundSync) {
         // simple page or a URL
         var urlContext;
         if (item.deletedId) {
-            urlContext = $.extend({'deleted': true}, router.info.context);
+            urlContext = $.extend({ deleted: true }, router.info.context);
         } else {
             urlContext = item.result || item.data;
         }
@@ -469,7 +489,7 @@ app.postsave = function(item, backgroundSync) {
         url = app.base_url + '/' + pconf.url;
     } else {
         if (pconf.modes.indexOf(mode) == -1) {
-            throw "Unknown template mode!";
+            throw 'Unknown template mode!';
         }
 
         // For list pages, the url can differ depending on the mode
@@ -498,19 +518,19 @@ app.postsave = function(item, backgroundSync) {
                     itemid = item.result && item.result[postsave + '_id'];
                 }
                 if (!itemid) {
-                    throw "Could not find " + postsave + " id in result!";
+                    throw 'Could not find ' + postsave + ' id in result!';
                 }
                 url += itemid;
             }
-            if (mode != "detail") {
-                url += "/" + mode;
+            if (mode != 'detail') {
+                url += '/' + mode;
             }
         }
     }
 
     // Navigate to computed URL
     if (app.config.debug) {
-        console.log("Successfully saved; continuing to " + url);
+        console.log('Successfully saved; continuing to ' + url);
     }
     jqm.changePage(url, options);
 };
@@ -522,7 +542,7 @@ app.saveerror = function(item, reason, $form) {
     // Save failed for some reason, perhaps due to being offline
     // (override to customize behavior, e.g. display an outbox)
     if (app.config.debug) {
-        console.warn("Could not save: " + reason);
+        console.warn('Could not save: ' + reason);
     }
     if (reason == app.OFFLINE) {
         app.postsave(item, false);
@@ -535,7 +555,7 @@ app.saveerror = function(item, reason, $form) {
 // (only used when backgroundSync is set)
 app.presync = function() {
     if (app.config.debug) {
-        console.log("Syncing...");
+        console.log('Syncing...');
     }
 };
 
@@ -556,15 +576,15 @@ app.postsync = function(items) {
             }
         });
         if (result) {
-            console.log("Successfully synced.");
+            console.log('Successfully synced.');
         } else {
             if (result === false) {
-                msg = "Sync error!";
+                msg = 'Sync error!';
             } else {
-                msg = "Sync failed!";
+                msg = 'Sync failed!';
             }
             outbox.unsynced().then(function(unsynced) {
-               console.warn(msg + " " + unsynced + " items remain unsynced");
+                console.warn(msg + ' ' + unsynced + ' items remain unsynced');
             });
         }
     }
@@ -584,11 +604,13 @@ app.syncRefresh = function(items) {
 // Return a list of all foreign key fields
 app.getParents = function(page) {
     var conf = _getConf(page);
-    return conf.form.filter(function(field) {
-        return field['wq:ForeignKey'];
-    }).map(function(field) {
-        return field['wq:ForeignKey'];
-    });
+    return conf.form
+        .filter(function(field) {
+            return field['wq:ForeignKey'];
+        })
+        .map(function(field) {
+            return field['wq:ForeignKey'];
+        });
 };
 
 // Shortcuts for $.mobile.changePage
@@ -603,8 +625,8 @@ app.nav = function(url, options) {
 
 app.replaceState = function(url) {
     app.nav(url, {
-        'transition': 'none',
-        'changeHash': false
+        transition: 'none',
+        changeHash: false
     });
     setTimeout(function() {
         window.history.replaceState(null, '', app.base_url + '/' + url);
@@ -616,8 +638,8 @@ app.replaceState = function(url) {
 
 app.refresh = function() {
     jqm.changePage(jqm.activePage.data('url'), {
-        'transition': 'none',
-        'allowSamePageTransition': true
+        transition: 'none',
+        allowSamePageTransition: true
     });
 };
 
@@ -629,7 +651,10 @@ function _setCSRFToken(csrftoken) {
 }
 
 function _callPlugins(method, lookup, args) {
-    var plugin, fn, fnArgs, queue = [];
+    var plugin,
+        fn,
+        fnArgs,
+        queue = [];
     for (plugin in app.plugins) {
         fn = app.plugins[plugin][method];
         if (args) {
@@ -648,23 +673,19 @@ function _getRouteInfo(page, mode, itemid, url, parentInfo) {
     var conf = _getConf(page, true);
     if (!conf) {
         conf = {
-            'name': page,
-            'page': page,
-            'form': [],
-            'modes': []
+            name: page,
+            page: page,
+            form: [],
+            modes: []
         };
     }
     router.setPath(url);
-    return $.extend(
-        parentInfo || {},
-        router.info,
-        {
-            'page': page,
-            'page_config': conf,
-            'mode': mode,
-            'item_id': itemid
-        }
-    );
+    return $.extend(parentInfo || {}, router.info, {
+        page: page,
+        page_config: conf,
+        mode: mode,
+        item_id: itemid
+    });
 }
 
 // Generate list view context and render with [url]_list template;
@@ -696,11 +717,12 @@ _register.list = function(page) {
             app.models[ppage].find(match[1]).then(function(pitem) {
                 spin.stop();
                 var context = {
-                    'parent_id': match[1],
-                    'parent_url': (pitem && (pconf.url + '/' + pitem.id)) ||
-                                  ('outbox/' + match[1].split('-')[1]),
-                    'parent_label': pitem && pitem.label,
-                    'parent_page': ppage
+                    parent_id: match[1],
+                    parent_url:
+                        (pitem && pconf.url + '/' + pitem.id) ||
+                        'outbox/' + match[1].split('-')[1],
+                    parent_label: pitem && pitem.label,
+                    parent_page: ppage
                 };
                 context['parent_is_' + ppage] = true;
                 app.go(page, ui, params, undefined, false, pageurl, context);
@@ -730,9 +752,9 @@ _onShow.list = function(page) {
     function goUrl(ppage) {
         return function(match) {
             var parentInfo = {
-                'parent_id': match[2],
-                'parent_url': match[1] + match[2],
-                'parent_page': ppage
+                parent_id: match[2],
+                parent_url: match[1] + match[2],
+                parent_page: ppage
             };
             app.runPlugins(page, 'list', null, match[0], parentInfo);
         };
@@ -750,7 +772,10 @@ function _displayList(page, ui, params, url, context) {
 
     var conf = _getConf(page);
     var model = app.models[page];
-    var pnum = model.opts.page, next = null, prev = null, filter;
+    var pnum = model.opts.page,
+        next = null,
+        prev = null,
+        filter;
     if (url === undefined) {
         url = conf.url;
         if (url) {
@@ -759,7 +784,7 @@ function _displayList(page, ui, params, url, context) {
     }
     if ((params && $.param(params)) || (context && context.parent_page)) {
         if (params && $.param(params)) {
-            url += "?" + $.param(params);
+            url += '?' + $.param(params);
         }
         if (params && params.page) {
             pnum = params.page;
@@ -819,69 +844,89 @@ function _displayList(page, ui, params, url, context) {
     // If the number of unsynced records changes while loading the data,
     // load the data a second time to make sure the list is up to date.
     // (this is rare except for cache=none lists with background sync)
-    return getUnsynced().then(function(unsynced1) {
-        return getData().then(function(data1) {
-            return getUnsynced().then(function(unsynced2) {
-                if (unsynced1 && unsynced2 &&
-                        unsynced1.length != unsynced2.length) {
-                    return getData().then(function(data2) {
-                        return [data2, unsynced2];
-                    });
-                } else {
-                    return [data1, unsynced2];
+    return getUnsynced()
+        .then(function(unsynced1) {
+            return getData().then(function(data1) {
+                return getUnsynced().then(function(unsynced2) {
+                    if (
+                        unsynced1 &&
+                        unsynced2 &&
+                        unsynced1.length != unsynced2.length
+                    ) {
+                        return getData().then(function(data2) {
+                            return [data2, unsynced2];
+                        });
+                    } else {
+                        return [data1, unsynced2];
+                    }
+                });
+            });
+        })
+        .then(function(results) {
+            var data = results[0],
+                unsyncedItems = results[1],
+                parentInfo = {},
+                routeInfo,
+                prevIsLocal,
+                currentIsLocal;
+            ['parent_id', 'parent_url', 'parent_page'].forEach(function(key) {
+                if (context && context[key]) {
+                    parentInfo[key] = context[key];
                 }
             });
-        });
-    }).then(function(results) {
-        var data = results[0],
-            unsyncedItems = results[1],
-            parentInfo = {}, routeInfo,
-            prevIsLocal, currentIsLocal;
-        ['parent_id', 'parent_url', 'parent_page'].forEach(function(key) {
-            if (context && context[key]) {
-                parentInfo[key] = context[key];
+
+            routeInfo = _getRouteInfo(page, 'list', null, url, parentInfo);
+            if (pnum > model.opts.page && (model.opts.client || pnum > 1)) {
+                prev = conf.url + '/';
+                if (
+                    +pnum - 1 > model.opts.page &&
+                    (model.opts.client || pnum > 2)
+                ) {
+                    prev +=
+                        '?' +
+                        $.param({
+                            page: +pnum - 1
+                        });
+                } else if (pnum == 1) {
+                    prevIsLocal = true;
+                }
             }
-        });
 
-        routeInfo = _getRouteInfo(page, 'list', null, url, parentInfo);
-        if (pnum > model.opts.page && (model.opts.client || pnum > 1)) {
-            prev = conf.url + '/';
-            if (+pnum - 1 > model.opts.page &&
-                   (model.opts.client || pnum > 2)) {
-                prev += '?' + $.param({
-                    'page': +pnum - 1
-                });
-            } else if (pnum == 1) {
-                prevIsLocal = true;
+            if (pnum < data.pages && (model.opts.server || pnum)) {
+                var nextp = { page: +pnum + 1 };
+                next = conf.url + '/?' + $.param(nextp);
+                if (nextp.page == 1) {
+                    currentIsLocal = true;
+                }
             }
-        }
 
-        if (pnum < data.pages && (model.opts.server || pnum)) {
-            var nextp = {'page': +pnum + 1};
-            next = conf.url + '/?' + $.param(nextp);
-            if (nextp.page == 1) {
-                currentIsLocal = true;
-            }
-        }
+            context = $.extend(
+                { page_config: conf },
+                data,
+                {
+                    previous: prev ? '/' + prev : null,
+                    next: next ? '/' + next : null,
+                    multiple: model.opts.server && data.pages > model.opts.page,
+                    previous_is_local: prevIsLocal,
+                    current_is_local: currentIsLocal
+                },
+                context
+            );
 
-        context = $.extend({'page_config': conf}, data, {
-            'previous': prev ? '/' + prev : null,
-            'next':     next ? '/' + next : null,
-            'multiple': model.opts.server && data.pages > model.opts.page,
-            'previous_is_local': prevIsLocal,
-            'current_is_local': currentIsLocal
-        }, context);
+            app._addOutboxItemsToContext(context, unsyncedItems);
 
-        app._addOutboxItemsToContext(context, unsyncedItems);
-
-        return _addLookups(page, context, false, routeInfo).then(
-            function(context) {
+            return _addLookups(page, context, false, routeInfo).then(function(
+                context
+            ) {
                 return router.go(
-                    url, page + '_list', context, ui, conf.once ? true : false
+                    url,
+                    page + '_list',
+                    context,
+                    ui,
+                    conf.once ? true : false
                 );
-            }
-        );
-    });
+            });
+        });
 }
 
 // Generate item detail view context and render with [url]_detail template;
@@ -913,7 +958,7 @@ _onShow.detail = function(page, mode) {
 
 function _getDetailUrl(url, mode) {
     if (url) {
-        url += "/";
+        url += '/';
     }
     url += '<slug>';
     if (mode != 'detail') {
@@ -923,7 +968,7 @@ function _getDetailUrl(url, mode) {
 }
 
 function _getDetailReserved(url) {
-    var reserved = ["new"];
+    var reserved = ['new'];
     if (!url) {
         // This list is bound to root URL, don't mistake other lists for items
         for (var key in app.wq_config.pages) {
@@ -999,15 +1044,13 @@ function _renderDetail(item, page, mode, ui, params, url, context) {
     if (context && context.outbox_id) {
         routeInfo.outbox_id = context.outbox_id;
     }
-    context = $.extend({'page_config': conf}, item, context);
-    return _addLookups(page, context, false, routeInfo).then(
-        function(context) {
-            var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
-                template = page + '_' + mode,
-                once = conf.once ? true : false;
-            return router.go(url, template, context, ui, once, divid);
-        }
-    );
+    context = $.extend({ page_config: conf }, item, context);
+    return _addLookups(page, context, false, routeInfo).then(function(context) {
+        var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
+            template = page + '_' + mode,
+            once = conf.once ? true : false;
+        return router.go(url, template, context, ui, once, divid);
+    });
 }
 
 function _renderEdit(itemid, item, page, ui, params, url, context) {
@@ -1016,22 +1059,23 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
     if (context && context.outbox_id) {
         routeInfo.outbox_id = context.outbox_id;
     }
-    if (itemid == "new") {
+    if (itemid == 'new') {
         // Create new item
         context = $.extend(
-            {'page_config': conf}, params, conf.defaults, context
+            { page_config: conf },
+            params,
+            conf.defaults,
+            context
         );
-        return _addLookups(page, context, "new", routeInfo).then(done);
+        return _addLookups(page, context, 'new', routeInfo).then(done);
     } else {
         // Edit existing item
-        context = $.extend({'page_config': conf}, item, context);
+        context = $.extend({ page_config: conf }, item, context);
         return _addLookups(page, context, true, routeInfo).then(done);
     }
     function done(context) {
         var divid = page + '_edit_' + itemid + '-page';
-        return router.go(
-            url, page + '_edit', context, ui, false, divid
-        );
+        return router.go(url, page + '_edit', context, ui, false, divid);
     }
 }
 
@@ -1061,30 +1105,26 @@ function _renderOther(page, ui, params, url, context) {
         url = conf.url;
     }
     if (params && $.param(params)) {
-        url += "?" + $.param(params);
+        url += '?' + $.param(params);
     }
-    context = $.extend({'page_config': conf}, context);
-    routeInfo = _getRouteInfo(
-        page, null, null, url, null
+    context = $.extend({ page_config: conf }, context);
+    routeInfo = _getRouteInfo(page, null, null, url, null);
+    Promise.all(_callPlugins('context', undefined, [context, routeInfo])).then(
+        function(pluginContext) {
+            pluginContext.forEach(function(pc) {
+                $.extend(context, pc);
+            });
+            router.go(url, page, context, ui, conf.once ? true : false);
+        }
     );
-    Promise.all(_callPlugins(
-        'context', undefined, [context, routeInfo]
-    )).then(function(pluginContext) {
-        pluginContext.forEach(function(pc) {
-            $.extend(context, pc);
-        });
-        router.go(url, page, context, ui, conf.once ? true : false);
-    });
 }
 
 function _renderOutboxList(match, ui) {
-    var routeInfo = _getRouteInfo(
-        'outbox', null, null, 'outbox', null
-    );
+    var routeInfo = _getRouteInfo('outbox', null, null, 'outbox', null);
     outbox.model.load().then(function(context) {
-        Promise.all(_callPlugins(
-            'context', undefined, [context, routeInfo]
-        )).then(function(pluginContext) {
+        Promise.all(
+            _callPlugins('context', undefined, [context, routeInfo])
+        ).then(function(pluginContext) {
             pluginContext.forEach(function(pc) {
                 $.extend(context, pc);
             });
@@ -1101,9 +1141,10 @@ function _renderOutboxItem(mode) {
     // Display outbox item using model-specific detail/edit view
     return function(match, ui, params) {
         outbox.loadItem(match[1]).then(function(item) {
-            var id, idMatch = item.options.url.match(new RegExp(
-                item.options.modelConf.url + '/([^\/]+)$'
-            ));
+            var id,
+                idMatch = item.options.url.match(
+                    new RegExp(item.options.modelConf.url + '/([^/]+)$')
+                );
             if (item.data.id) {
                 id = item.data.id;
             } else if (idMatch) {
@@ -1116,8 +1157,8 @@ function _renderOutboxItem(mode) {
                 url += '/' + mode;
             }
             var context = {
-                'outbox_id': item.id,
-                'error': item.error
+                outbox_id: item.id,
+                error: item.error
             };
             if (id == 'new') {
                 $.extend(context, item.data);
@@ -1125,8 +1166,14 @@ function _renderOutboxItem(mode) {
                 context.id = id;
             }
             _displayItem(
-                 id, item.data, item.options.modelConf.name,
-                 ui, params, mode, url, context
+                id,
+                item.data,
+                item.options.modelConf.name,
+                ui,
+                params,
+                mode,
+                url,
+                context
             ).then(function($page) {
                 if (mode == 'edit' && item.error) {
                     app.showOutboxErrors(item, $page);
@@ -1153,15 +1200,17 @@ function _showOutboxItem(mode) {
 
 // Handle form submit from [url]_edit views
 function _handleForm(evt) {
-    var $form = $(this), $submitVal, backgroundSync;
+    var $form = $(this),
+        $submitVal,
+        backgroundSync;
     if (evt.isDefaultPrevented()) {
         return;
     }
     $form.find('[type=submit]').prop('disabled', true);
     if ($form.data('wq-submit-button-name')) {
-        $submitVal = $("<input>")
-           .attr("name", $form.data('wq-submit-button-name'))
-           .attr("value", $form.data('wq-submit-button-value'));
+        $submitVal = $('<input>')
+            .attr('name', $form.data('wq-submit-button-name'))
+            .attr('value', $form.data('wq-submit-button-value'));
         $form.append($submitVal);
     }
     if ($form.data('wq-json') !== undefined && !$form.data('wq-json')) {
@@ -1176,7 +1225,7 @@ function _handleForm(evt) {
 
     var outboxId = $form.data('wq-outbox-id');
     var preserve = $form.data('wq-outbox-preserve');
-    var url = $form.attr('action').replace(app.service + "/", "");
+    var url = $form.attr('action').replace(app.service + '/', '');
     var conf = _getConfByUrl(url);
     var vals = {};
     var $files = $form.find('input[type=file]');
@@ -1218,7 +1267,9 @@ function _handleForm(evt) {
     // with Blob instead of base64 encoding to represent the actual file.
     if (has_files) {
         $files.each(function() {
-            var name = this.name, file, slice;
+            var name = this.name,
+                file,
+                slice;
             if (!this.files || !this.files.length) {
                 return;
             }
@@ -1226,34 +1277,34 @@ function _handleForm(evt) {
                 file = this.files[i];
                 slice = file.slice || file.webkitSlice;
                 addVal(name, {
-                    'type': file.type,
-                    'name': file.name,
+                    type: file.type,
+                    name: file.name,
                     // Convert to blob for better serialization
-                    'body': slice.call(file, 0, file.size, file.type)
+                    body: slice.call(file, 0, file.size, file.type)
                 });
             }
         });
     }
     // Handle blob-stored files created by (e.g.) wq/photos.js
     $form.find('input[data-wq-type=file]').each(function() {
-         // wq/photo.js files in memory, copy over to form
-         var name = this.name;
-         var value = this.value;
-         var curVal = $.isArray(vals[name]) ? vals[name][0] : vals[name];
-         var photos = app.plugins.photos;
-         if (curVal && typeof curVal === "string") {
-             delete vals[name];
-         }
-         if (!value || !photos) {
-             return;
-         }
+        // wq/photo.js files in memory, copy over to form
+        var name = this.name;
+        var value = this.value;
+        var curVal = $.isArray(vals[name]) ? vals[name][0] : vals[name];
+        var photos = app.plugins.photos;
+        if (curVal && typeof curVal === 'string') {
+            delete vals[name];
+        }
+        if (!value || !photos) {
+            return;
+        }
 
-         var data = photos._files[value];
-         if (data) {
-             has_files = true;
-             addVal(name, data);
-             delete photos._files[value];
-         }
+        var data = photos._files[value];
+        if (data) {
+            has_files = true;
+            addVal(name, data);
+            delete photos._files[value];
+        }
     });
 
     if ($submitVal) {
@@ -1261,7 +1312,7 @@ function _handleForm(evt) {
     }
 
     var options = {
-        'url': url
+        url: url
     };
     if (!backgroundSync) {
         options.storage = 'temporary';
@@ -1278,7 +1329,7 @@ function _handleForm(evt) {
         options.method = vals._method;
         delete vals._method;
     } else {
-        options.method = "POST";
+        options.method = 'POST';
     }
 
     options.modelConf = conf;
@@ -1315,7 +1366,7 @@ function _handleForm(evt) {
                 if (!item.error) {
                     // Save failed without server error: probably offline
                     error = app.OFFLINE;
-                } else if (typeof(item.error) === 'string') {
+                } else if (typeof item.error === 'string') {
                     // Save failed and error information is not in JSON format
                     // (likely a 500 server failure)
                     error = app.FAILURE;
@@ -1339,9 +1390,9 @@ app.showOutboxErrors = function(item, $page) {
         }
     }
     if (!item.error) {
-        showError("Error saving data.");
+        showError('Error saving data.');
         return;
-    } else if (typeof(item.error) === 'string') {
+    } else if (typeof item.error === 'string') {
         showError(item.error);
         return;
     }
@@ -1362,7 +1413,7 @@ app.showOutboxErrors = function(item, $page) {
             if (f == 'non_field_errors') {
                 showError(err);
             } else {
-                if (typeof(err) !== 'object') {
+                if (typeof err !== 'object') {
                     showError(err, f);
                 } else {
                     // Nested object errors (e.g. attachment)
@@ -1403,7 +1454,6 @@ function _submitClick() {
     }
 }
 
-
 // Successful results from REST API contain the newly saved object
 function _updateModels(item, result) {
     var modelConf = item.options.modelConf;
@@ -1413,16 +1463,15 @@ function _updateModels(item, result) {
             return model.remove(item.deletedId);
         } else {
             return model.update([result]).then(function() {
-                return Promise.all(_callPlugins(
-                    'onsave', undefined, [item, result]
-                ));
+                return Promise.all(
+                    _callPlugins('onsave', undefined, [item, result])
+                );
             });
         }
     } else if (app.can_login && result && result.user && result.config) {
         return _saveLogin(result);
     }
 }
-
 
 function _saveLogin(result) {
     var config = result.config,
@@ -1473,11 +1522,13 @@ function _addLookups(page, context, editable, routeInfo) {
         // Choice (select/radio) lookups
         if (field.choices) {
             lookups[fname + '_label'] = _choice_label_lookup(
-                field.name, field.choices
+                field.name,
+                field.choices
             );
             if (editable) {
                 lookups[fname + '_choices'] = _choice_dropdown_lookup(
-                    field.name, field.choices
+                    field.name,
+                    field.choices
                 );
             }
         }
@@ -1502,7 +1553,9 @@ function _addLookups(page, context, editable, routeInfo) {
             }
             if (editable) {
                 lookups[fname + '_list'] = _parent_dropdown_lookup(
-                    field, context, nkey
+                    field,
+                    context,
+                    nkey
                 );
             }
         }
@@ -1514,7 +1567,7 @@ function _addLookups(page, context, editable, routeInfo) {
                 var fname = field.name + '.' + child.name;
                 addLookups(child, fname);
             });
-            if (editable == "new" && !context[field.name]) {
+            if (editable == 'new' && !context[field.name]) {
                 lookups[field.name] = _default_attachments(field, context);
             }
         }
@@ -1529,37 +1582,40 @@ function _addLookups(page, context, editable, routeInfo) {
     var queue = keys.map(function(key) {
         return lookups[key];
     });
-    return Promise.all(queue).then(function(results) {
-        results.forEach(function(result, i) {
-            var key = keys[i];
-            context[key] = result;
-        });
-        results.forEach(function(result, i) {
-            var parts = keys[i].split('.'), nested;
-            if (parts.length != 2) {
-                return;
-            }
-            nested = context[parts[0]];
-            if (!nested) {
-                return;
-            }
-            if (!$.isArray(nested)) {
-                nested = [nested];
-            }
-            nested.forEach(function(row) {
-                row[parts[1]] = row[parts[1]] || result;
+    return Promise.all(queue)
+        .then(function(results) {
+            results.forEach(function(result, i) {
+                var key = keys[i];
+                context[key] = result;
             });
+            results.forEach(function(result, i) {
+                var parts = keys[i].split('.'),
+                    nested;
+                if (parts.length != 2) {
+                    return;
+                }
+                nested = context[parts[0]];
+                if (!nested) {
+                    return;
+                }
+                if (!$.isArray(nested)) {
+                    nested = [nested];
+                }
+                nested.forEach(function(row) {
+                    row[parts[1]] = row[parts[1]] || result;
+                });
+            });
+            return Promise.all(
+                _callPlugins('context', undefined, [context, routeInfo])
+            );
+        })
+        .then(function(pluginContext) {
+            pluginContext.forEach(function(pc) {
+                $.extend(context, pc);
+            });
+            spin.stop();
+            return context;
         });
-        return Promise.all(_callPlugins(
-            'context', undefined, [context, routeInfo]
-        ));
-    }).then(function(pluginContext) {
-        pluginContext.forEach(function(pc) {
-            $.extend(context, pc);
-        });
-        spin.stop();
-        return context;
-    });
 }
 
 // Preset list of choices
@@ -1617,14 +1673,12 @@ function _this_parent_lookup(field) {
     return Promise.all([
         _getOutboxRecordLookup(model),
         model.getIndex('id')
-    ]).then(
-        function(results) {
-            return function() {
-                var parentId = this[field.name + '_id'];
-                return results[0][parentId] || results[1][parentId];
-            };
-        }
-    );
+    ]).then(function(results) {
+        return function() {
+            var parentId = this[field.name + '_id'];
+            return results[0][parentId] || results[1][parentId];
+        };
+    });
 }
 
 // Foreign key label
@@ -1652,7 +1706,8 @@ function _parent_dropdown_lookup(field, context, nkey) {
     }
     return result.then(function(choices) {
         return function() {
-            var parents = [], current;
+            var parents = [],
+                current;
             if (nkey) {
                 current = this[nkey[1]] && this[nkey[1]][nkey[2]];
             } else {
@@ -1674,10 +1729,10 @@ function _getOutboxRecords(model) {
     return model.unsyncedItems().then(function(items) {
         return items.map(function(item) {
             return {
-                'id': 'outbox-' + item.id,
-                'label': item.label,
-                'outbox_id': item.id,
-                'outbox': true
+                id: 'outbox-' + item.id,
+                label: item.label,
+                outbox_id: item.id,
+                outbox: true
             };
         });
     });
@@ -1712,7 +1767,7 @@ function _default_attachments(field, context) {
         for (var i = 0; i < +field.initial; i++) {
             attachments.push({
                 '@index': i,
-                'new_attachment': true
+                new_attachment: true
             });
         }
         return Promise.resolve(attachments);
@@ -1740,7 +1795,7 @@ function _default_attachments(field, context) {
         types.forEach(function(t, i) {
             var obj = {
                 '@index': i,
-                'new_attachment': true
+                new_attachment: true
             };
             obj[typeField.name + '_id'] = t.id;
             obj[typeField.name + '_label'] = t.label;
@@ -1760,11 +1815,14 @@ function _getConf(page, silentFail) {
             throw 'Configuration for "' + page + '" not found!';
         }
     }
-    return $.extend({
-        'page': page,
-        'form': [],
-        'modes': (conf.list ? ['list', 'detail', 'edit'] : [])
-    }, conf);
+    return $.extend(
+        {
+            page: page,
+            form: [],
+            modes: conf.list ? ['list', 'detail', 'edit'] : []
+        },
+        conf
+    );
 }
 
 // Helper to load configuration based on URL
@@ -1808,19 +1866,20 @@ function _computeFilter(filter, context) {
 }
 
 function _loadFromServer(url, ui) {
-    var jqmurl = '/' + url, options = ui && ui.options || {};
+    var jqmurl = '/' + url,
+        options = (ui && ui.options) || {};
     options.wqSkip = true;
     if (app.config.debug) {
-        console.log("Loading " + url + " from server");
+        console.log('Loading ' + url + ' from server');
     }
     return Promise.resolve(jqm.changePage(jqmurl, options));
 }
 
 function _fetchFail(query, error) {
     /* jshint unused: false */
-    spin.start("Error Loading Data", 1.5, {
-        "theme": jqm.pageLoadErrorMessageTheme,
-        "textonly": true
+    spin.start('Error Loading Data', 1.5, {
+        theme: jqm.pageLoadErrorMessageTheme,
+        textonly: true
     });
 }
 

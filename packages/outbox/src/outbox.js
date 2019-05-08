@@ -2,7 +2,6 @@ import ds from '@wq/store';
 import model from '@wq/model';
 import { convert } from '../vendor/json-forms';
 
-
 var _outboxes = {};
 var outbox = new _Outbox(ds);
 
@@ -17,10 +16,10 @@ outbox.getOutbox = function(store) {
 export default outbox;
 
 function _Outbox(store) {
-    var self = _outboxes[store.name] = this;
+    var self = (_outboxes[store.name] = this);
 
     self.store = store;
-    self.model = model({'query': 'outbox', 'store': store});
+    self.model = model({ query: 'outbox', store: store });
     self.model.overwrite = _wrapOverwrite(self.model.overwrite);
     self.syncMethod = 'POST';
     self.cleanOutbox = true;
@@ -29,7 +28,6 @@ function _Outbox(store) {
     self.csrftokenField = 'csrfmiddlewaretoken';
 
     self.init = function(opts) {
-
         var optlist = [
             // Default to store values but allow overriding
             'service',
@@ -129,9 +127,8 @@ function _Outbox(store) {
                 delete item.options.label;
             }
             Object.keys(data).forEach(function(key) {
-                var match = (
-                    data[key].match && data[key].match(/^outbox-(\d+)$/)
-                );
+                var match =
+                    data[key].match && data[key].match(/^outbox-(\d+)$/);
                 if (match) {
                     if (!item.parents) {
                         item.parents = [];
@@ -178,24 +175,24 @@ function _Outbox(store) {
         if (csrftoken) {
             headers['X-CSRFToken'] = csrftoken;
             data = {
-               ...data,
-               [self.csrftokenField]: csrftoken
-            }
+                ...data,
+                [self.csrftokenField]: csrftoken
+            };
         }
 
-        var defaults = {...self.defaults};
+        var defaults = { ...self.defaults };
         if (defaults.format && !self.formatKeyword) {
             url = url.replace(/\/$/, '');
             url += '.' + defaults.format;
             delete defaults.format;
         }
         var urlObj = new URL(url);
-        Object.entries(defaults).forEach(
-            ([key, value]) => urlObj.searchParams.append(key, value)
+        Object.entries(defaults).forEach(([key, value]) =>
+            urlObj.searchParams.append(key, value)
         );
 
         if (self.debugNetwork) {
-            console.log("Sending item to " + urlObj.href);
+            console.log('Sending item to ' + urlObj.href);
             if (self.debugValues) {
                 console.log(data);
             }
@@ -204,12 +201,12 @@ function _Outbox(store) {
         // Use a FormData object to submit
         var formData = new FormData();
         Object.entries(data).forEach(([key, val]) => {
-	    if (Array.isArray(val)) {
-		val.forEach(appendValue.bind(this, key));
-	    } else {
-		appendValue(key, val);
-	    }
-	});
+            if (Array.isArray(val)) {
+                val.forEach(appendValue.bind(this, key));
+            } else {
+                appendValue(key, val);
+            }
+        });
 
         function appendValue(key, val) {
             if (val && val.name && val.type && val.body) {
@@ -227,16 +224,13 @@ function _Outbox(store) {
             }
         }
 
-        return self.store.ajax(
-            urlObj,
-            formData,
-            method,
-            headers
-        ).then(success, error);
+        return self.store
+            .ajax(urlObj, formData, method, headers)
+            .then(success, error);
 
         function success(result) {
             if (self.debugNetwork) {
-                console.log("Item successfully sent to " + url);
+                console.log('Item successfully sent to ' + url);
             }
             self.applyResult(item, result);
             if (!item.synced) {
@@ -244,36 +238,41 @@ function _Outbox(store) {
                 item.retryCount = item.retryCount || 0;
                 item.retryCount++;
             }
-            return self.updateModels(item, result).then(function() {
-                return self.model.filter({'parents': item.id});
-            }).then(function(relItems) {
-                 return Promise.all(relItems.map(_loadItemData));
-            }).then(function(relItems) {
-                relItems.forEach(function(relItem) {
-                    relItem.parents = relItem.parents.filter(function(p) {
-                        return p != item.id;
+            return self
+                .updateModels(item, result)
+                .then(function() {
+                    return self.model.filter({ parents: item.id });
+                })
+                .then(function(relItems) {
+                    return Promise.all(relItems.map(_loadItemData));
+                })
+                .then(function(relItems) {
+                    relItems.forEach(function(relItem) {
+                        relItem.parents = relItem.parents.filter(function(p) {
+                            return p != item.id;
+                        });
+                        Object.keys(relItem.data).forEach(function(key) {
+                            if (relItem.data[key] === 'outbox-' + item.id) {
+                                relItem.data[key] = result.id;
+                            }
+                        });
                     });
-                    Object.keys(relItem.data).forEach(function(key) {
-                        if (relItem.data[key] === 'outbox-' + item.id) {
-                            relItem.data[key] = result.id;
-                        }
-                    });
+                    relItems.push(_withoutData(item));
+                    return self.model.update(relItems);
+                })
+                .then(function() {
+                    return item;
                 });
-                relItems.push(_withoutData(item));
-                return self.model.update(relItems);
-            }).then(function() {
-                return item;
-            });
         }
 
         function error(error) {
             if (self.debugNetwork) {
-                console.warn("Error sending item to " + url);
+                console.warn('Error sending item to ' + url);
             }
             if (error) {
-                error = error.json || error.text || error.status || ("" + error);
+                error = error.json || error.text || error.status || '' + error;
             } else {
-                error = "Error";
+                error = 'Error';
             }
             item.error = error;
             if (once) {
@@ -289,7 +288,6 @@ function _Outbox(store) {
 
     // Send all unsynced items, using batch service if available
     self.sendAll = function(retryAll) {
-
         var fn = retryAll ? self.unsyncedItems : self.pendingItems,
             result = fn(null, true);
 
@@ -312,35 +310,39 @@ function _Outbox(store) {
             data.push(item.data);
         });
 
-        return Promise.resolve($.ajax(self.batchService, {
-            data: JSON.stringify(data),
-            type: "POST",
-            dataType: "json",
-            contentType: "application/json",
-            async: true
-        })).then(function(r) {
-            var results = self.parseBatchResult(r);
-            if (!results || results.length != items.length) {
+        return Promise.resolve(
+            $.ajax(self.batchService, {
+                data: JSON.stringify(data),
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                async: true
+            })
+        ).then(
+            function(r) {
+                var results = self.parseBatchResult(r);
+                if (!results || results.length != items.length) {
+                    return null;
+                }
+
+                // Apply sync results to individual items
+                results.forEach(function(result, i) {
+                    var item = items[i];
+                    self.applyResult(item, result);
+                    if (!item.synced) {
+                        item.retryCount = item.retryCount || 0;
+                        item.retryCount++;
+                    }
+                });
+
+                return self.model.update(items).then(function() {
+                    return items;
+                });
+            },
+            function() {
                 return null;
             }
-
-            // Apply sync results to individual items
-            results.forEach(function(result, i) {
-                var item = items[i];
-                self.applyResult(item, result);
-                if (!item.synced) {
-                    item.retryCount = item.retryCount || 0;
-                    item.retryCount++;
-                }
-            });
-
-            return self.model.update(items).then(function() {
-                return items;
-            });
-
-        }, function() {
-            return null;
-        });
+        );
     };
 
     self.sendItems = function(items) {
@@ -353,7 +355,9 @@ function _Outbox(store) {
 
         // Sort items into those that are ready to be sent now vs. those that
         // are pending on another item.
-        var allIds = [], pendingIds = [], readyItems = [];
+        var allIds = [],
+            pendingIds = [],
+            readyItems = [];
         items.forEach(function(item) {
             allIds.push(item.id);
             if (item.parents && item.parents.length) {
@@ -368,23 +372,24 @@ function _Outbox(store) {
             return self.sendItem(item);
         });
 
-        return Promise.all(results).then(function() {
-            // Now try sending previously pending items (unless there are
-            // only pending items, in which case something has gone wrong)
-            if (pendingIds.length == allIds.length) {
-                return;
-            }
-            return self.model.filter(
-                {'id': pendingIds}
-            ).then(function(items) {
-                return Promise.all(items.map(_loadItemData));
-            }).then(self.sendItems);
-        }).then(function() {
-            // Reload data and return final result
-            return self.model.filter(
-                {'id': allIds}
-            );
-        });
+        return Promise.all(results)
+            .then(function() {
+                // Now try sending previously pending items (unless there are
+                // only pending items, in which case something has gone wrong)
+                if (pendingIds.length == allIds.length) {
+                    return;
+                }
+                return self.model
+                    .filter({ id: pendingIds })
+                    .then(function(items) {
+                        return Promise.all(items.map(_loadItemData));
+                    })
+                    .then(self.sendItems);
+            })
+            .then(function() {
+                // Reload data and return final result
+                return self.model.filter({ id: allIds });
+            });
     };
 
     // Process service send() results
@@ -399,7 +404,8 @@ function _Outbox(store) {
             item.synced = true;
             if (item.options.modelConf) {
                 item.deletedId = item.options.url.replace(
-                    item.options.modelConf.url + '/', ''
+                    item.options.modelConf.url + '/',
+                    ''
                 );
             }
         }
@@ -409,15 +415,17 @@ function _Outbox(store) {
     self.updateModels = function(item, result) {
         if (item.options.modelConf && item.synced) {
             var conf = {
-                'store': self.store,
+                store: self.store,
                 ...item.options.modelConf
             };
             if (item.deletedId) {
                 return model(conf).remove(item.deletedId);
             } else {
-                return model(conf).update([result]).then(function() {
-                    return result;
-                });
+                return model(conf)
+                    .update([result])
+                    .then(function() {
+                        return result;
+                    });
             }
         } else {
             return Promise.resolve();
@@ -433,7 +441,7 @@ function _Outbox(store) {
 
     // Actual unsynced items
     self.unsyncedItems = function(modelConf, withData) {
-        var result = self.model.filter({'synced': false});
+        var result = self.model.filter({ synced: false });
 
         // Exclude temporary items from list
         result = result.then(function(items) {
@@ -455,19 +463,21 @@ function _Outbox(store) {
         }
 
         // Otherwise, only match items corresponding to the specified list
-        return result.then(function(items) {
-            return items.filter(function(item) {
-                if (!item.options.modelConf) {
-                    return false;
-                }
-                for (var key in modelConf) {
-                    if (item.options.modelConf[key] != modelConf[key]) {
+        return result
+            .then(function(items) {
+                return items.filter(function(item) {
+                    if (!item.options.modelConf) {
                         return false;
                     }
-                }
-                return true;
-            });
-        }).then(loadData);
+                    for (var key in modelConf) {
+                        if (item.options.modelConf[key] != modelConf[key]) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+            })
+            .then(loadData);
 
         function loadData(items) {
             if (withData) {
@@ -480,9 +490,7 @@ function _Outbox(store) {
 
     // Unsynced items that have been sent less than maxRetries times
     self.pendingItems = function(modelConf, withData) {
-        return self.unsyncedItems(
-            modelConf, withData
-        ).then(function(unsynced) {
+        return self.unsyncedItems(modelConf, withData).then(function(unsynced) {
             var items = [];
             unsynced.forEach(function(item) {
                 if (self.maxRetries && item.retryCount >= self.maxRetries) {
@@ -498,9 +506,10 @@ function _Outbox(store) {
     };
 
     self.loadItem = function(itemId) {
-        return self.model.find(itemId)
-                   .then(_loadItemData)
-                   .then(_parseJsonForm);
+        return self.model
+            .find(itemId)
+            .then(_loadItemData)
+            .then(_parseJsonForm);
     };
 
     var _memoryItems = {};
@@ -510,11 +519,14 @@ function _Outbox(store) {
         } else if (item.options.storage == 'temporary') {
             return setData(item, _memoryItems[item.id]);
         } else {
-            return self.store.get('outbox_' + item.id).then(function(data) {
-                return setData(item, data);
-            }, function() {
-                return setData(item, null);
-            });
+            return self.store.get('outbox_' + item.id).then(
+                function(data) {
+                    return setData(item, data);
+                },
+                function() {
+                    return setData(item, null);
+                }
+            );
         }
         function setData(obj, data) {
             if (data) {
@@ -528,11 +540,12 @@ function _Outbox(store) {
     }
 
     function _parseJsonForm(item) {
-        var values = [], key;
+        var values = [],
+            key;
         for (key in item.data) {
             values.push({
-                'name': key,
-                'value': item.data[key]
+                name: key,
+                value: item.data[key]
             });
         }
         item.data = convert(values);
@@ -549,9 +562,9 @@ function _Outbox(store) {
     function _wrapOverwrite(defaultOverwrite) {
         return function(newData) {
             newData = self.model._processData(newData);
-            return Promise.all(
-                newData.list.map(_updateItemData)
-            ).then(function(items) {
+            return Promise.all(newData.list.map(_updateItemData)).then(function(
+                items
+            ) {
                 _cleanUpItemData(items);
                 return defaultOverwrite(items);
             });
@@ -569,18 +582,17 @@ function _Outbox(store) {
             _memoryItems[item.id] = item.data;
             return _withoutData(item);
         } else {
-            return self.store.set(
-                'outbox_' + item.id, item.data
-            ).then(function() {
-                return _withoutData(item);
-            }, function() {
-                console.warn(
-                    "could not save form contents to storage"
-                );
-                item.options.desiredStorage = item.options.storage;
-                item.options.storage = 'temporary';
-                return _updateItemData(item);
-            });
+            return self.store.set('outbox_' + item.id, item.data).then(
+                function() {
+                    return _withoutData(item);
+                },
+                function() {
+                    console.warn('could not save form contents to storage');
+                    item.options.desiredStorage = item.options.storage;
+                    item.options.storage = 'temporary';
+                    return _updateItemData(item);
+                }
+            );
         }
     }
 
@@ -592,11 +604,13 @@ function _Outbox(store) {
             return item;
         }
         var obj = {};
-        Object.keys(item).filter(function(key) {
-            return key != 'data';
-        }).forEach(function(key) {
-            obj[key] = item[key];
-        });
+        Object.keys(item)
+            .filter(function(key) {
+                return key != 'data';
+            })
+            .forEach(function(key) {
+                obj[key] = item[key];
+            });
         return obj;
     }
 
@@ -611,14 +625,16 @@ function _Outbox(store) {
             }
         });
         return self.store.keys().then(function(keys) {
-            return Promise.all(keys.map(function(key) {
-                if (key.indexOf('outbox_') === 0) {
-                    var itemId = key.replace('outbox_', '');
-                    if (!validId[itemId]) {
-                        return self.store.set(key, null);
+            return Promise.all(
+                keys.map(function(key) {
+                    if (key.indexOf('outbox_') === 0) {
+                        var itemId = key.replace('outbox_', '');
+                        if (!validId[itemId]) {
+                            return self.store.set(key, null);
+                        }
                     }
-                }
-            }));
+                })
+            );
         });
     }
 }

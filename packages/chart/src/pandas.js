@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import 'whatwg-fetch';
 
-
 var pandas = {};
 
 pandas.parse = function(str) {
@@ -49,8 +48,13 @@ pandas.parse = function(str) {
 
     */
 
-    var idColumns, metadata = [], datasets = [], col2dataset = [], data,
-        valuesHeader, rows;
+    var idColumns,
+        metadata = [],
+        datasets = [],
+        col2dataset = [],
+        data,
+        valuesHeader,
+        rows;
     if (str.charAt(0) != ',') {
         // Assume plain CSV (single series with one-row header)
         data = [];
@@ -58,15 +62,17 @@ pandas.parse = function(str) {
             var key, val;
             for (key in row) {
                 val = row[key];
-                if (row[key] !== "") {
+                if (row[key] !== '') {
                     row[key] = isNaN(+val) ? val : +val;
                 }
             }
             data.push(row);
         });
-        return [{
-            'data': data
-        }];
+        return [
+            {
+                data: data
+            }
+        ];
     }
 
     // Parse CSV headers and data
@@ -74,9 +80,9 @@ pandas.parse = function(str) {
     rows.forEach(function(row, i) {
         if (data) {
             parseData(row);
-        } else if (i === 0 && row[0] === "") {
+        } else if (i === 0 && row[0] === '') {
             parseValuesHeader(row);
-        } else if (valuesHeader && row[row.length - 1] !== "") {
+        } else if (valuesHeader && row[row.length - 1] !== '') {
             parseMetaHeader(row);
         } else if (valuesHeader) {
             parseIdHeader(row);
@@ -96,7 +102,7 @@ pandas.parse = function(str) {
     function parseMetaHeader(row) {
         // First & last column aren't blank => this row contains metadata
         var metaname = row[0];
-        var metaStart = valuesHeader.lastIndexOf("") + 1;
+        var metaStart = valuesHeader.lastIndexOf('') + 1;
         row.slice(metaStart).forEach(function(d, i) {
             if (!metadata[i]) {
                 metadata[i] = {};
@@ -111,11 +117,10 @@ pandas.parse = function(str) {
 
     function parseIdHeader(row) {
         // Blank last column => this row has index column labels
-        if (row.indexOf("") != valuesHeader.lastIndexOf("") + 1) {
-            throw "Header mismatch!";
+        if (row.indexOf('') != valuesHeader.lastIndexOf('') + 1) {
+            throw 'Header mismatch!';
         }
-        idColumns = row.slice(0, row.indexOf(""));
-
+        idColumns = row.slice(0, row.indexOf(''));
     }
 
     function findDatasets() {
@@ -144,9 +149,9 @@ pandas.parse = function(str) {
         idColumns = [row[0]];
         valuesHeader = [];
         row.slice(1).forEach(function(s, i) {
-            datasets[i] = {'id': s, 'data': []};
+            datasets[i] = { id: s, data: [] };
             col2dataset[i] = i;
-            valuesHeader[i + 1] = "value";
+            valuesHeader[i + 1] = 'value';
         });
     }
 
@@ -160,7 +165,7 @@ pandas.parse = function(str) {
         var rowdata = [];
         row.slice(idColumns.length).forEach(function(d, i) {
             var c, item, dsi, valname;
-            if (d === "") {
+            if (d === '') {
                 return;
             }
             dsi = col2dataset[i];
@@ -183,22 +188,19 @@ pandas.parse = function(str) {
 };
 
 pandas.get = function(url, callback) {
-    return fetch(
-        url
-    ).then(
-        response => response.text()
-    ).then(
-        text => pandas.parse(text)
-    ).then(
-        callback
-    );
+    return fetch(url)
+        .then(response => response.text())
+        .then(text => pandas.parse(text))
+        .then(callback);
 };
 
 function hash(obj) {
-    var str = "";
-    d3.keys(obj).sort().forEach(function(key) {
-        str += key + '=' + obj[key] + '\n';
-    });
+    var str = '';
+    d3.keys(obj)
+        .sort()
+        .forEach(function(key) {
+            str += key + '=' + obj[key] + '\n';
+        });
     return str;
 }
 

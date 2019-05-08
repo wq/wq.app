@@ -3,7 +3,7 @@ import tmpl from '@wq/template';
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
 var photos = {
-    'name': "photos"
+    name: 'photos'
 };
 
 var _defaults = {
@@ -14,7 +14,7 @@ var _defaults = {
 var $, jqm, spin;
 
 photos.init = function(config) {
-    $ = config && config.jQuery || window.jQuery;
+    $ = (config && config.jQuery) || window.jQuery;
     spin = photos.app.spin;
 
     tmpl.setDefault('image_url', function() {
@@ -43,7 +43,7 @@ photos.preview = function(imgid, file) {
             return;
         }
     }
-    $('#'+imgid).attr('src', _getUrl(file));
+    $('#' + imgid).attr('src', _getUrl(file));
 };
 
 function _getUrl(file) {
@@ -52,18 +52,24 @@ function _getUrl(file) {
 }
 
 photos.take = function(input, preview) {
-    var options = $.extend({
-        sourceType: Camera.PictureSourceType.CAMERA,
-        correctOrientation: true,
-        saveToPhotoAlbum: true
-    }, _defaults);
+    var options = $.extend(
+        {
+            sourceType: Camera.PictureSourceType.CAMERA,
+            correctOrientation: true,
+            saveToPhotoAlbum: true
+        },
+        _defaults
+    );
     _start.call(this, options, input, preview);
 };
 
 photos.pick = function(input, preview) {
-    var options = $.extend({
-        sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM
-    }, _defaults);
+    var options = $.extend(
+        {
+            sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM
+        },
+        _defaults
+    );
     _start.call(this, options, input, preview);
 };
 
@@ -82,7 +88,8 @@ function _start(options, input, preview) {
         function(msg) {
             error(msg);
         },
-    options);
+        options
+    );
 }
 
 photos.base64toBlob = async function(data) {
@@ -96,9 +103,9 @@ photos._files = {};
 photos.storeFile = function(name, type, blob, input) {
     // Save blob data for later retrieval
     var file = {
-        'name': name,
-        'type': type,
-        'body': blob
+        name: name,
+        type: type,
+        body: blob
     };
     photos._files[name] = file;
     if (input) {
@@ -110,7 +117,7 @@ function load(data, input, preview) {
     spin.start('Loading image...');
     photos.base64toBlob(data).then(function(blob) {
         var number = Math.round(Math.random() * 1e10);
-        var name = $('#' + input).val() || ('photo' + number + '.jpg');
+        var name = $('#' + input).val() || 'photo' + number + '.jpg';
         photos.storeFile(name, 'image/jpeg', blob, input);
         spin.stop();
         if (preview) {
@@ -120,9 +127,9 @@ function load(data, input, preview) {
 }
 
 function error(msg) {
-    spin.start("Error Loading Image: " + msg, 1.5, {
-        "theme": jqm.pageLoadErrorMessageTheme,
-        "textonly": true
+    spin.start('Error Loading Image: ' + msg, 1.5, {
+        theme: jqm.pageLoadErrorMessageTheme,
+        textonly: true
     });
 }
 

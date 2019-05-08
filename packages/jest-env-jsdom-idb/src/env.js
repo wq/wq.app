@@ -2,7 +2,6 @@ const JSDOMEnvironment = require('jest-environment-jsdom');
 const indexedDB = require('fake-indexeddb');
 const IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
-
 class IDBEnvironment extends JSDOMEnvironment {
     async setup() {
         await super.setup();
@@ -22,6 +21,5 @@ class IDBEnvironment extends JSDOMEnvironment {
         await super.teardown();
     }
 }
-
 
 module.exports = IDBEnvironment;

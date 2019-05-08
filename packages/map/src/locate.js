@@ -2,16 +2,16 @@ import L from 'leaflet';
 
 // Exported module object
 var locate = {
-    'name': 'locate',
-    'config': {
-        'fieldNames': {
-            'latitude': 'latitude',
-            'longitude': 'longitude',
-            'geometry': 'geometry',
-            'accuracy': 'accuracy',
-            'toggle': 'toggle',
-            'mode': 'mode',
-            'source': 'source'
+    name: 'locate',
+    config: {
+        fieldNames: {
+            latitude: 'latitude',
+            longitude: 'longitude',
+            geometry: 'geometry',
+            accuracy: 'accuracy',
+            toggle: 'toggle',
+            mode: 'mode',
+            source: 'source'
         }
     }
 };
@@ -37,11 +37,7 @@ locate.run = function($page, routeInfo) {
         var name = locate.config.fieldNames[field];
         fields[field] = $page.find('[name=' + name + ']');
     }
-    var locator = locate.locator(
-        map,
-        fields,
-        locate.config
-    );
+    var locator = locate.locator(map, fields, locate.config);
     $page.on('pagehide', function() {
         locator.stop();
     });
@@ -94,10 +90,10 @@ locate.Locator = function(map, fields, opts) {
     // GPS mode
     self.gpsStart = function() {
         var locateOpts = {
-            'enableHighAccuracy': true,
-            'watch': true,
-            'setView': true,
-            'timeout': 60 * 1000
+            enableHighAccuracy: true,
+            watch: true,
+            setView: true,
+            timeout: 60 * 1000
         };
         map.off('locationfound');
         map.off('locationerror');
@@ -141,11 +137,11 @@ locate.Locator = function(map, fields, opts) {
 
     // Default Circle & Marker generators, override to customize
     self.makeCircle = function() {
-        return L.circle([0,0],1,{'weight': 1});
+        return L.circle([0, 0], 1, { weight: 1 });
     };
 
     self.makeMarker = function() {
-        return L.marker([0,0]);
+        return L.marker([0, 0]);
     };
 
     // Display and save updates to location
@@ -163,20 +159,18 @@ locate.Locator = function(map, fields, opts) {
         // Save to fields
         if (fields) {
             if (fields.latitude) {
-                fields.latitude.val(
-                    L.Util.formatNum(loc.lat, opts.precision)
-                );
+                fields.latitude.val(L.Util.formatNum(loc.lat, opts.precision));
             }
             if (fields.longitude) {
-                fields.longitude.val(
-                    L.Util.formatNum(loc.lng, opts.precision)
-                );
+                fields.longitude.val(L.Util.formatNum(loc.lng, opts.precision));
             }
             if (fields.geometry) {
-                fields.geometry.val(JSON.stringify({
-                    'type': "Point",
-                    'coordinates': [loc.lng, loc.lat]
-                }));
+                fields.geometry.val(
+                    JSON.stringify({
+                        type: 'Point',
+                        coordinates: [loc.lng, loc.lat]
+                    })
+                );
             }
             if (fields.accuracy) {
                 fields.accuracy.val(accuracy);
@@ -211,7 +205,7 @@ locate.Locator = function(map, fields, opts) {
 
     self.onerror = function(evt) {
         if (window.console) {
-            window.console.log("Error retrieving coordinates!");
+            window.console.log('Error retrieving coordinates!');
         }
         if (opts.onError) {
             opts.onError(evt);
@@ -232,7 +226,7 @@ locate.Locator = function(map, fields, opts) {
 
         // Assume accuracy is equivalent to the real-world length represented
         // by 2 pixels
-        var accuracy = L.Util.formatNum(distance / height * 2, 3);
+        var accuracy = L.Util.formatNum((distance / height) * 2, 3);
 
         self.update(evt.latlng, accuracy);
     }
@@ -241,10 +235,10 @@ locate.Locator = function(map, fields, opts) {
         if (_mode != 'manual') {
             return;
         }
-        self.update(L.latLng(
-            fields.latitude.val(),
-            fields.longitude.val()
-        ), null);
+        self.update(
+            L.latLng(fields.latitude.val(), fields.longitude.val()),
+            null
+        );
     }
 
     function _getVal($input) {

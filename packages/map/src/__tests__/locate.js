@@ -1,33 +1,33 @@
-import locate from "../locate";
-import map from "../map";
-import routeConfig from "./config.json";
+import locate from '../locate';
+import map from '../map';
+import routeConfig from './config.json';
 
 const mockApp = {
-    'config': routeConfig,
-    'plugins': {'map': map},
-}
+    config: routeConfig,
+    plugins: { map: map }
+};
 
 const $mockPage = {
-    'find': () => $mockPage,
-    'on': () => {},
-    'attr': () => {},
-    'is': () => {},
-}
+    find: () => $mockPage,
+    on: () => {},
+    attr: () => {},
+    is: () => {}
+};
 
 beforeAll(() => {
     Object.keys(mockApp.config.pages).forEach(
-        key => mockApp.config.pages[key].name = key
+        key => (mockApp.config.pages[key].name = key)
     );
     map.app = mockApp;
     map.init({});
     locate.app = mockApp;
-})
+});
 
-test("locate plugin", () => {
+test('locate plugin', () => {
     const routeInfo = {
-        'page': 'point',
-        'mode': 'edit',
-        'page_config': locate.app.config.pages.point
+        page: 'point',
+        mode: 'edit',
+        page_config: locate.app.config.pages.point
     };
     var div = document.createElement('div');
     div.id = 'point-map';
@@ -36,7 +36,9 @@ test("locate plugin", () => {
     locate.run($mockPage, routeInfo);
 
     var lastError;
-    locate.config.onError = err => lastError = err;
+    locate.config.onError = err => (lastError = err);
     locate.locators['point'].setMode('gps');
-    expect(lastError.message).toBe("Geolocation error: Geolocation not supported..");
+    expect(lastError.message).toBe(
+        'Geolocation error: Geolocation not supported..'
+    );
 });

@@ -1,13 +1,12 @@
 import m from 'mustache';
 
-
 // Exported module object
 var tmpl = {};
 
 // Internal variables
 var _templates = {};
-var _partials  = {};
-var _defaults  = {};
+var _partials = {};
+var _defaults = {};
 var _debug;
 var $, jqm;
 
@@ -26,9 +25,10 @@ tmpl.setDefault = function(key, value) {
 
 tmpl.render = function(template, data) {
     if (!$) {
-        throw new Error("Initialize template first!");
+        throw new Error('Initialize template first!');
     }
-    var context = {}, key;
+    var context = {},
+        key;
     for (key in _defaults) {
         context[key] = _defaults[key];
     }
@@ -42,12 +42,12 @@ tmpl.render = function(template, data) {
 
 // Render page and inject it into DOM (replace existing page if it exists)
 function inject(template, context, url, pageid) {
-    var html  = tmpl.render(template, context);
+    var html = tmpl.render(template, context);
     if (!html.match(/<div/)) {
         throw "No content found in template '" + template + "'!";
     }
     var title = html.split(/<\/?title>/)[1];
-    var body  = html.split(/<\/?body[^>?]*>/)[1];
+    var body = html.split(/<\/?body[^>?]*>/)[1];
     if (body) {
         html = body;
     }
@@ -59,8 +59,7 @@ function inject(template, context, url, pageid) {
     if ($rolePage.length > 0) {
         if (_debug && $rolePage.length != $page.length) {
             console.info(
-                ($page.length - $rolePage.length) +
-                " extra element(s) ignored."
+                $page.length - $rolePage.length + ' extra element(s) ignored.'
             );
         }
         $page = $rolePage;
@@ -92,8 +91,8 @@ function inject(template, context, url, pageid) {
         }
         $page.trigger('create');
     } else {
-        $page.attr("data-" + jqm.ns + "url", url);
-        $page.attr("data-" + jqm.ns + "title", title);
+        $page.attr('data-' + jqm.ns + 'url', url);
+        $page.attr('data-' + jqm.ns + 'title', title);
         if (pageid) {
             $page.attr('id', pageid);
         }
@@ -115,8 +114,8 @@ if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
 
 // Render template only once
 tmpl.injectOnce = function(template, context, url, id) {
-    if(!id) {
-        id = template + "-page";
+    if (!id) {
+        id = template + '-page';
     }
     var $page = $('#' + id);
     if (!$page.length) {
@@ -125,8 +124,8 @@ tmpl.injectOnce = function(template, context, url, id) {
     } else {
         // Template was already rendered; ignore context but update URL
         // - it is up to the caller to update the DOM
-        $page.attr("data-" + jqm.ns + "url", url);
-        $page.jqmData("url", url);
+        $page.attr('data-' + jqm.ns + 'url', url);
+        $page.jqmData('url', url);
     }
     return $page;
 };

@@ -1,7 +1,6 @@
 import marked from 'marked';
 import highlight from './highlight';
 
-
 // Exported module object
 var md = {};
 
@@ -12,16 +11,16 @@ md.init = function(config) {
 
     // Default variable names
     if (!config.output) {
-        config.output = "html"; // Look for {{html}} in template
+        config.output = 'html'; // Look for {{html}} in template
     }
     if (!config.input) {
-        config.input = "markdown"; // Replace w/parse(this.markdown)
+        config.input = 'markdown'; // Replace w/parse(this.markdown)
     }
     md.config = config;
 };
 
 md.context = function(context) {
-    var output = "";
+    var output = '';
     if (context[md.config.input]) {
         output = md.parse(context[md.config.input]);
     }
@@ -46,7 +45,7 @@ md.postProcess = function(html) {
 
 // Connect markdown processor to code highlighter
 marked.setOptions({
-    'highlight': function(code, lang) {
+    highlight: function(code, lang) {
         return highlight.highlight(lang, code).value;
     }
 });
@@ -54,7 +53,7 @@ marked.setOptions({
 // Run for server-rendered markdown
 md.run = function($page) {
     $page.find('pre code:not(.hljs)').each(function(i, el) {
-         highlight.highlightBlock(el);
+        highlight.highlightBlock(el);
     });
 };
 

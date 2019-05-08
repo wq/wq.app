@@ -1,7 +1,6 @@
 import localForage from 'localforage';
 import memoryStorageDriver from 'localforage-memoryStorageDriver';
-import "whatwg-fetch";
-
+import 'whatwg-fetch';
 
 var _stores = {};
 
@@ -19,14 +18,12 @@ store.getStore = function(name) {
 
 // Internal variables and functions
 var _verbosity = {
-    'Network': 1,
-    'Lookup': 2,
-    'Values': 3
+    Network: 1,
+    Lookup: 2,
+    Values: 3
 };
 
-localForage.defineDriver(
-    memoryStorageDriver
-);
+localForage.defineDriver(memoryStorageDriver);
 
 export default store;
 
@@ -35,7 +32,7 @@ function _Store(name) {
         throw name + ' store already exists!';
     }
 
-    var self = _stores[name] = this;
+    var self = (_stores[name] = this);
     self.name = name;
 
     // Base URL of web service
@@ -80,9 +77,11 @@ function _Store(name) {
         self.ready = new Promise(_ready);
     };
 
-    self.ready = {'then': function() {
-        throw "Call init first!";
-    }};
+    self.ready = {
+        then: function() {
+            throw 'Call init first!';
+        }
+    };
 
     // Get value from datastore
     self.get = function(query) {
@@ -98,21 +97,24 @@ function _Store(name) {
         }
 
         // Check storage first
-        var promise = self.lf.getItem(key).then(function(result) {
-            if (!result) {
+        var promise = self.lf.getItem(key).then(
+            function(result) {
+                if (!result) {
+                    return fetchData();
+                }
+                if (self.debugLookup) {
+                    console.log('in storage');
+                }
+                return result;
+            },
+            function() {
                 return fetchData();
             }
-            if (self.debugLookup) {
-                console.log('in storage');
-            }
-            return result;
-        }, function() {
-            return fetchData();
-        });
+        );
 
         function fetchData() {
             // Search ends here if query is a simple string
-            if (typeof query == "string") {
+            if (typeof query == 'string') {
                 if (self.debugLookup) {
                     console.log('not found');
                 }
@@ -141,11 +143,14 @@ function _Store(name) {
                     console.log(value);
                 }
             }
-            return self.lf.setItem(key, value).then(function(d) {
-                return d;
-            }, function(err) {
-                return self.storageFail(value, err);
-            });
+            return self.lf.setItem(key, value).then(
+                function(d) {
+                    return d;
+                },
+                function(err) {
+                    return self.storageFail(value, err);
+                }
+            );
         }
     };
 
@@ -155,12 +160,12 @@ function _Store(name) {
         return self.storageUsage().then(function(usage) {
             var msg;
             if (usage > 0) {
-                msg = "Storage appears to be full.";
+                msg = 'Storage appears to be full.';
             } else {
-                msg = "Storage appears to be disabled.";
+                msg = 'Storage appears to be disabled.';
             }
-            console.warn(msg + "  Caught Error:");
-            console.warn(error && error.stack || error);
+            console.warn(msg + '  Caught Error:');
+            console.warn((error && error.stack) || error);
             throw new Error(msg);
         });
     };
@@ -169,8 +174,8 @@ function _Store(name) {
 
     // Convert "/url" to {'url': "url"} (simplify common use case)
     self.normalizeQuery = function(query) {
-        if (typeof query === 'string' && query.charAt(0) == "/") {
-            query = {'url': query.replace(/^\//, "")};
+        if (typeof query === 'string' && query.charAt(0) == '/') {
+            query = { url: query.replace(/^\//, '') };
         }
         return query;
     };
@@ -179,12 +184,12 @@ function _Store(name) {
     self.toKey = function(query) {
         query = self.normalizeQuery(query);
         if (!query) {
-            throw "Invalid query!";
+            throw 'Invalid query!';
         }
-        if (typeof query == "string") {
+        if (typeof query == 'string') {
             return query;
         } else {
-            return (new URLSearchParams(query)).toString();
+            return new URLSearchParams(query).toString();
         }
     };
 
@@ -206,7 +211,7 @@ function _Store(name) {
     self.fetch = function(query, cache) {
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
-        var data = {...self.defaults, ...query};
+        var data = { ...self.defaults, ...query };
         var url = self.service;
         if (data.hasOwnProperty('url')) {
             url = url + '/' + data.url;
@@ -222,33 +227,35 @@ function _Store(name) {
         }
 
         if (self.debugNetwork) {
-            console.log("fetching " + key);
+            console.log('fetching ' + key);
         }
 
         var promise = self.ajax(url, data, 'GET');
-        _promises[key] = promise.then(function(result) {
-            var data = self.parseData(result);
-            delete _promises[key];
-            if (!data) {
-                self.fetchFail(query, "Error parsing data!");
-                return;
-            }
-            if (self.debugNetwork) {
-                console.log("received result for " + key);
-                if (self.debugValues) {
-                    console.log(data);
+        _promises[key] = promise.then(
+            function(result) {
+                var data = self.parseData(result);
+                delete _promises[key];
+                if (!data) {
+                    self.fetchFail(query, 'Error parsing data!');
+                    return;
                 }
+                if (self.debugNetwork) {
+                    console.log('received result for ' + key);
+                    if (self.debugValues) {
+                        console.log(data);
+                    }
+                }
+                if (cache) {
+                    return self.set(query, data);
+                } else {
+                    return data;
+                }
+            },
+            function() {
+                delete _promises[key];
+                self.fetchFail(query, 'Error parsing data!');
             }
-            if (cache) {
-                return self.set(query, data);
-            } else {
-                return data;
-            }
-        },
-        function() {
-            delete _promises[key];
-            self.fetchFail(query, "Error parsing data!");
-        });
+        );
         return _promises[key];
     };
 
@@ -261,8 +268,8 @@ function _Store(name) {
             method = method.toUpperCase();
         }
         if (method == 'GET') {
-            Object.entries(data).forEach(
-                ([key, value]) => urlObj.searchParams.append(key, value)
+            Object.entries(data).forEach(([key, value]) =>
+                urlObj.searchParams.append(key, value)
             );
             data = null;
         }
@@ -283,7 +290,7 @@ function _Store(name) {
                     }
                     error.status = response.status;
                     throw error;
-                })
+                });
             }
         });
     };
@@ -291,7 +298,7 @@ function _Store(name) {
     // Callback for fetch() failures - override to inform the user
     self.fetchFail = function(query, error) {
         var key = self.toKey(query);
-        console.warn("Error loading " + key + ": " + error);
+        console.warn('Error loading ' + key + ': ' + error);
     };
 
     // Helper function for prefetching data
@@ -323,9 +330,9 @@ function _Store(name) {
     };
 
     self.lf = {};
-    [
-        'getItem', 'setItem', 'removeItem', 'keys', 'clear'
-    ].forEach(function(key) {
+    ['getItem', 'setItem', 'removeItem', 'keys', 'clear'].forEach(function(
+        key
+    ) {
         self.lf[key] = function() {
             var args = arguments;
             return self.ready.then(function() {
@@ -337,21 +344,24 @@ function _Store(name) {
     function _ready(resolve) {
         var resolved = false;
         self.lf = localForage.createInstance({
-            'name': self.name
+            name: self.name
         });
         self.lf.ready().then(function() {
-            self.lf.setItem('wq-store-test', true).then(function() {
-                resolved = true;
-                return self.lf.removeItem('wq-store-test');
-            }).then(resolve, fallback);
-        // localForage.ready() failed for some reason
+            self.lf
+                .setItem('wq-store-test', true)
+                .then(function() {
+                    resolved = true;
+                    return self.lf.removeItem('wq-store-test');
+                })
+                .then(resolve, fallback);
+            // localForage.ready() failed for some reason
         }, fallback);
 
         setTimeout(function() {
             if (!resolved) {
                 // localForage failed, and also failed to reject() for some
                 // reason - this should be rare but has happened in the wild.
-                console.error("Storage failed to initialize in 5 seconds");
+                console.error('Storage failed to initialize in 5 seconds');
                 fallback();
             }
         }, 5000);
@@ -360,7 +370,7 @@ function _Store(name) {
             if (!resolved) {
                 if (self.debug) {
                     console.warn(
-                        "Offline storage is not working; using in-memory store"
+                        'Offline storage is not working; using in-memory store'
                     );
                 }
                 self.lf.setDriver(memoryStorageDriver._driver).then(resolve);
@@ -372,31 +382,34 @@ function _Store(name) {
 
 // Simple computation for quota usage across stores
 function _globalStorageUsage() {
-    return Promise.all(Object.keys(_stores).map(function(storeName) {
-        var lf = _stores[storeName].lf, keyPromise;
-        try {
-            keyPromise = lf.keys();
-        } catch (e) {
-            return 0;
-        }
-        keyPromise.then(function(keys) {
-            var results = keys.map(function(key) {
-                return lf.getItem(key).then(function(item) {
-                    // FIXME: This won't handle binary values
-                    return JSON.stringify(item).length;
+    return Promise.all(
+        Object.keys(_stores).map(function(storeName) {
+            var lf = _stores[storeName].lf,
+                keyPromise;
+            try {
+                keyPromise = lf.keys();
+            } catch (e) {
+                return 0;
+            }
+            keyPromise.then(function(keys) {
+                var results = keys.map(function(key) {
+                    return lf.getItem(key).then(function(item) {
+                        // FIXME: This won't handle binary values
+                        return JSON.stringify(item).length;
+                    });
+                });
+                return Promise.all(results).then(function(lengths) {
+                    var usage = 0;
+                    lengths.forEach(function(l) {
+                        usage += l;
+                    });
+                    // UTF-16 means two bytes per character in storage
+                    // FIXME: Is this true for non-localStorage backends?
+                    return usage * 2;
                 });
             });
-            return Promise.all(results).then(function(lengths) {
-                var usage = 0;
-                lengths.forEach(function(l) {
-                    usage += l;
-                });
-                // UTF-16 means two bytes per character in storage
-                // FIXME: Is this true for non-localStorage backends?
-                return usage * 2;
-            });
-        });
-    })).then(function(allResults) {
+        })
+    ).then(function(allResults) {
         var total = 0;
         allResults.forEach(function(result) {
             total += result;
@@ -406,7 +419,9 @@ function _globalStorageUsage() {
 }
 
 function _clearAll() {
-    return Promise.all(Object.keys(_stores).map(function(storeName) {
-        return _stores[storeName].reset();
-    }));
+    return Promise.all(
+        Object.keys(_stores).map(function(storeName) {
+            return _stores[storeName].reset();
+        })
+    );
 }

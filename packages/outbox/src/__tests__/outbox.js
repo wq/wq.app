@@ -6,81 +6,77 @@ import store from '@wq/store';
 import model from '@wq/model';
 import outboxMod from '../outbox';
 
-
 const ds = store.getStore('outbox-test');
 ds.init({
-    'service': 'http://localhost:8080/tests',
-    'defaults': {
-        'format': 'json',
+    service: 'http://localhost:8080/tests',
+    defaults: {
+        format: 'json'
     }
 });
-
 
 const outbox = outboxMod.getOutbox(ds);
 outbox.init({});
 
-
-test("form with no explicit storage", async () => {
+test('form with no explicit storage', async () => {
     await testOutbox({
-        'data': {'test': 123},
-        'options': {},
-        'expectItem': {
-            'id': 1,
-            'synced': false,
-            'data': {'test': 123},
-            'options': {}
+        data: { test: 123 },
+        options: {},
+        expectItem: {
+            id: 1,
+            synced: false,
+            data: { test: 123 },
+            options: {}
         },
-        'expectStored': null
+        expectStored: null
     });
 });
 
-test("form with storage=store", async () => {
-    var blob = new Blob([1,2,3], {'type': 'text/plain'});
+test('form with storage=store', async () => {
+    var blob = new Blob([1, 2, 3], { type: 'text/plain' });
     await testOutbox({
-        'data': {
-            'file': {
-                  'type': 'text/plain',
-                  'name': 'test.txt',
-                  'body': blob
-             }
-        },
-        'options': {
-            'storage': 'store'
-        },
-        'expectItem': {
-            'id': 1,
-            'synced': false,
-            'options': {
-                'storage': 'store'
+        data: {
+            file: {
+                type: 'text/plain',
+                name: 'test.txt',
+                body: blob
             }
         },
-        'expectStored': {
-            'file': {
-                 'type': 'text/plain',
-                 'name': 'test.txt',
-                 'body': blob
+        options: {
+            storage: 'store'
+        },
+        expectItem: {
+            id: 1,
+            synced: false,
+            options: {
+                storage: 'store'
+            }
+        },
+        expectStored: {
+            file: {
+                type: 'text/plain',
+                name: 'test.txt',
+                body: blob
             }
         }
     });
 });
 
-test("form with storage=temporary", async () => {
+test('form with storage=temporary', async () => {
     await testOutbox({
-        'data': {'secret': 'code'},
-        'options': {
-            'storage': 'temporary'
+        data: { secret: 'code' },
+        options: {
+            storage: 'temporary'
         },
-        'expectItem': {
-            'id': 1,
-            'synced': false,
-            'options': {
-                'storage': 'temporary'
+        expectItem: {
+            id: 1,
+            synced: false,
+            options: {
+                storage: 'temporary'
             }
         },
-        'expectStored': null
+        expectStored: null
     });
 });
-
 
 async function testOutbox(test) {
     expect(ds.lf.driver()).toEqual('asyncStorage');
@@ -88,28 +84,28 @@ async function testOutbox(test) {
     await outbox.save(test.data, test.options, true);
 
     const actualOutbox = await ds.get('outbox'),
-          actualStored = await ds.get('outbox_1'),
-          actualItem = await outbox.loadItem(1);
+        actualStored = await ds.get('outbox_1'),
+        actualItem = await outbox.loadItem(1);
 
     const expectOutbox = {
-        "list": [test.expectItem],
-        "pages": 1,
-        "count": 1,
-        "per_page": 1
+        list: [test.expectItem],
+        pages: 1,
+        count: 1,
+        per_page: 1
     };
     expect(actualOutbox).toEqual(expectOutbox);
     expect(actualStored).toEqual(test.expectStored);
     expect(actualItem.data).toEqual(test.data);
 }
 
-test('handle 200 success', async() => {
+test('handle 200 success', async () => {
     const simple = {
-        'data': {
-            'label': 'Test',
+        data: {
+            label: 'Test'
         },
-        'options': {
-            'url': 'status/200',
-        },
+        options: {
+            url: 'status/200'
+        }
     };
     await outbox.model.overwrite([]);
     await outbox.save(simple.data, simple.options, true);
@@ -117,24 +113,24 @@ test('handle 200 success', async() => {
     const syncedOutbox = await ds.get('outbox');
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
-        'id': 1,
-        'synced': true,
-        'result': {
-            'id': item.result.id,
-            ...simple.data,
+        id: 1,
+        synced: true,
+        result: {
+            id: item.result.id,
+            ...simple.data
         },
-        ...simple,
+        ...simple
     });
 });
 
-test('handle 400 error', async() => {
+test('handle 400 error', async () => {
     const simple = {
-        'data': {
-            'label': 'Test',
+        data: {
+            label: 'Test'
         },
-        'options': {
-            'url': 'status/400',
-        },
+        options: {
+            url: 'status/400'
+        }
     };
     await outbox.model.overwrite([]);
     await outbox.save(simple.data, simple.options, true);
@@ -142,24 +138,24 @@ test('handle 400 error', async() => {
     const syncedOutbox = await ds.get('outbox');
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
-        'id': 1,
-        'synced': false,
-        'retryCount': 1,
-        'error': {
-            'label': 'Test',
+        id: 1,
+        synced: false,
+        retryCount: 1,
+        error: {
+            label: 'Test'
         },
-        ...simple,
+        ...simple
     });
 });
 
-test('handle 500 error', async() => {
+test('handle 500 error', async () => {
     const simple = {
-        'data': {
-            'label': 'Test',
+        data: {
+            label: 'Test'
         },
-        'options': {
-            'url': 'status/500',
-        },
+        options: {
+            url: 'status/500'
+        }
     };
     await outbox.model.overwrite([]);
     await outbox.save(simple.data, simple.options, true);
@@ -167,45 +163,45 @@ test('handle 500 error', async() => {
     const syncedOutbox = await ds.get('outbox');
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
-        'id': 1,
-        'synced': false,
-        'retryCount': 1,
-        'error': "SERVER ERROR",
-        ...simple,
+        id: 1,
+        synced: false,
+        retryCount: 1,
+        error: 'SERVER ERROR',
+        ...simple
     });
 });
 
 test('sync dependent records in order', async () => {
-   const itemtype = {
-        'data': {
-            'label': 'New ItemType'
+    const itemtype = {
+        data: {
+            label: 'New ItemType'
         },
-        'options': {
-            'url': 'itemtypes',
-            'modelConf': {'name': 'itemtype', 'url': 'itemtypes'}
+        options: {
+            url: 'itemtypes',
+            modelConf: { name: 'itemtype', url: 'itemtypes' }
         }
     };
 
     var attribute = {
-        'data': {
-            'label': 'New Attribute'
+        data: {
+            label: 'New Attribute'
         },
-        'options': {
-            'url': 'attributes',
-            'modelConf': {'name': 'attribute', 'url': 'attributes'}
+        options: {
+            url: 'attributes',
+            modelConf: { name: 'attribute', url: 'attributes' }
         }
     };
 
     var item = {
-        'data': {
-            'type_id': 'outbox-1',
-            'color': 'red',
+        data: {
+            type_id: 'outbox-1',
+            color: 'red',
             'values[0][attribute_id]': 'outbox-2',
-            'values[0][value]': 'Test Value',
+            'values[0][value]': 'Test Value'
         },
-        'options': {
-            'url': 'items',
-            'modelConf': {'name': 'item', 'url': 'items'}
+        options: {
+            url: 'items',
+            modelConf: { name: 'item', url: 'items' }
         }
     };
 
@@ -215,26 +211,30 @@ test('sync dependent records in order', async () => {
     await outbox.save(attribute.data, attribute.options, true);
     await outbox.save(item.data, item.options, true);
     expect(await ds.get('outbox')).toEqual({
-        "list": [{
-             'id': 3,
-             'data': item.data,
-             'options': item.options,
-             'synced': false,
-             'parents': ["1", "2"],
-          }, {
-             'id': 2,
-             'data': attribute.data,
-             'options': attribute.options,
-             'synced': false,
-          }, {
-               'id': 1,
-               'data': itemtype.data,
-               'options': itemtype.options,
-               'synced': false,
-          }],
-          "pages": 1,
-          "count": 3,
-          "per_page": 3
+        list: [
+            {
+                id: 3,
+                data: item.data,
+                options: item.options,
+                synced: false,
+                parents: ['1', '2']
+            },
+            {
+                id: 2,
+                data: attribute.data,
+                options: attribute.options,
+                synced: false
+            },
+            {
+                id: 1,
+                data: itemtype.data,
+                options: itemtype.options,
+                synced: false
+            }
+        ],
+        pages: 1,
+        count: 3,
+        per_page: 3
     });
 
     // Sync records.  sendAll() should automatically sync the parent
@@ -245,11 +245,10 @@ test('sync dependent records in order', async () => {
     // All records should now be synced and have results
     let results = {};
     syncedOutbox.list.forEach(function(item) {
-        const name = (
+        const name =
             item.options &&
             item.options.modelConf &&
-            item.options.modelConf.name
-        );
+            item.options.modelConf.name;
         expect(item.synced).toBeTruthy();
         results[name] = item.result;
     });

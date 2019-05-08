@@ -1,21 +1,14 @@
 import tmpl from '@wq/template';
 
-
 var patterns = {
-    'name': 'patterns'
+    name: 'patterns'
 };
 
 var _templates, _pageContext, $;
 
 patterns.init = function(conf) {
-    _templates = (
-        conf && conf.templates ||
-        this.app.config.template.templates
-    );
-    $ = (
-        conf && conf.jQuery ||
-        window.jQuery
-    );
+    _templates = (conf && conf.templates) || this.app.config.template.templates;
+    $ = (conf && conf.jQuery) || window.jQuery;
 };
 
 patterns.context = function(context) {
@@ -29,7 +22,11 @@ patterns.run = function($page, routeInfo) {
             section = $button.data('wq-section'),
             count = $page.find('.section-' + section).length;
         patterns.addAttachment(
-            routeInfo.page, section, count, $button, routeInfo.mode
+            routeInfo.page,
+            section,
+            count,
+            $button,
+            routeInfo.mode
         );
     }
 };
@@ -37,9 +34,11 @@ patterns.run = function($page, routeInfo) {
 function addAttachment(page, section, index, $button, mode) {
     var template = _templates[page + '_' + (mode ? mode : 'edit')],
         pattern = '{{#' + section + '}}([\\s\\S]+){{/' + section + '}}',
-        match, $attachment, context;
+        match,
+        $attachment,
+        context;
     if (!template) {
-         return;
+        return;
     }
     match = template.match(pattern);
     if (!match) {
@@ -48,7 +47,7 @@ function addAttachment(page, section, index, $button, mode) {
 
     context = {
         '@index': index,
-        'new_attachment': true
+        new_attachment: true
     };
     for (var key in _pageContext) {
         context[key.replace(section + '.', '')] = _pageContext[key];

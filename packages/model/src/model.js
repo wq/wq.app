@@ -10,36 +10,36 @@ model.Model = Model;
 model.cacheOpts = {
     // First page (e.g. 50 records) is stored locally; subsequent pages can be
     // loaded from server.
-    'first_page': {
-        'server': true,
-        'client': true,
-        'page': 1,
-        'reversed': true
+    first_page: {
+        server: true,
+        client: true,
+        page: 1,
+        reversed: true
     },
 
     // All data is prefetched and stored locally, no subsequent requests are
     // necessary.
-    'all': {
-        'server': false,
-        'client': true,
-        'page': 0,
-        'reversed': true
+    all: {
+        server: false,
+        client: true,
+        page: 0,
+        reversed: true
     },
 
     // "Important" data is cached; other data can be accessed via pagination.
-    'filter': {
-        'server': true,
-        'client': true,
-        'page': 0,
-        'reversed': true
+    filter: {
+        server: true,
+        client: true,
+        page: 0,
+        reversed: true
     },
 
     // No data is cached locally; all data require a network request.
-    'none': {
-        'server': true,
-        'client': false,
-        'page': 0,
-        'reversed': true
+    none: {
+        server: true,
+        client: false,
+        page: 0,
+        reversed: true
     }
 };
 
@@ -51,10 +51,10 @@ export default model;
 function Model(config) {
     var self = this;
     if (!config) {
-        throw "No configuration provided!";
+        throw 'No configuration provided!';
     }
-    if (typeof config == "string") {
-        config = {'query': config};
+    if (typeof config == 'string') {
+        config = { query: config };
     }
 
     if (!config.cache) {
@@ -62,7 +62,7 @@ function Model(config) {
     }
     self.opts = model.cacheOpts[config.cache];
     if (!self.opts) {
-        throw "Unknown cache option " + config.cache;
+        throw 'Unknown cache option ' + config.cache;
     }
     ['max_local_pages', 'partial', 'reversed'].forEach(function(name) {
         if (name in config) {
@@ -84,9 +84,9 @@ function Model(config) {
     if (config.query) {
         self.query = self.store.normalizeQuery(config.query);
     } else if (config.url !== undefined) {
-        self.query = {'url': config.url};
+        self.query = { url: config.url };
     } else {
-        throw "Could not determine query for model!";
+        throw 'Could not determine query for model!';
     }
 
     // Configurable functions to e.g. filter data by
@@ -97,20 +97,22 @@ function Model(config) {
 
     function getPage(page_num, fn) {
         var query;
-        if (typeof self.query == "string") {
+        if (typeof self.query == 'string') {
             query = self.query;
         } else {
-            query = {...self.query};
+            query = { ...self.query };
             if (page_num !== null) {
                 query.page = page_num;
             }
         }
-        return fn(query).then(_processData).then(function(data) {
-            if (page_num !== null && !data.page) {
-                data.page = page_num;
-            }
-            return data;
-        });
+        return fn(query)
+            .then(_processData)
+            .then(function(data) {
+                if (page_num !== null && !data.page) {
+                    data.page = page_num;
+                }
+                return data;
+            });
     }
 
     self._processData = _processData;
@@ -120,7 +122,7 @@ function Model(config) {
             data = [];
         }
         if (Array.isArray(data)) {
-            data = {'list': data};
+            data = { list: data };
         }
         if (!data.pages) {
             data.pages = 1;
@@ -146,10 +148,10 @@ function Model(config) {
     self.info = function() {
         return self.load().then(function(data) {
             return {
-                'pages': data.pages,
-                'per_page': data.per_page,
-                'count': data.count,
-                'config': config
+                pages: data.pages,
+                per_page: data.per_page,
+                count: data.count,
+                config: config
             };
         });
     };
@@ -181,13 +183,14 @@ function Model(config) {
         }
         if (self.store.debugLookup) {
             var key = self.store.toKey(self.query);
-            console.log('finding item in ' + key +
-                        ' where ' + attr + '=' + value);
+            console.log(
+                'finding item in ' + key + ' where ' + attr + '=' + value
+            );
         }
         return self.getIndex(attr).then(function(ilist) {
             if (ilist && ilist[value]) {
                 return deepcopy(ilist[value]);
-            } else if (attr == "id" && value !== undefined) {
+            } else if (attr == 'id' && value !== undefined) {
                 // Not found in local list; try server
                 if (!localOnly && self.opts.server && config.url) {
                     return self.store.fetch('/' + config.url + '/' + value);
@@ -199,19 +202,17 @@ function Model(config) {
 
     // Filter an array of objects by one or more attributes
     self.filterPage = function(filter, any, localOnly) {
-
         // If partial list, we can never be 100% sure all filter matches are
         // stored locally. In that case, run query on server.
         if (!localOnly && self.opts.server && config.url) {
             // FIXME: won't work as expected if any == true
-            var query = {'url': config.url, ...filter};
+            var query = { url: config.url, ...filter };
             return self.store.fetch(query).then(_processData);
         }
 
         if (!filter || !Object.keys(filter).length) {
             // No filter: return unmodified list directly
             return self.load();
-
         } else if (any) {
             // any=true: Match on any of the provided filter attributes
             var results = Object.keys(filter).map(function(attr) {
@@ -231,7 +232,7 @@ function Model(config) {
             // Convert to array for convenience
             var afilter = [];
             for (var attr in filter) {
-                afilter.push({'name': attr, 'value': filter[attr]});
+                afilter.push({ name: attr, value: filter[attr] });
             }
 
             // Use getGroup to filter list on first given attribute
@@ -278,7 +279,7 @@ function Model(config) {
     // Merge new/updated items into list
     self.update = function(update, idcol) {
         if (!Array.isArray(update)) {
-            throw "Data is not an array!";
+            throw 'Data is not an array!';
         }
         if (!idcol) {
             idcol = 'id';
@@ -303,7 +304,7 @@ function Model(config) {
             });
             update.forEach(function(obj) {
                 if (!updateById[obj[idcol]]) {
-                     return;
+                    return;
                 }
                 if (self.opts.reversed) {
                     data.list.unshift(obj);
@@ -349,7 +350,7 @@ function Model(config) {
     // items from server; idcol should be a unique identifier for the list
     self.fetchUpdate = function(params, idcol) {
         // Update local list with recent items from server
-        var q = {...self.query, ...params};
+        var q = { ...self.query, ...params };
         return self.store.fetch(q).then(function(data) {
             return self.update(data, idcol);
         });
@@ -361,12 +362,10 @@ function Model(config) {
         var outbox;
         try {
             outbox = require('wq/outbox');
-        } catch(e) {
+        } catch (e) {
             return Promise.resolve([]);
         }
-        return outbox.getOutbox(
-            self.store
-        ).unsyncedItems(self.query, withData);
+        return outbox.getOutbox(self.store).unsyncedItems(self.query, withData);
     };
 
     // Apply a predefined function to a retreived item
@@ -446,14 +445,14 @@ function Model(config) {
                 return [];
             }
             var isBoolean = true;
-            (Object.keys(groups).forEach(function(key) {
+            Object.keys(groups).forEach(function(key) {
                 if (!isBoolean) {
                     return;
                 }
                 if (!isBooleanKey(key)) {
                     isBoolean = false;
                 }
-            }));
+            });
             if (isBoolean) {
                 value = toBoolean(value);
             }

@@ -3,25 +3,24 @@ import chart from './chart';
 import pandas from './pandas';
 import tmpl from '@wq/template';
 
-
 // Exported module variable
 var chartapp = {
-    'name': 'chartapp',
-    'config': {
-        'id_template': null,
-        'label_template': null,
-        'point_label_template': null,
-        'width': 700,
-        'height': 300,
-        'point_cutoff': 50,
-        'timeseries_columns': {
-            'x': 'date',
-            'y': 'value'
+    name: 'chartapp',
+    config: {
+        id_template: null,
+        label_template: null,
+        point_label_template: null,
+        width: 700,
+        height: 300,
+        point_cutoff: 50,
+        timeseries_columns: {
+            x: 'date',
+            y: 'value'
         },
-        'time_format': '%Y-%m-%d',
-        'scatter_columns': {
-            'x': null,
-            'y': null
+        time_format: '%Y-%m-%d',
+        scatter_columns: {
+            x: null,
+            y: null
         }
     }
 };
@@ -58,7 +57,7 @@ chartapp.run = function($page) {
         return;
     }
     if (!chart[type]) {
-        console.warn("Unknown chart type " + type + "!");
+        console.warn('Unknown chart type ' + type + '!');
         return;
     }
 
@@ -91,11 +90,14 @@ chartapp.create = function(data, type, elem) {
         keys;
 
     if ((!id || !label) && data.length) {
-        keys = Object.keys(data[0]).filter(function(key) {
-            return key != 'data';
-        }).map(function(key) {
-            return '{{' + key + '}}';
-        }).sort();
+        keys = Object.keys(data[0])
+            .filter(function(key) {
+                return key != 'data';
+            })
+            .map(function(key) {
+                return '{{' + key + '}}';
+            })
+            .sort();
         if (!id) {
             id = keys.join('-');
         }
@@ -109,19 +111,20 @@ chartapp.create = function(data, type, elem) {
 
     plot.id(function(dataset) {
         return tmpl.render(id, dataset);
-    }).label(function(dataset) {
-        return tmpl.render(label, dataset);
-    }).width(
-        width
-    ).height(
-        height
-    );
+    })
+        .label(function(dataset) {
+            return tmpl.render(label, dataset);
+        })
+        .width(width)
+        .height(height);
 
     if (baseType == 'scatter' || baseType == 'timeSeries') {
         plot.pointCutoff(pointCutoff);
         if (pointLabel) {
-            if (pointLabel.indexOf('[[') > -1 &&
-                    pointLabel.indexOf('{{') == -1) {
+            if (
+                pointLabel.indexOf('[[') > -1 &&
+                pointLabel.indexOf('{{') == -1
+            ) {
                 pointLabel = '{{=[[ ]]=}}' + pointLabel;
             }
             plot.pointLabel(function(sid) {
@@ -144,9 +147,11 @@ chartapp.create = function(data, type, elem) {
     } else if (baseType == 'scatter') {
         if ((!scatterX || !scatterY) && data.length) {
             var firstPoint = (data[0].data || [{}])[0] || {};
-            keys = Object.keys(firstPoint).filter(function(key) {
-                return key != 'date';
-            }).sort();
+            keys = Object.keys(firstPoint)
+                .filter(function(key) {
+                    return key != 'date';
+                })
+                .sort();
             scatterX = keys[0];
             scatterY = keys[1];
         }

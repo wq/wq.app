@@ -6,12 +6,12 @@ import fs from 'fs';
 beforeAll(() => {
     global.fetch = mockFetch;
     tmpl.init({
-        'templates': {},
-        'jQuery': {'mobile': {}},
+        templates: {},
+        jQuery: { mobile: {} }
     });
 });
 
-test("timeSeries chart", async () => {
+test('timeSeries chart', async () => {
     mockFetch.mockResponse(fs.readFileSync(__dirname + '/data.csv'));
     document.body.innerHTML = `<svg
         data-wq-url="data.csv"
@@ -21,12 +21,12 @@ test("timeSeries chart", async () => {
     `;
     var svg = document.body.firstChild;
     var $mockPage = {
-        'find': () => $mockPage,
-        'data': (key) => {
+        find: () => $mockPage,
+        data: key => {
             return svg.dataset[key.replace(/-(.)/g, a => a[1].toUpperCase())];
         },
-        'length': 1,
-        0: svg,
+        length: 1,
+        0: svg
     };
     await chartapp.run($mockPage, {});
     await new Promise(res => setTimeout(res, 1000));

@@ -3,13 +3,13 @@ import jqmr from '../vendor/jquery.mobile.router';
 
 // Exported module object
 var router = {
-    'config': {
-        'tmpl404': "404",
-        'injectOnce': false,
-        'debug': false
+    config: {
+        tmpl404: '404',
+        injectOnce: false,
+        debug: false
     },
-    'slug': '([^/?#]+)',
-    'query': '(?:[?](.*))?(?:[#](.*))?$'
+    slug: '([^/?#]+)',
+    query: '(?:[?](.*))?(?:[#](.*))?$'
 };
 var jqm, _jqmRouter;
 
@@ -35,13 +35,13 @@ router.init = function(config) {
     // Set `debug` to true to log template & context information
 
     _jqmRouter = new jqm.Router(undefined, undefined, {
-        'ajaxApp': true
+        ajaxApp: true
     });
 };
 
 router.jqmInit = function() {
     if (!router.config) {
-        throw new Error("Initialize router first!");
+        throw new Error('Initialize router first!');
     }
     jqm.initializePage();
 };
@@ -49,7 +49,7 @@ router.jqmInit = function() {
 // Register URL patterns to override default JQM behavior and inject router
 // Callback fn should call router.go() with desired template
 router.register = function(path, fn, obj, prevent) {
-    var events = "bC";
+    var events = 'bC';
     if (!fn) {
         fn = function(match, ui, params) {
             // Assume there is a template with the same name
@@ -75,7 +75,7 @@ router.register = function(path, fn, obj, prevent) {
         var curpath = jqm.activePage && jqm.activePage.jqmData('url');
 
         // Capture URLs only, not completed pages
-        if (typeof ui.toPage !== "string") {
+        if (typeof ui.toPage !== 'string') {
             return;
         }
 
@@ -85,8 +85,10 @@ router.register = function(path, fn, obj, prevent) {
         }
 
         // Avoid interfering with hash updates when popups open & close
-        if ((curpath == match[0] || curpath + '#' + hash == match[0]) &&
-               !ui.options.allowSamePageTransition) {
+        if (
+            (curpath == match[0] || curpath + '#' + hash == match[0]) &&
+            !ui.options.allowSamePageTransition
+        ) {
             return;
         }
 
@@ -97,7 +99,7 @@ router.register = function(path, fn, obj, prevent) {
             evt.preventDefault();
         }
 
-        fn = (typeof fn == "string" ? obj[fn] : fn);
+        fn = typeof fn == 'string' ? obj[fn] : fn;
         fn(match, ui, params, hash, evt, $page);
     };
     router.addRoute(path, events, callback);
@@ -107,17 +109,17 @@ router.register = function(path, fn, obj, prevent) {
 router.addRoute = function(path, events, fn, obj) {
     var rt = {};
     path = path.replace(/<slug>/g, router.slug);
-    var url = '^' +  router.info.base_url + '/' + path + router.query;
+    var url = '^' + router.info.base_url + '/' + path + router.query;
     var callback = function(etype, match, ui, page, evt) {
         var hash = match.pop();
         var params = router.getParams(match.pop());
-        fn = (typeof fn == "string" ? obj[fn] : fn);
+        fn = typeof fn == 'string' ? obj[fn] : fn;
         fn(match, ui, params, hash, evt, $(page));
     };
     rt[url] = {
-        'events': events,
-        'handler': callback,
-        'step': 'all'
+        events: events,
+        handler: callback,
+        step: 'all'
     };
     _jqmRouter.add(rt);
 };
@@ -131,9 +133,11 @@ router.go = function(path, template, context, ui, once, pageid) {
     var url = router.info.full_path;
     if (router.config.debug) {
         console.log(
-            "Rendering " + url +
-            " with template '" + template +
-            "' and context:"
+            'Rendering ' +
+                url +
+                " with template '" +
+                template +
+                "' and context:"
         );
         console.log(context);
     }
@@ -149,7 +153,7 @@ router.go = function(path, template, context, ui, once, pageid) {
 
     role = $page.jqmData('role');
     if (role == 'page') {
-        options = ui && ui.options || {};
+        options = (ui && ui.options) || {};
         options._jqmrouter_bC = true;
         if (once) {
             options.allowSamePageTransition = true;
@@ -185,7 +189,7 @@ router.go = function(path, template, context, ui, once, pageid) {
 
 // Simple 404 page helper
 router.notFound = function(url, ui) {
-    var context  = {'url': url};
+    var context = { url: url };
     router.go(url, router.config.tmpl404, context, ui);
 };
 
@@ -196,14 +200,14 @@ router.getParams = function(search) {
 
 // Context variable (accessible in templates via router_info)
 router.info = {
-    'base_url': ""
+    base_url: ''
 };
 
 function _updateInfo(path, context) {
     router.info.prev_path = router.info.path;
     router.info.path = path;
     router.info.path_enc = escape(path);
-    router.info.full_path = router.info.base_url + "/" + path;
+    router.info.full_path = router.info.base_url + '/' + path;
     router.info.full_path_enc = escape(router.info.full_path);
     router.info.params = router.getParams(path.split('?')[1]);
     if (context) {
