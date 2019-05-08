@@ -220,6 +220,7 @@ app.init = function(config) {
     router.register('outbox', _renderOutboxList);
     router.register('outbox/', _renderOutboxList);
     router.addRoute('outbox', 's', _showOutboxList);
+    router.addRoute('outbox/', 's', _showOutboxList);
     router.register('outbox/<slug>', _renderOutboxItem('detail'));
     router.register('outbox/<slug>/edit', _renderOutboxItem('edit'));
     router.addRoute('outbox/<slug>', 's', _showOutboxItem('detail'));
@@ -1221,7 +1222,8 @@ function _showOutboxItem(mode) {
 function _handleForm(evt) {
     var $form = $(this),
         $submitVal,
-        backgroundSync;
+        backgroundSync,
+        storage;
     if (evt.isDefaultPrevented()) {
         return;
     }
@@ -1240,6 +1242,10 @@ function _handleForm(evt) {
         backgroundSync = $form.data('wq-background-sync');
     } else {
         backgroundSync = app.config.backgroundSync;
+    }
+
+    if ($form.data('wq-storage') !== undefined) {
+        storage = $form.data('wq-storage');
     }
 
     var outboxId = $form.data('wq-outbox-id');
@@ -1333,11 +1339,15 @@ function _handleForm(evt) {
     var options = {
         url: url
     };
-    if (!backgroundSync) {
+
+    if (storage) {
+        options.storage = storage;
+    } else if (!backgroundSync) {
         options.storage = 'temporary';
     } else if (has_files) {
         options.storage = 'store';
     }
+
     if (outboxId) {
         options.id = outboxId;
         if (preserve && preserve.split) {
@@ -1374,6 +1384,7 @@ function _handleForm(evt) {
             $form.attr('data-wq-outbox-id', item.id);
             spin.start();
             outbox.sendItem(item, true).then(function(item) {
+                $form.find('[type=submit]').prop('disabled', false);
                 spin.stop();
                 if (!item || item.synced) {
                     // Item was synced

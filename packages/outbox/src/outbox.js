@@ -78,6 +78,9 @@ function _Outbox(store) {
         if (!options) {
             options = {};
         }
+        if (options.storage === 'inline') {
+            delete options.storage;
+        }
         if (!self.validate(data, options)) {
             return Promise.resolve(null);
         }
@@ -268,6 +271,7 @@ function _Outbox(store) {
         function error(error) {
             if (self.debugNetwork) {
                 console.warn('Error sending item to ' + url);
+                console.error(error);
             }
             if (error) {
                 error = error.json || error.text || error.status || '' + error;
@@ -284,6 +288,10 @@ function _Outbox(store) {
                 return item;
             });
         }
+    };
+
+    self.removeItem = function(id) {
+        return self.model.remove(id);
     };
 
     // Send all unsynced items, using batch service if available
