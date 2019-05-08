@@ -1,6 +1,6 @@
 set -e
 if [ "$LINT" ]; then
-    echo "FIXME"
+    npm run lint
 else
     cd tests/commands;
     ./test_commands.sh

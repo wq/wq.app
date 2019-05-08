@@ -6,11 +6,15 @@
     "jest": "jest",
     "rollup": "WQ_VERSION=`python3 setup.py --version` rollup",
     "prettier": "prettier",
-    "precise-commits": "precise-commits"
+    "precise-commits": "precise-commits",
+    "lint": "eslint packages/*/{*.js,src/*.js,src/__tests__/*.js}"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
+    "eslint": "^5.16.0",
+    "eslint-plugin-jest": "^22.5.1",
+    "eslint-plugin-react": "^7.13.0",
     "husky": "^2.2.0",
     "jest": "^24.8.0",
     "lerna": "^2.11.0",
