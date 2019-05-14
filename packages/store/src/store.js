@@ -250,8 +250,9 @@ function _Store(name) {
                     return data;
                 }
             },
-            function() {
+            function(error) {
                 delete _promises[key];
+                console.error(error);
                 self.fetchFail(query, 'Error parsing data!');
             }
         );
