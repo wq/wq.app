@@ -9,36 +9,32 @@ beforeAll(() => {
         jQuery,
         debug: true
     });
+    router.register('test/<slug>', 'test_detail');
     tmpl.init({
         jQuery,
         templates: {
-            test:
-            '<html><body><div data-role=page>TEST {{title}} {{params}}</div></body></html>'
+            test_detail:
+                '<html><body><div data-role=page>TEST {{title}} {{params}}</div></body></html>'
         }
     });
+    router.jqmInit();
 });
 
 test('register route and render page', done => {
-    router.register('test/<slug>', (match, ui, params) => {
-        const slug = match[1],
-            url = `test/{slug}`,
-            context = {
-                title: slug,
-                params: JSON.stringify(params)
-            };
-        router.go(url, 'test', context, ui);
+    router.addContextForRoute('test/<slug>', async ctx => {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        return {
+            title: ctx.router_info.slugs.slug,
+            params: JSON.stringify(ctx.router_info.params)
+        };
     });
-    router.addRoute('test/<slug>', 's', testOnShow);
-    router.jqmInit();
+    router.onShow('test/<slug>', testOnShow);
 
-    jQuery.mobile.changePage('/test/1234?p=1', { transition: 'none' });
+    router.push('/test/1234?p=1');
 
-    const $page = jQuery('.ui-page-active');
-    expect($page.text()).toEqual('TEST 1234 {"p":"1"}');
-
-    function testOnShow(match) {
-        const slug = match[1];
-        expect(slug).toEqual('1234');
+    function testOnShow() {
+        const $page = jQuery('.ui-page-active');
+        expect($page.text()).toEqual('TEST 1234 {"p":"1"}');
         done();
     }
 });

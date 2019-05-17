@@ -1,5 +1,8 @@
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import { connectRoutes, push, NOT_FOUND } from 'redux-first-router';
+import queryString from 'query-string';
+
 import tmpl from '@wq/template';
-import jqmr from '../vendor/jquery.mobile.router';
 
 // Exported module object
 var router = {
@@ -7,17 +10,15 @@ var router = {
         tmpl404: '404',
         injectOnce: false,
         debug: false
-    },
-    slug: '([^/?#]+)',
-    query: '(?:[?](.*))?(?:[#](.*))?$'
+    }
 };
-var $, jqm, _jqmRouter;
+var $, jqm;
 
 // Configuration
 router.init = function(config) {
     // Define baseurl (without trailing slash) if it is not /
     if (config && config.base_url) {
-        router.info.base_url = config.base_url;
+        router.base_url = config.base_url;
     }
 
     router.config = {
@@ -25,112 +26,157 @@ router.init = function(config) {
         ...config
     };
 
+    router.routesMap = {};
+    router.contextProcessors = [];
+
     $ = config.jQuery || window.jQuery;
-    jqmr($);
     jqm = $.mobile;
 
     // Configuration options:
     // Define `tmpl404` if there is not a template named '404'
     // Set `injectOnce`to true to re-use rendered templates
     // Set `debug` to true to log template & context information
-
-    _jqmRouter = new jqm.Router(undefined, undefined, {
-        ajaxApp: true
-    });
 };
 
 router.jqmInit = function() {
     if (!router.config) {
         throw new Error('Initialize router first!');
     }
+    const { reducer: routeReducer, middleware, enhancer } = connectRoutes(
+        router.routesMap,
+        { querySerializer: queryString }
+    );
+    const reducer = combineReducers({
+        location: routeReducer,
+        context: contextReducer
+    });
+    const enhancers = compose(
+        enhancer,
+        applyMiddleware(middleware)
+    );
+
+    router.store = createStore(reducer, {}, enhancers);
+    router.store.subscribe(router.go);
+
     jqm.initializePage();
 };
 
-// Register URL patterns to override default JQM behavior and inject router
-// Callback fn should call router.go() with desired template
-router.register = function(path, fn, obj, prevent) {
-    var events = 'bC';
-    if (!fn) {
-        fn = function(match, ui, params) {
-            // Assume there is a template with the same name
-            router.go(path, path, params, ui);
+function contextReducer(context = {}, action) {
+    if (action.type != 'RENDER') {
+        return context;
+    }
+    context = action.payload;
+    return context;
+}
+
+async function _generateContext(dispatch, getState) {
+    const location = getState().location;
+    var context = _routeInfo(location);
+    for (var i = 0; i < router.contextProcessors.length; i++) {
+        var fn = router.contextProcessors[i];
+        context = {
+            ...context,
+            ...(await fn(context))
         };
     }
-    if (prevent === undefined) {
-        prevent = function(match, ui, params) {
-            /* eslint no-unused-vars: off */
-            // By default, prevent default changePage behavior
-            // (unless this is a form post and is not being handled by app.js)
-            if (ui && ui.options && ui.options.data && ui.options.fromPage) {
-                var $form = ui.options.fromPage.find('form');
-                var dataJson = $form.data('wq-json');
-                if (dataJson !== undefined && !dataJson) {
-                    return false;
-                }
-            }
-            return true;
-        };
+    dispatch({
+        type: 'RENDER',
+        payload: context
+    });
+}
+
+router.register = function(path, name, obj, prevent) {
+    if (!name) {
+        // Assume there is a template with the same name
+        name = path;
     }
-    var callback = function(match, ui, params, hash, evt, $page) {
-        var curpath = jqm.activePage && jqm.activePage.jqmData('url');
-
-        // Capture URLs only, not completed pages
-        if (typeof ui.toPage !== 'string') {
-            return;
-        }
-
-        // Don't handle urls that app.js specifically marked for server loading
-        if (ui.options && ui.options.wqSkip) {
-            return;
-        }
-
-        // Avoid interfering with hash updates when popups open & close
-        if (
-            (curpath == match[0] || curpath + '#' + hash == match[0]) &&
-            !ui.options.allowSamePageTransition
-        ) {
-            return;
-        }
-
-        // Prevent default changePage behavior?
-        if (typeof prevent === 'function' && prevent(match, ui, params)) {
-            evt.preventDefault();
-        } else if (typeof prevent !== 'function' && prevent) {
-            evt.preventDefault();
-        }
-
-        fn = typeof fn == 'string' ? obj[fn] : fn;
-        fn(match, ui, params, hash, evt, $page);
+    if (obj || prevent || typeof name === 'function') {
+        throw new Error(
+            'router.register() now only takes a path and route/template name.'
+        );
+    }
+    router.routesMap[name.toUpperCase()] = {
+        path: _normalizePath(path),
+        thunk: _generateContext
     };
-    router.addRoute(path, events, callback);
 };
 
-// Wrapper for router.add - adds URL base and parameter regex to path
-router.addRoute = function(path, events, fn, obj) {
-    var rt = {};
-    path = path.replace(/<slug>/g, router.slug);
-    var url = '^' + router.info.base_url + '/' + path + router.query;
-    var callback = function(etype, match, ui, page, evt) {
-        var hash = match.pop();
-        var params = router.getParams(match.pop());
-        fn = typeof fn == 'string' ? obj[fn] : fn;
-        fn(match, ui, params, hash, evt, $(page));
-    };
-    rt[url] = {
-        events: events,
-        handler: callback,
-        step: 'all'
-    };
-    _jqmRouter.add(rt);
+router.addContext = function(fn) {
+    router.contextProcessors.push(fn);
+};
+router.addContextForRoute = function(pathOrName, fn) {
+    const name = _getRouteName(pathOrName);
+    function contextForRoute(context) {
+        if (context.router_info.name == name) {
+            return fn(context);
+        } else {
+            return {};
+        }
+    }
+    router.addContext(contextForRoute);
 };
 
-// Update router path
-router.setPath = _updateInfo;
+router.onShow = function(pathOrName, fn) {
+    router.addRoute(pathOrName, 's', fn);
+};
+
+const jqmEvents = {
+    s: 'pageshow',
+    c: 'pagecreate',
+    i: 'pageinit',
+    l: 'pageload'
+    // 'h': 'pagehide',
+};
+
+router.addRoute = function(pathOrName, eventCode, fn, obj) {
+    if (!jqmEvents[eventCode]) {
+        throw new Error(
+            "addRoute for '" + eventCode + "' not currently supported"
+        );
+    }
+    if (obj) {
+        fn = obj[fn];
+    }
+    const name = _getRouteName(pathOrName);
+    $('body').on(jqmEvents[eventCode], function() {
+        const state = router.store.getState(),
+            { context } = state,
+            { router_info } = context;
+        if (context.router_info.name == name) {
+            fn();
+        }
+    });
+};
+
+router.push = push;
 
 // Inject and display page
-router.go = function(path, template, context, ui, once, pageid) {
-    _updateInfo(path, context);
-    var url = router.info.full_path;
+var _lastPath = null;
+router.go = function(arg) {
+    if (arg) {
+        throw new Error('router.go() is now called automatically');
+    }
+
+    const state = router.store.getState(),
+        { location, context } = state,
+        { router_info } = context;
+
+    if (!router_info || router_info.path === _lastPath) {
+        return;
+    }
+
+    const { path } = router_info,
+        template =
+            location.type === NOT_FOUND
+                ? router.config.tmpl404
+                : location.type.toLowerCase(),
+        once = null, // FIXME
+        pageid = null, // FIXME
+        ui = null; // FIXME
+
+    _lastPath = path;
+
+    var url = router_info.full_path;
     if (router.config.debug) {
         console.log(
             'Rendering ' +
@@ -142,8 +188,7 @@ router.go = function(path, template, context, ui, once, pageid) {
         console.log(context);
     }
     var $page, role, options;
-    once = once || router.config.injectOnce;
-    if (once) {
+    if (once || router.config.injectOnce) {
         // Only render the template once
         $page = tmpl.injectOnce(template, context, url, pageid);
     } else {
@@ -193,28 +238,49 @@ router.notFound = function(url, ui) {
     router.go(url, router.config.tmpl404, context, ui);
 };
 
-// Mimics Router.getParams()
-router.getParams = function(search) {
-    return _jqmRouter.getParams(search);
-};
+router.base_url = '';
 
-// Context variable (accessible in templates via router_info)
-router.info = {
-    base_url: ''
-};
+function _normalizePath(path) {
+    path = path.replace('<slug>', ':slug');
+    return router.base_url + '/' + path;
+}
 
-function _updateInfo(path, context) {
-    router.info.prev_path = router.info.path;
-    router.info.path = path;
-    router.info.path_enc = escape(path);
-    router.info.full_path = router.info.base_url + '/' + path;
-    router.info.full_path_enc = escape(router.info.full_path);
-    router.info.params = router.getParams(path.split('?')[1]);
-    if (context) {
-        router.info.context = context;
+function _getRouteName(pathOrName) {
+    var name;
+    if (router.routesMap[pathOrName.toUpperCase()]) {
+        name = pathOrName;
+    } else {
+        Object.entries(router.routesMap).forEach(([rname, rpath]) => {
+            if (_normalizePath(pathOrName) === rpath.path) {
+                name = rname;
+            }
+        });
     }
-    tmpl.setDefault('router_info', router.info);
-    tmpl.setDefault('rt', router.info.base_url);
+    if (!name) {
+        throw new Error('Unrecognized route: ' + pathOrName);
+    }
+    return name.toLowerCase();
+}
+
+function _removeBase(pathname) {
+    return pathname.replace(router.base_url + '/', '');
+}
+
+function _routeInfo(location) {
+    var info = {};
+    info.name = location.type.toLowerCase();
+    info.prev_path = _removeBase(location.prev.pathname);
+    info.path = _removeBase(location.pathname);
+    info.path_enc = escape(info.path);
+    info.full_path = location.pathname;
+    info.full_path_enc = escape(info.full_path);
+    info.params = location.query;
+    info.slugs = location.payload;
+    info.base_url = router.base_url;
+    return {
+        router_info: info,
+        rt: router.base_url
+    };
 }
 
 export default router;
