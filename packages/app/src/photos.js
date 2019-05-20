@@ -1,5 +1,3 @@
-import tmpl from '@wq/template';
-
 /* global Camera */
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
@@ -18,14 +16,18 @@ var $, jqm, spin;
 photos.init = function(config) {
     $ = (config && config.jQuery) || window.jQuery;
     spin = photos.app.spin;
+};
 
-    tmpl.setDefault('image_url', function() {
-        try {
-            return this.body && _getUrl(this.body);
-        } catch (e) {
-            // Image will be blank, but at least template won't crash
+photos.context = function(ctx) {
+    return {
+        image_url: function() {
+            try {
+                return this.body && _getUrl(this.body);
+            } catch (e) {
+                // Image will be blank, but at least template won't crash
+            }
         }
-    });
+    };
 };
 
 photos.run = function($page) {

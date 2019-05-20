@@ -4,13 +4,27 @@ import queryString from 'query-string';
 
 import tmpl from '@wq/template';
 
+const HTML = '@@HTML',
+    RENDER = 'RENDER',
+    FIRST = '@@FIRST',
+    DEFAULT = '@@DEFAULT',
+    LAST = '@@LAST',
+    validOrder = {
+        [FIRST]: true,
+        [DEFAULT]: true,
+        [LAST]: true
+    };
+
 // Exported module object
 var router = {
     config: {
         tmpl404: '404',
         injectOnce: false,
-        debug: false
-    }
+        debug: false,
+        getTemplateName: name => name
+    },
+    routesMap: {},
+    contextProcessors: []
 };
 var $, jqm;
 
@@ -26,9 +40,6 @@ router.init = function(config) {
         ...config
     };
 
-    router.routesMap = {};
-    router.contextProcessors = [];
-
     $ = config.jQuery || window.jQuery;
     jqm = $.mobile;
 
@@ -36,14 +47,23 @@ router.init = function(config) {
     // Define `tmpl404` if there is not a template named '404'
     // Set `injectOnce`to true to re-use rendered templates
     // Set `debug` to true to log template & context information
+    // Set getTemplateName to change how route names are resolved.
 };
 
 router.jqmInit = function() {
     if (!router.config) {
         throw new Error('Initialize router first!');
     }
+    var orderedRoutes = {};
+    [FIRST, DEFAULT, LAST].forEach(function(order) {
+        Object.entries(router.routesMap).forEach(([name, path]) => {
+            if (path.order === order) {
+                orderedRoutes[name] = path;
+            }
+        });
+    });
     const { reducer: routeReducer, middleware, enhancer } = connectRoutes(
-        router.routesMap,
+        orderedRoutes,
         { querySerializer: queryString }
     );
     const reducer = combineReducers({
@@ -62,7 +82,7 @@ router.jqmInit = function() {
 };
 
 function contextReducer(context = {}, action) {
-    if (action.type != 'RENDER') {
+    if (action.type != RENDER) {
         return context;
     }
     context = action.payload;
@@ -79,31 +99,76 @@ async function _generateContext(dispatch, getState) {
             ...(await fn(context))
         };
     }
-    dispatch({
-        type: 'RENDER',
-        payload: context
-    });
+    router.render(context);
 }
 
-router.register = function(path, name, obj, prevent) {
-    if (!name) {
+router.register = function(path, nameOrContext, context, order = DEFAULT) {
+    var name;
+    const newUsage = ' Usage: router.register(path[, name[, contextFn]])';
+    if (!validOrder[order]) {
+        // Assume old-style prevent() callback was passed
+        throw new Error('prevent() no longer supported.' + newUsage);
+    }
+
+    if (context) {
+        if (typeof context !== 'function') {
+            throw new Error(
+                'Unexpected ' + context + ' for contextFn.' + newUsage
+            );
+        }
+    } else if (typeof nameOrContext === 'function') {
+        context = nameOrContext;
+        nameOrContext = null;
+    }
+
+    if (nameOrContext) {
+        name = nameOrContext;
+        if (typeof name !== 'string') {
+            throw new Error(
+                'Unexpected ' + name + ' for route name.' + newUsage
+            );
+        }
+    } else {
+        if (path.indexOf('/') > -1) {
+            throw new Error(
+                'router.register() now requires a route name if path contains /.' +
+                    newUsage
+            );
+        }
         // Assume there is a template with the same name
         name = path;
     }
-    if (obj || prevent || typeof name === 'function') {
+
+    if (context && context.length > 1) {
         throw new Error(
-            'router.register() now only takes a path and route/template name.'
+            'contextFn should take a single argument (the existing context) and return a new context for merging.  router.go() is now called automatically.'
         );
     }
+
     router.routesMap[name.toUpperCase()] = {
         path: _normalizePath(path),
-        thunk: _generateContext
+        thunk: _generateContext,
+        order
     };
+
+    if (context) {
+        router.addContextForRoute(name, context);
+    }
+    return name;
+};
+
+router.registerFirst = function(path, name, context) {
+    router.register(path, name, context, FIRST);
+};
+
+router.registerLast = function(path, name, context) {
+    router.register(path, name, context, LAST);
 };
 
 router.addContext = function(fn) {
     router.contextProcessors.push(fn);
 };
+
 router.addContextForRoute = function(pathOrName, fn) {
     const name = _getRouteName(pathOrName);
     function contextForRoute(context) {
@@ -138,20 +203,35 @@ router.addRoute = function(pathOrName, eventCode, fn, obj) {
         fn = obj[fn];
     }
     const name = _getRouteName(pathOrName);
-    $('body').on(jqmEvents[eventCode], function() {
+    $('body').on(jqmEvents[eventCode] + '.' + name, function() {
         const state = router.store.getState(),
             { context } = state,
             { router_info } = context;
-        if (context.router_info.name == name) {
+        if (router_info && router_info.name == name) {
             fn();
         }
     });
 };
 
-router.push = push;
+router.push = function(path) {
+    push(path);
+};
+
+router.render = function(context) {
+    router.store.dispatch({
+        type: RENDER,
+        payload: context
+    });
+};
+
+router.refresh = function() {
+    var context = router.store.getState().context;
+    context._refreshCount = (context._refreshCount || 0) + 1;
+    router.render(context);
+};
 
 // Inject and display page
-var _lastPath = null;
+var _lastPath, _lastRefresh;
 router.go = function(arg) {
     if (arg) {
         throw new Error('router.go() is now called automatically');
@@ -159,24 +239,31 @@ router.go = function(arg) {
 
     const state = router.store.getState(),
         { location, context } = state,
-        { router_info } = context;
+        { router_info } = context,
+        { full_path: url, _refreshCount: refresh, dom_id: pageid } =
+            router_info || {},
+        once = null, // FIXME
+        ui = null; // FIXME
 
-    if (!router_info || router_info.path === _lastPath) {
+    if (url === _lastPath && refresh === _lastRefresh) {
         return;
     }
 
-    const { path } = router_info,
-        template =
-            location.type === NOT_FOUND
-                ? router.config.tmpl404
-                : location.type.toLowerCase(),
-        once = null, // FIXME
-        pageid = null, // FIXME
-        ui = null; // FIXME
+    _lastPath = url;
+    _lastRefresh = refresh;
 
-    _lastPath = path;
+    var template;
+    if (location.type === NOT_FOUND || context[NOT_FOUND]) {
+        template = router.config.tmpl404;
+        context.url = location.pathname;
+    } else {
+        template = router.config.getTemplateName(router_info.name, context);
+    }
 
-    var url = router_info.full_path;
+    if (context[HTML]) {
+        return tmpl.injectHTML(HTML);
+    }
+
     if (router.config.debug) {
         console.log(
             'Rendering ' +
@@ -199,10 +286,7 @@ router.go = function(arg) {
     role = $page.jqmData('role');
     if (role == 'page') {
         options = (ui && ui.options) || {};
-        options._jqmrouter_bC = true;
-        if (once) {
-            options.allowSamePageTransition = true;
-        }
+        options.allowSamePageTransition = true;
         jqm.changePage($page, options);
     } else if (role == 'popup') {
         options = {};
@@ -233,9 +317,17 @@ router.go = function(arg) {
 };
 
 // Simple 404 page helper
-router.notFound = function(url, ui) {
-    var context = { url: url };
-    router.go(url, router.config.tmpl404, context, ui);
+router.notFound = function() {
+    return {
+        [NOT_FOUND]: true
+    };
+};
+
+// Use when loading HTML from server
+router.rawHTML = function(html) {
+    return {
+        [HTML]: html
+    };
 };
 
 router.base_url = '';
@@ -272,7 +364,8 @@ function _routeInfo(location) {
     info.prev_path = _removeBase(location.prev.pathname);
     info.path = _removeBase(location.pathname);
     info.path_enc = escape(info.path);
-    info.full_path = location.pathname;
+    info.full_path =
+        location.pathname + (location.search ? '?' + location.search : '');
     info.full_path_enc = escape(info.full_path);
     info.params = location.query;
     info.slugs = location.payload;

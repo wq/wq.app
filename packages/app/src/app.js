@@ -25,6 +25,9 @@ app.init = function(config) {
     app.jQuery = $ = config.jQuery || window.jQuery || jQM();
     jqm = $.mobile || jQM().mobile;
     app.spin = spin;
+    router.addContext(_getRouteInfo);
+    router.addContext(app.userInfo);
+    router.addContext(_getSyncInfo);
 
     // Router (wq/router.js) configuration
     if (!config.router) {
@@ -32,6 +35,7 @@ app.init = function(config) {
             base_url: ''
         };
     }
+    config.router.getTemplateName = getTemplateName;
 
     // Store (wq/store.js) configuration
     if (!config.store) {
@@ -43,9 +47,10 @@ app.init = function(config) {
     if (!config.store.fetchFail) {
         config.fetchFail = _fetchFail;
     }
-    for (var plugin in app.plugins) {
-        if (app.plugins[plugin].ajax) {
-            config.store.ajax = app.plugins[plugin].ajax;
+    for (var name in app.plugins) {
+        var plugin = app.plugins[name];
+        if (plugin.ajax) {
+            config.store.ajax = plugin.ajax;
         }
     }
 
@@ -99,14 +104,10 @@ app.init = function(config) {
 
     // Initialize wq/router.js
     router.init(config.router);
-    app.base_url = router.info.base_url;
+    app.base_url = router.base_url;
 
     // Initialize wq/template.js
     tmpl.init(config.template);
-    tmpl.setDefault('native', app['native']);
-    tmpl.setDefault('app_config', app.config);
-    tmpl.setDefault('wq_config', app.wq_config);
-    tmpl.setDefault('svc', app.service);
 
     // Option to submit forms in the background rather than wait for each post
     var seconds;
@@ -139,7 +140,7 @@ app.init = function(config) {
     // Initialize authentication, if applicable
     var ready;
     if (app.can_login) {
-        router.register('logout/?', app.logout);
+        router.register('logout', 'logout', app.logout);
 
         // Load some values from store - not ready till this is done.
         ready = ds.get(['user', 'csrf_token']).then(function(values) {
@@ -149,11 +150,8 @@ app.init = function(config) {
                 return csrfReady;
             }
             app.user = user;
-            tmpl.setDefault('user', user);
-            tmpl.setDefault('is_authenticated', true);
             return ds.get('/config').then(function(wq_config) {
                 app.wq_config = wq_config;
-                tmpl.setDefault('wq_config', app.wq_config);
                 $('body').trigger('login');
                 return csrfReady;
             });
@@ -162,11 +160,6 @@ app.init = function(config) {
     } else {
         ready = ds.ready;
     }
-    ready = ready.then(function() {
-        return outbox.unsynced().then(function(unsynced) {
-            tmpl.setDefault('unsynced', unsynced);
-        });
-    });
 
     // Configure jQuery Mobile transitions
     if (config.transitions) {
@@ -209,22 +202,18 @@ app.init = function(config) {
             });
             app.models[page] = modelModule(conf);
         } else if (conf) {
-            if (!conf.server_only) {
-                _registerOther(page);
-            }
+            _registerOther(page);
             _onShowOther(page);
         }
     });
 
     // Register outbox
-    router.register('outbox', _renderOutboxList);
-    router.register('outbox/', _renderOutboxList);
-    router.addRoute('outbox', 's', _showOutboxList);
-    router.addRoute('outbox/', 's', _showOutboxList);
-    router.register('outbox/<slug>', _renderOutboxItem('detail'));
-    router.register('outbox/<slug>/edit', _renderOutboxItem('edit'));
-    router.addRoute('outbox/<slug>', 's', _showOutboxItem('detail'));
-    router.addRoute('outbox/<slug>/edit', 's', _showOutboxItem('edit'));
+    router.register('outbox', 'outbox', outbox.model.load);
+    router.onShow('outbox', app.runPlugins);
+    router.register('outbox/<slug>', 'outbox_detail', _renderOutboxItem);
+    router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
+    router.onShow('outbox_detail', app.runPlugins);
+    router.onShow('outbox_edit', app.runPlugins);
 
     // Fallback index page
     if (
@@ -232,7 +221,7 @@ app.init = function(config) {
         !app.wq_config.pages.index &&
         config.template.templates.index
     ) {
-        router.register('', function(match, ui) {
+        router.registerLast('', 'index', function(ctx) {
             var context = {};
             context.pages = Object.keys(app.wq_config.pages).map(function(
                 page
@@ -244,13 +233,21 @@ app.init = function(config) {
                     list: conf.list
                 };
             });
-            router.go('', 'index', context, ui);
         });
     }
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
     $(document).on('click', 'form [type=submit]', _submitClick);
+
+    for (var name in app.plugins) {
+        var plugin = app.plugins[name];
+        if (plugin.context) {
+            router.addContext(ctx => {
+                return plugin.context(ctx, ctx.router_info);
+            });
+        }
+    }
 
     if (app.config.jqmInit) {
         ready = ready.then(app.jqmInit);
@@ -284,10 +281,7 @@ app.logout = function() {
         return;
     }
     delete app.user;
-    tmpl.setDefault('user', null);
-    tmpl.setDefault('is_authenticated', false);
     app.wq_config = app.config;
-    tmpl.setDefault('wq_config', app.wq_config);
     ds.set('user', null).then(function() {
         $('body').trigger('logout');
     });
@@ -298,76 +292,56 @@ app.logout = function() {
     });
 };
 
-// Determine appropriate context & template for router.go
-app.go = function(page, ui, params, itemid, mode, url, context) {
+app.userInfo = function() {
+    return {
+        user: app.user,
+        is_authenticated: !!app.user,
+        app_config: app.config,
+        wq_config: app.wq_config,
+        csrf_token: outbox.csrftoken
+    };
+};
+
+async function _getSyncInfo() {
+    const unsynced = await outbox.unsynced();
+    return {
+        syncing: app.syncing,
+        unsynced: unsynced
+    };
+}
+
+app.go = function() {
+    throw new Error('app.go() has been removed.  Use app.nav() instead');
+
+    // FIXME
+    /*
     if (ui && ui.options && ui.options.data) {
         return; // Ignore form actions
     }
-    var conf = _getConf(page);
-    if (!conf.list) {
-        _renderOther(page, ui, params, url, context);
-        return;
-    }
-    var model = app.models[page];
-    spin.start();
-
-    if (itemid) {
-        if (itemid == 'new') {
-            return _displayItem(
-                itemid,
-                {},
-                page,
-                ui,
-                params,
-                mode,
-                url,
-                context
-            );
-        } else {
-            var localOnly = !app.config.loadMissingAsJson;
-            return model.find(itemid, 'id', localOnly).then(function(item) {
-                _displayItem(
-                    itemid,
-                    item,
-                    page,
-                    ui,
-                    params,
-                    mode,
-                    url,
-                    context
-                );
-            });
-        }
-    } else {
-        return _displayList(page, ui, params, url, context);
-    }
+    */
+    // FIXME
+    // spin.stop();
 };
 
 // Run any/all plugins on the specified page
-app.runPlugins = function(page, mode, itemid, url, parentInfo) {
-    var lastRoute = router.info,
-        context = lastRoute.context,
-        routeInfo,
-        getItem;
-    routeInfo = _getRouteInfo(
-        page,
-        mode,
-        itemid,
-        url.replace(app.base_url + '/', ''),
-        parentInfo
-    );
-    if (itemid) {
-        if (
-            lastRoute.path == routeInfo.path &&
-            context &&
-            (context.id || 'new') == itemid
-        ) {
+app.runPlugins = function(arg) {
+    if (arg) {
+        throw new Error('runPlugins() now loads args from context');
+    }
+    const state = router.store.getState(),
+        { context } = state,
+        { router_info: routeInfo } = context;
+
+    var getItem;
+
+    if (context.outbox_id) {
+        // FIXME: page_config
+        getItem = Promise.resolve(context);
+    } else if (routeInfo.item_id) {
+        if (context.local) {
             getItem = Promise.resolve(context);
-            if (context.outbox_id) {
-                routeInfo.outbox_id = context.outbox_id;
-            }
         } else {
-            getItem = app.models[page].find(itemid);
+            getItem = app.models[routeInfo.page].find(routeInfo.item_id);
         }
     } else {
         getItem = Promise.resolve({});
@@ -394,11 +368,9 @@ app.sync = function(retryAll) {
             return;
         }
         app.syncing = true;
-        tmpl.setDefault('syncing', true);
         app.presync();
         outbox.sendAll(retryAll).then(function(items) {
             app.syncing = false;
-            tmpl.setDefault('syncing', false);
             app.postsync(items);
         });
     });
@@ -449,11 +421,14 @@ app.confirmSubmit = function(form, message) {
 
 // Hook for handling navigation after form submission
 app.postsave = function(item, backgroundSync) {
+    // FIXME
+    /*
     var options = {
         reverse: true,
         transition: _saveTransition,
         allowSamePageTransition: true
     };
+    */
     var postsave, pconf, match, mode, url, itemid, modelConf;
 
     // conf.postsave can be set redirect to another page
@@ -491,7 +466,7 @@ app.postsave = function(item, backgroundSync) {
         // simple page or a URL
         var urlContext;
         if (item.deletedId) {
-            urlContext = { deleted: true, ...router.info.context };
+            urlContext = { deleted: true, ...router.store.getState().context };
         } else {
             urlContext = item.result || item.data;
         }
@@ -543,7 +518,7 @@ app.postsave = function(item, backgroundSync) {
     if (app.config.debug) {
         console.log('Successfully saved; continuing to ' + url);
     }
-    jqm.changePage(url, options);
+    router.push(url);
 };
 
 // Hook for handling navigation / alerts after a submission error
@@ -604,10 +579,7 @@ app.syncRefresh = function(items) {
     if (!items.length || !jqm.activePage.data('wq-sync-refresh')) {
         return;
     }
-    outbox.unsynced().then(function(unsynced) {
-        tmpl.setDefault('unsynced', unsynced);
-        app.refresh();
-    });
+    app.refresh();
 };
 
 // Return a list of all foreign key fields
@@ -625,14 +597,12 @@ app.getParents = function(page) {
 // Shortcuts for $.mobile.changePage
 app.nav = function(url, options) {
     url = app.base_url + '/' + url;
-    if (!options) {
-        options = {};
-    }
-    options.allowSamePageTransition = true;
-    jqm.changePage(url, options);
+    router.push(url); // FIXME: options
 };
 
 app.replaceState = function(url) {
+    // FIXME
+    /*
     app.nav(url, {
         transition: 'none',
         changeHash: false
@@ -643,19 +613,16 @@ app.replaceState = function(url) {
         hist.stack = [hist.stack[hist.stack.length - 1]];
         hist.activeIndex = 0;
     }, 300);
+    */
 };
 
 app.refresh = function() {
-    jqm.changePage(jqm.activePage.data('url'), {
-        transition: 'none',
-        allowSamePageTransition: true
-    });
+    router.refresh();
 };
 
 // Internal variables and functions
 function _setCSRFToken(csrftoken) {
     outbox.setCSRFToken(csrftoken);
-    tmpl.setDefault('csrf_token', csrftoken);
     return ds.set('csrf_token', csrftoken);
 }
 
@@ -678,9 +645,59 @@ function _callPlugins(method, lookup, args) {
     return queue;
 }
 
-function _getRouteInfo(page, mode, itemid, url, parentInfo) {
-    var conf = _getConf(page, true);
-    if (!conf) {
+function _splitRoute(routeName) {
+    const match = routeName.match(/^(.+)_([^_]+)$/);
+    let page, mode, variant;
+    if (match) {
+        page = match[1];
+        mode = match[2];
+        if (mode.indexOf(':') > -1) {
+            [mode, variant] = mode.split(':');
+        } else {
+            variant = null;
+        }
+    } else {
+        page = routeName;
+        mode = null;
+        variant = null;
+    }
+    return [page, mode, variant];
+}
+
+function _joinRoute(page, mode, variant) {
+    if (variant) {
+        return page + '_' + mode + ':' + variant;
+    } else if (mode) {
+        return page + '_' + mode;
+    } else {
+        return page;
+    }
+}
+
+function _getRouteInfo(ctx, arg) {
+    if (arg) {
+        throw new Error('_getRouteInfo() now auto-created from context');
+    }
+    const { router_info: routeInfo } = ctx,
+        routeName = routeInfo.name,
+        itemid = routeInfo.slugs.slug || null;
+    var [page, mode, variant] = _splitRoute(routeName),
+        conf = _getConf(page, true),
+        pageid = null;
+
+    if (conf) {
+        if (mode && mode !== 'list') {
+            pageid =
+                page +
+                '_' +
+                mode +
+                (variant ? '_' + variant : '') +
+                (itemid ? '_' + itemid : '') +
+                '-page';
+        }
+    } else {
+        page = routeName;
+        mode = null;
         conf = {
             name: page,
             page: page,
@@ -688,88 +705,90 @@ function _getRouteInfo(page, mode, itemid, url, parentInfo) {
             modes: []
         };
     }
-    router.setPath(url);
     return {
-        ...parentInfo,
-        ...router.info,
-        page: page,
+        svc: app.service,
+        native: app['native'],
         page_config: conf,
-        mode: mode,
-        item_id: itemid
+        router_info: {
+            ...routeInfo,
+            page: page,
+            page_config: conf,
+            mode: mode,
+            variant: variant,
+            item_id: itemid,
+            dom_id: pageid
+        }
     };
+}
+
+function getTemplateName(name, context) {
+    if (context.template) {
+        return context.template;
+    } else {
+        return name.split(':')[0];
+    }
 }
 
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 _register.list = function(page) {
-    var conf = _getConf(page);
-    router.register(conf.url, go);
-    router.register(conf.url + '/', go);
-    function go(match, ui, params) {
-        app.go(page, ui, params);
-    }
+    const conf = _getConf(page),
+        register = conf.url === '' ? router.registerLast : router.register;
+    register(conf.url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     app.getParents(page).forEach(function(ppage) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
-        if (url) {
+        var registerParent;
+        if (url === '') {
+            registerParent = router.registerLast;
+        } else {
+            registerParent = router.register;
             url += '/';
         }
         url += '<slug>/' + conf.url;
-        router.register(url, goUrl(ppage, url));
-        router.register(url + '/', goUrl(ppage, url));
+        registerParent(url, _joinRoute(page, 'list', ppage), parentContext);
     });
-    function goUrl(ppage, url) {
-        return function(match, ui, params) {
-            var pconf = _getConf(ppage);
-            var pageurl = url.replace('<slug>', match[1]);
-            spin.start();
-            app.models[ppage].find(match[1]).then(function(pitem) {
-                spin.stop();
-                var context = {
-                    parent_id: match[1],
-                    parent_url:
-                        (pitem && pconf.url + '/' + pitem.id) ||
-                        'outbox/' + match[1].split('-')[1],
-                    parent_label: pitem && pitem.label,
-                    parent_page: ppage
-                };
-                context['parent_is_' + ppage] = true;
-                app.go(page, ui, params, undefined, false, pageurl, context);
-            });
+
+    async function parentContext(ctx) {
+        const { router_info: routeInfo } = ctx,
+            { page, variant: ppage } = routeInfo,
+            slug = routeInfo.slugs.slug,
+            pconf = _getConf(ppage),
+            pitem = await app.models[ppage].find(slug);
+        var parentUrl;
+        if (pitem) {
+            parentUrl = pconf.url + '/' + pitem.id;
+        } else if (slug.indexOf('outbox-') == -1) {
+            parentUrl = 'outbox/' + slug.split('-')[1];
+        } else {
+            parentUrl = null;
+        }
+        var info = {
+            parent_id: slug,
+            parent_url: parentUrl,
+            parent_label: pitem && pitem.label,
+            parent_page: ppage,
+            router_info: {
+                ...routeInfo,
+                parent_id: slug,
+                parent_page: ppage,
+                parent_url: parentUrl
+            }
         };
+        info['parent_is_' + ppage] = true;
+        return _displayList(ctx, info);
     }
 };
 
 _onShow.list = function(page) {
-    var conf = _getConf(page);
-    var url = conf.url ? conf.url + '/?' : '';
-    router.addRoute(url, 's', function(match) {
-        app.runPlugins(page, 'list', null, match[0]);
-    });
+    router.onShow(_joinRoute(page, 'list'), app.runPlugins);
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     app.getParents(page).forEach(function(ppage) {
-        var pconf = app.config.pages[ppage];
-        var purl = pconf.url;
-        if (purl) {
-            purl += '/';
-        }
-        purl = '(' + purl + ')<slug>/' + conf.url;
-        router.addRoute(purl + '/?', 's', goUrl(ppage));
+        router.onShow(_joinRoute(page, 'list', ppage), app.runPlugins);
     });
-
-    function goUrl(ppage) {
-        return function(match) {
-            var parentInfo = {
-                parent_id: match[2],
-                parent_url: match[1] + match[2],
-                parent_page: ppage
-            };
-            app.runPlugins(page, 'list', null, match[0], parentInfo);
-        };
-    }
 };
 
 app._addOutboxItemsToContext = function(context, unsyncedItems) {
@@ -778,25 +797,16 @@ app._addOutboxItemsToContext = function(context, unsyncedItems) {
     context.unsyncedItems = unsyncedItems;
 };
 
-function _displayList(page, ui, params, url, context) {
-    spin.stop();
-
-    var conf = _getConf(page);
-    var model = app.models[page];
+async function _displayList(ctx, parentInfo) {
+    const { router_info: routeInfo } = ctx,
+        { page, params } = routeInfo,
+        conf = _getConf(page),
+        model = app.models[page];
     var pnum = model.opts.page,
         next = null,
         prev = null,
         filter;
-    if (url === undefined) {
-        url = conf.url;
-        if (url) {
-            url += '/';
-        }
-    }
-    if ((params && $.param(params)) || (context && context.parent_page)) {
-        if (params && $.param(params)) {
-            url += '?' + $.param(params);
-        }
+    if (params || parentInfo) {
         if (params && params.page) {
             pnum = params.page;
         }
@@ -806,10 +816,10 @@ function _displayList(page, ui, params, url, context) {
                 filter[key] = params[key];
             }
         }
-        if (context && context.parent_page) {
+        if (parentInfo) {
             conf.form.forEach(function(field) {
-                if (field['wq:ForeignKey'] == context.parent_page) {
-                    filter[field.name + '_id'] = context.parent_id;
+                if (field['wq:ForeignKey'] == parentInfo.parent_page) {
+                    filter[field.name + '_id'] = parentInfo.parent_id;
                 }
             });
         }
@@ -821,13 +831,13 @@ function _displayList(page, ui, params, url, context) {
     // Load from server if data might not exist locally
     if (app.config.loadMissingAsHtml) {
         if (!model.opts.client) {
-            return _loadFromServer(url, ui);
+            return _loadFromServer(url);
         }
         if (filter && model.opts.server) {
-            return _loadFromServer(url, ui);
+            return _loadFromServer(url);
         }
         if (pnum > model.opts.page) {
-            return _loadFromServer(url, ui);
+            return _loadFromServer(url);
         }
     }
 
@@ -844,98 +854,63 @@ function _displayList(page, ui, params, url, context) {
             return model.load();
         }
     }
-    function getUnsynced() {
+    async function getUnsynced() {
         if (pnum == model.opts.page || (pnum == 1 && !model.opts.client)) {
             return model.unsyncedItems();
         } else {
-            return Promise.resolve([]);
+            return [];
         }
     }
 
     // If the number of unsynced records changes while loading the data,
     // load the data a second time to make sure the list is up to date.
     // (this is rare except for cache=none lists with background sync)
-    return getUnsynced()
-        .then(function(unsynced1) {
-            return getData().then(function(data1) {
-                return getUnsynced().then(function(unsynced2) {
-                    if (
-                        unsynced1 &&
-                        unsynced2 &&
-                        unsynced1.length != unsynced2.length
-                    ) {
-                        return getData().then(function(data2) {
-                            return [data2, unsynced2];
-                        });
-                    } else {
-                        return [data1, unsynced2];
-                    }
+    const unsynced1 = await getUnsynced();
+    const data1 = await getData();
+    const unsynced2 = await getUnsynced();
+    var data;
+    if (unsynced1 && unsynced2 && unsynced1.length != unsynced2.length) {
+        data = await getData();
+    } else {
+        data = data1;
+    }
+    const unsyncedItems = unsynced2;
+    var prevIsLocal, currentIsLocal;
+
+    if (pnum > model.opts.page && (model.opts.client || pnum > 1)) {
+        prev = conf.url + '/';
+        if (+pnum - 1 > model.opts.page && (model.opts.client || pnum > 2)) {
+            prev +=
+                '?' +
+                $.param({
+                    page: +pnum - 1
                 });
-            });
-        })
-        .then(function(results) {
-            var data = results[0],
-                unsyncedItems = results[1],
-                parentInfo = {},
-                routeInfo,
-                prevIsLocal,
-                currentIsLocal;
-            ['parent_id', 'parent_url', 'parent_page'].forEach(function(key) {
-                if (context && context[key]) {
-                    parentInfo[key] = context[key];
-                }
-            });
+        } else if (pnum == 1) {
+            prevIsLocal = true;
+        }
+    }
 
-            routeInfo = _getRouteInfo(page, 'list', null, url, parentInfo);
-            if (pnum > model.opts.page && (model.opts.client || pnum > 1)) {
-                prev = conf.url + '/';
-                if (
-                    +pnum - 1 > model.opts.page &&
-                    (model.opts.client || pnum > 2)
-                ) {
-                    prev +=
-                        '?' +
-                        $.param({
-                            page: +pnum - 1
-                        });
-                } else if (pnum == 1) {
-                    prevIsLocal = true;
-                }
-            }
+    if (pnum < data.pages && (model.opts.server || pnum)) {
+        var nextp = { page: +pnum + 1 };
+        next = conf.url + '/?' + $.param(nextp);
+        if (nextp.page == 1) {
+            currentIsLocal = true;
+        }
+    }
 
-            if (pnum < data.pages && (model.opts.server || pnum)) {
-                var nextp = { page: +pnum + 1 };
-                next = conf.url + '/?' + $.param(nextp);
-                if (nextp.page == 1) {
-                    currentIsLocal = true;
-                }
-            }
+    var context = {
+        ...data,
+        ...parentInfo,
+        previous: prev ? '/' + prev : null,
+        next: next ? '/' + next : null,
+        multiple: model.opts.server && data.pages > model.opts.page,
+        previous_is_local: prevIsLocal,
+        current_is_local: currentIsLocal
+    };
 
-            context = {
-                page_config: conf,
-                ...data,
-                previous: prev ? '/' + prev : null,
-                next: next ? '/' + next : null,
-                multiple: model.opts.server && data.pages > model.opts.page,
-                previous_is_local: prevIsLocal,
-                current_is_local: currentIsLocal,
-                ...context
-            };
+    app._addOutboxItemsToContext(context, unsyncedItems);
 
-            app._addOutboxItemsToContext(context, unsyncedItems);
-
-            return _addLookups(page, context, false, routeInfo).then(function(
-                context
-            ) {
-                return router.go(
-                    url,
-                    page + '_list',
-                    context,
-                    ui,
-                    conf.once ? true : false
-                );
-            });
-        });
+    return _addLookups(page, context, false);
 }
 
 // Generate item detail view context and render with [url]_detail template;
@@ -943,26 +918,13 @@ function _displayList(page, ui, params, url, context) {
 _register.detail = function(page, mode) {
     var conf = _getConf(page);
     var url = _getDetailUrl(conf.url, mode);
-    var reserved = _getDetailReserved(conf.url);
-    router.register(url, function(match, ui, params) {
-        if (reserved.indexOf(match[1]) > -1) {
-            return;
-        }
-        app.go(page, ui, params, match[1], mode);
-    });
+    const register = conf.url === '' ? router.registerLast : router.register;
+    register(url, _joinRoute(page, mode), _displayItem);
 };
 
 // Register an onshow event for item detail views
 _onShow.detail = function(page, mode) {
-    var conf = _getConf(page);
-    var url = _getDetailUrl(conf.url, mode);
-    var reserved = _getDetailReserved(conf.url);
-    router.addRoute(url, 's', function(match) {
-        if (reserved.indexOf(match[1]) > -1) {
-            return;
-        }
-        app.runPlugins(page, mode, match[1], match[0]);
-    });
+    router.onShow(_joinRoute(page, mode), app.runPlugins);
 };
 
 function _getDetailUrl(url, mode) {
@@ -976,123 +938,78 @@ function _getDetailUrl(url, mode) {
     return url;
 }
 
-function _getDetailReserved(url) {
-    var reserved = ['new'];
-    if (!url) {
-        // This list is bound to root URL, don't mistake other lists for items
-        for (var key in app.wq_config.pages) {
-            reserved.push(app.wq_config.pages[key].url);
-        }
-    }
-    return reserved;
-}
-
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
 _register.edit = function(page) {
     var conf = _getConf(page);
-    router.register(conf.url + '/<slug>/edit', go);
-    router.register(conf.url + '/(new)', go);
-    function go(match, ui, params) {
-        app.go(page, ui, params, match[1], 'edit');
-    }
+    const register = conf.url === '' ? router.registerLast : router.register;
+    register(
+        _getDetailUrl(conf.url, 'edit'),
+        _joinRoute(page, 'edit'),
+        _displayItem
+    );
+    router.registerFirst(
+        conf.url + '/new',
+        _joinRoute(page, 'edit', 'new'),
+        _displayItem
+    );
 };
 
 // Register an onshow event for item edit views
 _onShow.edit = function(page) {
-    var conf = _getConf(page);
-    var url = conf.url ? conf.url + '/' : '';
-    router.addRoute(url + '<slug>/edit', 's', go);
-    router.addRoute(url + '(new)', 's', go);
-    function go(match) {
-        var itemid = match[1];
-        app.runPlugins(page, 'edit', itemid, match[0]);
-    }
+    router.onShow(_joinRoute(page, 'edit'), app.runPlugins);
+    router.onShow(_joinRoute(page, 'edit', 'new'), app.runPlugins);
 };
 
-function _displayItem(itemid, item, page, ui, params, mode, url, context) {
-    var conf = _getConf(page);
-    var model = app.models[page];
-    spin.stop();
-    if (url === undefined) {
-        url = conf.url;
-        if (url) {
-            url += '/';
-        }
-        url += itemid;
-        if (mode != 'detail' && itemid != 'new') {
-            url += '/' + mode;
-        }
-        if (params && $.param(params)) {
-            url += '?' + $.param(params);
+async function _displayItem(ctx) {
+    const { router_info: routeInfo } = ctx,
+        { item_id: itemid, page, mode, variant } = routeInfo,
+        conf = _getConf(page),
+        model = app.models[page];
+
+    var item;
+    if (mode == 'edit' && variant == 'new') {
+        item = {
+            ...routeInfo.params,
+            ...conf.defaults
+        };
+    } else {
+        const localOnly = !app.config.loadMissingAsJson;
+        item = await model.find(itemid, 'id', localOnly);
+        if (!item) {
+            if (model.opts.server && app.config.loadMissingAsHtml) {
+                return _loadFromServer(url);
+            } else {
+                return router.notFound();
+            }
         }
     }
+
     if (item) {
+        item.local = true;
         if (mode == 'edit') {
-            return _renderEdit(itemid, item, page, ui, params, url, context);
+            if (variant == 'new') {
+                // Create new item
+                return _addLookups(page, item, 'new');
+            } else {
+                return _addLookups(page, item, true);
+            }
         } else {
-            return _renderDetail(item, page, mode, ui, params, url, context);
+            return _addLookups(page, item, false);
+            // FIXME:
+            //     once = conf.once ? true : false;
         }
     } else {
         if (model.opts.server && app.config.loadMissingAsHtml) {
             // opts.server indicates that the local list does not represent
             // the entire dataset; if an item is not found, attempt to load
             // HTML directly from the server (using built-in jQM loader)
-            return _loadFromServer(url, ui);
+            return _loadFromServer(url);
         } else {
             // If opts.server is false, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
-            return router.notFound(url);
+            return router.notFound();
         }
-    }
-}
-
-function _renderDetail(item, page, mode, ui, params, url, context) {
-    var conf = _getConf(page),
-        routeInfo = _getRouteInfo(page, mode, item.id || 'new', url, null);
-    if (context && context.outbox_id) {
-        routeInfo.outbox_id = context.outbox_id;
-    }
-    context = {
-        page_config: conf,
-        ...item,
-        ...context
-    };
-    return _addLookups(page, context, false, routeInfo).then(function(context) {
-        var divid = page + '_' + mode + '_' + (item.id || 'new') + '-page',
-            template = page + '_' + mode,
-            once = conf.once ? true : false;
-        return router.go(url, template, context, ui, once, divid);
-    });
-}
-
-function _renderEdit(itemid, item, page, ui, params, url, context) {
-    var conf = _getConf(page),
-        routeInfo = _getRouteInfo(page, 'edit', itemid, url, null);
-    if (context && context.outbox_id) {
-        routeInfo.outbox_id = context.outbox_id;
-    }
-    if (itemid == 'new') {
-        // Create new item
-        context = {
-            page_config: conf,
-            ...params,
-            ...conf.defaults,
-            ...context
-        };
-        return _addLookups(page, context, 'new', routeInfo).then(done);
-    } else {
-        // Edit existing item
-        context = {
-            page_config: conf,
-            ...item,
-            ...context
-        };
-        return _addLookups(page, context, true, routeInfo).then(done);
-    }
-    function done(context) {
-        var divid = page + '_edit_' + itemid + '-page';
-        return router.go(url, page + '_edit', context, ui, false, divid);
     }
 }
 
@@ -1100,122 +1017,65 @@ function _renderEdit(itemid, item, page, ui, params, url, context) {
 // handles requests for [url] and [url]/
 function _registerOther(page) {
     var conf = _getConf(page);
-    router.register(conf.url, go);
-    router.register(conf.url + '/', go);
-    function go(match, ui, params) {
-        app.go(page, ui, params);
+    router.register(conf.url, page, _displayOther);
+    async function _displayOther() {
+        if (conf.server_only) {
+            return _loadFromServer(conf.url);
+        } else {
+            return {};
+        }
     }
 }
 
 // Register an onshow event for non-list single pages
 function _onShowOther(page) {
-    var conf = _getConf(page);
-    router.addRoute(conf.url + '/?', 's', function(match) {
-        app.runPlugins(page, null, null, match[0]);
-    });
+    router.onShow(page, app.runPlugins);
 }
 
-function _renderOther(page, ui, params, url, context) {
-    var conf = _getConf(page),
-        routeInfo;
-    if (url === undefined) {
-        url = conf.url;
-    }
-    if (params && $.param(params)) {
-        url += '?' + $.param(params);
-    }
-    context = {
-        page_config: conf,
-        ...context
-    };
-    routeInfo = _getRouteInfo(page, null, null, url, null);
-    Promise.all(_callPlugins('context', undefined, [context, routeInfo])).then(
-        function(pluginContext) {
-            pluginContext.forEach(function(pc) {
-                context = { ...context, ...pc };
-            });
-            router.go(url, page, context, ui, conf.once ? true : false);
-        }
-    );
-}
-
-function _renderOutboxList(match, ui) {
-    var routeInfo = _getRouteInfo('outbox', null, null, 'outbox', null);
-    outbox.model.load().then(function(context) {
-        Promise.all(
-            _callPlugins('context', undefined, [context, routeInfo])
-        ).then(function(pluginContext) {
-            pluginContext.forEach(function(pc) {
-                context = { ...context, ...pc };
-            });
-            router.go('outbox', 'outbox', context, ui);
-        });
-    });
-}
-
-function _showOutboxList() {
-    app.runPlugins('outbox', null, null, 'outbox');
-}
-
-function _renderOutboxItem(mode) {
+async function _renderOutboxItem(ctx) {
     // Display outbox item using model-specific detail/edit view
-    return function(match, ui, params) {
-        outbox.loadItem(match[1]).then(function(item) {
-            var id,
-                idMatch = item.options.url.match(
-                    new RegExp(item.options.modelConf.url + '/([^/]+)$')
-                );
-            if (item.data.id) {
-                id = item.data.id;
-            } else if (idMatch) {
-                id = idMatch[1];
-            } else {
-                id = 'new';
-            }
-            var url = 'outbox/' + item.id;
-            if (mode != 'detail') {
-                url += '/' + mode;
-            }
-            var context = {
-                outbox_id: item.id,
-                error: item.error
-            };
-            if (id == 'new') {
-                context = { ...context, ...item.data };
-            } else {
-                context.id = id;
-            }
-            _displayItem(
-                id,
-                item.data,
-                item.options.modelConf.name,
-                ui,
-                params,
-                mode,
-                url,
-                context
-            ).then(function($page) {
-                if (mode == 'edit' && item.error) {
-                    app.showOutboxErrors(item, $page);
-                }
-            });
-        });
-    };
-}
+    const { router_info: routeInfo } = ctx,
+        mode = routeInfo.page.replace(/^outbox_/, ''),
+        item = await outbox.loadItem(routeInfo.slugs.slug);
 
-function _showOutboxItem(mode) {
-    return function(match) {
-        var context = router.info.context || {};
-        if (context.outbox_id != match[1]) {
-            return;
-        }
-        app.runPlugins(
-            context.page_config.name,
-            mode,
-            context.id || 'new',
-            match[0]
+    if (!item || !item.options || !item.options.modelConf) {
+        return router.notFound();
+    }
+
+    var id,
+        page = item.options.modelConf.name,
+        template = page + '_' + mode,
+        idMatch = item.options.url.match(
+            new RegExp(item.options.modelConf.url + '/([^/]+)$')
         );
+    if (item.data.id) {
+        id = item.data.id;
+    } else if (idMatch) {
+        id = idMatch[1];
+    } else {
+        id = 'new';
+    }
+    var context = {
+        outbox_id: item.id,
+        template: template,
+        error: item.error,
+        router_info: {
+            ...routeInfo,
+            outbox_id: item.id
+        },
+        ...item.data
     };
+    if (id != 'new') {
+        context.id = id;
+    }
+    return _addLookups(page, context, false);
+
+    // FIXME:
+    /*
+    if (mode == 'edit' && item.error) {
+        app.showOutboxErrors(item, $page);
+    }
+    */
 }
 
 // Handle form submit from [url]_edit views
@@ -1511,10 +1371,7 @@ function _saveLogin(result) {
         return;
     }
     app.wq_config = config;
-    tmpl.setDefault('wq_config', config);
     app.user = user;
-    tmpl.setDefault('user', user);
-    tmpl.setDefault('is_authenticated', true);
     return Promise.all([
         ds.set('/config', config),
         ds.set('user', user),
@@ -1543,7 +1400,7 @@ function _checkLogin() {
 
 // Add various callback functions to context object to automate foreign key
 // lookups within templates
-function _addLookups(page, context, editable, routeInfo) {
+function _addLookups(page, context, editable) {
     var conf = _getConf(page);
     var lookups = {};
 
@@ -1607,7 +1464,6 @@ function _addLookups(page, context, editable, routeInfo) {
     });
 
     // Process lookup functions
-    spin.start();
     var keys = Object.keys(lookups);
     var queue = keys.map(function(key) {
         return lookups[key];
@@ -1635,15 +1491,8 @@ function _addLookups(page, context, editable, routeInfo) {
                     row[parts[1]] = row[parts[1]] || result;
                 });
             });
-            return Promise.all(
-                _callPlugins('context', undefined, [context, routeInfo])
-            );
         })
-        .then(function(pluginContext) {
-            pluginContext.forEach(function(pc) {
-                context = { ...context, ...pc };
-            });
-            spin.stop();
+        .then(function() {
             return context;
         });
 }
@@ -1842,7 +1691,7 @@ function _getConf(page, silentFail) {
         if (silentFail) {
             return;
         } else {
-            throw 'Configuration for "' + page + '" not found!';
+            throw new Error('Configuration for "' + page + '" not found!');
         }
     }
     return {
@@ -1893,14 +1742,16 @@ function _computeFilter(filter, context) {
     return computedFilter;
 }
 
-function _loadFromServer(url, ui) {
-    var jqmurl = app.base_url + '/' + url,
-        options = (ui && ui.options) || {};
-    options.wqSkip = true;
+async function _loadFromServer(url) {
+    var url = app.service + '/' + url;
+    // FIXME
+    // options = (ui && ui.options) || {};
     if (app.config.debug) {
         console.log('Loading ' + url + ' from server');
     }
-    return Promise.resolve(jqm.changePage(jqmurl, options));
+    const response = await fetch(url),
+        html = response.text();
+    return router.rawHTML(html);
 }
 
 function _fetchFail(query, error) {

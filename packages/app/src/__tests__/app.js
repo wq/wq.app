@@ -167,15 +167,15 @@ async function changePage(path, path2) {
         done = resolve;
     });
 
-    $('body').on('pageshow', next);
-    jqm.changePage('/tests/' + path, { transition: 'none' });
+    $('body').on('pageshow.changepage', next);
+    router.push('/tests/' + path); //, { transition: 'none' });
 
     function next() {
         if (jqm.activePage.jqmData('url') != '/tests/' + path) {
             // FIXME: Sometimes / is shown before navigating to path?
             return;
         }
-        $('body').off('pageshow', next);
+        $('body').off('pageshow.changepage', next);
         done(jqm.activePage);
     }
 
@@ -207,7 +207,8 @@ function testEAV(name, filter, params, expected) {
             url += '?' + params;
         }
         await changePage('items/', url);
-        var ids = (router.info.context.values || []).map(function(value) {
+        var context = router.store.getState().context;
+        var ids = (context.values || []).map(function(value) {
             return value.attribute_id;
         });
         expect(ids).toEqual(expected);

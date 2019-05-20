@@ -20,6 +20,9 @@ tmpl.init = function(config) {
 };
 
 tmpl.setDefault = function(key, value) {
+    console.warn(
+        new Error('tmpl.setDefault() is deprecated; use context plugin instead')
+    );
     _defaults[key] = value;
 };
 
@@ -128,6 +131,11 @@ tmpl.injectOnce = function(template, context, url, id) {
         $page.jqmData('url', url);
     }
     return $page;
+};
+
+// Render HTML loaded from server
+tmpl.injectHTML = function(html, url, id) {
+    tmpl.inject('{{{html}}}', { html: html }, url, id);
 };
 
 export default tmpl;
