@@ -18,7 +18,7 @@ photos.init = function(config) {
     spin = photos.app.spin;
 };
 
-photos.context = function(ctx) {
+photos.context = function() {
     return {
         image_url: function() {
             try {

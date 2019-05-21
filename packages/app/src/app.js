@@ -47,12 +47,12 @@ app.init = function(config) {
     if (!config.store.fetchFail) {
         config.fetchFail = _fetchFail;
     }
-    for (var name in app.plugins) {
-        var plugin = app.plugins[name];
+
+    Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.ajax) {
             config.store.ajax = plugin.ajax;
         }
-    }
+    });
 
     // Outbox (wq/outbox.js) configuration
     if (!config.outbox) {
@@ -240,14 +240,13 @@ app.init = function(config) {
     $(document).on('submit', 'form', _handleForm);
     $(document).on('click', 'form [type=submit]', _submitClick);
 
-    for (var name in app.plugins) {
-        var plugin = app.plugins[name];
+    Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.context) {
             router.addContext(ctx => {
                 return plugin.context(ctx, ctx.router_info);
             });
         }
-    }
+    });
 
     if (app.config.jqmInit) {
         ready = ready.then(app.jqmInit);
@@ -799,7 +798,7 @@ app._addOutboxItemsToContext = function(context, unsyncedItems) {
 
 async function _displayList(ctx, parentInfo) {
     const { router_info: routeInfo } = ctx,
-        { page, params } = routeInfo,
+        { page, params, full_path: url } = routeInfo,
         conf = _getConf(page),
         model = app.models[page];
     var pnum = model.opts.page,
@@ -963,7 +962,7 @@ _onShow.edit = function(page) {
 
 async function _displayItem(ctx) {
     const { router_info: routeInfo } = ctx,
-        { item_id: itemid, page, mode, variant } = routeInfo,
+        { item_id: itemid, page, mode, variant, full_path: url } = routeInfo,
         conf = _getConf(page),
         model = app.models[page];
 
@@ -1020,7 +1019,7 @@ function _registerOther(page) {
     router.register(conf.url, page, _displayOther);
     async function _displayOther() {
         if (conf.server_only) {
-            return _loadFromServer(conf.url);
+            return _loadFromServer(app.base_url + '/' + conf.url);
         } else {
             return {};
         }
@@ -1743,11 +1742,12 @@ function _computeFilter(filter, context) {
 }
 
 async function _loadFromServer(url) {
-    var url = app.service + '/' + url;
-    // FIXME
     // options = (ui && ui.options) || {};
     if (app.config.debug) {
         console.log('Loading ' + url + ' from server');
+        if (app.base_url && url.indexOf(app.base_url) !== 0) {
+            console.warn(url + ' does not include ' + app.base_url);
+        }
     }
     const response = await fetch(url),
         html = response.text();
