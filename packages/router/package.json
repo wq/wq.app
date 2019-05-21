@@ -1,6 +1,6 @@
 {
   "name": "@wq/router",
-  "version": "2.0.0-dev",
+  "version": "1.1.2",
   "description": "Respond to URL changes with locally generated pages and custom events",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-    "@wq/jquery-mobile": "^0.1.0",
-    "@wq/template": "^2.0.0-dev"
+    "@wq/jquery-mobile": "^1.1.2",
+    "@wq/template": "^1.1.2"
   }
 }

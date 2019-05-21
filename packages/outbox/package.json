@@ -1,6 +1,6 @@
 {
   "name": "@wq/outbox",
-  "version": "2.0.0-dev",
+  "version": "1.1.2",
   "description": "A simple model API for working with stored lists",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -25,8 +25,8 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-    "@wq/model": "^2.0.0-dev",
-    "@wq/store": "^2.0.0-dev"
+    "@wq/model": "^1.1.2",
+    "@wq/store": "^1.1.2"
   },
   "devDependencies": {
     "@wq/jest-env-jsdom-idb": "^0.1.0"

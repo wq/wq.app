@@ -1,6 +1,6 @@
 {
   "name": "@wq/app",
-  "version": "2.0.0-dev",
+  "version": "1.1.2",
   "description": "Utilizes @wq/store and @wq/pages to dynamically load and render content from a wq.db-compatible REST service",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -27,11 +27,11 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-     "@wq/store": "^2.0.0-dev",
-     "@wq/model": "^2.0.0-dev",
-     "@wq/outbox": "^2.0.0-dev",
-     "@wq/jquery-mobile": "^0.1.0",
-     "@wq/template": "^2.0.0-dev",
-     "@wq/router": "^2.0.0-dev"
+     "@wq/store": "^1.1.2",
+     "@wq/model": "^1.1.2",
+     "@wq/outbox": "^1.1.2",
+     "@wq/jquery-mobile": "^1.1.2",
+     "@wq/template": "^1.1.2",
+     "@wq/router": "^1.1.2"
   }
 }

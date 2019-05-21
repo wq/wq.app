@@ -1,6 +1,6 @@
 {
   "name": "@wq/template",
-  "version": "2.0.0-dev",
+  "version": "1.1.2",
   "description": "Render Mustache templates and inject as jQuery Mobile pages",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -25,7 +25,7 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
-    "@wq/jquery-mobile": "^0.1.0",
+    "@wq/jquery-mobile": "^1.1.2",
     "mustache": "^3.0.1"
   }
 }

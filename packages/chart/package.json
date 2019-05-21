@@ -1,6 +1,6 @@
 {
   "name": "@wq/chart",
-  "version": "2.0.0-dev",
+  "version": "1.1.2",
   "description": "d3-powered CSV charts for @wq/app pages",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -28,7 +28,7 @@
   "dependencies": {
     "d3": "^5.9.2",
     "whatwg-fetch": "^3.0.0",
-    "@wq/template": "^2.0.0-dev"
+    "@wq/template": "^1.1.2"
   },
   "devDependencies": {
     "jest-fetch-mock": "^2.1.2"
