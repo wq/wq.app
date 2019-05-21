@@ -34,8 +34,12 @@ export function vendorLib(path) {
 }
 
 function getGitVersion() {
-    const version = execSync('git describe --tags', { encoding: 'utf-8' });
-    return version.trim();
+    try {
+        const version = execSync('git describe --tags', { encoding: 'utf-8' });
+        return version.trim();
+    } catch (e) {
+        return 'UNKNOWN';
+    }
 }
 
 export function makeBanner(pkg, startYear) {
