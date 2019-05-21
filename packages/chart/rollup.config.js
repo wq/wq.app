@@ -26,8 +26,8 @@ export default [
     // ESM
     {
         input: 'packages/chart/index.js',
-        plugins: [wqDeps('@wq'), ignore(['whatwg-fetch']), babel()],
-        external: ['d3'],
+        plugins: [wqDeps('@wq'), babel()],
+        external: ['d3', 'whatwg-fetch'],
         output: [
             {
                 banner: banners.chart,
@@ -39,8 +39,8 @@ export default [
     // CJS
     {
         input: 'packages/chart/index.js',
-        plugins: [wqDeps('@wq'), ignore(['whatwg-fetch']), babel()],
-        external: ['d3'],
+        plugins: [wqDeps('@wq'), babel()],
+        external: ['d3', 'whatwg-fetch'],
         output: [
             {
                 banner: banners.chart,

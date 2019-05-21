@@ -7,8 +7,12 @@ export default [
     // ESM
     {
         input: 'packages/store/index.js',
-        plugins: [ignore(['whatwg-fetch']), wqDeps('@wq'), babel()],
-        external: ['localforage', 'localforage-memoryStorageDriver'],
+        plugins: [wqDeps('@wq'), babel()],
+        external: [
+            'localforage',
+            'localforage-memoryStorageDriver',
+            'whatwg-fetch'
+        ],
         output: [
             {
                 banner: banner,
@@ -20,8 +24,12 @@ export default [
     // CJS
     {
         input: 'packages/store/index.js',
-        plugins: [ignore(['whatwg-fetch']), wqDeps('@wq'), babel()],
-        external: ['localforage', 'localforage-memoryStorageDriver'],
+        plugins: [wqDeps('@wq'), babel()],
+        external: [
+            'localforage',
+            'localforage-memoryStorageDriver',
+            'whatwg-fetch'
+        ],
         output: [
             {
                 banner: banner,
