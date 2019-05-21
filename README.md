@@ -72,6 +72,7 @@ See the notes in [Getting Started] for more information about setting up a proje
  [wq.db.rest]: https://wq.io/docs/about-rest
  [on the server or on the client]: https://wq.io/docs/templates
 
+ [plugins]: https://wq.io/docs/app-plugins
  [wq/chartapp.js]: https://wq.io/docs/chartapp-js
  [third-party]: https://wq.io/docs/third-party
  [Getting Started]: https://wq.io/docs/setup
