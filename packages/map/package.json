@@ -2,10 +2,11 @@
   "name": "@wq/map",
   "version": "2.0.0-dev",
   "description": "Leaflet integration for @wq/app pages",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/map",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js"
   },
   "repository": {
     "type": "git",

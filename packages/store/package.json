@@ -2,10 +2,11 @@
   "name": "@wq/store",
   "version": "2.0.0-dev",
   "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/store",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/store/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/store/rollup.config.js"
   },
   "repository": {
     "type": "git",

@@ -22,6 +22,34 @@ const banners = {
 };
 
 export default [
+    // ESM
+    {
+        input: 'packages/map/index.js',
+        plugins: [wqDeps('@wq'), babel()],
+        external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
+        output: [
+            {
+                banner: banners.map,
+                file: 'packages/map/dist/index.es.js',
+                format: 'esm'
+            }
+        ]
+    },
+    // CJS
+    {
+        input: 'packages/map/index.js',
+        plugins: [wqDeps('@wq'), babel()],
+        external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
+        output: [
+            {
+                banner: banners.map,
+                file: 'packages/map/dist/index.js',
+                format: 'cjs',
+                exports: 'named'
+            }
+        ]
+    },
+    // AMD (for wq.app Python package)
     {
         input: 'packages/map/src/map.js',
         plugins: [wqDeps('.'), babel()],

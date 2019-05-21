@@ -2,10 +2,11 @@
   "name": "@wq/app",
   "version": "2.0.0-dev",
   "description": "Utilizes @wq/store and @wq/pages to dynamically load and render content from a wq.db-compatible REST service",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/app",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/app/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/app/rollup.config.js"
   },
   "repository": {
     "type": "git",
@@ -13,8 +14,11 @@
   },
   "keywords": [
     "wq",
-    "store",
-    "offline"
+    "app",
+    "api",
+    "mobile",
+    "offline",
+    "data-collection"
   ],
   "author": "S. Andrew Sheppard",
   "license": "MIT",

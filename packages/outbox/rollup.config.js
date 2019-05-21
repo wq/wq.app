@@ -3,6 +3,31 @@ import { makeBanner, wqDeps, vendorLib, babel } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
 export default [
+    // ESM
+    {
+        input: 'packages/outbox/index.js',
+        plugins: [wqDeps('@wq'), babel()],
+        output: [
+            {
+                banner: banner,
+                file: 'packages/outbox/dist/index.es.js',
+                format: 'esm'
+            }
+        ]
+    },
+    // CJS
+    {
+        input: 'packages/outbox/index.js',
+        plugins: [wqDeps('@wq'), babel()],
+        output: [
+            {
+                banner: banner,
+                file: 'packages/outbox/dist/index.js',
+                format: 'cjs'
+            }
+        ]
+    },
+    // AMD (for wq.app Python package)
     {
         input: 'packages/outbox/index.js',
         external: ['json-forms'],

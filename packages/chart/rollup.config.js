@@ -23,6 +23,34 @@ const banners = {
 };
 
 export default [
+    // ESM
+    {
+        input: 'packages/chart/index.js',
+        plugins: [wqDeps('@wq'), ignore(['whatwg-fetch']), babel()],
+        external: ['d3'],
+        output: [
+            {
+                banner: banners.chart,
+                file: 'packages/chart/dist/index.es.js',
+                format: 'esm'
+            }
+        ]
+    },
+    // CJS
+    {
+        input: 'packages/chart/index.js',
+        plugins: [wqDeps('@wq'), ignore(['whatwg-fetch']), babel()],
+        external: ['d3'],
+        output: [
+            {
+                banner: banners.chart,
+                file: 'packages/chart/dist/index.js',
+                format: 'cjs',
+                exports: 'named'
+            }
+        ]
+    },
+    // AMD (for wq.app Python package)
     {
         input: 'packages/chart/src/chart.js',
         plugins: [wqDeps(), babel()],

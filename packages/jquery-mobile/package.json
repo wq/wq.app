@@ -1,11 +1,12 @@
 {
   "name": "@wq/jquery-mobile",
   "version": "0.1.0",
-  "description": "Modified jQuery Mobile for use with Webpack and Jest",
-  "main": "index.js",
+  "description": "Modified jQuery Mobile for use with @wq/app",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/jquery-mobile",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js"
   },
   "repository": {
     "type": "git",
@@ -13,7 +14,6 @@
   },
   "keywords": [
     "wq",
-    "jest",
     "jquery",
     "jquery-mobile"
   ],

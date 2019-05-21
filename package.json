@@ -2,9 +2,9 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "test": "lerna run test",
-    "build:amd": "lerna run build:amd",
+    "build": "lerna run build",
     "jest": "jest",
-    "rollup": "WQ_VERSION=`python3 setup.py --version` rollup",
+    "rollup": "rollup",
     "precise-commits": "precise-commits",
     "prettier": "prettier",
     "prettier-all": "prettier --write *.js packages/*/{,src/,src/__tests__/}*.js",

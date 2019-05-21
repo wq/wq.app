@@ -10,7 +10,7 @@ init:
 js: js_wq js_lib js_compat
 
 js_build: init
-	npm run build:amd
+	npm run build
 
 js_wq: js_build
 	cp -p packages/app/dist/app.js js/wq/app.js

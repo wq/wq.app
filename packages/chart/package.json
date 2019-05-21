@@ -2,10 +2,11 @@
   "name": "@wq/chart",
   "version": "2.0.0-dev",
   "description": "d3-powered CSV charts for @wq/app pages",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/chart",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/chart/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/chart/rollup.config.js"
   },
   "repository": {
     "type": "git",

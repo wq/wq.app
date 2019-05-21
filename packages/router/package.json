@@ -2,10 +2,11 @@
   "name": "@wq/router",
   "version": "2.0.0-dev",
   "description": "Respond to URL changes with locally generated pages and custom events",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/router",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
   },
   "repository": {
     "type": "git",

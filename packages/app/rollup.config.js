@@ -30,6 +30,32 @@ const banners = {
 };
 
 export default [
+    // ESM
+    {
+        input: 'packages/app/index.js',
+        plugins: [wqDeps('@wq'), babel()],
+        output: [
+            {
+                banner: banners.app,
+                file: 'packages/app/dist/index.es.js',
+                format: 'esm'
+            }
+        ]
+    },
+    // CJS
+    {
+        input: 'packages/app/index.js',
+        plugins: [wqDeps('@wq'), babel()],
+        output: [
+            {
+                banner: banners.app,
+                file: 'packages/app/dist/index.js',
+                format: 'cjs',
+                exports: 'named'
+            }
+        ]
+    },
+    // AMD (for wq.app Python package)
     {
         input: 'packages/app/src/app.js',
         plugins: [wqDeps('.'), babel()],

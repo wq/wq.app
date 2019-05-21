@@ -1,10 +1,11 @@
 import babelPlugin from 'rollup-plugin-babel';
 import { CodeGenerator } from '@babel/generator';
+import { execSync } from 'child_process';
 
 export function wqDeps(path = '..') {
     return {
         resolveId: source => {
-            if (source == '@wq/jquery-mobile') {
+            if (path != '@wq' && source == '@wq/jquery-mobile') {
                 return {
                     id: 'jquery.mobile',
                     external: true
@@ -32,10 +33,16 @@ export function vendorLib(path) {
     };
 }
 
+function getGitVersion() {
+    const version = execSync('git describe --tags', { encoding: 'utf-8' });
+    return version.trim();
+}
+
 export function makeBanner(pkg, startYear) {
-    const currentYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear(),
+        appVersion = getGitVersion();
     return `/*
- * wq.app ${process.env.WQ_VERSION} - ${pkg.name} ${pkg.version}
+ * wq.app ${appVersion} - ${pkg.name} ${pkg.version}
  * ${pkg.description}
  * (c) ${startYear}-${currentYear}, S. Andrew Sheppard
  * https://wq.io/license

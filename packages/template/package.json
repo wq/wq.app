@@ -2,10 +2,11 @@
   "name": "@wq/template",
   "version": "2.0.0-dev",
   "description": "Render Mustache templates and inject as jQuery Mobile pages",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "scripts": {
     "test": "cd ../../ && npm run jest packages/template",
-    "build:amd": "cd ../../ && npm run rollup -- -c packages/template/rollup.config.js"
+    "build": "cd ../../ && npm run rollup -- -c packages/template/rollup.config.js"
   },
   "repository": {
     "type": "git",
