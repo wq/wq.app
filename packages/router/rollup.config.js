@@ -1,4 +1,5 @@
 import commonjs from 'rollup-plugin-commonjs';
+import resolve from 'rollup-plugin-node-resolve';
 import pkg from './package.json';
 import { makeBanner, wqDeps, vendorLib, babel } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
@@ -7,7 +8,8 @@ export default [
     // ESM
     {
         input: 'packages/router/index.js',
-        plugins: [wqDeps('@wq'), babel(), commonjs()],
+        plugins: [wqDeps('@wq'), babel()],
+        external: ['redux', 'redux-first-router', 'query-string'],
         output: [
             {
                 banner: banner,
@@ -19,7 +21,8 @@ export default [
     // CJS
     {
         input: 'packages/router/index.js',
-        plugins: [wqDeps('@wq'), babel(), commonjs()],
+        external: ['redux', 'redux-first-router', 'query-string'],
+        plugins: [wqDeps('@wq'), babel()],
         output: [
             {
                 banner: banner,
@@ -32,26 +35,12 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/router/index.js',
-        plugins: [
-            wqDeps(),
-            babel(),
-            vendorLib('../vendor/jquery.mobile.router')
-        ],
+        plugins: [wqDeps(), babel(), resolve(), commonjs()],
+        external: ['redux', 'redux-first-router'],
         output: [
             {
                 banner: banner,
                 file: 'packages/router/dist/router.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
-    },
-    {
-        input: 'packages/router/vendor/jquery.mobile.router.js',
-        plugins: [commonjs()],
-        output: [
-            {
-                file: 'packages/router/dist/jquery.mobile.router.js',
                 format: 'amd',
                 indent: false
             }

@@ -41,7 +41,8 @@ js_lib: js_build js_leaflet_draw
 	cp -p packages/markdown/dist/highlight.js js/highlight.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
 	cp -p packages/jquery-mobile/dist/jquery.mobile.js js/jquery.mobile.js
-	cp -p packages/router/dist/jquery.mobile.router.js js/jquery.mobile.router.js
+	cp -p packages/router/node_modules/redux/dist/redux.js js/redux.js
+	cp -p packages/router/node_modules/redux-first-router/dist/redux-first-router.js js/redux-first-router.js
 	cp -p packages/outbox/dist/json-forms.js js/json-forms.js
 	cp -p packages/map/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
 	cp -p packages/map/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
