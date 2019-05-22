@@ -365,7 +365,7 @@ map.createBasemap = function(layerconf) {
     if (!fn) {
         throw 'Unknown basemap type "' + layerconf.type + '"!';
     }
-    return fn(layerconf);
+    return fn({ ...layerconf });
 };
 
 map.addBasemapType = function(type, fn) {
@@ -382,7 +382,7 @@ map.createOverlay = function(layerconf) {
     if (!fn) {
         throw 'Unknown overlay type "' + layerconf.type + '"!';
     }
-    return fn(layerconf);
+    return fn({ ...layerconf });
 };
 
 map.addOverlayType = function(type, fn) {
