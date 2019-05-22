@@ -4,12 +4,19 @@ import pkg from './package.json';
 import { makeBanner, wqDeps, babel } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
+const external = [
+    'redux',
+    'redux-first-router',
+    'query-string',
+    'redux-logger'
+];
+
 export default [
     // ESM
     {
         input: 'packages/router/index.js',
         plugins: [wqDeps('@wq'), babel()],
-        external: ['redux', 'redux-first-router', 'query-string'],
+        external: external,
         output: [
             {
                 banner: banner,
@@ -21,7 +28,7 @@ export default [
     // CJS
     {
         input: 'packages/router/index.js',
-        external: ['redux', 'redux-first-router', 'query-string'],
+        external: external,
         plugins: [wqDeps('@wq'), babel()],
         output: [
             {

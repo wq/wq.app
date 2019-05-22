@@ -1,5 +1,6 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { connectRoutes, push, NOT_FOUND } from 'redux-first-router';
+import logger from 'redux-logger';
 import queryString from 'query-string';
 
 import tmpl from '@wq/template';
@@ -72,7 +73,9 @@ router.jqmInit = function() {
     });
     const enhancers = compose(
         enhancer,
-        applyMiddleware(middleware)
+        router.config.debug
+            ? applyMiddleware(middleware, logger)
+            : applyMiddleware(middleware)
     );
 
     router.store = createStore(reducer, {}, enhancers);
@@ -82,10 +85,17 @@ router.jqmInit = function() {
 };
 
 function contextReducer(context = {}, action) {
-    if (action.type != RENDER) {
+    if (action.type != RENDER && action.type != NOT_FOUND) {
         return context;
     }
-    context = action.payload;
+    if (action.type === RENDER) {
+        context = action.payload;
+    } else if (action.type === NOT_FOUND) {
+        context = _routeInfo({
+            ...action.meta.location.current,
+            prev: action.meta.location.prev
+        });
+    }
     return context;
 }
 
@@ -99,7 +109,7 @@ async function _generateContext(dispatch, getState) {
             ...(await fn(context))
         };
     }
-    router.render(context);
+    return router.render(context);
 }
 
 router.register = function(path, nameOrContext, context, order = DEFAULT) {
@@ -218,7 +228,7 @@ router.push = function(path) {
 };
 
 router.render = function(context) {
-    router.store.dispatch({
+    return router.store.dispatch({
         type: RENDER,
         payload: context
     });
@@ -255,33 +265,42 @@ router.go = function(arg) {
     var template;
     if (location.type === NOT_FOUND || context[NOT_FOUND]) {
         template = router.config.tmpl404;
-        context.url = location.pathname;
+        context.url = url;
     } else {
         template = router.config.getTemplateName(router_info.name, context);
     }
 
-    if (context[HTML]) {
-        return tmpl.injectHTML(HTML);
+    var $page,
+        role,
+        options,
+        html = context[HTML];
+    if (html) {
+        if (router.config.debug) {
+            console.log('Injecting pre-rendered HTML:');
+            console.log(html);
+        }
+        $page = tmpl.injectHTML(html, url, pageid);
+    } else {
+        if (router.config.debug) {
+            console.log(
+                'Rendering ' +
+                    url +
+                    " with template '" +
+                    template +
+                    "' and context:"
+            );
+            console.log(context);
+        }
+        if (once || router.config.injectOnce) {
+            // Only render the template once
+            $page = tmpl.injectOnce(template, context, url, pageid);
+        } else {
+            // Default: render the template every time the page is loaded
+            $page = tmpl.inject(template, context, url, pageid);
+        }
     }
 
-    if (router.config.debug) {
-        console.log(
-            'Rendering ' +
-                url +
-                " with template '" +
-                template +
-                "' and context:"
-        );
-        console.log(context);
-    }
-    var $page, role, options;
-    if (once || router.config.injectOnce) {
-        // Only render the template once
-        $page = tmpl.injectOnce(template, context, url, pageid);
-    } else {
-        // Default: render the template every time the page is loaded
-        $page = tmpl.inject(template, context, url, pageid);
-    }
+    $page.on('click', 'a', _handleLink);
 
     role = $page.jqmData('role');
     if (role == 'page') {
@@ -315,6 +334,23 @@ router.go = function(arg) {
     }
     return $page;
 };
+
+function _handleLink(evt) {
+    const target = evt.currentTarget;
+    if (target.rel === 'external') {
+        return;
+    }
+    const href = target.href;
+    if (href === undefined) {
+        return;
+    }
+    const url = new URL(href, window.location);
+    if (url.origin != window.location.origin) {
+        return;
+    }
+    evt.preventDefault();
+    router.push(url.pathname + url.search);
+}
 
 // Simple 404 page helper
 router.notFound = function() {

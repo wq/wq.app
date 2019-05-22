@@ -12,6 +12,8 @@ var app = {
     ERROR: 'error'
 };
 
+const SERVER = '@@SERVER';
+
 app.models = {};
 app.plugins = {};
 
@@ -235,6 +237,13 @@ app.init = function(config) {
             });
         });
     }
+
+    // Fallback for all other URLs
+    router.registerLast(':path*', SERVER, ctx => {
+        const { router_info: routeInfo } = ctx,
+            { full_path: url } = routeInfo;
+        return _loadFromServer(url);
+    });
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
@@ -1750,7 +1759,7 @@ async function _loadFromServer(url) {
         }
     }
     const response = await fetch(url),
-        html = response.text();
+        html = await response.text();
     return router.rawHTML(html);
 }
 

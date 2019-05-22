@@ -135,7 +135,8 @@ tmpl.injectOnce = function(template, context, url, id) {
 
 // Render HTML loaded from server
 tmpl.injectHTML = function(html, url, id) {
-    tmpl.inject('{{{html}}}', { html: html }, url, id);
+    var $page = tmpl.inject('{{{html}}}', { html: html }, url, id);
+    return $page;
 };
 
 export default tmpl;
