@@ -4,7 +4,7 @@ import modelModule from '@wq/model';
 import outbox from '@wq/outbox';
 import tmpl from '@wq/template';
 import router from '@wq/router';
-import spin from './spinner';
+import spinner from './spinner';
 
 var app = {
     OFFLINE: 'offline',
@@ -26,7 +26,8 @@ var $, jqm;
 app.init = function(config) {
     app.jQuery = $ = config.jQuery || window.jQuery || jQM();
     jqm = $.mobile || jQM().mobile;
-    app.spin = spin;
+    app.use(spinner);
+    router.addContext(() => spinner.start());
     router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
     router.addContext(_getSyncInfo);
@@ -54,7 +55,24 @@ app.init = function(config) {
         if (plugin.ajax) {
             config.store.ajax = plugin.ajax;
         }
+        if (plugin.reducer) {
+            router.addReducer(name, plugin.reducer);
+        }
+        if (plugin.render) {
+            router.addRender(plugin.render);
+        }
+        if (plugin.actions) {
+            Object.assign(plugin, router.bindActionCreators(plugin.actions));
+        }
+        if (plugin.thunks) {
+            router.addThunks(plugin.thunks);
+        }
     });
+
+    app.spin = {
+        start: (msg, duration, opts) => spinner.start(msg, duration, opts),
+        stop: () => spinner.stop()
+    };
 
     // Outbox (wq/outbox.js) configuration
     if (!config.outbox) {
@@ -257,6 +275,8 @@ app.init = function(config) {
         }
     });
 
+    router.addContext(() => spinner.stop());
+
     if (app.config.jqmInit) {
         ready = ready.then(app.jqmInit);
     }
@@ -327,8 +347,6 @@ app.go = function() {
         return; // Ignore form actions
     }
     */
-    // FIXME
-    // spin.stop();
 };
 
 // Run any/all plugins on the specified page

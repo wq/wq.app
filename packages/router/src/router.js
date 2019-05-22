@@ -1,4 +1,10 @@
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import {
+    createStore,
+    combineReducers,
+    applyMiddleware,
+    compose,
+    bindActionCreators
+} from 'redux';
 import { connectRoutes, push, NOT_FOUND } from 'redux-first-router';
 import logger from 'redux-logger';
 import queryString from 'query-string';
@@ -25,7 +31,9 @@ var router = {
         getTemplateName: name => name
     },
     routesMap: {},
-    contextProcessors: []
+    contextProcessors: [],
+    reducers: {},
+    renderers: [render]
 };
 var $, jqm;
 
@@ -67,10 +75,9 @@ router.jqmInit = function() {
         orderedRoutes,
         { querySerializer: queryString }
     );
-    const reducer = combineReducers({
-        location: routeReducer,
-        context: contextReducer
-    });
+    router.reducers.location = routeReducer;
+    router.reducers.context = contextReducer;
+    const reducer = combineReducers(router.reducers);
     const enhancers = compose(
         enhancer,
         router.config.debug
@@ -80,6 +87,7 @@ router.jqmInit = function() {
 
     router.store = createStore(reducer, {}, enhancers);
     router.store.subscribe(router.go);
+    _deferActions.forEach(router.store.dispatch);
 
     jqm.initializePage();
 };
@@ -106,7 +114,7 @@ async function _generateContext(dispatch, getState) {
         var fn = router.contextProcessors[i];
         context = {
             ...context,
-            ...(await fn(context))
+            ...((await fn(context)) || {})
         };
     }
     return router.render(context);
@@ -175,6 +183,19 @@ router.registerLast = function(path, name, context) {
     router.register(path, name, context, LAST);
 };
 
+router.addThunk = function(name, thunk) {
+    router.routesMap[name] = {
+        thunk,
+        order: FIRST
+    };
+};
+
+router.addThunks = function(thunks) {
+    Object.entries(thunks).forEach(([name, thunk]) => {
+        router.addThunk(name, thunk);
+    });
+};
+
 router.addContext = function(fn) {
     router.contextProcessors.push(fn);
 };
@@ -223,6 +244,26 @@ router.addRoute = function(pathOrName, eventCode, fn, obj) {
     });
 };
 
+router.addReducer = function(name, reducer) {
+    router.reducers[name] = reducer;
+};
+
+router.addRender = function(render) {
+    router.renderers.push(render);
+};
+
+var _deferActions = [];
+router.bindActionCreators = function(actions, boundActions = null) {
+    function dispatch(action) {
+        if (router.store) {
+            return router.store.dispatch(action);
+        } else {
+            _deferActions.push(action);
+        }
+    }
+    return bindActionCreators(actions, dispatch);
+};
+
 router.push = function(path) {
     push(path);
 };
@@ -241,14 +282,19 @@ router.refresh = function() {
 };
 
 // Inject and display page
-var _lastPath, _lastRefresh;
 router.go = function(arg) {
     if (arg) {
         throw new Error('router.go() is now called automatically');
     }
+    const state = router.store.getState();
+    router.renderers.forEach(render => {
+        render(state);
+    });
+};
 
-    const state = router.store.getState(),
-        { location, context } = state,
+var _lastPath, _lastRefresh;
+function render(state) {
+    const { location, context } = state,
         { router_info } = context,
         { full_path: url, _refreshCount: refresh, dom_id: pageid } =
             router_info || {},
@@ -333,7 +379,7 @@ router.go = function(arg) {
         $page.panel('open');
     }
     return $page;
-};
+}
 
 function _handleLink(evt) {
     const target = evt.currentTarget;
