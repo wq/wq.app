@@ -12,7 +12,9 @@ var app = {
     ERROR: 'error'
 };
 
-const SERVER = '@@SERVER';
+const SERVER = '@@SERVER',
+    LOGIN = '@@LOGIN',
+    LOGOUT = '@@LOGOUT';
 
 app.models = {};
 app.plugins = {};
@@ -31,6 +33,8 @@ app.init = function(config) {
     router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
     router.addContext(_getSyncInfo);
+    router.addThunk(LOGIN, _refreshUserInfo);
+    router.addThunk(LOGOUT, _refreshUserInfo);
 
     // Router (wq/router.js) configuration
     if (!config.router) {
@@ -172,7 +176,6 @@ app.init = function(config) {
             app.user = user;
             return ds.get('/config').then(function(wq_config) {
                 app.wq_config = wq_config;
-                $('body').trigger('login');
                 return csrfReady;
             });
         });
@@ -311,7 +314,9 @@ app.logout = function() {
     delete app.user;
     app.wq_config = app.config;
     ds.set('user', null).then(function() {
-        $('body').trigger('logout');
+        router.store.dispatch({
+            type: LOGOUT
+        });
     });
 
     // Notify server (don't need to wait for this)
@@ -329,6 +334,17 @@ app.userInfo = function() {
         csrf_token: outbox.csrftoken
     };
 };
+
+function _refreshUserInfo(dispatch, getState) {
+    var context = getState().context || {};
+    router.render(
+        {
+            ...context,
+            ...app.userInfo()
+        },
+        true
+    );
+}
 
 async function _getSyncInfo() {
     const unsynced = await outbox.unsynced();
@@ -1403,7 +1419,10 @@ function _saveLogin(result) {
         ds.set('user', user),
         _setCSRFToken(csrftoken)
     ]).then(function() {
-        $('body').trigger('login');
+        router.store.dispatch({
+            type: LOGIN,
+            payload: user
+        });
     });
 }
 

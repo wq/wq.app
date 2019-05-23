@@ -268,7 +268,10 @@ router.push = function(path) {
     push(path);
 };
 
-router.render = function(context) {
+router.render = function(context, refresh) {
+    if (refresh) {
+        context._refreshCount = (context._refreshCount || 0) + 1;
+    }
     return router.store.dispatch({
         type: RENDER,
         payload: context
@@ -277,8 +280,7 @@ router.render = function(context) {
 
 router.refresh = function() {
     var context = router.store.getState().context;
-    context._refreshCount = (context._refreshCount || 0) + 1;
-    router.render(context);
+    router.render(context, true);
 };
 
 // Inject and display page
