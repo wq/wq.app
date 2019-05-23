@@ -253,7 +253,7 @@ router.addRender = function(render) {
 };
 
 var _deferActions = [];
-router.bindActionCreators = function(actions, boundActions = null) {
+router.bindActionCreators = function(actions) {
     function dispatch(action) {
         if (router.store) {
             return router.store.dispatch(action);
@@ -297,12 +297,14 @@ router.go = function(arg) {
 var _lastPath, _lastRefresh;
 function render(state) {
     const { location, context } = state,
-        { router_info } = context,
-        { full_path: url, _refreshCount: refresh, dom_id: pageid } =
-            router_info || {},
+        { router_info, _refreshCount: refresh } = context,
+        { full_path: url, dom_id: pageid, name: routeName } = router_info || {},
         once = null, // FIXME
         ui = null; // FIXME
 
+    if (!routeName || routeName != location.type.toLowerCase()) {
+        return;
+    }
     if (url === _lastPath && refresh === _lastRefresh) {
         return;
     }
@@ -315,7 +317,7 @@ function render(state) {
         template = router.config.tmpl404;
         context.url = url;
     } else {
-        template = router.config.getTemplateName(router_info.name, context);
+        template = router.config.getTemplateName(routeName, context);
     }
 
     var $page,

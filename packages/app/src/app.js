@@ -29,7 +29,7 @@ app.init = function(config) {
     app.jQuery = $ = config.jQuery || window.jQuery || jQM();
     jqm = $.mobile || jQM().mobile;
     app.use(spinner);
-    router.addContext(() => spinner.start());
+    router.addContext(() => spinner.start() && {});
     router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
     router.addContext(_getSyncInfo);
@@ -75,6 +75,7 @@ app.init = function(config) {
 
     app.spin = {
         start: (msg, duration, opts) => spinner.start(msg, duration, opts),
+        forSeconds: duration => spinner.start(null, duration),
         stop: () => spinner.stop()
     };
 
@@ -278,7 +279,7 @@ app.init = function(config) {
         }
     });
 
-    router.addContext(() => spinner.stop());
+    router.addContext(() => spinner.stop() && {});
 
     if (app.config.jqmInit) {
         ready = ready.then(app.jqmInit);
@@ -1137,6 +1138,7 @@ function _handleForm(evt) {
         $form.append($submitVal);
     }
     if ($form.data('wq-json') !== undefined && !$form.data('wq-json')) {
+        app.spin.forSeconds(10);
         return; // Defer to default (HTML-based) handler
     }
 
@@ -1153,7 +1155,7 @@ function _handleForm(evt) {
     var outboxId = $form.data('wq-outbox-id');
     var preserve = $form.data('wq-outbox-preserve');
     var url = $form.attr('action').replace(app.service + '/', '');
-    var conf = _getConfByUrl(url);
+    var conf = _getConfByUrl(url, true);
     var vals = {};
     var $files = $form.find('input[type=file]');
     var has_files = false;
@@ -1163,11 +1165,17 @@ function _handleForm(evt) {
         }
     });
 
+    if (!conf) {
+        // Unrecognized URL; assume a regular form post
+        app.spin.forSeconds(10);
+        return;
+    }
     if (has_files && !window.Blob) {
         // Files present but there's no Blob API.  Looks like we're in a an old
         // browser that can't upload files via AJAX.  Bypass wq/outbox.js
         // entirely and hope server is able to respond to regular form posts
         // with HTML (hint: wq.db is).
+        app.spin.forSeconds(10);
         return;
     }
 
@@ -1284,10 +1292,10 @@ function _handleForm(evt) {
 
             // Submit form immediately and wait for server to respond
             $form.attr('data-wq-outbox-id', item.id);
-            spin.start();
+            app.spin.start();
             outbox.sendItem(item, true).then(function(item) {
                 $form.find('[type=submit]').prop('disabled', false);
-                spin.stop();
+                app.spin.stop();
                 if (!item || item.synced) {
                     // Item was synced
                     app.postsave(item, false);
@@ -1748,7 +1756,7 @@ function _getConf(page, silentFail) {
 }
 
 // Helper to load configuration based on URL
-function _getConfByUrl(url) {
+function _getConfByUrl(url, silentFail) {
     var parts = url.split('/');
     var conf;
     for (var p in app.wq_config.pages) {
@@ -1757,7 +1765,11 @@ function _getConfByUrl(url) {
         }
     }
     if (!conf) {
-        throw 'Configuration for "/' + url + '" not found!';
+        if (silentFail) {
+            return;
+        } else {
+            throw 'Configuration for "/' + url + '" not found!';
+        }
     }
     return conf;
 }
@@ -1802,7 +1814,7 @@ async function _loadFromServer(url) {
 
 function _fetchFail(query, error) {
     /* eslint no-unused-vars: off */
-    spin.start('Error Loading Data', 1.5, {
+    app.spin.start('Error Loading Data', 1.5, {
         theme: jqm.pageLoadErrorMessageTheme,
         textonly: true
     });

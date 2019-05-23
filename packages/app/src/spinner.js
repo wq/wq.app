@@ -1,6 +1,3 @@
-// Exported module object
-var spin = {};
-
 var jqm;
 
 const SPIN_START = 'SPIN_START';
