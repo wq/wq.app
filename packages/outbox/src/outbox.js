@@ -19,6 +19,7 @@ function _Outbox(store) {
     var self = (_outboxes[store.name] = this);
 
     self.store = store;
+    store.outbox = self;
     self.model = model({ query: 'outbox', store: store });
     self.model.overwrite = _wrapOverwrite(self.model.overwrite);
     self.syncMethod = 'POST';

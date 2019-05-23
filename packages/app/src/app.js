@@ -221,6 +221,7 @@ app.init = function(config) {
                 onShow(page, mode);
             });
             (conf.server_modes || []).forEach(function(mode) {
+                _register.detail(page, mode, _serverContext);
                 var onShow = _onShow[mode] || _onShow.detail;
                 onShow(page, mode);
             });
@@ -261,11 +262,7 @@ app.init = function(config) {
     }
 
     // Fallback for all other URLs
-    router.registerLast(':path*', SERVER, ctx => {
-        const { router_info: routeInfo } = ctx,
-            { full_path: url } = routeInfo;
-        return _loadFromServer(url);
-    });
+    router.registerLast(':path*', SERVER, _serverContext);
 
     // Handle form events
     $(document).on('submit', 'form', _handleForm);
@@ -790,32 +787,32 @@ _register.list = function(page) {
             registerParent = router.register;
             url += '/';
         }
-        url += '<slug>/' + conf.url;
+        url += ':parent_id/' + conf.url;
         registerParent(url, _joinRoute(page, 'list', ppage), parentContext);
     });
 
     async function parentContext(ctx) {
         const { router_info: routeInfo } = ctx,
             { page, variant: ppage } = routeInfo,
-            slug = routeInfo.slugs.slug,
+            parent_id = routeInfo.slugs.parent_id,
             pconf = _getConf(ppage),
-            pitem = await app.models[ppage].find(slug);
+            pitem = await app.models[ppage].find(parent_id);
         var parentUrl;
         if (pitem) {
             parentUrl = pconf.url + '/' + pitem.id;
-        } else if (slug.indexOf('outbox-') == -1) {
-            parentUrl = 'outbox/' + slug.split('-')[1];
+        } else if (parent_id.indexOf('outbox-') == -1) {
+            parentUrl = 'outbox/' + parent_id.split('-')[1];
         } else {
             parentUrl = null;
         }
         var info = {
-            parent_id: slug,
+            parent_id,
             parent_url: parentUrl,
             parent_label: pitem && pitem.label,
             parent_page: ppage,
             router_info: {
                 ...routeInfo,
-                parent_id: slug,
+                parent_id,
                 parent_page: ppage,
                 parent_url: parentUrl
             }
@@ -958,11 +955,11 @@ async function _displayList(ctx, parentInfo) {
 
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
-_register.detail = function(page, mode) {
+_register.detail = function(page, mode, contextFn = _displayItem) {
     var conf = _getConf(page);
     var url = _getDetailUrl(conf.url, mode);
     const register = conf.url === '' ? router.registerLast : router.register;
-    register(url, _joinRoute(page, mode), _displayItem);
+    register(url, _joinRoute(page, mode), contextFn);
 };
 
 // Register an onshow event for item detail views
@@ -1810,6 +1807,12 @@ async function _loadFromServer(url) {
     const response = await fetch(url),
         html = await response.text();
     return router.rawHTML(html);
+}
+
+function _serverContext(ctx) {
+    const { router_info: routeInfo } = ctx,
+        { full_path: url } = routeInfo;
+    return _loadFromServer(url);
 }
 
 function _fetchFail(query, error) {
