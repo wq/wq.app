@@ -9,6 +9,8 @@ export default [
         input: 'packages/store/index.js',
         plugins: [wqDeps('@wq'), babel()],
         external: [
+            'redux',
+            'redux-logger',
             'localforage',
             'localforage-memoryStorageDriver',
             'whatwg-fetch'
@@ -26,6 +28,8 @@ export default [
         input: 'packages/store/index.js',
         plugins: [wqDeps('@wq'), babel()],
         external: [
+            'redux',
+            'redux-logger',
             'localforage',
             'localforage-memoryStorageDriver',
             'whatwg-fetch'
@@ -34,20 +38,27 @@ export default [
             {
                 banner: banner,
                 file: 'packages/store/dist/index.js',
-                format: 'cjs'
+                format: 'cjs',
+                exports: 'named'
             }
         ]
     },
     // AMD (for wq.app Python package)
     {
         input: 'packages/store/index.js',
-        external: ['localforage', 'localforage-memoryStorageDriver'],
+        external: [
+            'redux',
+            'redux-logger',
+            'localforage',
+            'localforage-memoryStorageDriver'
+        ],
         plugins: [ignore(['whatwg-fetch']), wqDeps(), babel()],
         output: [
             {
                 banner: banner,
                 file: 'packages/store/dist/store.js',
                 format: 'amd',
+                exports: 'named',
                 globals: { 'whatwg-fetch': 'fetch' },
                 indent: false
             }

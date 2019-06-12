@@ -105,7 +105,7 @@ function Model(config) {
                 query.page = page_num;
             }
         }
-        return fn(query)
+        return self.store[fn](query)
             .then(_processData)
             .then(function(data) {
                 if (page_num !== null && !data.page) {
@@ -142,7 +142,7 @@ function Model(config) {
     }
 
     self.load = function() {
-        return getPage(null, self.store.get);
+        return getPage(null, 'get');
     };
 
     self.info = function() {
@@ -161,10 +161,10 @@ function Model(config) {
         var fn;
         if (!config.url || page_num <= self.opts.page) {
             // Store data locally
-            fn = self.store.get;
+            fn = 'get';
         } else {
             // Fetch on demand but don't store
-            fn = self.store.fetch;
+            fn = 'fetch';
         }
         return getPage(page_num, fn);
     };
@@ -342,7 +342,7 @@ function Model(config) {
     // Prefetch list
     self.prefetch = function() {
         resetCaches();
-        return getPage(null, self.store.prefetch);
+        return getPage(null, 'prefetch');
     };
 
     // Helper for partial list updates (useful for large lists)

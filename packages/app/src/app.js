@@ -60,13 +60,13 @@ app.init = function(config) {
             config.store.ajax = plugin.ajax;
         }
         if (plugin.reducer) {
-            router.addReducer(name, plugin.reducer);
+            ds.addReducer(name, plugin.reducer);
         }
         if (plugin.render) {
             router.addRender(plugin.render);
         }
         if (plugin.actions) {
-            Object.assign(plugin, router.bindActionCreators(plugin.actions));
+            Object.assign(plugin, ds.bindActionCreators(plugin.actions));
         }
         if (plugin.thunks) {
             router.addThunks(plugin.thunks);
@@ -119,6 +119,10 @@ app.init = function(config) {
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
 
+    // Initialize wq/router.js
+    router.init(config.router);
+    app.base_url = router.base_url;
+
     // Initialize wq/store.js
     ds.init(config.store);
     app.store = ds;
@@ -126,10 +130,6 @@ app.init = function(config) {
 
     // Initialize wq/outbox.js
     outbox.init(config.outbox);
-
-    // Initialize wq/router.js
-    router.init(config.router);
-    app.base_url = router.base_url;
 
     // Initialize wq/template.js
     tmpl.init(config.template);

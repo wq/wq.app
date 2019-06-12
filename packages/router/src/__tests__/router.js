@@ -9,6 +9,7 @@ beforeAll(() => {
         jQuery,
         debug: true
     });
+    router.store.init();
     router.register('test/<slug>', 'test_detail');
     tmpl.init({
         jQuery,

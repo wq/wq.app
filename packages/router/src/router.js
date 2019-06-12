@@ -1,13 +1,6 @@
-import {
-    createStore,
-    combineReducers,
-    applyMiddleware,
-    compose,
-    bindActionCreators
-} from 'redux';
-import { connectRoutes, push, NOT_FOUND } from 'redux-first-router';
-import logger from 'redux-logger';
+import { connectRoutes, push, NOT_FOUND, ADD_ROUTES } from 'redux-first-router';
 import queryString from 'query-string';
+import { getStore } from '@wq/store';
 
 import tmpl from '@wq/template';
 
@@ -25,6 +18,7 @@ const HTML = '@@HTML',
 // Exported module object
 var router = {
     config: {
+        store: 'main',
         tmpl404: '404',
         injectOnce: false,
         debug: false,
@@ -32,7 +26,6 @@ var router = {
     },
     routesMap: {},
     contextProcessors: [],
-    reducers: {},
     renderers: [render]
 };
 var $, jqm;
@@ -49,14 +42,25 @@ router.init = function(config) {
         ...config
     };
 
-    $ = config.jQuery || window.jQuery;
-    jqm = $.mobile;
-
     // Configuration options:
     // Define `tmpl404` if there is not a template named '404'
     // Set `injectOnce`to true to re-use rendered templates
     // Set `debug` to true to log template & context information
     // Set getTemplateName to change how route names are resolved.
+
+    $ = config.jQuery || window.jQuery;
+    jqm = $.mobile;
+
+    const { reducer: routeReducer, middleware, enhancer } = connectRoutes(
+        {},
+        { querySerializer: queryString }
+    );
+    router.store = getStore(router.config.store);
+    router.store.addReducer('location', routeReducer);
+    router.store.addReducer('context', contextReducer);
+    router.store.addEnhancer(enhancer);
+    router.store.addMiddleware(middleware);
+    router.store.subscribe(router.go);
 };
 
 router.jqmInit = function() {
@@ -71,23 +75,10 @@ router.jqmInit = function() {
             }
         });
     });
-    const { reducer: routeReducer, middleware, enhancer } = connectRoutes(
-        orderedRoutes,
-        { querySerializer: queryString }
-    );
-    router.reducers.location = routeReducer;
-    router.reducers.context = contextReducer;
-    const reducer = combineReducers(router.reducers);
-    const enhancers = compose(
-        enhancer,
-        router.config.debug
-            ? applyMiddleware(middleware, logger)
-            : applyMiddleware(middleware)
-    );
-
-    router.store = createStore(reducer, {}, enhancers);
-    router.store.subscribe(router.go);
-    _deferActions.forEach(router.store.dispatch);
+    router.store.dispatch({
+        type: ADD_ROUTES,
+        payload: { routes: orderedRoutes }
+    });
 
     jqm.initializePage();
 };
@@ -237,31 +228,15 @@ router.addRoute = function(pathOrName, eventCode, fn, obj) {
     $('body').on(jqmEvents[eventCode] + '.' + name, function() {
         const state = router.store.getState(),
             { context } = state,
-            { router_info } = context;
+            { router_info } = context || {};
         if (router_info && router_info.name == name) {
             fn();
         }
     });
 };
 
-router.addReducer = function(name, reducer) {
-    router.reducers[name] = reducer;
-};
-
 router.addRender = function(render) {
     router.renderers.push(render);
-};
-
-var _deferActions = [];
-router.bindActionCreators = function(actions) {
-    function dispatch(action) {
-        if (router.store) {
-            return router.store.dispatch(action);
-        } else {
-            _deferActions.push(action);
-        }
-    }
-    return bindActionCreators(actions, dispatch);
 };
 
 router.push = function(path) {
@@ -290,14 +265,18 @@ router.go = function(arg) {
     }
     const state = router.store.getState();
     router.renderers.forEach(render => {
-        render(state);
+        try {
+            render(state);
+        } catch (e) {
+            console.error(e);
+        }
     });
 };
 
 var _lastPath, _lastRefresh;
 function render(state) {
     const { location, context } = state,
-        { router_info, _refreshCount: refresh } = context,
+        { router_info, _refreshCount: refresh } = context || {},
         { full_path: url, dom_id: pageid, name: routeName } = router_info || {},
         once = null, // FIXME
         ui = null; // FIXME

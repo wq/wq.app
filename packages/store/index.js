@@ -1,2 +1,3 @@
-import ds from './src/store.js';
+import ds, { Store, getStore } from './src/store.js';
 export default ds;
+export { Store, getStore };

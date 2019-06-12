@@ -1,20 +1,14 @@
+import {
+    createStore,
+    combineReducers,
+    applyMiddleware,
+    compose,
+    bindActionCreators
+} from 'redux';
+import logger from 'redux-logger';
 import localForage from 'localforage';
 import memoryStorageDriver from 'localforage-memoryStorageDriver';
 import 'whatwg-fetch';
-
-var _stores = {};
-
-// Hybrid module object provides/is a singleton instance...
-var store = new _Store('main');
-
-// ... and a way to retrieve/autoinit other stores
-store.getStore = function(name) {
-    if (_stores[name]) {
-        return _stores[name];
-    } else {
-        return new _Store(name);
-    }
-};
 
 // Internal variables and functions
 var _verbosity = {
@@ -25,26 +19,43 @@ var _verbosity = {
 
 localForage.defineDriver(memoryStorageDriver);
 
-export default store;
+class Store {
+    name;
+    debug = false;
+    // Base URL of web service
+    service;
+    // Default parameters (e.g f=json)
+    defaults = {};
 
-function _Store(name) {
-    if (_stores[name]) {
-        throw name + ' store already exists!';
+    // localForage instance
+    lf = {};
+    ready = {
+        then: function() {
+            throw new Error('Call init first!');
+        }
+    };
+
+    // Registered redux functions
+    #reducers = {};
+    #middleware = [];
+    #enhancers = [];
+    #subscribers = [];
+    #deferActions = [];
+
+    #_promises = {}; // Save promises to prevent redundant fetches
+
+    constructor(name) {
+        if (_stores[name]) {
+            throw name + ' store already exists!';
+        }
+        this.name = name;
+        _stores[name] = this;
+        this._tempLF();
+        this.addReducer('kvp', (state = {}) => state);
     }
 
-    var self = (_stores[name] = this);
-    self.name = name;
-
-    // Base URL of web service
-    self.service = undefined;
-    self.debug = false;
-
-    // Default parameters (e.g f=json)
-    self.defaults = {};
-
-    var _promises = {}; // Save promises to prevent redundant fetches
-
-    self.init = function(opts) {
+    init(opts = {}) {
+        var self = this;
         var optlist = [
             'service',
             'defaults',
@@ -72,21 +83,62 @@ function _Store(name) {
                     self['debug' + level] = true;
                 }
             }
+            self.addMiddleware(logger);
         }
 
-        self.ready = new Promise(_ready);
-    };
+        self.ready = new Promise(resolve => this._ready(resolve));
 
-    self.ready = {
-        then: function() {
-            throw 'Call init first!';
+        const reducer = combineReducers(this.#reducers);
+        const enhancers = compose(
+            ...this.#enhancers,
+            applyMiddleware(...this.#middleware)
+        );
+
+        this._store = createStore(reducer, {}, enhancers);
+        this.#subscribers.forEach(fn => this._store.subscribe(fn));
+        this.#deferActions.forEach(this._store.dispatch);
+    }
+
+    dispatch(action) {
+        if (this._store) {
+            return this._store.dispatch(action);
+        } else {
+            this.#deferActions.push(action);
         }
-    };
+    }
+
+    subscribe(fn) {
+        this.#subscribers.push(fn);
+        if (this._store) {
+            this._store.subscribe(fn);
+        }
+    }
+
+    getState() {
+        return this._store.getState();
+    }
+
+    addReducer(name, reducer) {
+        this.#reducers[name] = reducer;
+    }
+
+    addMiddleware(middleware) {
+        this.#middleware.push(middleware);
+    }
+
+    addEnhancer(enhancer) {
+        this.#enhancers.push(enhancer);
+    }
+
+    bindActionCreators(actions) {
+        return bindActionCreators(actions, this.dispatch.bind(this));
+    }
 
     // Get value from datastore
-    self.get = function(query) {
+    get(query) {
+        var self = this;
         if (Array.isArray(query)) {
-            var promises = query.map(self.get);
+            var promises = query.map(row => self.get(row));
             return Promise.all(promises);
         }
         query = self.normalizeQuery(query);
@@ -126,10 +178,11 @@ function _Store(name) {
         }
 
         return promise;
-    };
+    }
 
     // Set value
-    self.set = function(query, value) {
+    set(query, value) {
+        var self = this;
         var key = self.toKey(query);
         if (value === null) {
             if (self.debugLookup) {
@@ -152,10 +205,11 @@ function _Store(name) {
                 }
             );
         }
-    };
+    }
 
     // Callback for localStorage failure - override to inform the user
-    self.storageFail = function(item, error) {
+    storageFail(item, error) {
+        var self = this;
         return self.storageUsage().then(function(usage) {
             var msg;
             if (usage > 0) {
@@ -167,20 +221,23 @@ function _Store(name) {
             console.warn((error && error.stack) || error);
             throw new Error(msg);
         });
-    };
+    }
 
-    self.storageUsage = _globalStorageUsage;
+    storageUsage() {
+        return _globalStorageUsage();
+    }
 
     // Convert "/url" to {'url': "url"} (simplify common use case)
-    self.normalizeQuery = function(query) {
+    normalizeQuery(query) {
         if (typeof query === 'string' && query.charAt(0) == '/') {
             query = { url: query.replace(/^\//, '') };
         }
         return query;
-    };
+    }
 
     // Helper to allow simple objects to be used as keys
-    self.toKey = function(query) {
+    toKey(query) {
+        var self = this;
         query = self.normalizeQuery(query);
         if (!query) {
             throw 'Invalid query!';
@@ -190,10 +247,11 @@ function _Store(name) {
         } else {
             return new URLSearchParams(query).toString();
         }
-    };
+    }
 
     // Helper to check existence of a key without loading the object
-    self.exists = function(query) {
+    exists(query) {
+        var self = this;
         var key = self.toKey(query);
         return self.keys().then(function(keys) {
             var found = false;
@@ -204,10 +262,11 @@ function _Store(name) {
             });
             return found;
         });
-    };
+    }
 
     // Fetch data from server
-    self.fetch = function(query, cache) {
+    fetch(query, cache) {
+        var self = this;
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
         var data = { ...self.defaults, ...query };
@@ -221,8 +280,8 @@ function _Store(name) {
             delete data.format;
         }
 
-        if (_promises[key]) {
-            return _promises[key];
+        if (this.#_promises[key]) {
+            return this.#_promises[key];
         }
 
         if (self.debugNetwork) {
@@ -230,10 +289,10 @@ function _Store(name) {
         }
 
         var promise = self.ajax(url, data, 'GET');
-        _promises[key] = promise.then(
-            function(result) {
+        this.#_promises[key] = promise.then(
+            result => {
                 var data = self.parseData(result);
-                delete _promises[key];
+                delete this.#_promises[key];
                 if (!data) {
                     self.fetchFail(query, 'Error parsing data!');
                     return;
@@ -250,17 +309,18 @@ function _Store(name) {
                     return data;
                 }
             },
-            function(error) {
-                delete _promises[key];
+            error => {
+                delete this.#_promises[key];
                 console.error(error);
                 self.fetchFail(query, 'Error parsing data!');
             }
         );
-        return _promises[key];
-    };
+        return this.#_promises[key];
+    }
 
     // Hook to allow full AJAX customization
-    self.ajax = function(url, data, method, headers) {
+    ajax(url, data, method, headers) {
+        var self = this;
         var urlObj = new URL(url, window.location.origin);
         if (!method) {
             method = 'GET';
@@ -293,28 +353,31 @@ function _Store(name) {
                 });
             }
         });
-    };
+    }
 
     // Callback for fetch() failures - override to inform the user
-    self.fetchFail = function(query, error) {
+    fetchFail(query, error) {
+        var self = this;
         var key = self.toKey(query);
         console.warn('Error loading ' + key + ': ' + error);
-    };
+    }
 
     // Helper function for prefetching data
-    self.prefetch = function(query) {
+    prefetch(query) {
+        var self = this;
         return self.fetch(query, true);
-    };
+    }
 
     // Process service fetch() results
     // (override if response data is in a child node)
-    self.parseData = function(result) {
+    parseData(result) {
         // Default: assume JSON root is actual data
         return result;
-    };
+    }
 
     // Clear local caches
-    self.reset = function(all) {
+    reset(all) {
+        var self = this;
         if (all) {
             // Clear out everything - will affect other stores!
             return _clearAll();
@@ -322,27 +385,31 @@ function _Store(name) {
             // Only clear items for this store
             return self.lf.clear();
         }
-    };
+    }
 
     // List storage keys matching this store's key prefix
-    self.keys = function() {
+    keys() {
+        var self = this;
         return self.lf.keys();
-    };
+    }
 
-    self.lf = {};
-    ['getItem', 'setItem', 'removeItem', 'keys', 'clear'].forEach(function(
-        key
-    ) {
-        self.lf[key] = function() {
-            var args = arguments;
-            return self.ready.then(function() {
-                return self.lf[key].apply(this, args);
-            });
-        };
-    });
+    _tempLF() {
+        var self = this;
+        ['getItem', 'setItem', 'removeItem', 'keys', 'clear'].forEach(function(
+            key
+        ) {
+            self.lf[key] = function() {
+                var args = arguments;
+                return self.ready.then(function() {
+                    return self.lf[key].apply(this, args);
+                });
+            };
+        });
+    }
 
-    function _ready(resolve) {
-        var resolved = false;
+    _ready(resolve) {
+        var self = this,
+            resolved = false;
         self.lf = localForage.createInstance({
             name: self.name
         });
@@ -425,3 +492,21 @@ function _clearAll() {
         })
     );
 }
+
+var _stores = {};
+
+// Hybrid module object provides/is a singleton instance...
+var ds = new Store('main');
+
+// ... and a way to retrieve/autoinit other stores
+ds.getStore = getStore;
+function getStore(name) {
+    if (_stores[name]) {
+        return _stores[name];
+    } else {
+        return new Store(name);
+    }
+}
+
+export default ds;
+export { getStore, Store };
