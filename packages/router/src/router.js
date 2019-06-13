@@ -51,9 +51,14 @@ router.init = function(config) {
     $ = config.jQuery || window.jQuery;
     jqm = $.mobile;
 
-    const { reducer: routeReducer, middleware, enhancer } = connectRoutes(
+    const {
+        reducer: routeReducer,
+        middleware,
+        enhancer,
+        initialDispatch
+    } = connectRoutes(
         {},
-        { querySerializer: queryString }
+        { querySerializer: queryString, initialDispatch: false }
     );
     router.store = getStore(router.config.store);
     router.store.addReducer('location', routeReducer);
@@ -61,6 +66,7 @@ router.init = function(config) {
     router.store.addEnhancer(enhancer);
     router.store.addMiddleware(middleware);
     router.store.subscribe(router.go);
+    router._initialDispatch = initialDispatch;
 };
 
 router.jqmInit = function() {
@@ -79,6 +85,7 @@ router.jqmInit = function() {
         type: ADD_ROUTES,
         payload: { routes: orderedRoutes }
     });
+    router._initialDispatch();
 
     jqm.initializePage();
 };
