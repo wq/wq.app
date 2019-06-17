@@ -47,7 +47,6 @@ js_lib: js_build js_leaflet_draw
 	cp -p packages/map/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
 	cp -p packages/map/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
 	cp -p packages/map/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
-	cp -p packages/store/node_modules/localforage-memoryStorageDriver/dist/localforage-memoryStorageDriver.js js/localforage-memoryStorageDriver.js
 	cp -p packages/store/node_modules/localforage/dist/localforage.js js/localforage.js
 	cp -p packages/markdown/node_modules/marked/lib/marked.js js/marked.js
 	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
