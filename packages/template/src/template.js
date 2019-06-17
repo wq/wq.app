@@ -66,6 +66,8 @@ function inject(template, context, url, pageid) {
             );
         }
         $page = $rolePage;
+    } else if ($page.length > 1) {
+        $page = $('<div>').append($page);
     }
 
     var role = $page.jqmData('role');

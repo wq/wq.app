@@ -333,7 +333,7 @@ app.userInfo = function() {
     };
 };
 
-function _refreshUserInfo(dispatch, getState) {
+async function _refreshUserInfo(dispatch, getState) {
     var context = getState().context || {};
     router.render(
         {
@@ -342,6 +342,11 @@ function _refreshUserInfo(dispatch, getState) {
         },
         true
     );
+    // FIXME: Better way to do this?
+    app.spin.start();
+    await app.prefetchAll();
+    app.spin.stop();
+    await router.reload();
 }
 
 async function _getSyncInfo() {
@@ -508,7 +513,7 @@ app.postsave = function(item, backgroundSync) {
         if (item.deletedId) {
             urlContext = { deleted: true, ...router.store.getState().context };
         } else {
-            urlContext = item.result || item.data;
+            urlContext = { ...item.data, ...item.result };
         }
         url = app.base_url + '/' + tmpl.render(postsave, urlContext);
     } else if (!pconf.list) {

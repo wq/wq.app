@@ -14,6 +14,7 @@ beforeAll(() => {
     tmpl.init({
         jQuery,
         templates: {
+            404: '<html><body><div data-role=page>Not Found</div></body></html>',
             test_detail:
                 '<html><body><div data-role=page>TEST {{title}} {{params}}</div></body></html>'
         }

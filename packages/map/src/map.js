@@ -557,11 +557,11 @@ map.renderPopup = function(page) {
 map.getMapId = function(routeInfo, mapname) {
     var rt = routeInfo,
         parts = [];
-    if (rt.item_id) {
+    if (rt.item_id || (rt.mode === 'edit' && rt.variant === 'new')) {
         if (rt.mode == 'detail') {
             parts = [rt.page, rt.item_id];
         } else {
-            parts = [rt.page, rt.item_id, rt.mode];
+            parts = [rt.page, rt.item_id || rt.variant, rt.mode];
         }
     } else if (routeInfo.parent_page) {
         parts = [rt.parent_page, rt.parent_id, rt.page];

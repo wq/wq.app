@@ -105,7 +105,7 @@ function contextReducer(context = {}, action) {
     return context;
 }
 
-async function _generateContext(dispatch, getState) {
+async function _generateContext(dispatch, getState, refresh = false) {
     const location = getState().location;
     var context = _routeInfo(location);
     for (var i = 0; i < router.contextProcessors.length; i++) {
@@ -115,7 +115,7 @@ async function _generateContext(dispatch, getState) {
             ...((await fn(context)) || {})
         };
     }
-    return router.render(context);
+    return router.render(context, refresh);
 }
 
 router.register = function(path, nameOrContext, context, order = DEFAULT) {
@@ -163,7 +163,7 @@ router.register = function(path, nameOrContext, context, order = DEFAULT) {
 
     router.routesMap[name.toUpperCase()] = {
         path: _normalizePath(path),
-        thunk: _generateContext,
+        thunk: (dispatch, getState) => _generateContext(dispatch, getState),
         order
     };
 
@@ -260,9 +260,19 @@ router.render = function(context, refresh) {
     });
 };
 
+// Re-render existing context
 router.refresh = function() {
     var context = router.store.getState().context;
     router.render(context, true);
+};
+
+// Regenerate context, then re-render page
+router.reload = function() {
+    return _generateContext(
+        action => router.store.dispatch(action),
+        () => router.store.getState(),
+        true
+    );
 };
 
 // Inject and display page
@@ -338,7 +348,7 @@ function render(state) {
 
     $page.on('click', 'a', _handleLink);
 
-    role = $page.jqmData('role');
+    role = $page.jqmData('role') || 'page';
     if (role == 'page') {
         options = (ui && ui.options) || {};
         options.allowSamePageTransition = true;
