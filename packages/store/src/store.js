@@ -6,9 +6,13 @@ import {
     bindActionCreators
 } from 'redux';
 import logger from 'redux-logger';
+import { persistStore, persistReducer } from 'redux-persist';
 import localForage from 'localforage';
-import memoryStorageDriver from 'localforage-memoryStorageDriver';
 import 'whatwg-fetch';
+
+const REMOVE = '@@KVP_REMOVE';
+const SET = '@@KVP_SET';
+const CLEAR = '@@KVP_CLEAR';
 
 // Internal variables and functions
 var _verbosity = {
@@ -16,8 +20,6 @@ var _verbosity = {
     Lookup: 2,
     Values: 3
 };
-
-localForage.defineDriver(memoryStorageDriver);
 
 class Store {
     name;
@@ -27,8 +29,6 @@ class Store {
     // Default parameters (e.g f=json)
     defaults = {};
 
-    // localForage instance
-    lf = {};
     ready = {
         then: function() {
             throw new Error('Call init first!');
@@ -50,27 +50,22 @@ class Store {
         }
         this.name = name;
         _stores[name] = this;
-        this._tempLF();
-        this.addReducer('kvp', (state = {}) => state);
+        this.addReducer('kvp', (state, action) =>
+            this.kvpReducer(state, action)
+        );
     }
 
     init(opts = {}) {
         var self = this;
         var optlist = [
+            'debug',
+            'storageFail',
+
             'service',
             'defaults',
-            'parseData',
-            'storageFail',
             'fetchFail',
-            // 'jsonp',  # FIXME: Restore or deprecate
             'ajax',
-            'debug',
-            'formatKeyword',
-            'alwaysExtractBlobs',
-            'getBlob',
-            'setBlob',
-            'removeBlob',
-            'makeRef'
+            'formatKeyword'
         ];
         optlist.forEach(function(opt) {
             if (opts.hasOwnProperty(opt)) {
@@ -86,7 +81,8 @@ class Store {
             self.addMiddleware(logger);
         }
 
-        self.ready = new Promise(resolve => this._ready(resolve));
+        var storeReady;
+        self.ready = new Promise(resolve => (storeReady = resolve));
 
         const reducer = combineReducers(this.#reducers);
         const enhancers = compose(
@@ -94,7 +90,22 @@ class Store {
             applyMiddleware(...this.#middleware)
         );
 
-        this._store = createStore(reducer, {}, enhancers);
+        const persistConfig = {
+            key: this.name,
+            storage: localForage,
+            serialize: false,
+            whitelist: ['kvp'],
+            writeFailHandler: error => this.storageFail(error)
+        };
+        const persistedReducer = persistReducer(persistConfig, reducer);
+        this._store = createStore(persistedReducer, {}, enhancers);
+        this._persistor = persistStore(this._store);
+        this._persistor.subscribe(() => {
+            const { bootstrapped } = this._persistor.getState();
+            if (bootstrapped) {
+                storeReady();
+            }
+        });
         this.#subscribers.forEach(fn => this._store.subscribe(fn));
         this.#deferActions.forEach(this._store.dispatch);
     }
@@ -134,8 +145,23 @@ class Store {
         return bindActionCreators(actions, this.dispatch.bind(this));
     }
 
+    kvpReducer(state = {}, action) {
+        if (action.type === REMOVE) {
+            state = { ...state };
+            delete state[action.payload.key];
+        } else if (action.type === SET) {
+            state = {
+                ...state,
+                [action.payload.key]: action.payload.value
+            };
+        } else if (action.type === CLEAR) {
+            state = {};
+        }
+        return state;
+    }
+
     // Get value from datastore
-    get(query) {
+    async get(query) {
         var self = this;
         if (Array.isArray(query)) {
             var promises = query.map(row => self.get(row));
@@ -149,22 +175,13 @@ class Store {
         }
 
         // Check storage first
-        var promise = self.lf.getItem(key).then(
-            function(result) {
-                if (!result) {
-                    return fetchData();
-                }
-                if (self.debugLookup) {
-                    console.log('in storage');
-                }
-                return result;
-            },
-            function() {
-                return fetchData();
+        const kvp = this.getState().kvp;
+        if (kvp[key]) {
+            if (self.debugLookup) {
+                console.log('in storage');
             }
-        );
-
-        function fetchData() {
+            return kvp[key];
+        } else {
             // Search ends here if query is a simple string
             if (typeof query == 'string') {
                 if (self.debugLookup) {
@@ -176,19 +193,21 @@ class Store {
             // More complex queries are assumed to be server requests
             return self.fetch(query, true);
         }
-
-        return promise;
     }
 
     // Set value
-    set(query, value) {
+    async set(query, value) {
         var self = this;
         var key = self.toKey(query);
         if (value === null) {
             if (self.debugLookup) {
                 console.log('deleting ' + key);
             }
-            return self.lf.removeItem(key);
+            self.dispatch({
+                type: REMOVE,
+                payload: { key }
+            });
+            return;
         } else {
             if (self.debugLookup) {
                 console.log('saving new value for ' + key);
@@ -196,35 +215,18 @@ class Store {
                     console.log(value);
                 }
             }
-            return self.lf.setItem(key, value).then(
-                function(d) {
-                    return d;
-                },
-                function(err) {
-                    return self.storageFail(value, err);
-                }
-            );
+            self.dispatch({
+                type: SET,
+                payload: { key, value }
+            });
+            return;
         }
     }
 
     // Callback for localStorage failure - override to inform the user
-    storageFail(item, error) {
-        var self = this;
-        return self.storageUsage().then(function(usage) {
-            var msg;
-            if (usage > 0) {
-                msg = 'Storage appears to be full.';
-            } else {
-                msg = 'Storage appears to be disabled.';
-            }
-            console.warn(msg + '  Caught Error:');
-            console.warn((error && error.stack) || error);
-            throw new Error(msg);
-        });
-    }
-
-    storageUsage() {
-        return _globalStorageUsage();
+    storageFail(error) {
+        console.warn('Error persisting store:');
+        console.warn(error);
     }
 
     // Convert "/url" to {'url': "url"} (simplify common use case)
@@ -290,8 +292,7 @@ class Store {
 
         var promise = self.ajax(url, data, 'GET');
         this.#_promises[key] = promise.then(
-            result => {
-                var data = self.parseData(result);
+            data => {
                 delete this.#_promises[key];
                 if (!data) {
                     self.fetchFail(query, 'Error parsing data!');
@@ -320,7 +321,6 @@ class Store {
 
     // Hook to allow full AJAX customization
     ajax(url, data, method, headers) {
-        var self = this;
         var urlObj = new URL(url, window.location.origin);
         if (!method) {
             method = 'GET';
@@ -368,129 +368,16 @@ class Store {
         return self.fetch(query, true);
     }
 
-    // Process service fetch() results
-    // (override if response data is in a child node)
-    parseData(result) {
-        // Default: assume JSON root is actual data
-        return result;
-    }
-
     // Clear local caches
-    reset(all) {
-        var self = this;
-        if (all) {
-            // Clear out everything - will affect other stores!
-            return _clearAll();
-        } else {
-            // Only clear items for this store
-            return self.lf.clear();
-        }
+    async reset() {
+        this.dispatch({ type: CLEAR });
+        await this._persistor.purge();
     }
 
     // List storage keys matching this store's key prefix
-    keys() {
-        var self = this;
-        return self.lf.keys();
+    async keys() {
+        return Object.keys(this.getState().kvp);
     }
-
-    _tempLF() {
-        var self = this;
-        ['getItem', 'setItem', 'removeItem', 'keys', 'clear'].forEach(function(
-            key
-        ) {
-            self.lf[key] = function() {
-                var args = arguments;
-                return self.ready.then(function() {
-                    return self.lf[key].apply(this, args);
-                });
-            };
-        });
-    }
-
-    _ready(resolve) {
-        var self = this,
-            resolved = false;
-        self.lf = localForage.createInstance({
-            name: self.name
-        });
-        self.lf.ready().then(function() {
-            self.lf
-                .setItem('wq-store-test', true)
-                .then(function() {
-                    resolved = true;
-                    return self.lf.removeItem('wq-store-test');
-                })
-                .then(resolve, fallback);
-            // localForage.ready() failed for some reason
-        }, fallback);
-
-        setTimeout(function() {
-            if (!resolved) {
-                // localForage failed, and also failed to reject() for some
-                // reason - this should be rare but has happened in the wild.
-                console.error('Storage failed to initialize in 5 seconds');
-                fallback();
-            }
-        }, 5000);
-
-        function fallback() {
-            if (!resolved) {
-                if (self.debug) {
-                    console.warn(
-                        'Offline storage is not working; using in-memory store'
-                    );
-                }
-                self.lf.setDriver(memoryStorageDriver._driver).then(resolve);
-            }
-            resolved = true;
-        }
-    }
-}
-
-// Simple computation for quota usage across stores
-function _globalStorageUsage() {
-    return Promise.all(
-        Object.keys(_stores).map(function(storeName) {
-            var lf = _stores[storeName].lf,
-                keyPromise;
-            try {
-                keyPromise = lf.keys();
-            } catch (e) {
-                return 0;
-            }
-            keyPromise.then(function(keys) {
-                var results = keys.map(function(key) {
-                    return lf.getItem(key).then(function(item) {
-                        // FIXME: This won't handle binary values
-                        return JSON.stringify(item).length;
-                    });
-                });
-                return Promise.all(results).then(function(lengths) {
-                    var usage = 0;
-                    lengths.forEach(function(l) {
-                        usage += l;
-                    });
-                    // UTF-16 means two bytes per character in storage
-                    // FIXME: Is this true for non-localStorage backends?
-                    return usage * 2;
-                });
-            });
-        })
-    ).then(function(allResults) {
-        var total = 0;
-        allResults.forEach(function(result) {
-            total += result;
-        });
-        return total;
-    });
-}
-
-function _clearAll() {
-    return Promise.all(
-        Object.keys(_stores).map(function(storeName) {
-            return _stores[storeName].reset();
-        })
-    );
 }
 
 var _stores = {};

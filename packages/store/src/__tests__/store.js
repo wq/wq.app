@@ -1,7 +1,8 @@
 import ds from '../store';
 
-beforeAll(() => {
+beforeAll(async () => {
     ds.init();
+    await ds.ready;
 });
 
 test('set and retrieve item', async () => {

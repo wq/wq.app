@@ -11,8 +11,8 @@ export default [
         external: [
             'redux',
             'redux-logger',
+            'redux-persist',
             'localforage',
-            'localforage-memoryStorageDriver',
             'whatwg-fetch'
         ],
         output: [
@@ -30,8 +30,8 @@ export default [
         external: [
             'redux',
             'redux-logger',
+            'redux-persist',
             'localforage',
-            'localforage-memoryStorageDriver',
             'whatwg-fetch'
         ],
         output: [
@@ -46,12 +46,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/store/index.js',
-        external: [
-            'redux',
-            'redux-logger',
-            'localforage',
-            'localforage-memoryStorageDriver'
-        ],
+        external: ['redux', 'redux-logger', 'redux-persist', 'localforage'],
         plugins: [ignore(['whatwg-fetch']), wqDeps(), babel()],
         output: [
             {
