@@ -1,6 +1,6 @@
 {
   "name": "@wq/jest-env-jsdom-idb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fake-IndexedDB environment for Jest",
   "main": "index.js",
   "scripts": {

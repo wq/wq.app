@@ -29,6 +29,6 @@
     "@wq/store": "^1.1.2"
   },
   "devDependencies": {
-    "@wq/jest-env-jsdom-idb": "^0.1.0"
+    "@wq/jest-env-jsdom-idb": "^0.1.1"
   }
 }
