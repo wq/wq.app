@@ -78,7 +78,6 @@ test('form with storage=temporary', async () => {
 });
 
 async function testOutbox(test) {
-    expect(ds.lf.driver()).toEqual('asyncStorage');
     await outbox.model.overwrite([]);
     await outbox.save(test.data, test.options, true);
 
