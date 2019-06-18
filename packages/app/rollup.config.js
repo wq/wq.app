@@ -34,6 +34,7 @@ export default [
     {
         input: 'packages/app/index.js',
         plugins: [wqDeps('@wq'), babel()],
+        external: ['localforage'],
         output: [
             {
                 banner: banners.app,
@@ -46,6 +47,7 @@ export default [
     {
         input: 'packages/app/index.js',
         plugins: [wqDeps('@wq'), babel()],
+        external: ['localforage'],
         output: [
             {
                 banner: banners.app,
@@ -84,6 +86,7 @@ export default [
     {
         input: 'packages/app/src/photos.js',
         plugins: [wqDeps('.'), babel()],
+        external: ['localforage'],
         output: [
             {
                 banner: banners.photos,

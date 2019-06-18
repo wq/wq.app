@@ -13,7 +13,14 @@ var $, jqm;
 tmpl.init = function(config) {
     _templates = config.templates || {};
     _partials = config.partials || config.templates.partials || {};
-    _defaults = config.defaults || {};
+    if (config.defaults) {
+        console.warn(
+            new Error(
+                'config.defaults is deprecated; use context plugin instead'
+            )
+        );
+        _defaults = config.defaults;
+    }
     _debug = config.debug || false;
     $ = config.jQuery || window.jQuery;
     jqm = $.mobile;

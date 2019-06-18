@@ -1,4 +1,5 @@
 /* global Camera */
+import localForage from 'localforage';
 
 var LOCALFORAGE_PREFIX = '__lfsc__:blob~~local_forage_type~image/jpeg~';
 
@@ -98,7 +99,7 @@ function _start(options, input, preview) {
 
 photos.base64toBlob = async function(data) {
     await photos.app.store.ready;
-    var serializer = await photos.app.store.lf.getSerializer();
+    var serializer = await localForage.getSerializer();
     return serializer.deserialize(LOCALFORAGE_PREFIX + data);
 };
 

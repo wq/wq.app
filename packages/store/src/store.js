@@ -162,6 +162,7 @@ class Store {
 
     // Get value from datastore
     async get(query) {
+        await this.ready;
         var self = this;
         if (Array.isArray(query)) {
             var promises = query.map(row => self.get(row));
@@ -292,7 +293,7 @@ class Store {
 
         var promise = self.ajax(url, data, 'GET');
         this.#_promises[key] = promise.then(
-            data => {
+            async data => {
                 delete this.#_promises[key];
                 if (!data) {
                     self.fetchFail(query, 'Error parsing data!');
@@ -305,10 +306,9 @@ class Store {
                     }
                 }
                 if (cache) {
-                    return self.set(query, data);
-                } else {
-                    return data;
+                    await self.set(query, data);
                 }
+                return data;
             },
             error => {
                 delete this.#_promises[key];
