@@ -11,12 +11,16 @@ patterns.init = function(conf) {
     $ = (conf && conf.jQuery) || window.jQuery;
 };
 
-patterns.context = function(context) {
+patterns.context = function(context, routeInfo) {
     _pageContext = context;
+    if (routeInfo.mode === 'edit' && routeInfo.variant === 'new') {
+        return { new_attachment: true };
+    }
 };
 
 patterns.run = function($page, routeInfo) {
     $page.find('button[data-wq-action=addattachment]').click(add);
+    $page.on('click', 'button[data-wq-action=removeattachment]', remove);
     function add(evt) {
         var $button = $(evt.target),
             section = $button.data('wq-section'),
@@ -28,6 +32,12 @@ patterns.run = function($page, routeInfo) {
             $button,
             routeInfo.mode
         );
+    }
+    function remove(evt) {
+        var $button = $(evt.target),
+            section = $button.data('wq-section'),
+            $row = $button.parents('.section-' + section);
+        $row.remove();
     }
 };
 
