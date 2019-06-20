@@ -20,8 +20,11 @@ function _Outbox(store) {
 
     self.store = store;
     store.outbox = self;
-    self.model = model({ query: 'outbox', store: store });
-    self.model.overwrite = _wrapOverwrite(self.model.overwrite);
+    self.model = model({ name: 'outbox', store: store });
+    self.model.update = _wrapUpdate(self.model.update.bind(self.model));
+    self.model.overwrite = _wrapOverwrite(
+        self.model.overwrite.bind(self.model)
+    );
     self.syncMethod = 'POST';
     self.cleanOutbox = true;
     self.maxRetries = 3;
@@ -137,7 +140,7 @@ function _Outbox(store) {
                     if (!item.parents) {
                         item.parents = [];
                     }
-                    item.parents.push(match[1]);
+                    item.parents.push(+match[1]);
                 }
             });
 
@@ -245,7 +248,7 @@ function _Outbox(store) {
             return self
                 .updateModels(item, result)
                 .then(function() {
-                    return self.model.filter({ parents: item.id });
+                    return self.model.filter({ parents: [item.id] });
                 })
                 .then(function(relItems) {
                     return Promise.all(relItems.map(_loadItemData));
@@ -430,9 +433,9 @@ function _Outbox(store) {
                 ...item.options.modelConf
             };
             if (item.deletedId) {
-                return model(conf).remove(item.deletedId);
+                return this.getModel(conf).remove(item.deletedId);
             } else {
-                return model(conf)
+                return this.getModel(conf)
                     .update([result])
                     .then(function() {
                         return result;
@@ -441,6 +444,13 @@ function _Outbox(store) {
         } else {
             return Promise.resolve();
         }
+    };
+
+    self.getModel = function(conf) {
+        return model({
+            store: self.store,
+            ...conf
+        });
     };
 
     // Count of unsynced outbox items (never synced, or sync was unsuccessful)
@@ -568,6 +578,16 @@ function _Outbox(store) {
             }
         }
         return item;
+    }
+
+    function _wrapUpdate(defaultUpdate) {
+        return function(newData) {
+            return Promise.all(newData.map(_updateItemData)).then(function(
+                items
+            ) {
+                return defaultUpdate(items);
+            });
+        };
     }
 
     function _wrapOverwrite(defaultOverwrite) {

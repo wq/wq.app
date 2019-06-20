@@ -4,22 +4,27 @@ import { URLSearchParams } from 'url';
 global.URLSearchParams = URLSearchParams;
 
 var ds = store.getStore('model-test');
+var items = model({
+    name: 'item',
+    url: 'items',
+    store: ds,
+    cache: 'all',
+    functions: {
+        is_red: item => item.color === '#f00'
+    }
+});
+var itemtypes = model({
+    name: 'itemtype',
+    url: 'itemtypes',
+    store: ds,
+    cache: 'all'
+});
 ds.init({
     service: 'http://localhost:8080/tests',
     defaults: {
         format: 'json',
         extra: 1
     }
-});
-var items = model({
-    url: 'items',
-    store: ds,
-    cache: 'all'
-});
-var itemtypes = model({
-    url: 'itemtypes',
-    store: ds,
-    cache: 'all'
 });
 
 test('load data list', async () => {
@@ -49,6 +54,19 @@ test('filter by multiple values', async () => {
     expect(fitems).toHaveLength(2);
     expect(fitems[0].id).toEqual('one');
     expect(fitems[1].id).toEqual('three');
+});
+
+test('filter by multiple keys, match any', async () => {
+    const fitems = await items.filter({ color: '#f00', type_id: 2 }, true);
+    expect(fitems).toHaveLength(2);
+    expect(fitems[0].id).toEqual('one');
+    expect(fitems[1].id).toEqual('three');
+});
+
+test('filter by computed value', async () => {
+    const fitems = await items.filter({ is_red: true });
+    expect(fitems).toHaveLength(1);
+    expect(fitems[0].id).toEqual('one');
 });
 
 test('filter by boolean (true)', async () => {
@@ -86,5 +104,6 @@ async function testBooleanResult(value, expectId) {
 test('filter by boolean & non-boolean', async () => {
     const types1 = await itemtypes.filter({ is_active: 'true', id: '1' });
     const types2 = await itemtypes.filter({ id: '1', is_active: 'true' });
+    expect(types1).toHaveLength(1);
     expect(types1).toEqual(types2);
 });

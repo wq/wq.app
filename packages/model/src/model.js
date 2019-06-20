@@ -1,11 +1,97 @@
 import ds from '@wq/store';
 import deepcopy from 'deepcopy';
+import { Model as ORMModel, ORM } from 'redux-orm';
 
 function model(config) {
     return new Model(config);
 }
 
-model.Model = Model;
+const _orms = {};
+
+const CREATE = 'CREATE',
+    UPDATE = 'UPDATE',
+    DELETE = 'DELETE',
+    OVERWRITE = 'OVERWRITE';
+
+class ORMWithReducer extends ORM {
+    constructor(store) {
+        super();
+        this.store = store;
+    }
+    get prefix() {
+        if (this.store.name === 'main') {
+            return 'ORM';
+        } else {
+            return `${this.store.name.toUpperCase()}ORM`;
+        }
+    }
+    reducer(state, action) {
+        const session = this.session(state || this.getEmptyState()),
+            match = action.type.match(/^([^_]+)_(.+)_([^_]+)$/);
+
+        if (!match || match[1] !== this.prefix) {
+            return session.state;
+        }
+
+        const modelName = match[2].toLowerCase(),
+            actName = match[3],
+            cls = session[modelName];
+
+        if (!cls) {
+            return session.state;
+        }
+
+        switch (actName) {
+            case CREATE: {
+                cls.create(action.payload);
+                break;
+            }
+            case UPDATE: {
+                const items = Array.isArray(action.payload)
+                    ? action.payload
+                    : [action.payload];
+                items.forEach(item => cls.upsert(item));
+                const meta = session._modelmeta.withId(cls.modelName);
+                if (meta) {
+                    var update = { count: meta.count + 1 };
+                    if (meta.pages === 1 && meta.per_page === meta.count) {
+                        update.per_page = update.count;
+                    }
+                    meta.update(update);
+                }
+                break;
+            }
+            case DELETE: {
+                cls.withId(action.payload).delete();
+                break;
+            }
+            case OVERWRITE: {
+                const { list, ...info } = action.payload;
+                cls.all().delete();
+                list.forEach(item => cls.create(item));
+                session._modelmeta.upsert({
+                    id: cls.modelName,
+                    ...info
+                });
+                break;
+            }
+        }
+
+        return session.state;
+    }
+}
+
+class ModelMeta extends ORMModel {}
+ModelMeta.modelName = '_modelmeta';
+
+function orm(store) {
+    if (!_orms[store.name]) {
+        const orm = (_orms[store.name] = new ORMWithReducer(store));
+        store.addReducer('orm', (state, action) => orm.reducer(state, action));
+        orm.register(ModelMeta);
+    }
+    return _orms[store.name];
+}
 
 model.cacheOpts = {
     // First page (e.g. 50 records) is stored locally; subsequent pages can be
@@ -23,7 +109,7 @@ model.cacheOpts = {
         server: false,
         client: true,
         page: 0,
-        reversed: true
+        reversed: false
     },
 
     // "Important" data is cached; other data can be accessed via pagination.
@@ -39,85 +125,126 @@ model.cacheOpts = {
         server: true,
         client: false,
         page: 0,
-        reversed: true
+        reversed: false
     }
 };
-
-export default model;
 
 // Retrieve a stored list as an object with helper functions
 //  - especially useful for server-paginated lists
 //  - methods must be called asynchronously
-function Model(config) {
-    var self = this;
-    if (!config) {
-        throw 'No configuration provided!';
-    }
-    if (typeof config == 'string') {
-        config = { query: config };
-    }
-
-    if (!config.cache) {
-        config.cache = 'first_page';
-    }
-    self.opts = model.cacheOpts[config.cache];
-    if (!self.opts) {
-        throw 'Unknown cache option ' + config.cache;
-    }
-    ['max_local_pages', 'partial', 'reversed'].forEach(function(name) {
-        if (name in config) {
-            throw '"' + name + '" is deprecated in favor of "cache"';
+class Model {
+    constructor(config) {
+        if (!config) {
+            throw 'No configuration provided!';
         }
-    });
-
-    // Default to main store, but allow overriding
-    if (config.store) {
-        if (config.store instanceof ds.constructor) {
-            self.store = config.store;
-        } else {
-            self.store = ds.getStore(config.store);
+        if (typeof config == 'string') {
+            config = { query: config, name: config };
         }
-    } else {
-        self.store = ds;
-    }
 
-    if (config.query) {
-        self.query = self.store.normalizeQuery(config.query);
-    } else if (config.url !== undefined) {
-        self.query = { url: config.url };
-    } else {
-        throw 'Could not determine query for model!';
-    }
+        if (!config.name) {
+            throw new Error('Model name is now required.');
+        }
 
-    // Configurable functions to e.g. filter data by
-    self.functions = config.functions || {};
+        if (!config.cache) {
+            config.cache = 'first_page';
+        }
 
-    var _index_cache = {}; // Cache for list indexed by e.g. primary key
-    var _group_cache = {}; // Cache for list grouped by e.g. foreign key
+        this.config = config;
+        this.name = config.name;
+        this.idCol = config.idCol || 'id';
+        this.opts = model.cacheOpts[config.cache];
 
-    function getPage(page_num, fn) {
-        var query;
-        if (typeof self.query == 'string') {
-            query = self.query;
-        } else {
-            query = { ...self.query };
-            if (page_num !== null) {
-                query.page = page_num;
+        if (!this.opts) {
+            throw 'Unknown cache option ' + config.cache;
+        }
+        ['max_local_pages', 'partial', 'reversed'].forEach(function(name) {
+            if (name in config) {
+                throw '"' + name + '" is deprecated in favor of "cache"';
             }
+        });
+
+        // Default to main store, but allow overriding
+        if (config.store) {
+            if (config.store instanceof ds.constructor) {
+                this.store = config.store;
+            } else {
+                this.store = ds.getStore(config.store);
+            }
+        } else {
+            this.store = ds;
         }
-        return self.store[fn](query)
-            .then(_processData)
-            .then(function(data) {
-                if (page_num !== null && !data.page) {
-                    data.page = page_num;
+
+        this.orm = orm(this.store);
+
+        try {
+            this.model = this.orm.get(this.name);
+        } catch (e) {
+            const idCol = this.idCol;
+            class M extends ORMModel {
+                static get idAttribute() {
+                    return idCol;
                 }
-                return data;
-            });
+                static get fields() {
+                    return {};
+                }
+            }
+            M.modelName = this.name;
+            this.orm.register(M);
+            this.model = M;
+        }
+
+        if (config.query) {
+            this.query = this.store.normalizeQuery(config.query);
+        } else if (config.url !== undefined) {
+            this.query = { url: config.url };
+        }
+
+        // Configurable functions to e.g. filter data by
+        this.functions = config.functions || {};
     }
 
-    self._processData = _processData;
+    dispatch(type, payload) {
+        const action = {
+            type: `${this.orm.prefix}_${this.name.toUpperCase()}_${type}`,
+            payload: payload
+        };
+        return this.store.dispatch(action);
+    }
 
-    function _processData(data) {
+    getSession() {
+        return this.orm.session(this.store.getState().orm);
+    }
+
+    getSessionModel() {
+        const model = this.getSession()[this.name];
+        if (!model) {
+            throw new Error('Could not find model in session');
+        }
+        return model;
+    }
+
+    getQuerySet() {
+        const model = this.getSessionModel();
+        return model
+            .all()
+            .orderBy(this.idCol, this.opts.reversed ? 'desc' : 'asc');
+    }
+
+    async getPage(page_num) {
+        var query = { ...this.query };
+        if (page_num !== null) {
+            query.page = page_num;
+        }
+
+        const result = await this.store.fetch(query);
+        var data = this._processData(result);
+        if (!data.page) {
+            data.page = page_num;
+        }
+        return data;
+    }
+
+    _processData(data) {
         if (!data) {
             data = [];
         }
@@ -136,339 +263,267 @@ function Model(config) {
         return data;
     }
 
-    function resetCaches() {
-        _index_cache = {};
-        _group_cache = {};
+    async load() {
+        const info = await this.info();
+        return {
+            ...info,
+            list: this.getQuerySet().toRefArray()
+        };
     }
 
-    self.load = function() {
-        return getPage(null, 'get');
-    };
+    async info(retry = true) {
+        const info = this.getSession()._modelmeta.withId(this.name);
+        if (info) {
+            const { pages, count, per_page } = info.ref;
+            return { pages, count, per_page };
+        } else {
+            if (this.query && retry) {
+                await this.prefetch();
+                return this.info(false);
+            } else {
+                return {
+                    pages: 1,
+                    count: 0,
+                    per_page: 0
+                };
+            }
+        }
+    }
 
-    self.info = function() {
-        return self.load().then(function(data) {
-            return {
-                pages: data.pages,
-                per_page: data.per_page,
-                count: data.count,
-                config: config
-            };
-        });
-    };
+    async ensureLoaded() {
+        await this.info();
+    }
 
     // Load data for the given page number
-    self.page = function(page_num) {
-        var fn;
-        if (!config.url || page_num <= self.opts.page) {
+    async page(page_num) {
+        if (!this.config.url) {
+            if (page_num > this.opts.page) {
+                throw new Error('No URL, cannot retrieve page ' + page_num);
+            }
+        }
+        if (page_num <= this.opts.page) {
             // Store data locally
-            fn = 'get';
+            return this.load();
         } else {
             // Fetch on demand but don't store
-            fn = 'fetch';
+            return this.getPage(page_num);
         }
-        return getPage(page_num, fn);
-    };
+    }
 
     // Iterate across stored data
-    self.forEach = function(cb, thisarg) {
-        self.load().then(function(data) {
-            data.list.forEach(cb, thisarg);
-        });
-    };
+    async forEach(cb, thisarg) {
+        const data = await this.load();
+        data.list.forEach(cb, thisarg);
+    }
 
     // Find an object by id
-    self.find = function(value, attr, localOnly) {
-        if (!attr) {
-            attr = 'id';
-        }
-        if (self.store.debugLookup) {
-            var key = self.store.toKey(self.query);
-            console.log(
-                'finding item in ' + key + ' where ' + attr + '=' + value
+    async find(value, localOnly) {
+        if (localOnly && typeof localOnly !== 'boolean') {
+            throw new Error(
+                'Usage: find(value[, localOnly).  To customize id attr use config.idCol'
             );
         }
-        return self.getIndex(attr).then(function(ilist) {
-            if (ilist && ilist[value]) {
-                return deepcopy(ilist[value]);
-            } else if (attr == 'id' && value !== undefined) {
-                // Not found in local list; try server
-                if (!localOnly && self.opts.server && config.url) {
-                    return self.store.fetch('/' + config.url + '/' + value);
-                }
-            }
+        const model = this.getSessionModel(),
+            instance = model.withId(value);
+
+        if (instance) {
+            return deepcopy(instance.ref);
+        } else if (
+            value !== undefined &&
+            !!localOnly &&
+            this.opts.server &&
+            this.config.url
+        ) {
+            return await this.store.fetch('/' + this.config.url + '/' + value);
+        } else {
             return null;
-        });
-    };
+        }
+    }
 
     // Filter an array of objects by one or more attributes
-    self.filterPage = function(filter, any, localOnly) {
+    async filterPage(filter, any, localOnly) {
         // If partial list, we can never be 100% sure all filter matches are
         // stored locally. In that case, run query on server.
-        if (!localOnly && self.opts.server && config.url) {
+        if (!localOnly && this.opts.server && this.config.url) {
             // FIXME: won't work as expected if any == true
-            var query = { url: config.url, ...filter };
-            return self.store.fetch(query).then(_processData);
+            const result = await this.store.fetch({
+                url: this.config.url,
+                ...filter
+            });
+            return this._processData(result);
         }
 
         if (!filter || !Object.keys(filter).length) {
             // No filter: return unmodified list directly
-            return self.load();
-        } else if (any) {
+            return this.load();
+        }
+
+        await this.ensureLoaded();
+
+        var qs = this.getQuerySet();
+        if (any) {
             // any=true: Match on any of the provided filter attributes
-            var results = Object.keys(filter).map(function(attr) {
-                return self.getGroup(attr, filter[attr]);
-            });
-            return Promise.all(results).then(function(groups) {
-                var result = [];
-                // Note: might duplicate objects matching more than one filter
-                groups.forEach(function(group) {
-                    result = result.concat(group);
-                });
-                return deepcopy(_processData(result));
+            qs = qs.filter(item => {
+                return (
+                    Object.keys(filter).filter(attr => {
+                        return this.matches(item, attr, filter[attr]);
+                    }).length > 0
+                );
             });
         } else {
             // Default: require match on all filter attributes
 
-            // Convert to array for convenience
-            var afilter = [];
-            for (var attr in filter) {
-                afilter.push({ name: attr, value: filter[attr] });
-            }
-
-            // Use getGroup to filter list on first given attribute
-            var f = afilter.shift();
-            return self.getGroup(f.name, f.value).then(function(group) {
-                // If only one filter attribute was given, return group as-is
-                if (!afilter.length) {
-                    return deepcopy(_processData(group));
+            // Use object filter to take advantage of redux-orm indexes -
+            // except for boolean/array/computed filters.
+            var defaultFilter = {},
+                customFilter = {},
+                hasDefaultFilter = false,
+                hasCustomFilter = false;
+            Object.keys(filter).forEach(attr => {
+                const comp = filter[attr];
+                if (this.isCustomFilter(attr, comp)) {
+                    customFilter[attr] = comp;
+                    hasCustomFilter = true;
+                } else {
+                    defaultFilter[attr] = comp;
+                    hasDefaultFilter = true;
                 }
-
-                var result = [];
-                // Otherwise continue to filter using the remaining attributes
-                group.forEach(function(obj) {
+            });
+            if (hasDefaultFilter) {
+                qs = qs.filter(defaultFilter);
+            }
+            if (hasCustomFilter) {
+                qs = qs.filter(item => {
                     var match = true;
-                    afilter.forEach(function(f) {
-                        // FIXME: What about multi-valued filters?
-                        var val = obj[f.name];
-                        if (isRawBoolean(val)) {
-                            if (toBoolean(f.value) != val) {
-                                match = false;
-                            }
-                        } else {
-                            if (f.value != val) {
-                                match = false;
-                            }
+                    Object.keys(customFilter).forEach(attr => {
+                        if (!this.matches(item, attr, customFilter[attr])) {
+                            match = false;
                         }
                     });
-                    if (match) {
-                        result.push(obj);
-                    }
+                    return match;
                 });
-                return deepcopy(_processData(result));
-            });
+            }
         }
-    };
+        return deepcopy(this._processData(qs.toRefArray()));
+    }
 
     // Filter an array of objects by one or more attributes
-    self.filter = function(filter, any, localOnly) {
-        return self.filterPage(filter, any, localOnly).then(function(data) {
-            return data.list;
-        });
-    };
+    async filter(filter, any, localOnly) {
+        const data = await this.filterPage(filter, any, localOnly);
+        return data.list;
+    }
 
     // Merge new/updated items into list
-    self.update = function(update, idcol) {
+    async update(update, idCol) {
+        if (idCol) {
+            throw new Error(
+                'Usage: update(items).  To customize id attr use config.idCol'
+            );
+        }
         if (!Array.isArray(update)) {
-            throw 'Data is not an array!';
+            throw new Error('Data is not an array!');
         }
-        if (!idcol) {
-            idcol = 'id';
-        }
-        if (self.opts.reversed) {
-            update = update.reverse();
-        }
-        update = update.filter(function(obj) {
-            return obj && obj[idcol];
-        });
-        var updateById = {};
-        update.forEach(function(obj) {
-            updateById[obj[idcol]] = obj;
-        });
-        return self.load().then(function(data) {
-            data.list.forEach(function(obj) {
-                var id = obj[idcol];
-                if (updateById[id]) {
-                    Object.assign(obj, updateById[id]);
-                    delete updateById[id];
-                }
-            });
-            update.forEach(function(obj) {
-                if (!updateById[obj[idcol]]) {
-                    return;
-                }
-                if (self.opts.reversed) {
-                    data.list.unshift(obj);
-                } else {
-                    data.list.push(obj);
-                }
-            });
-            return self.overwrite(data);
-        });
-    };
+        return this.dispatch(UPDATE, update);
+    }
 
-    self.remove = function(id, idcol) {
-        if (!idcol) {
-            idcol = 'id';
+    async remove(id, idCol) {
+        if (idCol) {
+            throw new Error(
+                'Usage: remove(id).  To customize id attr use config.idCol'
+            );
         }
-        return self.load().then(function(data) {
-            data.list = data.list.filter(function(obj) {
-                return obj[idcol] != id;
-            });
-            return self.overwrite(data);
-        });
-    };
+        return this.dispatch(DELETE, id);
+    }
 
     // Overwrite entire list
-    self.overwrite = function(data) {
-        resetCaches();
+    async overwrite(data) {
         if (data.pages == 1 && data.list) {
             data.count = data.per_page = data.list.length;
         } else {
-            data = _processData(data);
+            data = this._processData(data);
         }
-        return self.store.set(self.query, data);
-    };
+        return this.dispatch(OVERWRITE, data);
+    }
 
     // Prefetch list
-    self.prefetch = function() {
-        resetCaches();
-        return getPage(null, 'prefetch');
-    };
+    async prefetch() {
+        const data = await this.getPage(null);
+        return this.overwrite(data);
+    }
 
     // Helper for partial list updates (useful for large lists)
     // Note: params should contain correct arguments to fetch only "recent"
     // items from server; idcol should be a unique identifier for the list
-    self.fetchUpdate = function(params, idcol) {
+    async fetchUpdate(params, idCol) {
+        if (idCol) {
+            throw new Error(
+                'Usage: fetchUpdate(params).  To customize id attr use config.idCol'
+            );
+        }
         // Update local list with recent items from server
-        var q = { ...self.query, ...params };
-        return self.store.fetch(q).then(function(data) {
-            return self.update(data, idcol);
-        });
-    };
+        var q = { ...this.query, ...params };
+        const data = await this.store.fetch(q);
+        return this.update(data);
+    }
 
     // Unsaved form items related to this list
-    self.unsyncedItems = function(withData) {
+    unsyncedItems(withData) {
         // Note: wq/outbox needs to have already been loaded for this to work
-        var outbox = self.store.outbox;
+        var outbox = this.store.outbox;
         if (!outbox) {
             return Promise.resolve([]);
         }
-        return outbox.unsyncedItems(self.query, withData);
-    };
+        return outbox.unsyncedItems(this.query, withData);
+    }
 
     // Apply a predefined function to a retreived item
-    self.compute = function(fn, item) {
-        if (self.functions[fn]) {
-            return self.functions[fn](item);
+    compute(fn, item) {
+        if (this.functions[fn]) {
+            return this.functions[fn](item);
         } else {
             return null;
         }
-    };
+    }
 
-    // Get list from datastore, index by a unique attribute (e.g. primary key)
-    self.getIndex = function(attr) {
-        return self.load().then(function(data) {
-            if (_index_cache[attr]) {
-                return _index_cache[attr];
-            }
-            _index_cache[attr] = {};
-            data.list.forEach(function(obj) {
-                var id = obj[attr];
-                if (id === undefined && self.functions[attr]) {
-                    id = self.compute(attr, obj);
-                }
-                if (id !== undefined) {
-                    _index_cache[attr][id] = obj;
-                }
-            });
-            return _index_cache[attr];
-        });
-    };
+    isCustomFilter(attr, comp) {
+        return (
+            this.functions[attr] ||
+            isPotentialBoolean(comp) ||
+            Array.isArray(comp)
+        );
+    }
 
-    // Get list from datastore, grouped by an attribute (e.g. foreign key)
-    self.getGroups = function(attr) {
-        return self.load().then(function(data) {
-            if (_group_cache[attr]) {
-                return _group_cache[attr];
-            }
-            _group_cache[attr] = {};
-            data.list.forEach(function(obj) {
-                var value = obj[attr];
-                if (value === undefined && self.functions[attr]) {
-                    value = self.compute(attr, obj);
-                }
+    matches(item, attr, comp) {
+        var value;
 
-                // Allow multivalued attribute (e.g. M2M relationship)
-                if (!Array.isArray(value)) {
-                    value = [value];
-                }
-                value.forEach(function(v) {
-                    if (!_group_cache[attr][v]) {
-                        _group_cache[attr][v] = [];
-                    }
-                    _group_cache[attr][v].push(obj);
-                });
-            });
-            return _group_cache[attr];
-        });
-    };
-
-    // Get individual subset from grouped list
-    self.getGroup = function(attr, value) {
-        if (Array.isArray(value)) {
-            // Assume multivalued query, return all matching groups
-            var results = value.map(function(v) {
-                return self.getGroup(attr, v);
-            });
-            return Promise.all(results).then(function(groups) {
-                var result = [];
-                groups.forEach(function(group) {
-                    result = result.concat(group);
-                });
-                return result;
-            });
+        if (this.functions[attr]) {
+            value = this.compute(attr, item);
+        } else {
+            value = item[attr];
         }
-        return self.getGroups(attr).then(function(groups) {
-            if (!groups) {
-                return [];
-            }
-            var isBoolean = true;
-            Object.keys(groups).forEach(function(key) {
-                if (!isBoolean) {
-                    return;
-                }
-                if (!isBooleanKey(key)) {
-                    isBoolean = false;
-                }
-            });
-            if (isBoolean) {
-                value = toBoolean(value);
-            }
-            if (groups[value] && groups[value].length > 0) {
-                return groups[value];
+
+        if (Array.isArray(comp)) {
+            return comp.filter(c => checkValue(value, c)).length > 0;
+        } else {
+            return checkValue(value, comp);
+        }
+
+        function checkValue(value, comp) {
+            if (isRawBoolean(value)) {
+                return value === toBoolean(comp);
+            } else if (typeof value === 'number') {
+                return value === +comp;
+            } else if (Array.isArray(value)) {
+                return value.filter(v => checkValue(v, comp)).length > 0;
             } else {
-                return [];
+                return value === comp;
             }
-        });
-    };
+        }
+    }
 }
 
 function isRawBoolean(value) {
     return [null, true, false].indexOf(value) > -1;
-}
-
-function isBooleanKey(value) {
-    return ['null', 'true', 'false'].indexOf(value) > -1;
 }
 
 function toBoolean(value) {
@@ -482,3 +537,13 @@ function toBoolean(value) {
         return value;
     }
 }
+
+function isPotentialBoolean(value) {
+    return isRawBoolean(toBoolean(value));
+}
+
+model.Model = Model;
+
+export default model;
+
+export { Model };

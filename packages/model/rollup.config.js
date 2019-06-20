@@ -9,6 +9,7 @@ export default [
     {
         input: 'packages/model/index.js',
         plugins: [wqDeps('@wq'), commonjs(), resolve(), babel()],
+        external: ['redux-orm'],
         output: [
             {
                 banner: banner,
@@ -21,6 +22,7 @@ export default [
     {
         input: 'packages/model/index.js',
         plugins: [wqDeps('@wq'), commonjs(), resolve(), babel()],
+        external: ['redux-orm'],
         output: [
             {
                 banner: banner,
@@ -33,6 +35,7 @@ export default [
     {
         input: 'packages/model/index.js',
         plugins: [wqDeps(), commonjs(), resolve(), babel()],
+        external: ['redux-orm'],
         output: [
             {
                 banner: banner,

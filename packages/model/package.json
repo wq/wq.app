@@ -26,7 +26,8 @@
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
     "@wq/store": "^1.1.2",
-    "deepcopy": "^1.0.0"
+    "deepcopy": "^1.0.0",
+    "redux-orm": "^0.13.3"
   },
   "devDependencies": {
     "@wq/jest-env-jsdom-idb": "^0.1.1"
