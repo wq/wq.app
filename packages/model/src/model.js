@@ -87,7 +87,11 @@ ModelMeta.modelName = '_modelmeta';
 function orm(store) {
     if (!_orms[store.name]) {
         const orm = (_orms[store.name] = new ORMWithReducer(store));
-        store.addReducer('orm', (state, action) => orm.reducer(state, action));
+        store.addReducer(
+            'orm',
+            (state, action) => orm.reducer(state, action),
+            true
+        );
         orm.register(ModelMeta);
     }
     return _orms[store.name];
@@ -323,6 +327,7 @@ class Model {
                 'Usage: find(value[, localOnly).  To customize id attr use config.idCol'
             );
         }
+        await this.ensureLoaded();
         const model = this.getSessionModel(),
             instance = model.withId(value);
 

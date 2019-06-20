@@ -37,6 +37,7 @@ class Store {
 
     // Registered redux functions
     #reducers = {};
+    #persistKeys = [];
     #middleware = [];
     #enhancers = [];
     #subscribers = [];
@@ -50,8 +51,10 @@ class Store {
         }
         this.name = name;
         _stores[name] = this;
-        this.addReducer('kvp', (state, action) =>
-            this.kvpReducer(state, action)
+        this.addReducer(
+            'kvp',
+            (state, action) => this.kvpReducer(state, action),
+            true
         );
     }
 
@@ -94,7 +97,7 @@ class Store {
             key: this.name,
             storage: localForage,
             serialize: false,
-            whitelist: ['kvp'],
+            whitelist: this.#persistKeys,
             writeFailHandler: error => this.storageFail(error)
         };
         const persistedReducer = persistReducer(persistConfig, reducer);
@@ -129,8 +132,11 @@ class Store {
         return this._store.getState();
     }
 
-    addReducer(name, reducer) {
+    addReducer(name, reducer, persist) {
         this.#reducers[name] = reducer;
+        if (persist) {
+            this.#persistKeys.push(name);
+        }
     }
 
     addMiddleware(middleware) {

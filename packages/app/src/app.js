@@ -123,13 +123,8 @@ app.init = function(config) {
     router.init(config.router);
     app.base_url = router.base_url;
 
-    // Initialize wq/store.js
-    ds.init(config.store);
     app.store = ds;
     app.service = ds.service;
-
-    // Initialize wq/outbox.js
-    outbox.init(config.outbox);
 
     // Initialize wq/template.js
     tmpl.init(config.template);
@@ -161,29 +156,6 @@ app.init = function(config) {
             app[hook] = config[hook];
         }
     });
-
-    // Initialize authentication, if applicable
-    var ready;
-    if (app.can_login) {
-        router.register('logout', 'logout', app.logout);
-
-        // Load some values from store - not ready till this is done.
-        ready = ds.get(['user', 'csrf_token']).then(function(values) {
-            var user = values[0];
-            var csrfReady = _setCSRFToken(values[1]);
-            if (!user) {
-                return csrfReady;
-            }
-            app.user = user;
-            return ds.get('/config').then(function(wq_config) {
-                app.wq_config = wq_config;
-                return csrfReady;
-            });
-        });
-        ready = ready.then(_checkLogin);
-    } else {
-        ready = ds.ready;
-    }
 
     // Configure jQuery Mobile transitions
     if (config.transitions) {
@@ -277,6 +249,35 @@ app.init = function(config) {
     });
 
     router.addContext(() => spinner.stop() && {});
+
+    // Initialize wq/store.js
+    ds.init(config.store);
+
+    // Initialize wq/outbox.js
+    outbox.init(config.outbox);
+
+    // Initialize authentication, if applicable
+    var ready;
+    if (app.can_login) {
+        router.register('logout', 'logout', app.logout);
+
+        // Load some values from store - not ready till this is done.
+        ready = ds.get(['user', 'csrf_token']).then(function(values) {
+            var user = values[0];
+            var csrfReady = _setCSRFToken(values[1]);
+            if (!user) {
+                return csrfReady;
+            }
+            app.user = user;
+            return ds.get('/config').then(function(wq_config) {
+                app.wq_config = wq_config;
+                return csrfReady;
+            });
+        });
+        ready = ready.then(_checkLogin);
+    } else {
+        ready = ds.ready;
+    }
 
     if (app.config.jqmInit) {
         ready = ready.then(app.jqmInit);
@@ -1020,7 +1021,7 @@ async function _displayItem(ctx) {
         };
     } else {
         const localOnly = !app.config.loadMissingAsJson;
-        item = await model.find(itemid, 'id', localOnly);
+        item = await model.find(itemid, localOnly);
         if (!item) {
             if (model.opts.server && app.config.loadMissingAsHtml) {
                 return _loadFromServer(url);
@@ -1604,15 +1605,19 @@ function _parent_lookup(field, context) {
 // Foreign key lookup for objects other than root
 function _this_parent_lookup(field) {
     var model = app.models[field['wq:ForeignKey']];
-    return Promise.all([
-        _getOutboxRecordLookup(model),
-        model.getIndex('id')
-    ]).then(function(results) {
-        return function() {
-            var parentId = this[field.name + '_id'];
-            return results[0][parentId] || results[1][parentId];
-        };
-    });
+    return Promise.all([_getOutboxRecordLookup(model), model.load()]).then(
+        function(results) {
+            const obRecords = results[0];
+            var existing = {};
+            results[1].list.forEach(item => {
+                existing[item.id] = item;
+            });
+            return function() {
+                var parentId = this[field.name + '_id'];
+                return obRecords[parentId] || existing[parentId];
+            };
+        }
+    );
 }
 
 // Foreign key label
@@ -1788,6 +1793,8 @@ function _computeFilter(filter, context) {
                 value = tmpl.render(value, context);
                 if (value === '') {
                     return null;
+                } else if (value.match(/^\+\d+$/)) {
+                    return +value.substring(1);
                 }
             }
             return value;

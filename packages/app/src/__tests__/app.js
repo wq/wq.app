@@ -134,7 +134,7 @@ test('async context - list (filtered)', async () => {
 });
 
 testEAV('empty', {}, '', [1, 2, 3, 4]);
-testEAV('campaign id', { campaign_id: '{{campaign_id}}' }, 'campaign_id=2', [
+testEAV('campaign id', { campaign_id: '+{{campaign_id}}' }, 'campaign_id=2', [
     3,
     4
 ]);
