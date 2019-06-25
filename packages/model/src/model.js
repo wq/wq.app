@@ -335,7 +335,7 @@ class Model {
             return deepcopy(instance.ref);
         } else if (
             value !== undefined &&
-            !!localOnly &&
+            !localOnly &&
             this.opts.server &&
             this.config.url
         ) {

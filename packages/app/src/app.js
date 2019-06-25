@@ -124,7 +124,6 @@ app.init = function(config) {
     app.base_url = router.base_url;
 
     app.store = ds;
-    app.service = ds.service;
 
     // Initialize wq/template.js
     tmpl.init(config.template);
@@ -252,6 +251,7 @@ app.init = function(config) {
 
     // Initialize wq/store.js
     ds.init(config.store);
+    app.service = ds.service;
 
     // Initialize wq/outbox.js
     outbox.init(config.outbox);
