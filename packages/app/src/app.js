@@ -9,11 +9,22 @@ import spinner from './spinner';
 var app = {
     OFFLINE: 'offline',
     FAILURE: 'failure',
-    ERROR: 'error'
+    ERROR: 'error',
+    get wq_config() {
+        return this.getAuthState().config || this.config;
+    },
+    get user() {
+        return this.getAuthState().user;
+    },
+    get csrftoken() {
+        return this.getAuthState().csrftoken;
+    }
 };
 
 const SERVER = '@@SERVER',
-    LOGIN = '@@LOGIN',
+    LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+    LOGIN_RELOAD = 'LOGIN_RELOAD',
+    CSRFTOKEN = 'CSRFTOKEN',
     LOGOUT = '@@LOGOUT';
 
 app.models = {};
@@ -33,8 +44,10 @@ app.init = function(config) {
     router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
     router.addContext(_getSyncInfo);
-    router.addThunk(LOGIN, _refreshUserInfo);
+    router.addThunk(LOGIN_SUCCESS, _refreshUserInfo);
+    router.addThunk(LOGIN_RELOAD, _refreshUserInfo);
     router.addThunk(LOGOUT, _refreshUserInfo);
+    router.addThunk(CSRFTOKEN, _refreshCSRFToken);
 
     // Router (wq/router.js) configuration
     if (!config.router) {
@@ -54,6 +67,8 @@ app.init = function(config) {
     if (!config.store.fetchFail) {
         config.fetchFail = _fetchFail;
     }
+
+    ds.addReducer('auth', _authReducer, true);
 
     Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.ajax) {
@@ -83,9 +98,6 @@ app.init = function(config) {
     if (!config.outbox) {
         config.outbox = {};
     }
-    if (!config.outbox.updateModels) {
-        config.outbox.updateModels = _updateModels;
-    }
 
     // Propagate debug setting to other modules
     if (config.debug) {
@@ -114,7 +126,6 @@ app.init = function(config) {
     config.noBackgroundSync = !config.backgroundSync;
 
     app.config = config;
-    app.wq_config = config;
 
     app['native'] = !!window.cordova;
     app.can_login = !!config.pages.login;
@@ -124,6 +135,7 @@ app.init = function(config) {
     app.base_url = router.base_url;
 
     app.store = ds;
+    app.outbox = outbox;
 
     // Initialize wq/template.js
     tmpl.init(config.template);
@@ -131,14 +143,10 @@ app.init = function(config) {
     // Option to submit forms in the background rather than wait for each post
     var seconds;
     if (config.backgroundSync) {
-        seconds = config.backgroundSync;
-        if (seconds === true) {
-            seconds = 30;
-        }
-        if (seconds > 0) {
-            app._syncInterval = setInterval(function() {
-                app.sync();
-            }, seconds * 1000);
+        if (config.backgroundSync === -1) {
+            outbox.pause();
+        } else if (seconds > 1) {
+            console.warn('Sync interval is now controlled by redux-offline');
         }
     }
 
@@ -171,16 +179,16 @@ app.init = function(config) {
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
 
-    Object.keys(app.wq_config.pages).forEach(function(page) {
-        app.wq_config.pages[page].name = page;
+    Object.keys(app.config.pages).forEach(function(page) {
+        app.config.pages[page].name = page;
     });
 
     _callPlugins('init', app.config);
 
     // Register routes with wq/router.js
     var root = false;
-    Object.keys(app.wq_config.pages).forEach(function(page) {
-        var conf = _getConf(page);
+    Object.keys(app.config.pages).forEach(function(page) {
+        var conf = _getBaseConf(page);
         if (!conf.url) {
             root = true;
         }
@@ -204,7 +212,7 @@ app.init = function(config) {
     });
 
     // Register outbox
-    router.register('outbox', 'outbox', outbox.model.load);
+    router.register('outbox', 'outbox', () => outbox.loadItems());
     router.onShow('outbox', app.runPlugins);
     router.register('outbox/<slug>', 'outbox_detail', _renderOutboxItem);
     router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
@@ -212,17 +220,11 @@ app.init = function(config) {
     router.onShow('outbox_edit', app.runPlugins);
 
     // Fallback index page
-    if (
-        !root &&
-        !app.wq_config.pages.index &&
-        config.template.templates.index
-    ) {
+    if (!root && !app.config.pages.index && config.template.templates.index) {
         router.registerLast('', 'index', function(ctx) {
             var context = {};
-            context.pages = Object.keys(app.wq_config.pages).map(function(
-                page
-            ) {
-                var conf = app.wq_config.pages[page];
+            context.pages = Object.keys(app.config.pages).map(function(page) {
+                var conf = app.config.pages[page];
                 return {
                     name: page,
                     url: conf.url,
@@ -249,34 +251,20 @@ app.init = function(config) {
 
     router.addContext(() => spinner.stop() && {});
 
-    // Initialize wq/store.js
+    // Initialize wq/store.js and wq/outbox.js
     ds.init(config.store);
     app.service = ds.service;
 
-    // Initialize wq/outbox.js
-    outbox.init(config.outbox);
+    var ready = ds.ready.then(() => outbox.init(config.outbox));
 
-    // Initialize authentication, if applicable
-    var ready;
     if (app.can_login) {
+        // Initialize authentication, if applicable
         router.register('logout', 'logout', app.logout);
-
-        // Load some values from store - not ready till this is done.
-        ready = ds.get(['user', 'csrf_token']).then(function(values) {
-            var user = values[0];
-            var csrfReady = _setCSRFToken(values[1]);
-            if (!user) {
-                return csrfReady;
-            }
-            app.user = user;
-            return ds.get('/config').then(function(wq_config) {
-                app.wq_config = wq_config;
-                return csrfReady;
-            });
-        });
-        ready = ready.then(_checkLogin);
-    } else {
-        ready = ds.ready;
+        ready = ready
+            .then(() => {
+                app.outbox.setCSRFToken(app.csrftoken);
+            })
+            .then(_checkLogin);
     }
 
     if (app.config.jqmInit) {
@@ -307,20 +295,20 @@ app.prefetchAll = function() {
 app.jqmInit = router.jqmInit;
 
 app.logout = function() {
-    if (!app.can_login) {
+    if (!app.can_login || !app.user) {
         return;
     }
-    delete app.user;
-    app.wq_config = app.config;
-    ds.set('user', null).then(function() {
-        router.store.dispatch({
-            type: LOGOUT
-        });
+
+    ds.dispatch({
+        type: LOGOUT
     });
 
     // Notify server (don't need to wait for this)
     ds.fetch('/logout').then(function(result) {
-        _setCSRFToken(result.csrftoken);
+        ds.dispatch({
+            type: CSRFTOKEN,
+            payload: result
+        });
     });
 };
 
@@ -330,11 +318,12 @@ app.userInfo = function() {
         is_authenticated: !!app.user,
         app_config: app.config,
         wq_config: app.wq_config,
-        csrf_token: outbox.csrftoken
+        csrf_token: app.csrftoken
     };
 };
 
 async function _refreshUserInfo(dispatch, getState) {
+    await _refreshCSRFToken();
     var context = getState().context || {};
     router.render(
         {
@@ -348,6 +337,9 @@ async function _refreshUserInfo(dispatch, getState) {
     await app.prefetchAll();
     app.spin.stop();
     await router.reload();
+}
+async function _refreshCSRFToken() {
+    outbox.setCSRFToken(app.csrftoken);
 }
 
 async function _getSyncInfo() {
@@ -405,18 +397,16 @@ app.runPlugins = function(arg) {
 };
 
 // Sync outbox and handle result
-app.sync = function(retryAll) {
-    if (app.syncing) {
-        return;
-    }
-    outbox.unsynced().then(function(unsynced) {
+app.sync = function() {
+    throw new Error('app.sync() renamed to app.retryAll()');
+};
+app.retryAll = function() {
+    app.outbox.unsynced().then(function(unsynced) {
         if (!unsynced) {
             return;
         }
-        app.syncing = true;
         app.presync();
-        outbox.sendAll(retryAll).then(function(items) {
-            app.syncing = false;
+        app.outbox.retryAll().then(items => {
             app.postsync(items);
         });
     });
@@ -438,7 +428,7 @@ app.emptyOutbox = function(confirmFirst) {
             }
         }
     }
-    return outbox.model.overwrite([]).then(function() {
+    return outbox.empty().then(function() {
         app.syncRefresh([null]);
     });
 };
@@ -584,6 +574,7 @@ app.saveerror = function(item, reason, $form) {
 
 // Hook for handling alerts before a background sync event
 // (only used when backgroundSync is set)
+// FIXME: Update for new outbox
 app.presync = function() {
     if (app.config.debug) {
         console.log('Syncing...');
@@ -591,6 +582,7 @@ app.presync = function() {
 };
 
 // Hook for handling alerts after a background sync event
+// FIXME: Update for new outbox
 app.postsync = function(items) {
     // Called after every sync with result from outbox.sendAll().
     // (override to customize behavior, e.g. update a status icon)
@@ -630,7 +622,7 @@ app.syncRefresh = function(items) {
 
 // Return a list of all foreign key fields
 app.getParents = function(page) {
-    var conf = _getConf(page);
+    var conf = _getBaseConf(page);
     return conf.form
         .filter(function(field) {
             return field['wq:ForeignKey'];
@@ -667,10 +659,6 @@ app.refresh = function() {
 };
 
 // Internal variables and functions
-function _setCSRFToken(csrftoken) {
-    outbox.setCSRFToken(csrftoken);
-    return ds.set('csrf_token', csrftoken);
-}
 
 function _callPlugins(method, lookup, args) {
     var plugin,
@@ -778,13 +766,13 @@ function getTemplateName(name, context) {
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 _register.list = function(page) {
-    const conf = _getConf(page),
+    const conf = _getBaseConf(page),
         register = conf.url === '' ? router.registerLast : router.register;
     register(conf.url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     app.getParents(page).forEach(function(ppage) {
-        var pconf = _getConf(ppage);
+        var pconf = _getBaseConf(ppage);
         var url = pconf.url;
         var registerParent;
         if (url === '') {
@@ -962,7 +950,7 @@ async function _displayList(ctx, parentInfo) {
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
 _register.detail = function(page, mode, contextFn = _displayItem) {
-    var conf = _getConf(page);
+    var conf = _getBaseConf(page);
     var url = _getDetailUrl(conf.url, mode);
     const register = conf.url === '' ? router.registerLast : router.register;
     register(url, _joinRoute(page, mode), contextFn);
@@ -987,7 +975,7 @@ function _getDetailUrl(url, mode) {
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
 _register.edit = function(page) {
-    var conf = _getConf(page);
+    var conf = _getBaseConf(page);
     const register = conf.url === '' ? router.registerLast : router.register;
     register(
         _getDetailUrl(conf.url, 'edit'),
@@ -1062,7 +1050,7 @@ async function _displayItem(ctx) {
 // Render non-list pages with with [url] template;
 // handles requests for [url] and [url]/
 function _registerOther(page) {
-    var conf = _getConf(page);
+    var conf = _getBaseConf(page);
     router.register(conf.url, page, _displayOther);
     async function _displayOther() {
         if (conf.server_only) {
@@ -1082,7 +1070,7 @@ async function _renderOutboxItem(ctx) {
     // Display outbox item using model-specific detail/edit view
     const { router_info: routeInfo } = ctx,
         mode = routeInfo.page.replace(/^outbox_/, ''),
-        item = await outbox.loadItem(routeInfo.slugs.slug);
+        item = await outbox.loadItem(+routeInfo.slugs.slug);
 
     if (!item || !item.options || !item.options.modelConf) {
         return router.notFound();
@@ -1125,7 +1113,7 @@ async function _renderOutboxItem(ctx) {
 }
 
 // Handle form submit from [url]_edit views
-function _handleForm(evt) {
+async function _handleForm(evt) {
     var $form = $(this),
         $submitVal,
         backgroundSync,
@@ -1281,47 +1269,40 @@ function _handleForm(evt) {
     }
 
     $form.find('.error').html('');
-    ds.get('csrf_token').then(function(token) {
-        options.csrftoken = token;
-        outbox.save(vals, options, true).then(function(item) {
-            if (backgroundSync) {
-                // Send user to next screen while app syncs in background
-                app.postsave(item, true);
-                if (backgroundSync > 0) {
-                    app.sync();
-                }
-                return;
-            }
+    options.csrftoken = app.csrftoken;
+    var item = await outbox.save(vals, options);
+    if (backgroundSync) {
+        // Send user to next screen while app syncs in background
+        app.postsave(item, true);
+        return;
+    }
 
-            // Submit form immediately and wait for server to respond
-            $form.attr('data-wq-outbox-id', item.id);
-            app.spin.start();
-            outbox.sendItem(item, true).then(function(item) {
-                $form.find('[type=submit]').prop('disabled', false);
-                app.spin.stop();
-                if (!item || item.synced) {
-                    // Item was synced
-                    app.postsave(item, false);
-                    return;
-                }
-                // Something went wrong
-                var error;
-                if (!item.error) {
-                    // Save failed without server error: probably offline
-                    error = app.OFFLINE;
-                } else if (typeof item.error === 'string') {
-                    // Save failed and error information is not in JSON format
-                    // (likely a 500 server failure)
-                    error = app.FAILURE;
-                } else {
-                    // Save failed and error information is in JSON format
-                    // (likely a 400 bad data error)
-                    error = app.ERROR;
-                }
-                app.saveerror(item, error, $form);
-            });
-        });
-    });
+    // Submit form immediately and wait for server to respond
+    $form.attr('data-wq-outbox-id', item.id);
+    app.spin.start();
+    item = await outbox.waitForItem(item.id);
+    $form.find('[type=submit]').prop('disabled', false);
+    app.spin.stop();
+    if (!item || item.synced) {
+        // Item was synced
+        app.postsave(item, false);
+        return;
+    }
+    // Something went wrong
+    var error;
+    if (!item.error) {
+        // Save failed without server error: probably offline
+        error = app.OFFLINE;
+    } else if (typeof item.error === 'string') {
+        // Save failed and error information is not in JSON format
+        // (likely a 500 server failure)
+        error = app.FAILURE;
+    } else {
+        // Save failed and error information is in JSON format
+        // (likely a 400 bad data error)
+        error = app.ERROR;
+    }
+    app.saveerror(item, error, $form);
 }
 
 app.showOutboxErrors = function(item, $page) {
@@ -1397,58 +1378,63 @@ function _submitClick() {
     }
 }
 
-// Successful results from REST API contain the newly saved object
-function _updateModels(item, result) {
-    var modelConf = item.options.modelConf;
-    if (modelConf.list && item.synced) {
-        var model = app.models[modelConf.name];
-        if (item.deletedId) {
-            return model.remove(item.deletedId);
-        } else {
-            return model.update([result]).then(function() {
-                return Promise.all(
-                    _callPlugins('onsave', undefined, [item, result])
-                );
-            });
-        }
-    } else if (app.can_login && result && result.user && result.config) {
-        return _saveLogin(result);
-    }
-}
+/* FIXME:
+    return Promise.all(
+        _callPlugins('onsave', undefined, [item, result])
+    );
+*/
 
-function _saveLogin(result) {
-    var config = result.config,
-        user = result.user,
-        csrftoken = result.csrftoken;
+app.getAuthState = function() {
+    return this.store.getState().auth || {};
+};
+
+function _authReducer(state = {}, action) {
     if (!app.can_login) {
-        return;
+        return state;
     }
-    app.wq_config = config;
-    app.user = user;
-    return Promise.all([
-        ds.set('/config', config),
-        ds.set('user', user),
-        _setCSRFToken(csrftoken)
-    ]).then(function() {
-        router.store.dispatch({
-            type: LOGIN,
-            payload: user
-        });
-    });
+    switch (action.type) {
+        case LOGIN_SUCCESS:
+        case LOGIN_RELOAD: {
+            const { user, config, csrftoken } = action.payload;
+            return { user, config, csrftoken };
+        }
+        case LOGOUT: {
+            const { csrftoken } = action.payload || {};
+            if (csrftoken) {
+                return { csrftoken };
+            } else {
+                return {};
+            }
+        }
+        case CSRFTOKEN: {
+            const { csrftoken } = action.payload;
+            return {
+                ...state,
+                csrftoken
+            };
+        }
+        default: {
+            return state;
+        }
+    }
 }
 
 function _checkLogin() {
-    if (!app.can_login) {
-        return;
-    }
     setTimeout(function() {
         ds.fetch('/login').then(function(result) {
             if (result && result.user && result.config) {
-                _saveLogin(result);
-            } else if (result && app.user) {
-                app.logout();
-            } else if (result && result.csrftoken) {
-                _setCSRFToken(result.csrftoken);
+                ds.dispatch({
+                    type: LOGIN_RELOAD,
+                    payload: result
+                });
+            } else {
+                const { csrftoken } = result || {};
+                ds.dispatch({
+                    type: app.user ? LOGOUT : CSRFTOKEN,
+                    payload: {
+                        csrftoken
+                    }
+                });
             }
         });
     }, 10);
@@ -1745,8 +1731,12 @@ function _default_attachments(field, context) {
 }
 
 // Load configuration based on page id
-function _getConf(page, silentFail) {
-    var conf = app.wq_config.pages[page];
+function _getBaseConf(page) {
+    return _getConf(page, false, true);
+}
+
+function _getConf(page, silentFail, baseConf) {
+    var conf = (baseConf ? app.config : app.wq_config).pages[page];
     if (!conf) {
         if (silentFail) {
             return;

@@ -1,2 +1,3 @@
-import outbox from './src/outbox.js';
+import outbox, { Outbox, getOutbox } from './src/outbox.js';
 export default outbox;
+export { Outbox, getOutbox };

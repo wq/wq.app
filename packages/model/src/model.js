@@ -207,9 +207,13 @@ class Model {
         this.functions = config.functions || {};
     }
 
+    expandActionType(type) {
+        return `${this.orm.prefix}_${this.name.toUpperCase()}_${type}`;
+    }
+
     dispatch(type, payload) {
         const action = {
-            type: `${this.orm.prefix}_${this.name.toUpperCase()}_${type}`,
+            type: this.expandActionType(type),
             payload: payload
         };
         return this.store.dispatch(action);

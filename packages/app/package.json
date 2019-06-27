@@ -34,5 +34,8 @@
     "@wq/store": "^1.1.2",
     "@wq/template": "^1.1.2",
     "localforage": "^1.7.3"
+  },
+  "devDependencies": {
+    "promise.prototype.finally": "^3.1.0"
   }
 }

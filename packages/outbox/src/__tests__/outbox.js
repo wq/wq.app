@@ -5,9 +5,12 @@
 import store from '@wq/store';
 import outboxMod from '../outbox';
 import model from '@wq/model';
+import promiseFinally from 'promise.prototype.finally';
 
 const ds = store.getStore('outbox-test');
 const outbox = outboxMod.getOutbox(ds);
+
+promiseFinally.shim();
 
 ['item', 'itemtype', 'attribute'].forEach(name => {
     model({
@@ -24,7 +27,14 @@ ds.init({
     }
 });
 
-outbox.init({});
+beforeAll(async () => {
+    await ds.ready;
+    outbox.init({});
+});
+
+beforeEach(async () => {
+    await outbox.empty();
+});
 
 test('form with no explicit storage', async () => {
     await testOutbox({
@@ -80,7 +90,8 @@ test('form with storage=temporary', async () => {
             id: 1,
             synced: false,
             options: {
-                storage: 'temporary'
+                storage: 'temporary',
+                once: true
             }
         },
         expectStored: null
@@ -88,11 +99,11 @@ test('form with storage=temporary', async () => {
 });
 
 async function testOutbox(test) {
-    await outbox.model.overwrite([]);
-    await outbox.save(test.data, test.options, true);
+    await outbox.pause();
+    await outbox.save(test.data, test.options);
 
-    const actualOutbox = await outbox.model.load(),
-        actualStored = await ds.get('outbox_1'),
+    const actualOutbox = await outbox.loadItems(),
+        actualStored = await ds.lf.getItem('outbox_1'),
         actualItem = await outbox.loadItem(1);
 
     const expectOutbox = {
@@ -115,10 +126,9 @@ test('handle 200 success', async () => {
             url: 'status/200'
         }
     };
-    await outbox.model.overwrite([]);
-    await outbox.save(simple.data, simple.options, true);
-    await outbox.sendAll();
-    const syncedOutbox = await outbox.model.load();
+    await outbox.save(simple.data, simple.options);
+    await outbox.waitForItem(1);
+    const syncedOutbox = await outbox.loadItems();
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
@@ -140,15 +150,14 @@ test('handle 400 error', async () => {
             url: 'status/400'
         }
     };
-    await outbox.model.overwrite([]);
-    await outbox.save(simple.data, simple.options, true);
-    await outbox.sendAll();
-    const syncedOutbox = await outbox.model.load();
+    await outbox.save(simple.data, simple.options);
+    await outbox.waitForItem(1);
+    const syncedOutbox = await outbox.loadItems();
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
         synced: false,
-        retryCount: 1,
+        // retryCount: 1,
         error: {
             label: 'Test'
         },
@@ -162,18 +171,18 @@ test('handle 500 error', async () => {
             label: 'Test'
         },
         options: {
-            url: 'status/500'
+            url: 'status/500',
+            once: true
         }
     };
-    await outbox.model.overwrite([]);
-    await outbox.save(simple.data, simple.options, true);
-    await outbox.sendAll();
-    const syncedOutbox = await outbox.model.load();
+    await outbox.save(simple.data, simple.options);
+    await outbox.waitForItem(1);
+    const syncedOutbox = await outbox.loadItems();
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
         synced: false,
-        retryCount: 1,
+        // retryCount: 1,
         error: 'SERVER ERROR',
         ...simple
     });
@@ -214,11 +223,11 @@ test('sync dependent records in order', async () => {
     };
 
     // Save three records to outbox
-    await outbox.model.overwrite([]);
-    await outbox.save(itemtype.data, itemtype.options, true);
-    await outbox.save(attribute.data, attribute.options, true);
-    await outbox.save(item.data, item.options, true);
-    expect(await outbox.model.load()).toEqual({
+    await outbox.pause();
+    await outbox.save(itemtype.data, itemtype.options);
+    await outbox.save(attribute.data, attribute.options);
+    await outbox.save(item.data, item.options);
+    expect(await outbox.loadItems()).toEqual({
         list: [
             {
                 id: 3,
@@ -247,8 +256,9 @@ test('sync dependent records in order', async () => {
 
     // Sync records.  sendAll() should automatically sync the parent
     // records (itemtype, attribute) before syncing item.
-    await outbox.sendAll();
-    const syncedOutbox = await outbox.model.load();
+    await outbox.resume();
+    await outbox.waitForAll();
+    const syncedOutbox = await outbox.loadItems();
 
     // All records should now be synced and have results
     let results = {};

@@ -6,7 +6,7 @@ import {
     bindActionCreators
 } from 'redux';
 import logger from 'redux-logger';
-import { persistStore, persistReducer } from 'redux-persist';
+import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import localForage from 'localforage';
 import 'whatwg-fetch';
 
@@ -37,7 +37,9 @@ class Store {
 
     // Registered redux functions
     #reducers = {};
+    #enhanceReducers = [];
     #persistKeys = [];
+    #transforms = [];
     #middleware = [];
     #enhancers = [];
     #subscribers = [];
@@ -87,16 +89,22 @@ class Store {
         var storeReady;
         self.ready = new Promise(resolve => (storeReady = resolve));
 
-        const reducer = combineReducers(this.#reducers);
+        var reducer = combineReducers(this.#reducers);
+        this.#enhanceReducers.forEach(enhanceReducer => {
+            reducer = enhanceReducer(reducer);
+        });
         const enhancers = compose(
             ...this.#enhancers,
             applyMiddleware(...this.#middleware)
         );
 
+        this.lf = localForage.createInstance({ name: this.name });
+
         const persistConfig = {
-            key: this.name,
-            storage: localForage,
+            key: 'root',
+            storage: this.lf,
             serialize: false,
+            transforms: this.#transforms,
             whitelist: this.#persistKeys,
             writeFailHandler: error => this.storageFail(error)
         };
@@ -132,10 +140,26 @@ class Store {
         return this._store.getState();
     }
 
-    addReducer(name, reducer, persist) {
+    addReducer(name, reducer, persist, deserialize) {
         this.#reducers[name] = reducer;
         if (persist) {
-            this.#persistKeys.push(name);
+            this.persistKey(name, persist, deserialize);
+        }
+    }
+
+    addEnhanceReducer(name, enhanceReducer, persist, deserialize) {
+        this.#enhanceReducers.push(enhanceReducer);
+        if (persist) {
+            this.persistKey(name, persist, deserialize);
+        }
+    }
+
+    persistKey(name, serialize, deserialize) {
+        this.#persistKeys.push(name);
+        if (serialize && deserialize) {
+            this.#transforms.push(
+                createTransform(serialize, deserialize, { whitelist: [name] })
+            );
         }
     }
 
@@ -345,7 +369,11 @@ class Store {
             headers: headers
         }).then(response => {
             if (response.ok) {
-                return response.json();
+                if (response.status === 204) {
+                    return null;
+                } else {
+                    return response.json();
+                }
             } else {
                 return response.text().then(result => {
                     var error = new Error();

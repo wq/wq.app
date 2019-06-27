@@ -5,12 +5,14 @@
 import app from '../app';
 import patterns from '../patterns';
 import photos from '../photos';
-import outbox from '@wq/outbox';
 import router from '@wq/router';
 import routeConfig from './config.json';
 import templates from './templates.json';
 import jQM from '@wq/jquery-mobile';
 import { encode } from '@wq/outbox/vendor/json-forms';
+import promiseFinally from 'promise.prototype.finally';
+
+promiseFinally.shim();
 
 var $, jqm;
 
@@ -90,11 +92,12 @@ test('item edit page', async () => {
 
     // Submit form, confirm data is in outbox
     await app.emptyOutbox();
+    await app.outbox.pause();
     $page.find('input#values-0-value').val('Test Change');
     $page = await submitForm($page);
 
     expect(jqm.activePage.data('url')).toBe('/tests/items/');
-    const obdata = await outbox.model.load();
+    const obdata = await app.outbox.loadItems();
     expect(obdata.list).toHaveLength(1);
     var obitem = obdata.list[0];
     expect(obitem.options.url).toBe('items/two');

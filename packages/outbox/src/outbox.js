@@ -1,37 +1,65 @@
 import ds from '@wq/store';
 import model from '@wq/model';
 import { convert } from '../vendor/json-forms';
+import { createOffline } from '@redux-offline/redux-offline';
+import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
+import { RESET_STATE } from '@redux-offline/redux-offline/lib/constants';
+import { busy } from '@redux-offline/redux-offline/lib/actions';
+
+const { discard: defaultDiscard, retry: defaultRetry } = offlineConfig;
+
+const REMOVE_ITEMS = '@@REMOVE_OUTBOX_ITEMS',
+    RETRY_ITEMS = '@@RETRY_OUTBOX_ITEMS',
+    POST = 'POST',
+    DELETE = 'DELETE',
+    SUBMIT = 'SUBMIT',
+    SUCCESS = 'SUCCESS',
+    UPDATE = 'UPDATE',
+    ERROR = 'ERROR',
+    FORM_SUBMIT = 'FORM_SUBMIT',
+    FORM_SUCCESS = 'FORM_SUCCESS',
+    FORM_ERROR = 'FORM_ERROR';
 
 var _outboxes = {};
-var outbox = new _Outbox(ds);
 
-outbox.getOutbox = function(store) {
-    if (_outboxes[store.name]) {
-        return _outboxes[store.name];
-    } else {
-        return new _Outbox(store);
+class Outbox {
+    constructor(store) {
+        _outboxes[store.name] = this;
+        this.store = store;
+        store.outbox = this;
+        const { middleware, enhanceReducer, enhanceStore } = createOffline({
+            ...offlineConfig,
+            effect: (effect, action) => this._effect(effect, action),
+            discard: (error, action, retries) =>
+                this._discard(error, action, retries),
+            retry: (action, retries) => this._retry(action, retries),
+            queue: {
+                enqueue: (array, item, context) =>
+                    this._enqueue(array, item, context),
+                dequeue: (array, item, context) =>
+                    this._dequeue(array, item, context),
+                peek: (array, item, context) => this._peek(array, item, context)
+            },
+            persist: false // Handled in store
+        });
+        store.addMiddleware(middleware);
+        store.addEnhanceReducer(
+            'offline',
+            enhanceReducer,
+            state => this._serialize(state),
+            state => this._deserialize(state)
+        );
+        store.addEnhancer(enhanceStore);
+
+        store.subscribe(() => this._onUpdate());
+        this.syncMethod = POST;
+        this.cleanOutbox = true;
+        this.maxRetries = 10;
+        this.csrftoken = null;
+        this.csrftokenField = 'csrfmiddlewaretoken';
     }
-};
 
-export default outbox;
-
-function _Outbox(store) {
-    var self = (_outboxes[store.name] = this);
-
-    self.store = store;
-    store.outbox = self;
-    self.model = model({ name: 'outbox', store: store });
-    self.model.update = _wrapUpdate(self.model.update.bind(self.model));
-    self.model.overwrite = _wrapOverwrite(
-        self.model.overwrite.bind(self.model)
-    );
-    self.syncMethod = 'POST';
-    self.cleanOutbox = true;
-    self.maxRetries = 3;
-    self.csrftoken = null;
-    self.csrftokenField = 'csrfmiddlewaretoken';
-
-    self.init = function(opts) {
+    init(opts) {
         var optlist = [
             // Default to store values but allow overriding
             'service',
@@ -53,142 +81,233 @@ function _Outbox(store) {
             'updateModels',
             'parseBatchResult'
         ];
-        optlist.forEach(function(opt) {
-            if (self.store.hasOwnProperty(opt)) {
-                self[opt] = self.store[opt];
+
+        optlist.forEach(opt => {
+            if (this.store.hasOwnProperty(opt)) {
+                this[opt] = this.store[opt];
             }
             if (opts && opts.hasOwnProperty(opt)) {
-                self[opt] = opts[opt];
+                this[opt] = opts[opt];
             }
         });
 
-        if (self.cleanOutbox) {
+        if (this.cleanOutbox) {
             // Clear out successfully synced items from previous runs, if any
             // FIXME: should we hold up init until this is done?
-            self.unsyncedItems().then(self.model.overwrite);
+            this.loadItems()
+                .then(items => {
+                    this.removeItems(
+                        items.list
+                            .filter(
+                                item =>
+                                    item.synced ||
+                                    (item.options.storage === 'temporary' &&
+                                        !item.options.desiredStorage)
+                            )
+                            .map(item => item.id)
+                    );
+                })
+                .then(() => this._cleanUpItemData);
         }
 
-        if (self.batchService && !self.parseBatchResult) {
-            self.parseBatchResult = self.store.parseData;
+        if (this.batchService && !this.parseBatchResult) {
+            this.parseBatchResult = this.store.parseData;
         }
-    };
+    }
 
-    self.setCSRFToken = function(csrftoken) {
-        self.csrftoken = csrftoken;
-    };
+    setCSRFToken(csrftoken) {
+        this.csrftoken = csrftoken;
+    }
 
     // Queue data for server use; use outbox to cache unsynced items
-    self.save = function(data, options, noSend) {
-        if (!options) {
+    async save(data, options, noSend) {
+        if (noSend) {
+            throw new Error(
+                'outbox.save() noSend arg no longer supported; use outbox.pause() instead'
+            );
+        }
+        if (options) {
+            options = { ...options };
+        } else {
             options = {};
         }
         if (options.storage === 'inline') {
             delete options.storage;
         }
-        if (!self.validate(data, options)) {
-            return Promise.resolve(null);
+        if (options.storage === 'temporary') {
+            options.once = true;
         }
-        var getItem;
-        if (options.id) {
-            getItem = self.loadItem(options.id).then(function(item) {
-                if (item && !item.synced) {
-                    // reuse existing item
-                    (options.preserve || []).forEach(function(field) {
-                        if (data[field] === undefined) {
-                            data[field] = item.data[field];
-                        }
-                    });
-                    item.data = data;
-                    item.retryCount = 0;
-                    item.error = null;
-                    item.options = options;
-                    return item;
-                } else {
-                    return newItem();
-                }
-            });
-        } else {
-            getItem = newItem();
+        if (!this.validate(data, options)) {
+            return null;
         }
 
-        function newItem() {
-            return self.model.load().then(function(obdata) {
-                var maxId = 0;
-                obdata.list.forEach(function(obj) {
-                    if (obj.id > maxId) {
-                        maxId = obj.id;
+        // FIXME: What if next id changes during await?
+        const id =
+            options.id ||
+            (this.store.getState().offline.lastTransaction || 0) + 1;
+        const item = await this._updateItemData({ id, data, options });
+        data = item.data;
+        options = item.options;
+
+        var type, payload, commitType, rollbackType;
+        const model = this._getModel(options.modelConf);
+        if (model) {
+            if (options.method === DELETE && options.url) {
+                const deletedId = options.url.replace(
+                    options.modelConf.url + '/',
+                    ''
+                );
+                commitType = model.expandActionType(DELETE);
+                type = commitType + SUBMIT;
+                rollbackType = commitType + ERROR;
+                payload = deletedId;
+            } else {
+                type = model.expandActionType(SUBMIT);
+                commitType = model.expandActionType(UPDATE);
+                rollbackType = model.expandActionType(ERROR);
+            }
+        } else if (options.modelConf) {
+            const name = options.modelConf.name.toUpperCase();
+            type = `${name}_${SUBMIT}`;
+            commitType = `${name}_${SUCCESS}`;
+            rollbackType = `${name}_${ERROR}`;
+        } else {
+            type = FORM_SUBMIT;
+            commitType = FORM_SUCCESS;
+            rollbackType = FORM_ERROR;
+        }
+
+        this.store.dispatch({
+            type,
+            payload,
+            meta: {
+                offline: {
+                    effect: { data, options },
+                    commit: { type: commitType },
+                    rollback: { type: rollbackType }
+                }
+            }
+        });
+
+        const items = await this.loadItems();
+        // FIXME: Double check that this is the same record just submitted
+        return items.list[0];
+    }
+
+    _enqueue(array, action, context) {
+        const { offline } = action.meta,
+            { data, options } = offline.effect;
+        if (options.id) {
+            const exist = array.find(act => act.meta.outboxId === options.id);
+            if (exist) {
+                (options.preserve || []).forEach(field => {
+                    if (data[field] === undefined) {
+                        data[field] = exist.meta.offline.effect.data[field];
                     }
                 });
-                return {
-                    data: data,
-                    synced: false,
-                    id: maxId + 1,
-                    options: options
-                };
-            });
+                array = array.filter(act => act.meta.outboxId !== options.id);
+            }
+        } else {
+            options.id = action.meta.transaction;
+        }
+        action.meta.outboxId = options.id;
+
+        if (!offline.commit) {
+            offline.commit = { type: `${action.type}_${SUCCESS}` };
+        }
+        if (!offline.commit.meta) {
+            offline.commit.meta = {};
         }
 
-        return getItem.then(function(item) {
-            if (item.options.label) {
-                item.label = item.options.label;
-                delete item.options.label;
-            }
-            Object.keys(data).forEach(function(key) {
-                var match =
-                    data[key].match && data[key].match(/^outbox-(\d+)$/);
-                if (match) {
-                    if (!item.parents) {
-                        item.parents = [];
-                    }
-                    item.parents.push(+match[1]);
-                }
-            });
+        if (!offline.rollback) {
+            offline.rollback = { type: `${action.type}_${SUCCESS}` };
+        }
+        if (!offline.rollback.meta) {
+            offline.rollback.meta = {};
+        }
 
-            return self.model.update([item]).then(function() {
-                if (noSend) {
-                    return item;
-                } else {
-                    return self.sendItem(item);
+        // Copy action but exclude commit/rollback (to avoid recursive nesting)
+        const offlineAction = {
+            ...action,
+            meta: {
+                ...action.meta,
+                offline: {
+                    effect: offline.effect
                 }
-            });
+            }
+        };
+
+        offline.commit.meta.offlineAction = offlineAction;
+        offline.rollback.meta.offlineAction = offlineAction;
+
+        Object.keys(data || {}).forEach(key => {
+            var match = data[key].match && data[key].match(/^outbox-(\d+)$/);
+            if (match) {
+                if (!action.meta.parents) {
+                    action.meta.parents = [];
+                }
+                action.meta.parents.push(+match[1]);
+            }
         });
-    };
+        return [...array, action];
+    }
 
     // Validate a record before adding it to the outbox
-    self.validate = function(data, options) {
+    validate(data, options) {
         /* eslint no-unused-vars: off */
         return true;
-    };
+    }
 
     // Send a single item from the outbox to the server
-    self.sendItem = function(item, once) {
-        if (!item || item.synced || !item.data) {
-            return Promise.resolve(null);
-        } else if (item.parents && item.parents.length) {
-            return Promise.resolve(item);
+    sendItem() {
+        throw new Error(
+            'sendItem() no longer supported; use waitForItem() instead'
+        );
+    }
+    _peek(array, action, context) {
+        const pending = array.filter(act => {
+            if (act.meta.completed) {
+                return false;
+            }
+            if (act.meta.parents && act.meta.parents.length) {
+                return false;
+            }
+            return true;
+        });
+        if (this.batchService) {
+            // FIXME: Generate batch request as a single action, which will
+            // generate multiple commit/rollback actions after sync.
+            throw new Error('FIXME: Not implemented');
+        } else {
+            return pending[0];
         }
-
-        var data = item.data;
-        var options = item.options;
-        var url = self.service;
+    }
+    async _effect({ data, options }, action) {
+        const item = await this._loadItemData({
+            id: options.id,
+            data,
+            options
+        });
+        data = item.data;
+        var url = this.service;
         if (options.url) {
             url = url + '/' + options.url;
         }
-        var method = options.method || self.syncMethod;
+        var method = options.method || this.syncMethod;
         var headers = {};
 
         // Use current CSRF token in case it's changed since item was saved
-        var csrftoken = self.csrftoken || options.csrftoken;
+        var csrftoken = this.csrftoken || options.csrftoken;
         if (csrftoken) {
             headers['X-CSRFToken'] = csrftoken;
             data = {
                 ...data,
-                [self.csrftokenField]: csrftoken
+                [this.csrftokenField]: csrftoken
             };
         }
 
-        var defaults = { ...self.defaults };
-        if (defaults.format && !self.formatKeyword) {
+        var defaults = { ...this.defaults };
+        if (defaults.format && !this.formatKeyword) {
             url = url.replace(/\/$/, '');
             url += '.' + defaults.format;
             delete defaults.format;
@@ -198,9 +317,9 @@ function _Outbox(store) {
             urlObj.searchParams.append(key, value)
         );
 
-        if (self.debugNetwork) {
+        if (this.debugNetwork) {
             console.log('Sending item to ' + urlObj.href);
-            if (self.debugValues) {
+            if (this.debugValues) {
                 console.log(data);
             }
         }
@@ -231,323 +350,351 @@ function _Outbox(store) {
             }
         }
 
-        return self.store
-            .ajax(urlObj, formData, method, headers)
-            .then(success, error);
-
-        function success(result) {
-            if (self.debugNetwork) {
-                console.log('Item successfully sent to ' + url);
-            }
-            self.applyResult(item, result);
-            if (!item.synced) {
-                // sendItem did not result in sync
-                item.retryCount = item.retryCount || 0;
-                item.retryCount++;
-            }
-            return self
-                .updateModels(item, result)
-                .then(function() {
-                    return self.model.filter({ parents: [item.id] });
-                })
-                .then(function(relItems) {
-                    return Promise.all(relItems.map(_loadItemData));
-                })
-                .then(function(relItems) {
-                    relItems.forEach(function(relItem) {
-                        relItem.parents = relItem.parents.filter(function(p) {
-                            return p != item.id;
-                        });
-                        Object.keys(relItem.data).forEach(function(key) {
-                            if (relItem.data[key] === 'outbox-' + item.id) {
-                                relItem.data[key] = result.id;
-                            }
-                        });
-                    });
-                    relItems.push(_withoutData(item));
-                    return self.model.update(relItems);
-                })
-                .then(function() {
-                    return item;
-                });
-        }
-
-        function error(error) {
-            if (self.debugNetwork) {
-                console.warn('Error sending item to ' + url);
-                console.error(error);
-            }
-            if (error) {
-                error = error.json || error.text || error.status || '' + error;
+        return this.store.ajax(urlObj, formData, method, headers).then(res => {
+            if (!res && method === DELETE) {
+                return action.payload;
             } else {
-                error = 'Error';
+                return res;
             }
-            item.error = error;
-            if (once) {
-                item.locked = true;
-            }
-            item.retryCount = item.retryCount || 0;
-            item.retryCount++;
-            return self.model.update([_withoutData(item)]).then(function() {
-                return item;
-            });
-        }
-    };
-
-    self.removeItem = function(id) {
-        return self.model.remove(id);
-    };
-
-    // Send all unsynced items, using batch service if available
-    self.sendAll = function(retryAll) {
-        var fn = retryAll ? self.unsyncedItems : self.pendingItems,
-            result = fn(null, true);
-
-        // Utilize batch service if it exists
-        if (self.batchService) {
-            return result.then(self.sendBatch);
-        } else {
-            return result.then(self.sendItems);
-        }
-    };
-
-    // Send items to a batch service on the server
-    self.sendBatch = function(items) {
-        if (!items.length) {
-            return Promise.resolve(items);
-        }
-
-        var data = [];
-        items.forEach(function(item) {
-            data.push(item.data);
         });
+    }
 
-        /* global $ */
-
-        return Promise.resolve(
-            $.ajax(self.batchService, {
-                data: JSON.stringify(data),
-                type: 'POST',
-                dataType: 'json',
-                contentType: 'application/json',
-                async: true
-            })
-        ).then(
-            function(r) {
-                var results = self.parseBatchResult(r);
-                if (!results || results.length != items.length) {
-                    return null;
-                }
-
-                // Apply sync results to individual items
-                results.forEach(function(result, i) {
-                    var item = items[i];
-                    self.applyResult(item, result);
-                    if (!item.synced) {
-                        item.retryCount = item.retryCount || 0;
-                        item.retryCount++;
+    _updateParents(item, outboxId, resultId) {
+        if (item.meta.parents.indexOf(outboxId) === -1) {
+            return item;
+        }
+        const data = { ...item.meta.offline.effect.data };
+        Object.keys(data).forEach(key => {
+            if (data[key] === 'outbox-' + outboxId) {
+                data[key] = resultId;
+            }
+        });
+        return {
+            ...item,
+            meta: {
+                ...item.meta,
+                offline: {
+                    ...item.meta.offline,
+                    effect: {
+                        ...item.meta.offline.effect,
+                        data
                     }
-                });
-
-                return self.model.update(items).then(function() {
-                    return items;
-                });
-            },
-            function() {
-                return null;
+                },
+                parents: item.meta.parents.filter(pid => pid != outboxId)
             }
-        );
-    };
+        };
+    }
 
-    self.sendItems = function(items) {
-        // No batch service; emulate batch mode by sending each item to
-        // the server and summarizing the result
-
-        if (!items.length) {
-            return Promise.resolve(items);
+    _discard(error, action, retries) {
+        const { options } = action.meta.offline.effect;
+        if (this.debugNetwork) {
+            console.warn('Error sending item to ' + options.url);
+            console.error(error);
         }
 
-        // Sort items into those that are ready to be sent now vs. those that
-        // are pending on another item.
-        var allIds = [],
-            pendingIds = [],
-            readyItems = [];
-        items.forEach(function(item) {
-            allIds.push(item.id);
-            if (item.parents && item.parents.length) {
-                pendingIds.push(item.id);
-            } else {
-                readyItems.push(item);
+        return defaultDiscard(error, action, retries || 0);
+    }
+
+    _retry(action, retries) {
+        const { options } = action.meta.offline.effect;
+        if (options.once) {
+            return null;
+        } else if (retries > this.maxRetries) {
+            return null;
+        }
+        return defaultRetry(action, retries);
+    }
+
+    removeItem(id) {
+        return this.removeItems([id]);
+    }
+
+    removeItems(ids) {
+        return this.store.dispatch({
+            type: REMOVE_ITEMS,
+            payload: ids,
+            meta: {
+                completed: true
             }
         });
+    }
 
-        // Send ready items and retrieve results
-        var results = readyItems.map(function(item) {
-            return self.sendItem(item);
+    async empty() {
+        this.store.dispatch({ type: RESET_STATE });
+        await this._cleanUpItemData();
+    }
+
+    retryItem(id) {
+        return this.retryItems([id]);
+    }
+
+    retryItems(ids) {
+        return this.store.dispatch({
+            type: RETRY_ITEMS,
+            payload: ids,
+            meta: {
+                completed: true
+            }
         });
+    }
 
-        return Promise.all(results)
-            .then(function() {
-                // Now try sending previously pending items (unless there are
-                // only pending items, in which case something has gone wrong)
-                if (pendingIds.length == allIds.length) {
-                    return;
+    async retryAll() {
+        const unsynced = await this.unsyncedItems();
+        this.retryItems(unsynced.map(item => item.id));
+        await this.waitForAll();
+    }
+
+    sendAll() {
+        throw new Error(
+            'sendall() no longer supported; use retryAll() and/or waitForAll() instead'
+        );
+    }
+
+    _dequeue(array, action, context) {
+        if (action.type === REMOVE_ITEMS) {
+            return array.filter(
+                item => action.payload.indexOf(item.meta.outboxId) === -1
+            );
+        } else if (action.type === RETRY_ITEMS) {
+            return array.map(item => {
+                if (action.payload.indexOf(item.meta.outboxId) === -1) {
+                    return item;
+                } else {
+                    return {
+                        ...item,
+                        meta: {
+                            ...item.meta,
+                            completed: false,
+                            success: undefined
+                        }
+                    };
                 }
-                return self.model
-                    .filter({ id: pendingIds })
-                    .then(function(items) {
-                        return Promise.all(items.map(_loadItemData));
-                    })
-                    .then(self.sendItems);
-            })
-            .then(function() {
-                // Reload data and return final result
-                return self.model.filter({ id: allIds });
             });
-    };
+        } else if (action.meta.offlineAction) {
+            // Mark status but don't remove item completely
+            const outboxId = action.meta.offlineAction.meta.outboxId;
+            if (!outboxId) {
+                return array;
+            }
+            return array.map(item => {
+                if (item.meta.outboxId === outboxId) {
+                    return this._applyResult(item, action);
+                } else if (item.meta.parents && action.meta.success) {
+                    return this._updateParents(
+                        item,
+                        outboxId,
+                        action.payload.id
+                    );
+                } else {
+                    return item;
+                }
+            });
+        } else {
+            return array;
+        }
+    }
+
+    pause() {
+        this.store.dispatch(busy(true));
+    }
+
+    resume() {
+        this.store.dispatch(busy(false));
+    }
+
+    #_waiting = {};
+
+    waitForAll() {
+        return this.waitForItem('ALL');
+    }
+
+    waitForItem(id) {
+        var resolve;
+        const promise = new Promise(res => (resolve = res));
+        if (!this.#_waiting[id]) {
+            this.#_waiting[id] = [];
+        }
+        this.#_waiting[id].push(resolve);
+        return promise;
+    }
+
+    async _onUpdate() {
+        if (!Object.keys(this.#_waiting).length) {
+            return;
+        }
+        const pending = await this.pendingItems();
+        if (!pending.length) {
+            this._resolveWaiting('ALL');
+        }
+        const pendingById = {};
+        pending.forEach(item => (pendingById[item.id] = true));
+        Object.keys(this.#_waiting).forEach(id => {
+            if (!pendingById[id] && id != 'ALL') {
+                this._resolveWaiting(id);
+            }
+        });
+    }
+
+    async _resolveWaiting(id) {
+        const waiting = this.#_waiting[id];
+        if (!waiting) {
+            return;
+        }
+        const item = id === 'ALL' ? null : await this.loadItem(+id);
+        waiting.forEach(fn => fn(item));
+        delete this.#_waiting[id];
+    }
 
     // Process service send() results
-    // (override to apply additional result attributes to item,
-    //  but be sure to set item.synced)
-    self.applyResult = function(item, result) {
-        // Default: assume non-empty result means the sync was successful
-        if (result) {
-            item.synced = true;
-            item.result = result;
-        } else if (item.options.method == 'DELETE') {
-            item.synced = true;
-            if (item.options.modelConf) {
-                item.deletedId = item.options.url.replace(
-                    item.options.modelConf.url + '/',
-                    ''
+    _applyResult(item, action) {
+        if (this.applyResult) {
+            console.warn('applyResult() override no longer called');
+        }
+        const newItem = {
+            ...item,
+            meta: {
+                ...item.meta,
+                success: action.meta.success,
+                completed: true
+            }
+        };
+        if (newItem.meta.success) {
+            if (this.debugNetwork) {
+                console.log(
+                    'Item successfully sent to ' +
+                        item.meta.offline.effect.options.url
                 );
             }
-        }
-    };
-
-    // Update any corresponding models with synced data
-    self.updateModels = function(item, result) {
-        if (item.options.modelConf && item.synced) {
-            var conf = {
-                store: self.store,
-                ...item.options.modelConf
-            };
-            if (item.deletedId) {
-                return this.getModel(conf).remove(item.deletedId);
-            } else {
-                return this.getModel(conf)
-                    .update([result])
-                    .then(function() {
-                        return result;
-                    });
-            }
+            newItem.meta.result = action.payload;
         } else {
-            return Promise.resolve();
+            newItem.meta.error = action.payload;
         }
-    };
+        return newItem;
+    }
 
-    self.getModel = function(conf) {
+    _getModel(conf) {
+        if (!conf || !conf.name || !conf.list) {
+            return null;
+        }
         return model({
-            store: self.store,
+            store: this.store,
             ...conf
         });
-    };
+    }
+
+    async loadItems() {
+        const actions = this.store.getState().offline.outbox;
+        const items = actions
+            .map(action => {
+                const { data, options } = action.meta.offline.effect;
+                var item = {
+                    id: options.id,
+                    data: data,
+                    options: { ...options },
+                    synced: !!action.meta.success
+                };
+                delete item.options.id;
+                if (action.meta.parents) {
+                    item.parents = action.meta.parents;
+                }
+                if (action.meta.success) {
+                    item.result = action.meta.result;
+                } else if (action.meta.completed) {
+                    const error = action.meta.error;
+                    if (error) {
+                        item.error =
+                            error.json ||
+                            error.text ||
+                            error.status ||
+                            '' + error;
+                    } else {
+                        item.error = 'Error';
+                    }
+                }
+                return item;
+            })
+            .sort((a, b) => {
+                return b.id - a.id;
+            });
+        return {
+            list: items,
+            count: items.length,
+            pages: 1,
+            per_page: items.length
+        };
+    }
 
     // Count of unsynced outbox items (never synced, or sync was unsuccessful)
-    self.unsynced = function(modelConf) {
-        return self.unsyncedItems(modelConf).then(function(items) {
-            return items.length;
-        });
-    };
+    async unsynced(modelConf) {
+        const items = await this.unsyncedItems(modelConf);
+        return items.length;
+    }
 
     // Actual unsynced items
-    self.unsyncedItems = function(modelConf, withData) {
-        var result = self.model.filter({ synced: false });
+    async unsyncedItems(modelConf, withData) {
+        var items = (await this.loadItems()).list.filter(item => !item.synced);
 
         // Exclude temporary items from list
-        result = result.then(function(items) {
-            return items.filter(function(item) {
-                if (item.options.storage == 'temporary') {
-                    if (item.options.desiredStorage) {
-                        return true;
-                    }
-                    return false;
-                } else {
+        items = items.filter(item => {
+            if (item.options.storage == 'temporary') {
+                if (item.options.desiredStorage) {
                     return true;
                 }
-            });
+                return false;
+            } else {
+                return true;
+            }
         });
 
-        // Return all unsynced items by default
-        if (!modelConf) {
-            return result.then(loadData);
-        }
-
-        // Otherwise, only match items corresponding to the specified list
-        return result
-            .then(function(items) {
-                return items.filter(function(item) {
-                    if (!item.options.modelConf) {
+        if (modelConf)
+            // Only match items corresponding to the specified list
+            items = items.filter(item => {
+                if (!item.options.modelConf) {
+                    return false;
+                }
+                for (var key in modelConf) {
+                    if (item.options.modelConf[key] != modelConf[key]) {
                         return false;
                     }
-                    for (var key in modelConf) {
-                        if (item.options.modelConf[key] != modelConf[key]) {
-                            return false;
-                        }
-                    }
-                    return true;
-                });
-            })
-            .then(loadData);
-
-        function loadData(items) {
-            if (withData) {
-                return Promise.all(items.map(_loadItemData));
-            } else {
-                return items;
-            }
-        }
-    };
-
-    // Unsynced items that have been sent less than maxRetries times
-    self.pendingItems = function(modelConf, withData) {
-        return self.unsyncedItems(modelConf, withData).then(function(unsynced) {
-            var items = [];
-            unsynced.forEach(function(item) {
-                if (self.maxRetries && item.retryCount >= self.maxRetries) {
-                    return;
                 }
-                if (item.locked) {
-                    return;
-                }
-                items.push(item);
+                return true;
             });
+
+        if (withData) {
+            return await Promise.all(
+                items.map(item => this._loadItemData(item))
+            );
+        } else {
             return items;
+        }
+    }
+
+    // Unsynced items that have not been attempted (or retried)
+    async pendingItems(modelConf, withData) {
+        const unsynced = await this.unsyncedItems(modelConf, withData);
+        return unsynced.filter(item => {
+            return !item.hasOwnProperty('error');
         });
-    };
+    }
 
-    self.loadItem = function(itemId) {
-        return self.model
-            .find(itemId)
-            .then(_loadItemData)
-            .then(_parseJsonForm);
-    };
+    async loadItem(itemId) {
+        var item = (await this.loadItems()).list.find(
+            item => item.id === itemId
+        );
+        item = await this._loadItemData(item);
+        return this._parseJsonForm(item);
+    }
 
-    var _memoryItems = {};
-    function _loadItemData(item) {
+    #_memoryItems = {};
+    async _loadItemData(item) {
         if (!item || !item.options || !item.options.storage) {
             return item;
         } else if (item.options.storage == 'temporary') {
-            return setData(item, _memoryItems[item.id]);
+            return setData(item, this.#_memoryItems[item.id]);
         } else {
-            return self.store.get('outbox_' + item.id).then(
-                function(data) {
-                    return setData(item, data);
-                },
-                function() {
-                    return setData(item, null);
-                }
-            );
+            return this.store.lf
+                .getItem('outbox_' + item.id)
+                .then(data => setData(item, data), () => setData(item, null));
         }
         function setData(obj, data) {
             if (data) {
@@ -560,7 +707,10 @@ function _Outbox(store) {
         }
     }
 
-    function _parseJsonForm(item) {
+    _parseJsonForm(item) {
+        if (!item || !item.data) {
+            return item;
+        }
         var values = [],
             key;
         for (key in item.data) {
@@ -572,7 +722,7 @@ function _Outbox(store) {
         item.data = convert(values);
         for (key in item.data) {
             if (Array.isArray(item.data[key])) {
-                item.data[key].forEach(function(row, i) {
+                item.data[key].forEach((row, i) => {
                     row['@index'] = i;
                 });
             }
@@ -580,29 +730,7 @@ function _Outbox(store) {
         return item;
     }
 
-    function _wrapUpdate(defaultUpdate) {
-        return function(newData) {
-            return Promise.all(newData.map(_updateItemData)).then(function(
-                items
-            ) {
-                return defaultUpdate(items);
-            });
-        };
-    }
-
-    function _wrapOverwrite(defaultOverwrite) {
-        return function(newData) {
-            newData = self.model._processData(newData);
-            return Promise.all(newData.list.map(_updateItemData)).then(function(
-                items
-            ) {
-                _cleanUpItemData(items);
-                return defaultOverwrite(items);
-            });
-        };
-    }
-
-    function _updateItemData(item) {
+    async _updateItemData(item) {
         if (!item.data) {
             return item;
         }
@@ -610,24 +738,22 @@ function _Outbox(store) {
             return item;
         }
         if (item.options.storage == 'temporary') {
-            _memoryItems[item.id] = item.data;
-            return _withoutData(item);
+            this.#_memoryItems[item.id] = item.data;
+            return this._withoutData(item);
         } else {
-            return self.store.set('outbox_' + item.id, item.data).then(
-                function() {
-                    return _withoutData(item);
-                },
-                function() {
+            return this.store.lf.setItem('outbox_' + item.id, item.data).then(
+                () => this._withoutData(item),
+                () => {
                     console.warn('could not save form contents to storage');
                     item.options.desiredStorage = item.options.storage;
                     item.options.storage = 'temporary';
-                    return _updateItemData(item);
+                    return this._updateItemData(item);
                 }
             );
         }
     }
 
-    function _withoutData(item) {
+    _withoutData(item) {
         if (!item.data) {
             return item;
         }
@@ -636,36 +762,79 @@ function _Outbox(store) {
         }
         var obj = {};
         Object.keys(item)
-            .filter(function(key) {
+            .filter(key => {
                 return key != 'data';
             })
-            .forEach(function(key) {
+            .forEach(key => {
                 obj[key] = item[key];
             });
         return obj;
     }
 
-    function _cleanUpItemData(validItems) {
+    async _cleanUpItemData() {
         var validId = {};
-        validItems.forEach(function(item) {
+        const validItems = (await this.loadItems()).list;
+        validItems.forEach(item => {
             validId[item.id] = true;
         });
-        Object.keys(_memoryItems).forEach(function(itemId) {
+        Object.keys(this.#_memoryItems).forEach(itemId => {
             if (!validId[itemId]) {
-                delete _memoryItems[itemId];
+                delete this.#_memoryItems[itemId];
             }
         });
-        return self.store.keys().then(function(keys) {
-            return Promise.all(
-                keys.map(function(key) {
-                    if (key.indexOf('outbox_') === 0) {
-                        var itemId = key.replace('outbox_', '');
-                        if (!validId[itemId]) {
-                            return self.store.set(key, null);
-                        }
-                    }
-                })
-            );
+        const keys = await this.store.lf.keys();
+        await Promise.all(
+            keys
+                .filter(key => key.indexOf('outbox_') === 0)
+                .map(key => key.replace('outbox_', ''))
+                .filter(itemId => !validId[itemId])
+                .map(itemId => this.store.lf.removeItem('outbox_' + itemId))
+        );
+    }
+
+    _serialize(state) {
+        return {
+            ...state,
+            outbox: state.outbox.map(action => this._serializeAction(action))
+        };
+    }
+    _serializeAction(action) {
+        if (!action.meta || !action.meta.error) {
+            return action;
+        }
+        var error = {};
+        ['json', 'text', 'status'].forEach(key => {
+            if (key in action.meta.error) {
+                error[key] = action.meta.error[key];
+            }
         });
+        if (!Object.keys(error).length) {
+            error.text = '' + action.meta.error;
+        }
+        return {
+            ...action,
+            meta: {
+                ...action.meta,
+                error
+            }
+        };
+    }
+    _deserialize(state) {
+        return state;
     }
 }
+
+var outbox = new Outbox(ds);
+
+function getOutbox(store) {
+    if (_outboxes[store.name]) {
+        return _outboxes[store.name];
+    } else {
+        return new Outbox(store);
+    }
+}
+
+outbox.getOutbox = getOutbox;
+
+export default outbox;
+export { Outbox, getOutbox };

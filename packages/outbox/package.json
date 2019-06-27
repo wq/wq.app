@@ -25,10 +25,13 @@
   },
   "homepage": "https://wq.io/wq.app",
   "dependencies": {
+    "@redux-offline/redux-offline": "^2.5.1",
     "@wq/model": "^1.1.2",
-    "@wq/store": "^1.1.2"
+    "@wq/store": "^1.1.2",
+    "redux": "^4.0.1"
   },
   "devDependencies": {
-    "@wq/jest-env-jsdom-idb": "^0.1.1"
+    "@wq/jest-env-jsdom-idb": "^0.1.1",
+    "promise.prototype.finally": "^3.1.0"
   }
 }
