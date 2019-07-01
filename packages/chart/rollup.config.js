@@ -1,6 +1,6 @@
 import ignore from 'rollup-plugin-ignore';
 import pkg from './package.json';
-import { makeBanner, wqDeps, babel } from '../../rollup-utils.js';
+import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banners = {
     chart: makeBanner(pkg, 2013),
     chartapp: makeBanner(
@@ -26,7 +26,7 @@ export default [
     // ESM
     {
         input: 'packages/chart/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['d3', 'whatwg-fetch'],
         output: [
             {
@@ -39,7 +39,7 @@ export default [
     // CJS
     {
         input: 'packages/chart/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['d3', 'whatwg-fetch'],
         output: [
             {
@@ -53,7 +53,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/chart/src/chart.js',
-        plugins: [wqDeps(), babel()],
+        plugins: [wqDeps(), babelAMD()],
         external: ['d3'],
         output: [
             {
@@ -66,7 +66,7 @@ export default [
     },
     {
         input: 'packages/chart/src/chartapp.js',
-        plugins: [wqDeps(), ignore(['whatwg-fetch']), babel()],
+        plugins: [wqDeps(), ignore(['whatwg-fetch']), babelAMD()],
         external: ['d3', './chart', './pandas'],
         output: [
             {
@@ -79,7 +79,7 @@ export default [
     },
     {
         input: 'packages/chart/src/pandas.js',
-        plugins: [wqDeps(), ignore(['whatwg-fetch']), babel()],
+        plugins: [wqDeps(), ignore(['whatwg-fetch']), babelAMD()],
         external: ['d3'],
         output: [
             {

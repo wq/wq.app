@@ -1,5 +1,5 @@
 import pkg from './package.json';
-import { makeBanner, wqDeps, babel } from '../../rollup-utils.js';
+import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banners = {
     map: makeBanner(pkg, 2013),
     locate: makeBanner(
@@ -25,7 +25,7 @@ export default [
     // ESM
     {
         input: 'packages/map/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
         output: [
             {
@@ -38,7 +38,7 @@ export default [
     // CJS
     {
         input: 'packages/map/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
         output: [
             {
@@ -52,7 +52,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/map/src/map.js',
-        plugins: [wqDeps('.'), babel()],
+        plugins: [wqDeps('.'), babelAMD()],
         external: ['leaflet'],
         output: [
             {
@@ -66,7 +66,7 @@ export default [
     {
         input: 'packages/map/src/locate.js',
         external: ['leaflet'],
-        plugins: [babel()],
+        plugins: [babelAMD()],
         output: [
             {
                 banner: banners.locate,
@@ -79,7 +79,7 @@ export default [
     {
         input: 'packages/map/src/mapserv.js',
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms', './map'],
-        plugins: [babel()],
+        plugins: [babelAMD()],
         output: [
             {
                 banner: banners.mapserv,

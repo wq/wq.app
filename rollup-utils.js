@@ -54,17 +54,62 @@ export function makeBanner(pkg, startYear) {
 `;
 }
 
-export function babel() {
+export function babelNPM() {
     return babelPlugin({
         configFile: false,
+        presets: [
+            [
+                '@babel/preset-env',
+                {
+                    targets: {
+                        node: 8
+                    }
+                }
+            ]
+        ],
+        plugins: ['@babel/plugin-proposal-class-properties', generatorOverride]
+    });
+}
+
+export function babelAMD() {
+    const plugin = babelPlugin({
+        configFile: false,
+        presets: [
+            [
+                '@babel/preset-env',
+                {
+                    targets: {
+                        ie: '11'
+                    }
+                }
+            ]
+        ],
         plugins: [
-            '@babel/plugin-proposal-object-rest-spread',
-            '@babel/plugin-transform-computed-properties',
-            '@babel/plugin-transform-arrow-functions',
             '@babel/plugin-proposal-class-properties',
+            [
+                '@babel/plugin-transform-runtime',
+                {
+                    regenerator: true,
+                    helpers: false
+                }
+            ],
             generatorOverride
         ]
     });
+    const defaultResolveId = plugin.resolveId;
+    plugin.resolveId = path => {
+        const resolved = defaultResolveId(path);
+        if (resolved) {
+            return resolved;
+        }
+        if (path === '@babel/runtime/regenerator') {
+            return {
+                id: 'regenerator-runtime',
+                external: true
+            };
+        }
+    };
+    return plugin;
 }
 
 function generator(ast, opts, code) {

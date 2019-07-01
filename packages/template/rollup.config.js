@@ -1,12 +1,12 @@
 import pkg from './package.json';
-import { makeBanner, wqDeps, babel } from '../../rollup-utils.js';
+import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
 export default [
     // ESM
     {
         input: 'packages/template/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['mustache'],
         output: [
             {
@@ -19,7 +19,7 @@ export default [
     // CJS
     {
         input: 'packages/template/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['mustache'],
         output: [
             {
@@ -32,7 +32,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/template/index.js',
-        plugins: [wqDeps(), babel()],
+        plugins: [wqDeps(), babelAMD()],
         external: ['mustache'],
         output: [
             {

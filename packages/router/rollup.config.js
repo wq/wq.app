@@ -1,14 +1,14 @@
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import pkg from './package.json';
-import { makeBanner, wqDeps, babel } from '../../rollup-utils.js';
+import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
 export default [
     // ESM
     {
         input: 'packages/router/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['redux-first-router', 'query-string'],
         output: [
             {
@@ -22,7 +22,7 @@ export default [
     {
         input: 'packages/router/index.js',
         external: ['redux-first-router', 'query-string'],
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         output: [
             {
                 banner: banner,
@@ -35,8 +35,8 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/router/index.js',
-        plugins: [wqDeps(), babel(), resolve(), commonjs()],
-        external: ['redux-first-router'],
+        plugins: [wqDeps(), commonjs(), babelAMD(), resolve()],
+        external: ['redux', 'redux-first-router'],
         output: [
             {
                 banner: banner,

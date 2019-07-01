@@ -1,5 +1,5 @@
 import pkg from './package.json';
-import { makeBanner, wqDeps, babel } from '../../rollup-utils.js';
+import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banners = {
     app: makeBanner(pkg, 2012),
     patterns: makeBanner(
@@ -33,7 +33,7 @@ export default [
     // ESM
     {
         input: 'packages/app/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['localforage'],
         output: [
             {
@@ -46,7 +46,7 @@ export default [
     // CJS
     {
         input: 'packages/app/index.js',
-        plugins: [wqDeps('@wq'), babel()],
+        plugins: [wqDeps('@wq'), babelNPM()],
         external: ['localforage'],
         output: [
             {
@@ -60,7 +60,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/app/src/app.js',
-        plugins: [wqDeps('.'), babel()],
+        plugins: [wqDeps('.'), babelAMD()],
         external: ['./spinner'],
         output: [
             {
@@ -73,7 +73,7 @@ export default [
     },
     {
         input: 'packages/app/src/patterns.js',
-        plugins: [wqDeps('.'), babel()],
+        plugins: [wqDeps('.'), babelAMD()],
         output: [
             {
                 banner: banners.patterns,
@@ -85,7 +85,7 @@ export default [
     },
     {
         input: 'packages/app/src/photos.js',
-        plugins: [wqDeps('.'), babel()],
+        plugins: [wqDeps('.'), babelAMD()],
         external: ['localforage'],
         output: [
             {
@@ -98,7 +98,7 @@ export default [
     },
     {
         input: 'packages/app/src/spinner.js',
-        plugins: [babel()],
+        plugins: [babelAMD()],
         output: [
             {
                 banner: banners.spinner,

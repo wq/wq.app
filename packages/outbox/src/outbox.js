@@ -1,10 +1,7 @@
 import ds from '@wq/store';
 import model from '@wq/model';
 import { convert } from '../vendor/json-forms';
-import { createOffline } from '@redux-offline/redux-offline';
-import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
-import { RESET_STATE } from '@redux-offline/redux-offline/lib/constants';
-import { busy } from '@redux-offline/redux-offline/lib/actions';
+import { createOffline, offlineConfig, RESET_STATE, busy } from './offline';
 
 const { discard: defaultDiscard, retry: defaultRetry } = offlineConfig;
 

@@ -35,17 +35,28 @@ js_leaflet_draw:
 	cat packages/map/node_modules/leaflet-draw/dist/leaflet.draw-src.js >> js/leaflet.draw.js
 	echo "\n});" >> js/leaflet.draw.js
 
-js_lib: js_build js_leaflet_draw
+js_regenerator_runtime:
+	echo "define(function() {" > js/regenerator-runtime.js
+	cat node_modules/regenerator-runtime/runtime.js >> js/regenerator-runtime.js
+	echo "\nreturn regeneratorRuntime;\n});" >> js/regenerator-runtime.js
+
+js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	cp -p packages/chart/node_modules/d3/dist/d3.js js/d3.js
 	cp -p packages/map/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
 	cp -p packages/markdown/dist/highlight.js js/highlight.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
 	cp -p packages/jquery-mobile/dist/jquery.mobile.js js/jquery.mobile.js
 	cp -p packages/store/node_modules/redux/dist/redux.js js/redux.js
+	cp -p packages/store/node_modules/redux-persist/dist/redux-persist.js js/redux-persist.js
+	cp -p packages/store/node_modules/redux-logger/dist/redux-logger.js js/redux-logger.js
 	cp -p packages/router/node_modules/redux-first-router/dist/redux-first-router.js js/redux-first-router.js
+	cp -p packages/model/node_modules/redux-orm/dist/redux-orm.js js/redux-orm.js
+	sed -i "s/ReduxOrm/redux-orm/" js/redux-orm.js
+	cp -p packages/outbox/dist/redux-offline.js js/redux-offline.js
 	cp -p packages/outbox/dist/json-forms.js js/json-forms.js
 	cp -p packages/map/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
 	cp -p packages/map/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
+	sed -i "s/'exports'/'exports', 'leaflet'/" js/leaflet.markercluster.js
 	cp -p packages/map/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
 	cp -p packages/store/node_modules/localforage/dist/localforage.js js/localforage.js
 	cp -p packages/markdown/node_modules/marked/lib/marked.js js/marked.js

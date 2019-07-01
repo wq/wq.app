@@ -1,14 +1,19 @@
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import pkg from './package.json';
-import { makeBanner, vendorLib, babel } from '../../rollup-utils.js';
+import {
+    makeBanner,
+    vendorLib,
+    babelNPM,
+    babelAMD
+} from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2013);
 
 export default [
     // ESM
     {
         input: 'packages/markdown/index.js',
-        plugins: [babel()],
+        plugins: [babelNPM()],
         external: id => id === 'marked' || id.match(/^highlight\.js\/./),
         output: [
             {
@@ -21,7 +26,7 @@ export default [
     // CJS
     {
         input: 'packages/markdown/index.js',
-        plugins: [babel()],
+        plugins: [babelNPM()],
         external: id => id === 'marked' || id.match(/^highlight\.js\/./),
         output: [
             {
@@ -35,7 +40,7 @@ export default [
     {
         input: 'packages/markdown/index.js',
         external: ['marked'],
-        plugins: [vendorLib('./highlight'), babel()],
+        plugins: [vendorLib('./highlight'), babelAMD()],
         output: [
             {
                 banner: banner,
