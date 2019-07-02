@@ -46,5 +46,17 @@ export default [
                 indent: false
             }
         ]
+    },
+    {
+        input: 'packages/model/node_modules/redux-orm/es/index.js',
+        plugins: [resolve(), commonjs()],
+        output: [
+            {
+                file: 'packages/model/dist/redux-orm.js',
+                format: 'amd',
+                exports: 'named',
+                indent: false
+            }
+        ]
     }
 ];
