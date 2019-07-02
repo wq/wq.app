@@ -3,67 +3,64 @@
 
 [@wq/template]
 
-**@wq/template** is a [wq.app] module providing a simple API wrapper around **Mustache.js** that adds a way to cache template definitions and define global "default" context variables.  @wq/template templates are used in [@wq/router].
+**@wq/template** is a low-level [wq.app] module providing a simple API wrapper around **Mustache.js**, adding a way to cache template definitions and insert rendered templates into the DOM.  @wq/template is internally used by [@wq/router] to render pages for [@wq/app], and does not usually need to be imported directly.  That said, it can be a useful utility for easily rendering arbitrary templated strings.  
+
+### Installation
+
+#### wq for Django
+
+```bash
+python3 -m venv venv      # create virtual env (if needed)
+. venv/bin/activate       # activate virtual env
+pip install wq            # install wq framework (wq.app, wq.db, etc.)
+# pip install wq.app      # install wq.app only
+```
+
+#### wq for Node
+
+```bash
+npm install @wq/template  # install @wq/template only
+npm install @wq/app       # install all @wq/app deps
+```
+
 
 ### API
 
-@wq/template is typically imported via AMD as `tmpl`, though any local variable name can be used.  `tmpl` provides an `init()` function which accepts a configuration object that defines a set of templates, a set of template partials, and a set of default context variables (all defined as key-value objects).  `tmpl.setDefault(name, value)` can be used after initialization to assign additional default context variables.  Like all Mustache variables, context defaults can be simple values or functions that will be called when the variable is encountered in a template.  `tmpl.render(template, context)` renders a template with the given context.  `template` can be either the name of an existing template or the content of a new template.
+@wq/template is typically imported  as `tmpl`, though any local variable name can be used.  `tmpl` provides an `init()` function which accepts a configuration object that defines a set of templates and template partials.  `tmpl.setDefault(name, value)` can be used after initialization to assign default context variables, though this usage is deprecated in favor of [@wq/app context plugins][@wq/app].  `tmpl.render(template, context)` renders a template with the given context.  `template` can be either the name of an existing template or the content of a new template.
+
+
+#### wq for Django
 
 ```javascript
 define(['wq/template', ...], function(tmpl, ...) {
+```
 
+#### wq for Node
+```javascript
+import tmpl from '@wq/template';
+```
+
+```javascript
 var config = {
     'templates': {
-        'example': '{{name}} {{>example_partial}}'
+        'example': '{{name}} {{>example_partial}}',
+        'item_detail': '<html><body><div data-role=page>...',
     },
     'partials': {
         'example_partial': "Example"
-    },
-    'defaults': {
-        'name': 'Default'
     }
 };
 tmpl.init(config);
-
-// Result: First Example
-tmpl.render("example", {'name': 'first'});
-
-// Result: Default Example
-tmpl.render("example", {});
-
-// Result: Another Example
-tmpl.render("Another {{>example_partial}}", {'name': 'first'});
-
-});
+tmpl.render("example", {'name': 'First'});  // Result: First Example
+tmpl.render("Another {{>example_partial}}", {'name': 'Another'}); // Result: Another Example
+var $page = tmpl.inject("item_detail", {"id": 123, ...}); 
 ```
 
-Rather than writing out the template objects by hand, you may be interested in the [wq collectjson] command which can load HTML files from a folder and create a JSON object for you.
-
-### Using Template Defaults
-
-The `defaults` configuration section is used to set default values that will be available in every template rendering context.  The keys are the name of the context variables to use, and the values can be simple strings or functions.  For example, to define variable `{{year}}` that is available in every template, you could do the following:
-
-```javascript
-config.defaults = {
-    'year': function() {
-        return new Date().getFullYear();
-    }
-};
-```
-
-Note that setting a context variable in JavaScript will have no effect for templates rendered by the server.  To achieve consistent template rendering with wq.db, you can use Django's [template context processors].  An equivalent context processor for the above would be:
-
-```python
-# myapp/context_processors.py
-from datetime import date
-def year(request):
-    return {
-        'year': date.today().year
-    }
-```
+> Note: Rather than writing out the configuration object by hand, you can use the [wq collectjson] command to load HTML files from a folder.
 
 [@wq/template]: https://github.com/wq/wq.app/blob/master/packages/template
 [wq.app]: https://wq.io/wq.app
 [@wq/router]: https://wq.io/docs/router-js
 [wq collectjson]: https://wq.io/docs/collectjson
 [template context processors]: https://docs.djangoproject.com/en/1.8/ref/templates/api/#subclassing-context-requestcontext
+[@wq/app]: https://wq.io/docs/app-js
