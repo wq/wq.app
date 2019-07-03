@@ -96,7 +96,7 @@ name | purpose
 `storageFail(value, error)` | Defines a callback to use when `localForage.setItem()` fails for any reason (e.g. when offline storage is full or disabled).  The callback will be provided with the value being saved as well as the error object.
 `fetchFail(query, error)` | Defines a callback to use when a network request fails or the result is unparseable.  The callback will be passed the original `query` and a description of the error.
 
-As of wq.app 1.2, the `jsonp` and `parseData` configuration options no longer exist.  To customize how data is retrieved and parsed, use the `ajax()` plugin hook instead.
+> As of **wq.app 1.2**, the `jsonp` and `parseData` configuration options no longer exist.  To customize how data is retrieved and parsed, use the `ajax()` plugin hook instead.
 
 ### Plugin Hooks
 
@@ -155,6 +155,7 @@ app.init(config).then(...);
 ```
 
 Here are a few things to keep in mind:
+
  * There can only be one ajax plugin defined per app.
  * The `ajax()` method should return a `Promise` that will resolve to a JSON object.
  * You are free to rewrite or completely ignore the passed URL, for example to integrate with an arbitrary (non wq.db) REST API. 
@@ -226,7 +227,6 @@ timer.stop();
 
 ```javascript
 // src/timer.js
-
 export default {
     name: "timer",
     actions: {
