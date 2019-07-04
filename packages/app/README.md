@@ -129,7 +129,7 @@ The `debug` option enables console logging in @wq/app and the other core modules
 
 The `jqmInit` option tells `app.init()` to immediately trigger `app.jqmInit()` on startup.  The default is false, to give you a chance to register additional custom routes before initializing jQuery Mobile.
 
-The `backgroundSync` option tells @wq/app not to make the user wait for forms to be submitted to the server, and instead to handle all @wq/store syncing in the background.  If specified as a number, `backgroundSync` will set the number of seconds between sync attempts.  Setting `backgroundSync` to `true (the default) will trigger 30 seconds between sync attempts.  It can be disabled by setting `noBackgroundSync` to `true`.  `backgroundSync` can also be enabled or disabled on a per-form basis by setting the `data-wq-background-sync` attribute.  For example, the [login.html] provided by the wq Django template sets `data-wq-background-sync` to false since it makes more sense to wait for a successful login before continuing.
+The `backgroundSync` option tells @wq/app not to make the user wait for forms to be submitted to the server, and instead to handle all @wq/store syncing in the background.  If specified as a number, `backgroundSync` will set the number of seconds between sync attempts.  Setting `backgroundSync` to `true` (the default) will trigger 30 seconds between sync attempts.  It can be disabled by setting `noBackgroundSync` to `true`.  `backgroundSync` can also be enabled or disabled on a per-form basis by setting the `data-wq-background-sync` attribute.  For example, the [login.html] provided by the wq Django template sets `data-wq-background-sync` to false since it makes more sense to wait for a successful login before continuing.
 
 The `loadMissingAsHtml` and  `loadMissingAsJson` options tell @wq/app what to do if the user navigates to a model instance that is not stored locally.  There are three possible outcomes in this case:
   * If the associated model page is configured with `partial: false`, @wq/app will assume the entire model collection is stored locally, assume the page does not exist, and call the `router.notFound()` 404 page.
@@ -239,7 +239,6 @@ Register a plugin to customize @wq/app functionality.  See Plugins below.
 #### `app.sync()`
 
 > **As of wq.app 1.2**, `app.sync()` has been removed.  Use `app.retryAll()` instead.
-server errors (for example in response to a user-initiated sync), call `app.sync(true)` instead of `app.sync()`.
 
 #### `app.user`
 
@@ -274,7 +273,7 @@ A plugin is defined as a simple object with one or more of the hooks below.  Plu
 ### Plugin Hooks
 
 name | provided by | purpose
------|--------
+-----|-------------|---------
 `name` | | Uniquely identify the plugin.  The `init` and `reducer` hooks require a name to function properly; it is optional otherwise.
 `init(config)` | @wq/app | Initialize the plugin during @wq/app initialization.  If the plugin is named `"example"`, `app.config.example` will be passed to this function.
 `context(ctx, routeInfo)` | [@wq/router] | Add information to the context before rendering.
@@ -346,7 +345,7 @@ app.init(config).then(function() {
 
 ```javascript
 // src/myplugin.js
-define({
+export default {
     // Name and init are optional if no config is needed
     name: 'myPlugin',
     init(config) {
@@ -358,7 +357,7 @@ define({
     context(context, routeInfo) {
         // ...
     }
-});
+};
 
 // src/index.js
 import app from '@wq/app';
@@ -386,6 +385,8 @@ function(app, patterns, config) {
 
 app.use(patterns);
 app.init(config).then(...);
+
+});
 ```
 
 #### wq for Node
@@ -478,10 +479,13 @@ Note the use of the `{{#native}}` context flag which is set automatically by [@w
  - Offline storage (see Browser Compatibility Notes for [@wq/store])
  - Binary [Blob] support, including the ability to upload `Blob`s via AJAX.
 
-All modern browsers, including Internet Explorer 10, Android 4.4, and later versions, have at least [minimal blob support](https://github.com/nolanlawson/state-of-binary-data-in-the-browser).  For IE 9 and older desktop browsers, the preview functionality in @wq/app/photos will not work, but users should still be able to upload files.  @wq/app will detect the lack of `Blob` support on these browsers and fall back to a normal form post when a `<form>` containing an `<input type=file>` is encountered.  (wq.db's [ModelViewSet] includes built-in support for responding to forms posted in this way).
+All modern browsers, including Internet Explorer 10, Android 4.4, and later versions, have at least [minimal blob support](https://github.com/nolanlawson/state-of-binary-data-in-the-browser).  For IE 9 and older desktop browsers, the preview functionality in @wq/app:photos will not work, but users should still be able to upload files.  @wq/app will detect the lack of `Blob` support on these browsers and fall back to a normal form post when a `<form>` containing an `<input type=file>` is encountered.  (wq.db's [ModelViewSet] includes built-in support for responding to forms posted in this way).
 
 
 [@wq/app]: https://github.com/wq/wq.app/blob/master/packages/app
+[@wq/app:spinner]: https://github.com/wq/wq.app/blob/master/packages/app/src/spinner.js
+[@wq/app:patterns]: https://github.com/wq/wq.app/blob/master/packages/app/src/patterns.js
+[@wq/app:photos]: https://github.com/wq/wq.app/blob/master/packages/app/src/photos.js
 
 [wq.app]: https://wq.io/wq.app
 [wq.db]: https://wq.io/wq.db
