@@ -3,7 +3,7 @@
 
 [@wq/router]
 
-**@wq/router** is a [wq.app] module that captures URL changes and "responds" with locally-rendered HTML pages.  @wq/router is primarily used with [@wq/app], a higher-level module that automatically registers the appropriate routes via the [wq configuration object].  If you have a route that does not match @wq/app's conventions, you use the direct route registration APIs described at the bottom.
+**@wq/router** is a [wq.app] module that captures URL changes and "responds" with locally-rendered HTML pages.  @wq/router is primarily used with [@wq/app], a higher-level module that automatically registers the appropriate routes via the [wq configuration object].  If you have a route that does not match @wq/app's conventions, you can use the direct route registration APIs described at the bottom.
 
 As of wq.app 1.2, @wq/router is based on [Redux-First Router] and leverages similar concepts.
 
@@ -27,7 +27,7 @@ npm install @wq/app       # install all @wq/app deps
 
 ## API
 
-`@wq/router` is typically imported as `router`, though any local variable name can be used.
+When using @wq/app, the router is made available as `app.router`.  Otherwise, `@wq/router` is typically imported as `router`, though any local variable name can be used.
 
 ### wq for Django
 
@@ -274,6 +274,57 @@ search.runSearch("example");  // @wq/store bound action
 });
 ```
 
+#### `render(state)`
+
+`render()` plugins provide the option to respond to state changes outside of the default page rendering pipeline.  For example, the [@wq/app spinner plugin][@wq/app] hides and shows the jQuery Mobile spinner based on the plugin's state.  `render()` functions are called every time the Redux state is updated, and passed the root state object.  A `render()` plugin would typically have a `name`, corresponding `actions`, and a `reducer` (as defined in [@wq/store]).
+
+```javascript
+// src/timer.js
+export default {
+    name: "timer",
+    actions: {
+        startTimer() {
+            return {
+                "type": "START_TIMER"
+            };
+        },
+        stopTimer() {
+            return {
+                "type": "STOP_TIMER"
+            };
+        }
+    },
+    reducer(timerState={}, action) {
+        switch (action.type) {
+            case "START_TIMER":
+                return {"active": true};
+            case "STOP_TIMER":
+                return {"active": false};
+            default:
+                return timerState;
+        }
+    }
+    render(state) {
+        if (state.timer.active) {
+            someShowMethod();
+        } else {
+            someHideMethod();
+        }
+    }
+};
+
+// src/index.js
+import app from '@wq/app';
+import timer from './timer';
+import config from './config';
+
+app.use(timer);
+app.init(config).then(...);
+
+timer.start(); // Equivalent to app.store.dispatch(timer.actions.start())
+timer.stop();
+```
+
 ##### wq for Node
 ```javascript
 // src/search.js
@@ -405,7 +456,7 @@ name | purpose
 
 #### `router.go()`
 
-> **As of wq.app 1.2,** `router.go()` is called automatically whenever the Redux state changes.  So, it is not necessary to call it automatically.
+> **As of wq.app 1.2,** `router.go()` is called automatically whenever the Redux state changes.  So, it is not necessary to call it directly.
 
 #### `router.notFound()`
 
