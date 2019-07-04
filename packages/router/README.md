@@ -32,7 +32,6 @@ npm install @wq/app       # install all @wq/app deps
 ### wq for Django
 
 ```javascript
-// myapp.js
 define(['wq/router', ...], function(router, ...) {
     router.init(someConfig);
     router.register('custom-path/:category/:id', 'custom_route', someContextFn);
@@ -46,7 +45,7 @@ define(['wq/router', ...], function(router, ...) {
 import router from '@wq/router';
 
 router.init(someConfig);
-router.register('/custom-path/:category/:id', 'custom_route', someContextFn);
+router.register('custom-path/:category/:id', 'custom_route', someContextFn);
 router.jqmInit();
 ```
 
@@ -320,7 +319,7 @@ search.runSearch("example");  // @wq/store bound action
 
 `router.register()` is used to register a new URL route with the application.  When the user navigates to a URL added via `router.register()`, @wq/router will generate a context object, and render it into the page (via [@wq/template]).
 
-> Note: `router.register()` is called automatically by [@wq/app] for all pages defined in the [wq configuration object].  The default routes should cover all common CRUD use cases.  In particular, routes like `/items/`, `/items/:slug`, `/items/:slug/edit`, `/items/new`, and `/categories/:parent_id/items` generally would not need to be registered manually, as long as `item` is a defined page and has a foreign key to `category`.  See [URL Structure] for more info.
+> Note: `router.register()` is called automatically by [@wq/app] for all pages defined in the [wq configuration object].  The default routes should cover all common CRUD use cases.  In particular, routes like `items/`, `items/:slug`, `items/:slug/edit`, `items/new`, and `categories/:parent_id/items` generally would not need to be registered manually, as long as `item` is a defined page and has a foreign key to `category`.  See [URL Structure] for more info.
 
 `router.register()` takes up to three arguments, specified below.
 
@@ -404,30 +403,30 @@ name | purpose
 `fn` | A callback function (or the name of a callback function if `obj` is specified).  When a URL matches, the callback function will be called.  **Changed in wq.app 1.2:** The function will not be passed any arguments.
 `obj` | (Optional) An object that contains a callback function (used with a string `fn`).
 
-### `router.go()`
+#### `router.go()`
 
 > **As of wq.app 1.2,** `router.go()` is called automatically whenever the Redux state changes.  So, it is not necessary to call it automatically.
 
-### `router.notFound()`
+#### `router.notFound()`
 
 `router.notFound()` is a context function that signals that the page was not found.  See the example for `router.register()` above.
 
-### `router.rawHTML(html)`
+#### `router.rawHTML(html)`
 
 **New in wq.app 1.2.**
 `router.rawHTML()` is a context function that signals there is raw HTML that can be injected directly.  This can be used with content rendered by the server.
 
-### `router.refresh()`
+#### `router.refresh()`
 
 **New in wq.app 1.2.**
 Re-renders the current route using the last generate context.
 
-### `router.reload()`
+#### `router.reload()`
 
 **New in wq.app 1.2.**
 Regenerates the context for the current route and renders it.
 
-### `router.push(url)`
+#### `router.push(url)`
 
 **New in wq.app 1.2.**
 Navigates to the specified URL (assuming it matches a registered route).
