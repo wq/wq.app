@@ -100,10 +100,11 @@ name | purpose
 
 ### Plugin Hooks
 
+@wq/store provides support for the following [@wq/app plugin hooks][@wq/app].
+
 #### `ajax(url, data, method, headers)`
 
-> Added in **wq.app 1.1.1**.
-
+**New in wq.app 1.1.1.**
 The `ajax()` hook allows customization of how requests are sent and processed.  The [default implementation][default-ajax] is a `fetch()` wrapper designed to work with [wq.db] and should be sufficient for most cases.
 
 When using with @wq/app, it is recommended to use the plugin syntax.  It is also possible to set `config.store.ajax` (as noted above), but this may be removed in a later version.
@@ -166,8 +167,7 @@ Here are a few things to keep in mind:
 
 #### `reducer(state, action)` & `actions`
 
-> Added in **wq.app 1.2.0**.
-
+**New in wq.app 1.2.**
 The `reducer()` plugin hook makes it possible to define a [reducer] that subscribes to Redux actions and updates a plugin-specific state.  Reducer plugins and are generally defined with a `name` and an `action` object containing [action creator functions][action-creators].  The action creators are bound to the dispatch method and re-attached to the plugin, as shown in the example below.
 
 ##### wq for Django
@@ -278,8 +278,7 @@ timer.stop();
 
 #### `ds.dispatch(action)`
 
-> Added in **wq.app 1.2.0**.
-
+**New in wq.app 1.2.**
 Dispatch an arbitrary action to the Redux store.  Generally, it is better to use a `reducer` plugin with `actions` action creators, but calling `dispatch()` directly can be useful in some cases.
 
 ```javascript
@@ -290,8 +289,7 @@ ds.dispatch({
 
 #### `ds.getState()`
 
-> Added in **wq.app 1.2.0**.
-
+**New in wq.app 1.2.**
 `ds.getState()` returns the full Redux state tree (including the latest updates from all registered reducers).  Generally, it is better to use a `render()` plugin to subscribe to state updates, but `getState()` can be useful in some cases.
 
 ```javascript
@@ -301,8 +299,7 @@ console.log(state.timer);
 
 #### `ds.subscribe(fn)`
 
-> Added in **wq.app 1.2.0**.
-
+**New in wq.app 1.2.**
 `ds.subscribe()` registeres a callback function that will be executed whenever the state changes.  Generally, it is better to use a [render() plugin][@wq/router] to subscribe to state updates, but `subscribe()` can be useful in some cases.
 
 ```javascript
