@@ -368,8 +368,9 @@ app.runPlugins = function(arg) {
         throw new Error('runPlugins() now loads args from context');
     }
     const state = router.store.getState(),
-        { context } = state,
-        { router_info: routeInfo } = context;
+        { context } = state;
+
+    var { router_info: routeInfo } = context;
 
     var getItem;
 
