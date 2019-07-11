@@ -1,7 +1,13 @@
 import ignore from 'rollup-plugin-ignore';
+import resolve from 'rollup-plugin-node-resolve';
 import pkg from './package.json';
 import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
+
+const autoMergeLevel2 = 'redux-persist/es/stateReconciler/autoMergeLevel2';
+const resolveMerge = resolve({
+    only: ['redux-persist']
+});
 
 export default [
     // ESM
@@ -12,6 +18,7 @@ export default [
             'redux',
             'redux-logger',
             'redux-persist',
+            autoMergeLevel2,
             'localforage',
             'whatwg-fetch'
         ],
@@ -31,6 +38,7 @@ export default [
             'redux',
             'redux-logger',
             'redux-persist',
+            autoMergeLevel2,
             'localforage',
             'whatwg-fetch'
         ],
@@ -47,7 +55,7 @@ export default [
     {
         input: 'packages/store/index.js',
         external: ['redux', 'redux-logger', 'redux-persist', 'localforage'],
-        plugins: [ignore(['whatwg-fetch']), wqDeps(), babelAMD()],
+        plugins: [ignore(['whatwg-fetch']), wqDeps(), babelAMD(), resolveMerge],
         output: [
             {
                 banner: banner,
