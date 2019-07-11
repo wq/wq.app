@@ -136,6 +136,7 @@ app.init = function(config) {
 
     app.store = ds;
     app.outbox = outbox;
+    app.router = router;
 
     // Initialize wq/template.js
     tmpl.init(config.template);
@@ -385,7 +386,11 @@ app.runPlugins = function(arg) {
         getItem = Promise.resolve({});
     }
     getItem.then(function(item) {
-        routeInfo.item = item;
+        routeInfo = {
+            ...routeInfo,
+            item,
+            context
+        };
         if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
             window.MSApp.execUnsafeLocalFunction(function() {
                 _callPlugins('run', undefined, [jqm.activePage, routeInfo]);

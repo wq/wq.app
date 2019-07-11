@@ -488,7 +488,6 @@ Navigates to the specified URL (assuming it matches a registered route).
 [wq.db]: https://wq.io/wq.app
 [@wq/app]: https://wq.io/docs/app-js
 [wq configuration object]: https://wq.io/docs/config
-[AMD]: https://wq.io/docs/amd
 [ui object]: http://api.jquerymobile.com/pagecontainer/
 [jQueryMobile-router]: https://github.com/azicchetti/jquerymobile-router
 [Mustache template]: https://wq.io/docs/templates

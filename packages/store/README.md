@@ -418,7 +418,6 @@ To persist storage across user sessions, @wq/store requires some kind of offline
 [@wq/app]: https://wq.io/docs/app-js
 [@wq/model]: https://wq.io/docs/model-js
 [@wq/outbox]: https://wq.io/docs/outbox-js
-[AMD]: https://wq.io/docs/amd
 [wq.db]: https://wq.io/wq.db
 [wq config object]: https://wq.io/docs/config
 [Redux]: https://redux.js.org/
