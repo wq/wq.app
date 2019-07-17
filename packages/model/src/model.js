@@ -238,6 +238,10 @@ class Model {
             .orderBy(this.idCol, this.opts.reversed ? 'desc' : 'asc');
     }
 
+    get objects() {
+        return this.getQuerySet();
+    }
+
     async getPage(page_num) {
         var query = { ...this.query };
         if (page_num !== null) {
