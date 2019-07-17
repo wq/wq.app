@@ -142,6 +142,7 @@ Note that the values for `pages`, `count`, and `per_page` will be set by the RES
 This function (and the related query functions below) all return a [Promise] that will resolve to the requested data.  If you are using wq for Node (or are only targeting modern browsers), the `async`/`await` keywords will help streamline your code.
 
 ##### wq for Django
+
 ```javascript
 myModel.load().then(function(data) {
     data.list.forEach(function(item) {
@@ -151,6 +152,7 @@ myModel.load().then(function(data) {
 ```
 
 ##### wq for Node
+
 ```javascript
 const data = await myModel.load();
 data.list.forEach(item => {
@@ -163,6 +165,7 @@ data.list.forEach(item => {
 `info()` returns a Promise that resolves to a value with the same structure as `load()` but without the actual list of data.
 
 ##### wq for Django
+
 ```javascript
 myModel.info().then(function(info) {
     console.log("Total Items:", info.count);
@@ -170,6 +173,7 @@ myModel.info().then(function(info) {
 ```
 
 ##### wq for Node
+
 ```javascript
 const info = await myModel.info();
 console.log("Total Items:", info.count);
@@ -180,6 +184,7 @@ console.log("Total Items:", info.count);
 Like `load()`, but retrieves the items in the list at the specified page number (starting with page 1).  If the `cache` setting is `"first_page"` or `"all"`, `page(1)` is effectively equivalent to `load()`.  In most other cases, `page()` will generate a network request to retrieve the data from the server, and the result will not be stored locally.
 
 ##### wq for Django
+
 ```javascript
 myModel.page(4).then(function(data) {
     data.list.forEach(function(item) {
@@ -189,6 +194,7 @@ myModel.page(4).then(function(data) {
 ```
 
 ##### wq for Node
+
 ```javascript
 const data = await myModel.page(4);
 data.list.forEach(item => {
@@ -201,6 +207,7 @@ data.list.forEach(item => {
 `find()` can be used to asynchronously retrieve a single item from the model based on the primary key (usually `"id"`).  If not all of the data for the model is stored locally (i.e. `cache` is not `"all"`), then `find()` will automatically query the server for any items not found locally.  This behavior can be disabled by setting `localOnly` to true.
 
 ##### wq for Django
+
 ```javascript
 myModel.find(27).then(function(item) {
     console.log(item.id, item.label);
@@ -208,6 +215,7 @@ myModel.find(27).then(function(item) {
 ```
 
 ##### wq for Node
+
 ```javascript
 const item = await myModel.find(27);
 console.log(item.id, item.label);
@@ -222,6 +230,7 @@ console.log(item.id, item.label);
 If not all of the data for the model is stored locally (i.e. `cache` is not `"all"`), then `filter()` will always query the server even if some items might be found locally.  This behavior can be disabled by setting `localOnly` to true.
 
 ##### wq for Django
+
 ```javascript
 // Filter on existing field
 myModel.filter({'type_id': 3}).then(function(type3items) {
@@ -261,6 +270,7 @@ myModel.filter({'big': true}).then(function(bigItems) {
 ```
 
 ##### wq for Node
+
 ```javascript
 // Filter on existing field
 const type3items = await myModel.filter({'type_id': 3});
@@ -299,6 +309,7 @@ bigItems.forEach(item => {
 `[model].forEach()` mimics `Array.prototype.forEach` to provide a simple way to iterate over all values in the local (first page) of the list.  Note that this function is asynchronous, unlike a "real" `forEach` loop.
 
 ##### wq for Django
+
 ```javascript
 // Using load()
 myModel.load().then(function(data) {
@@ -323,6 +334,7 @@ nextThing();  // This will happen before forEach is done!
 ```
 
 ##### wq for Node
+
 ```javascript
 // Using load()
 const data = await myModel.load();
