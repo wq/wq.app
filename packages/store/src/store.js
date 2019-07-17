@@ -7,7 +7,7 @@ import {
 } from 'redux';
 import logger from 'redux-logger';
 import { persistStore, persistReducer, createTransform } from 'redux-persist';
-import autoMergeLevel2 from 'redux-persist/es/stateReconciler/autoMergeLevel2';
+import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
 import localForage from 'localforage';
 import 'whatwg-fetch';

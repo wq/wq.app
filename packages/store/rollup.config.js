@@ -4,10 +4,18 @@ import pkg from './package.json';
 import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
-const autoMergeLevel2 = 'redux-persist/es/stateReconciler/autoMergeLevel2';
+const autoMergeLevel2 = 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 const resolveMerge = resolve({
     only: ['redux-persist']
 });
+resolveMerge.resolveId = (defaultResolveId => {
+    return (source, importer) => {
+        if (source === autoMergeLevel2) {
+            source = source.replace('lib', 'es');
+        }
+        return defaultResolveId(source, importer);
+    };
+})(resolveMerge.resolveId);
 
 export default [
     // ESM
