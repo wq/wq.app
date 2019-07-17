@@ -261,7 +261,7 @@ var functions = {
         return item.size > 100;
     }
 };
-var myModel = model({'name': 'item', 'url': items', 'functions': functions});
+var myModel = model({'name': 'item', 'url': 'items', 'functions': functions});
 myModel.filter({'big': true}).then(function(bigItems) {
     bigItems.forEach(function(item) {
         console.log(item.id, item.label);
@@ -296,7 +296,7 @@ const functions = {
         return item.size > 100;
     }
 };
-const myModel = model({'name': 'item', 'url': items', functions});
+const myModel = model({'name': 'item', 'url': 'items', functions});
 const bigItems = await myModel.filter({'big': true});
 bigItems.forEach(item => {
     console.log(item.id, item.label);
