@@ -3,7 +3,9 @@
 
 [@wq/outbox]
 
-**@wq/outbox** is a [wq.app] module providing an offline-cabable "outbox" of unsynced form entries for submission to a web service.  @wq/outbox integrates with [@wq/store] to handle offline storage, and with [@wq/model] for managing collections of editable objects.  @wq/outbox is designed to sync form submissions to the server *before* reflecting the same changes in the local @wq/model state.  Accordingly, [@wq/app] is configured to show unsynced outbox records at the top of model list views and/or in a separate screen.
+**@wq/outbox** is a [wq.app] module providing an offline-cabable "outbox" of unsynced form entries for submission to a web service.  @wq/outbox integrates with [@wq/store] to handle offline storage, and with [@wq/model] for managing collections of editable objects.
+
+By default, @wq/outbox is designed to sync form submissions to the server *before* reflecting the same changes in the local @wq/model state.  Accordingly, [@wq/app] is configured to show unsynced outbox records at the top of model list views and/or in a separate screen.  As of wq.app 1.2, it is also possible to configure @wq/outbox to apply all changes to the local @wq/model state *immediately*, with syncing happening entirely in the background.
 
 As of wq.app 1.2, @wq/outbox is based on [Redux Offline], and leverages its strategies for detecting network state and retrying failed submissions.  Most notably, Redux Offline schedules sync attempts automatically, whereas @wq/outbox in wq.app 1.1 and earlier relied on @wq/app to manage the sync interval.
 
@@ -97,6 +99,7 @@ name | purpose
 name | purpose
 -----|---------
 `syncMethod` | Default HTTP method to use for sending data to the server.  The "default" default is `POST`.  This can be overridden on a per-form basis by setting the `method` option.
+`applyState` | Default setting for when to apply changes to the local @wq/model state.  The "default" default is `"ON_SUCCESS"`.  This can be overridden on a per-form basis by setting the `"applyState"` option.
 `cleanOutbox` | Whether to clean up synced outbox items whenever the application starts (default `true`).  Note that [Redux Offline] usually removes items from the queue as soon as they succeed or fail.  @wq/outbox overrides this to keep the items around until the outbox is cleaned or emptied.
 `maxRetries` | The maximum number of times to attempt sending an outbox item before giving up.  In wq.app 1.2, the default changed from 3 to 10.  Note that [Redux Offline] automatically increases the interval between consecutive failed sync attempts (whereas wq.app 1.1 and earlier used a fixed interval.) 
 `csrftokenField` | The form field name to use when submitting the [CSRF token].  Note that the token will be set when the form is actually uploaded to the server (and may override the csrf token that was initially submitted to the outbox).  The default field name is `csrfmiddlewaretoken` since that's what Django calls it.
@@ -122,7 +125,8 @@ name | purpose
 -----|---------
 `url`| URL to post to (relative to the base `service` URL).  If unset, it is assumed that the base `service` URL can handle form submissions itself.  [@wq/app] will set this from the `action` of the submitted form.
 `modelConf` | The configuration for a corresponding model that should be updated when this item is synced.  This is set automatically by [@wq/app] by resolving the `url` to a configured model.
-`method` | HTTP method to use when posting the data (`PUT`, `POST`, etc.).  The default is `POST`, but [@wq/app] will automatically use `PUT` when updating an existing model model instance.
+`method` | HTTP method to use when posting the data (`PUT`, `POST`, etc.).  The default is `config.syncMethod` (usually `POST`), but [@wq/app] will automatically use `PUT` when updating an existing model instance.
+`applyState` | **New in wq.app 1.2.** For model-backed forms, `applyState` determines when to apply form submissions to the local state.  The default is `config.applyState` (usually `"ON_SUCCESS"`).  See Redux Actions below for more info.
 `id` | The outbox id of a previous form submission that hasn't yet been synced.  This option makes it possible to allow the user to review and edit outbox items before they are synced to the server.  It can be set automatically by [@wq/app] if `data-wq-outbox-id` is set on the `<form>`.
 `storage` | Where to store the form data associated with the outbox record.  By default, the data is stored directly in the Redux state that is persisted to offline storage.  If the form contains sensitive data (such as username/password), `"temporary"` should be used instead to ensure the form data is not persisted.  For form submissions containing binary data (e.g. `Blob`), storage should be set to `"storage"`, which preserves the data in a separate form key to avoid performance issues when persisting the Redux state.
 `preserve` | A list of fields to preserve in the existing outbox item.  This option can be used with `id` to avoid overwriting hard-to-set fields like file uploads and GPS coordinates.  It can be automatically set by [@wq/app] if `data-wq-preserve` is set on the `<form>`.  See the [Species Tracker code](https://github.com/powered-by-wq/species.wq.io/blob/master/templates/report_edit.html) for an example.
@@ -171,7 +175,13 @@ $form.submit(async () => {
 
 ##### Redux Actions
 
-Internally, `outbox.save()` dispatches a Redux action with appropriate [Redux Offline] `effect`, `commit`, and `rollback` metadata.  The actions vary depending on the options supplied to `outbox.save()`.  The actions marked with * are recognized by the [@wq/model] reducer.  If `config.debug` is true, all Redux actions will be logged to the console which can help with debugging.
+Internally, `outbox.save()` dispatches a Redux action with appropriate [Redux Offline] `commit`, and `rollback` metadata.  The `commit` action is dispatched after a successful sync, while the `rollback` action is dispatched after the record is rejected or fails more than `maxRetries` times.  If `config.debug` is true, all Redux actions will be logged to the console which can help with debugging.
+
+The generated action types vary depending on the `modelConf` and `applyState` options supplied to `outbox.save()`.  In particular, action types marked with * below are recognized by the [@wq/model] reducer.
+
+###### applyState = ON_SUCCESS
+
+When `applyState` is set to `"ON_SUCCESS"`, form submissions will not be reflected in the local model state until *after* the form is successfully synced to the server.  This is the default configuration (and was the only option in wq.app 1.1 and earlier).
 
 Form Type | Submit Action | Commit Action | Rollback Action
 ----------|---------------|---------------|------------------
@@ -179,6 +189,28 @@ Form Type | Submit Action | Commit Action | Rollback Action
 @wq/model (DELETE) | `ORM_{model}_DELETESUBMIT` | `ORM_{model}_DELETE`* | `ORM_{model}_DELETEERROR`
 other configured page<br>(e.g. login) | `{page}_SUBMIT` | `{page}_SUCCESS` | `{page}_ERROR`
 unconfigured | `FORM_SUBMIT` | `FORM_SUCCESS` | `FORM_ERROR`
+
+###### applyState = IMMEDIATE
+
+When `applyState` is set to `"IMMEDIATE"`, form submissions are reflected in the local model state *before* they are sent to the server.
+
+Form Type | Submit Action | Commit Action | Rollback Action
+----------|---------------|---------------|------------------
+@wq/model (POST, PUT) | `ORM_{model}_UPDATE`* | `ORM_{model}_SUCCESS` | `ORM_{model}_ERROR`
+@wq/model (DELETE) | `ORM_{model}_DELETE`* | `ORM_{model}_DELETESUCCESS` | `ORM_{model}_DELETEERROR`
+
+Note that if the request fails, there is currently no code to process the Rollback Action (e.g. to revert the local change).
+
+> FIXME: Still need to define how local IDs are assigned and how they are updated once the item is synced.
+
+###### applyState = LOCAL_ONLY
+
+When `applyState` is set to `"LOCAL_ONLY"`, form submissions are not synced to the server at all.  In this case, nothing is stored in the outbox, so the only reason to use `outbox.save()` is to maintain API consistency with other forms.
+
+Form Type | Submit Action | Commit Action | Rollback Action
+----------|---------------|---------------|------------------
+@wq/model (POST, PUT) | `ORM_{model}_UPDATE`* | - | -
+@wq/model (DELETE) | `ORM_{model}_DELETE`* | - | -
 
 #### `outbox.sendItem()`
 

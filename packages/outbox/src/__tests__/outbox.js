@@ -12,12 +12,17 @@ const outbox = outboxMod.getOutbox(ds);
 
 promiseFinally.shim();
 
+const models = {},
+    modelConf = {};
+
 ['item', 'itemtype', 'attribute'].forEach(name => {
-    model({
+    modelConf[name] = {
         name: name,
         url: name + 's',
+        list: true,
         store: ds
-    });
+    };
+    models[name] = model(modelConf[name]);
 });
 
 ds.init({
@@ -195,7 +200,7 @@ test('sync dependent records in order', async () => {
         },
         options: {
             url: 'itemtypes',
-            modelConf: { name: 'itemtype', url: 'itemtypes' }
+            modelConf: modelConf.itemtype
         }
     };
 
@@ -205,7 +210,7 @@ test('sync dependent records in order', async () => {
         },
         options: {
             url: 'attributes',
-            modelConf: { name: 'attribute', url: 'attributes' }
+            modelConf: modelConf.attribute
         }
     };
 
@@ -218,7 +223,7 @@ test('sync dependent records in order', async () => {
         },
         options: {
             url: 'items',
-            modelConf: { name: 'item', url: 'items' }
+            modelConf: modelConf.item
         }
     };
 
@@ -273,4 +278,72 @@ test('sync dependent records in order', async () => {
 
     expect(results.item.type_id).toEqual(results.itemtype.id);
     expect(results.item.values[0].attribute_id).toEqual(results.attribute.id);
+});
+
+const ORIG_VALUE = 'Test',
+    NEW_VALUE = 'Test 2';
+
+async function checkName() {
+    const item = await models.item.find('four');
+    return item.name;
+}
+
+test('apply state ON_SYNC', async () => {
+    await models.item.overwrite([{ id: 'four', name: ORIG_VALUE }]);
+    outbox.pause();
+    const { id } = await outbox.save(
+        {
+            id: 'four',
+            name: NEW_VALUE
+        },
+        {
+            url: 'items/four',
+            method: 'POST', // FIXME: PUT doesn't work in jsdom 11 (#2300)
+            modelConf: modelConf.item
+        }
+    );
+    expect(await checkName()).toBe(ORIG_VALUE);
+    outbox.resume();
+    const item = await outbox.waitForItem(id);
+    expect(item.synced).toBeTruthy();
+    expect(await checkName()).toBe(NEW_VALUE);
+});
+
+test('apply state IMMEDIATE', async () => {
+    await models.item.overwrite([{ id: 'four', name: ORIG_VALUE }]);
+    outbox.pause();
+    const { id } = await outbox.save(
+        {
+            id: 'four',
+            name: NEW_VALUE
+        },
+        {
+            url: 'items/four',
+            method: 'POST', // FIXME: PUT doesn't work in jsdom 11 (#2300)
+            applyState: 'IMMEDIATE',
+            modelConf: modelConf.item
+        }
+    );
+    expect(await checkName()).toBe(NEW_VALUE);
+    outbox.resume();
+    const item = await outbox.waitForItem(id);
+    expect(item.synced).toBeTruthy();
+    expect(await checkName()).toBe(NEW_VALUE);
+});
+
+test('apply state LOCAL_ONLY', async () => {
+    await models.item.overwrite([{ id: 'four', name: ORIG_VALUE }]);
+    const result = await outbox.save(
+        {
+            id: 'four',
+            name: NEW_VALUE
+        },
+        {
+            applyState: 'LOCAL_ONLY',
+            modelConf: modelConf.item
+        }
+    );
+    expect(result).toBeNull();
+    expect((await outbox.loadItems()).list).toHaveLength(0);
+    expect(await checkName()).toBe(NEW_VALUE);
 });

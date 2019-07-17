@@ -15,7 +15,10 @@ const REMOVE_ITEMS = '@@REMOVE_OUTBOX_ITEMS',
     ERROR = 'ERROR',
     FORM_SUBMIT = 'FORM_SUBMIT',
     FORM_SUCCESS = 'FORM_SUCCESS',
-    FORM_ERROR = 'FORM_ERROR';
+    FORM_ERROR = 'FORM_ERROR',
+    ON_SUCCESS = 'ON_SUCCESS',
+    IMMEDIATE = 'IMMEDIATE',
+    LOCAL_ONLY = 'LOCAL_ONLY';
 
 var _outboxes = {};
 
@@ -50,6 +53,7 @@ class Outbox {
 
         store.subscribe(() => this._onUpdate());
         this.syncMethod = POST;
+        this.applyState = ON_SUCCESS;
         this.cleanOutbox = true;
         this.maxRetries = 10;
         this.csrftoken = null;
@@ -149,19 +153,48 @@ class Outbox {
         var type, payload, commitType, rollbackType;
         const model = this._getModel(options.modelConf);
         if (model) {
+            const applyState = options.applyState || this.applyState;
+
             if (options.method === DELETE && options.url) {
                 const deletedId = options.url.replace(
                     options.modelConf.url + '/',
                     ''
                 );
-                commitType = model.expandActionType(DELETE);
-                type = commitType + SUBMIT;
-                rollbackType = commitType + ERROR;
+                if (applyState === ON_SUCCESS) {
+                    commitType = model.expandActionType(DELETE);
+                    type = commitType + SUBMIT;
+                    rollbackType = commitType + ERROR;
+                } else if (applyState === IMMEDIATE) {
+                    type = model.expandActionType(DELETE);
+                    commitType = type + SUCCESS;
+                    rollbackType = type + ERROR;
+                } else if (applyState === LOCAL_ONLY) {
+                    type = model.expandActionType(DELETE);
+                    commitType = null;
+                    rollbackType = null;
+                } else {
+                    throw new Error('Unknown applyState ' + applyState);
+                }
                 payload = deletedId;
             } else {
-                type = model.expandActionType(SUBMIT);
-                commitType = model.expandActionType(UPDATE);
-                rollbackType = model.expandActionType(ERROR);
+                if (applyState === ON_SUCCESS) {
+                    type = model.expandActionType(SUBMIT);
+                    commitType = model.expandActionType(UPDATE);
+                    rollbackType = model.expandActionType(ERROR);
+                    payload = null;
+                } else if (applyState === IMMEDIATE) {
+                    type = model.expandActionType(UPDATE);
+                    commitType = model.expandActionType(SUCCESS);
+                    rollbackType = model.expandActionType(ERROR);
+                    payload = this._parseJsonForm({ data }).data;
+                } else if (applyState === LOCAL_ONLY) {
+                    type = model.expandActionType(UPDATE);
+                    commitType = null;
+                    rollbackType = null;
+                    payload = this._parseJsonForm({ data }).data;
+                } else {
+                    throw new Error('Unknown applyState ' + applyState);
+                }
             }
         } else if (options.modelConf) {
             const name = options.modelConf.name.toUpperCase();
@@ -174,21 +207,25 @@ class Outbox {
             rollbackType = FORM_ERROR;
         }
 
-        this.store.dispatch({
-            type,
-            payload,
-            meta: {
-                offline: {
-                    effect: { data, options },
-                    commit: { type: commitType },
-                    rollback: { type: rollbackType }
+        if (commitType) {
+            this.store.dispatch({
+                type,
+                payload,
+                meta: {
+                    offline: {
+                        effect: { data, options },
+                        commit: { type: commitType },
+                        rollback: { type: rollbackType }
+                    }
                 }
-            }
-        });
-
-        const items = await this.loadItems();
-        // FIXME: Double check that this is the same record just submitted
-        return items.list[0];
+            });
+            const items = await this.loadItems();
+            // FIXME: Double check that this is the same record just submitted
+            return items.list[0];
+        } else {
+            this.store.dispatch({ type, payload });
+            return null;
+        }
     }
 
     _enqueue(array, action, context) {

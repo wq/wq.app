@@ -8,7 +8,7 @@ import cgi
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
-    def echo(self, status=200, **update):
+    def echo(self, status=200, id=None):
         ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
         pdict = {key: val.encode('utf-8') for key, val in pdict.items()}
         form = cgi.parse_multipart(self.rfile, pdict)
@@ -20,7 +20,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
             if isinstance(value, list):
                 for i, val in enumerate(value):
                     val['@index'] = i
-        data.update(**update)
+        if id and 'id' not in data:
+            data['id'] = id
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
@@ -52,6 +53,12 @@ class RequestHandler(SimpleHTTPRequestHandler):
     def do_PUT(self):
         pk = self.path.split('/')[-1].split('.')[0]
         self.echo(id=pk)
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"OK")
 
     def end_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
