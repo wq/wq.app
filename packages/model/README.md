@@ -3,48 +3,85 @@
 
 [@wq/model]
 
-**@wq/model** is a [wq.app] module providing a simple API for working with lists or collections of similar objects.  It uses [@wq/store] to retrieve the underlying JSON data from e.g. a REST API.
+**@wq/model** is a [wq.app] module providing a simple API for working with lists, or collections of similar objects.  It uses [@wq/store] to retrieve the underlying JSON data from e.g. a REST API.
+
+As of wq.app 1.2, @wq/model is based on [Redux-ORM] and provides similar querying capabilities, while still supporting asyncronous APIs for paginating through data from the server.
+
+## Installation
+
+### wq for Django
+
+```bash
+python3 -m venv venv      # create virtual env (if needed)
+. venv/bin/activate       # activate virtual env
+pip install wq            # install wq framework (wq.app, wq.db, etc.)
+# pip install wq.app      # install wq.app only
+```
+
+### wq for Node
+
+```bash
+npm install @wq/model     # install @wq/model and @wq/store
+npm install @wq/app       # install all @wq/app deps
+```
 
 ## API
 
-`@wq/model` is typically imported via [AMD] as `model`, though any local variable name can be used.
+When using [@wq/app], @wq/model instances are automatically defined for all `"list"` pages in the [wq configuration object].  When used directly, `@wq/model` is typically imported as `model`, though any local variable name can be used.
+
+#### wq for Django
 
 ```javascript
-// myapp.js
+// @wq/app usage
+define(['wq/app', './config', ...], function(app, config, ...) {
+   app.init(config).then(...);
+   var items = app.models.item;
+});
+
+// Direct usage
 define(['wq/model', ...], function(model, ...) {
-   var items = model('/items');
-   var types = model({'url': 'types'});
+   var items = model({'url': 'items', 'name': 'item'});
 });
 ```
 
-### Initialization
-The `model` module object is a function that returns instances of a `Model` class.  The model constructor accepts a configuration object that is used to configure the store and set other model-specific behaviors
+#### wq for Node
 
-The full list of options is described below:
+```javascript
+// @wq/app usage
+import app from '@wq/app';
+import config from './config';
+app.init(config).then(...);
+const items = app.models.item;
+
+// Direct usage
+import model, { Model } from '@wq/model';
+const items = model({'url': 'items', 'name': 'item'}); 
+// const items = new Model(...);
+```
+
+### Initialization
+
+The model constructor accepts a [page configuration object][wq configuration object] that configures the name, data source, and caching strategy.
 
 name | purpose
 -----|---------
-`query` | The [@wq/store] query to use when retrieving data for the model.  This is often an object of the form `{'url': url}`.
-`functions` | A collection of computable attributes that can be applied to items in the model
-`store` | The [@wq/store] instance to use for the model.  This defaults to the main instance (`ds`) if not set.
-`url` | A shortcut for setting `{'query': {'url': url}}`.
-`max_local_pages` | The maximum number of paginated server responses to store locally.  This should almost always be 1 (the default).  Most operations requiring fast and/or offline capabilities will be completed with the first page of data.  Subsequent pages (if any) will be loaded on-demand via `ds.fetch()`
-`partial` | Flag indicating that not all data is stored locally.  This should be set whenever you expect there to be more than `max_local_pages` worth of data in the server database.
-`reversed` | Set to true if the data is sorted in reverse chronological order.  If set, new items (added via `update()`) will be placed at the beginning of the list instead of the end.
+`name` | **Required in wq.app 1.2.** Unique name for the model.  @wq/app already provides this for configured models, but if you are using @wq/model directly you will need to specify it.
+`url` | URL path for the REST API endpoint corresponding to this model (relative to the [@wq/store] service URL).
+`functions` | A collection of computable attributes that can be applied to items in the model.
+`store` | The [@wq/store] instance to use for the model.  This defaults to the main instance if not set.
+`cache` | Caching strategy (per the [wq configuration object]).
+`idCol` | **New in wq.app 1.2.** Attribute to use as primary identifier for items in collection.  (Defaults to `"id"`).  Note that when working with a [wq.db-based REST API][wq.db], the JSON objects will always have an `id` attribute that maps to the actual identifier column.  (So, it is usually not necessary to set `idCol` on the client).
+`query` | **Deprecated in wq.app 1.2.** The [@wq/store] query to use when retrieving data for the model.  This is almost always `{"url": url}` and so it is usually better to just use the `url` option instead.
 
-The @wq/model constructor is designed to be flexible and easy to use.  If a string is provided, it is automatically converted to a configuration of the form `{"query": string}`.  The configuration is also designed to be compatible with the [wq configuration object], as can be seen by the last four options above which directly correspond to wq config options with the same names.
 
-The following are all equivalent:
+The following definitions of `myModel` are essentially equivalant:
 
 ```javascript
 // Formal usage
-var myModel = new model.Model({"query": {"url": "items"}});
+var myModel = new Model({"name": "item", "url": "items"});
 
 // Shortcut constructor
-var myModel = model({"url": "items"});
-
-// Even shorter
-var myModel = model("/items");
+var myModel = model({"name": "item", "url": "items"});
 
 // wq configuration
 var wqConfig = {
@@ -56,19 +93,45 @@ var wqConfig = {
         }
     }
 }
-var myModel = model(wqConfig.pages.item);
+app.init(wqConfig);
+var myModel = app.models.item;
 ```
 
-### Model API
-Like the [@wq/store] API, the model functions are asynchronous, and each return a [Promise] that will resolve to the requested data.
+When using @wq/model directly, it is possible to define a model without a URL, e.g. for storing local data with no server representation.  There is no equivalent for this when using @wq/app configuration, as all models are defined as REST endpoints.
+
+```javascript
+// Formal usage
+var myModel = new Model({"name": "bookmark"});
+
+// Shortcut constructor
+var myModel = model({"name": "bookmark"});
+
+// Even shorter
+var myModel = model("bookmark");
+```
+
+
+### Query APIs
+
+#### `[model].objects`
+
+**New in wq.app 1.2.**  Returns a [Redux-ORM] queryset for the model based on the current Redux state.  Note that this API only works with local data that has already been retrieved from the server.  To run queries without concern for whether the data already exists locally, use one of the asynchronous query methods below.
+
+```javascript
+var items = myModel.objects.all()
+                 .filter({"type_id": 3})
+                 .orderBy("name");
+```
+
+The name `objects` is inspired by equivalent attribute for Django models.
 
 #### `[model].load()`
-Loads the (local) contents of the model into memory.  The resolved value will be structured as follows:
+Asynchronously loads the (local) contents of the model into memory.  If the local cache has not already been populated, `load()` automatically retrieves it from the server.  The resolved value will be structured as follows:
 
 ```javascript
 {
    "list": [...]   // First page of data
-   "count": 15,    // Total number of items in list
+   "count": 15,    // Total number of items in list (including server-only items)
    "pages": 1,     // Number of server-paginated data pages
    "per_page": 50  // Number of items per page
 }
@@ -76,6 +139,9 @@ Loads the (local) contents of the model into memory.  The resolved value will be
 
 Note that the values for `pages`, `count`, and `per_page` will be set by the REST API if the server is [wq.db] or a compatible web service.
 
+This function (and the related query functions below) all return a [Promise] that will resolve to the requested data.  If you are using wq for Node (or are only targeting modern browsers), the `async`/`await` keywords will help streamline your code.
+
+##### wq for Django
 ```javascript
 myModel.load().then(function(data) {
     data.list.forEach(function(item) {
@@ -84,20 +150,36 @@ myModel.load().then(function(data) {
 });
 ```
 
+##### wq for Node
+```javascript
+const data = await myModel.load();
+data.list.forEach(item => {
+    console.log(item.id, item.label);
+});
+```
+
 #### `[model].info()`
 
 `info()` returns a Promise that resolves to a value with the same structure as `load()` but without the actual list of data.
 
+##### wq for Django
 ```javascript
 myModel.info().then(function(info) {
     console.log("Total Items:", info.count);
 });
 ```
 
+##### wq for Node
+```javascript
+const info = await myModel.info();
+console.log("Total Items:", info.count);
+```
+
 #### `[model].page(page_num)`
 
-Like `load()`, but retrieves the items in the list at the specified page number (starting with page 1).  `page(1)` is effectively equivalent to `load()`.  `page()` with a `page_num` greater than 1 will usually result in a network request to retrieve the data from the server.  This data will not usually be stored locally (depending on the value of `max_local_pages`).
+Like `load()`, but retrieves the items in the list at the specified page number (starting with page 1).  If the `cache` setting is `"first_page"` or `"all"`, `page(1)` is effectively equivalent to `load()`.  In most other cases, `page()` will generate a network request to retrieve the data from the server, and the result will not be stored locally.
 
+##### wq for Django
 ```javascript
 myModel.page(4).then(function(data) {
     data.list.forEach(function(item) {
@@ -106,24 +188,40 @@ myModel.page(4).then(function(data) {
 });
 ```
 
-#### `[model].find(value, [attr], [localOnly])`
+##### wq for Node
+```javascript
+const data = await myModel.page(4);
+data.list.forEach(item => {
+    console.log(item.id, item.label);
+});
+```
 
-`find()` can be used to retrieve a single item from the model based on a key value.  `attr` is used to define which attribute to search.  If unset, `attr` will default to `"id"`, since the most common use for `find()` is to search by a primary key.
+#### `[model].find(value, [localOnly])`
 
-If not all of the data for the model is stored locally (i.e. `partial` is set), then `find()` will automatically query the server for any items not found locally.  This behavior can be disabled by setting `localOnly` to true.
+`find()` can be used to asynchronously retrieve a single item from the model based on the primary key (usually `"id"`).  If not all of the data for the model is stored locally (i.e. `cache` is not `"all"`), then `find()` will automatically query the server for any items not found locally.  This behavior can be disabled by setting `localOnly` to true.
 
+##### wq for Django
 ```javascript
 myModel.find(27).then(function(item) {
     console.log(item.id, item.label);
 });
 ```
 
-#### `[model].filter(filter, [any])`
+##### wq for Node
+```javascript
+const item = await myModel.find(27);
+console.log(item.id, item.label);
+```
 
-`filter()` retrieves all objects that match the specified filter, which should be key-value mapping of one or more fields to filter on.  Fields can be existing fields on the item in the list, or the names of attribute `functions` provided to the model constructor.  The `any` argument specifies whether to return items matching any of the filter values (`true`) or only those matching all of the filter values (`false`, default).
+> **Changed in wq.app 1.2:**  find() no longer accepts a custom id column as the second argument.  If the primary key is not `"id"`, specify `idCol` when defining the model.
 
-If not all of the data for the model is stored locally (i.e. `partial` is set), then `filter()` will automatically query the server regardless of if any items might found locally.  This behavior can be disabled by setting `localOnly` to true.
+#### `[model].filter(filter[, any[, localOnly]])`
 
+`filter()` asynchronously retrieves all objects that match the specified filter, which should be key-value mapping of one or more fields to filter on.  Fields can be existing fields on the item in the list, or the names of attribute `functions` provided to the model constructor.  The `any` argument specifies whether to return items matching any of the filter values (`true`) or only those matching all of the filter values (`false`, default).
+
+If not all of the data for the model is stored locally (i.e. `cache` is not `"all"`), then `filter()` will always query the server even if some items might be found locally.  This behavior can be disabled by setting `localOnly` to true.
+
+##### wq for Django
 ```javascript
 // Filter on existing field
 myModel.filter({'type_id': 3}).then(function(type3items) {
@@ -132,13 +230,29 @@ myModel.filter({'type_id': 3}).then(function(type3items) {
     });
 });
 
-// Filter on a computed field
+// Filter on existing field, match multiple values
+myModel.filter({'type_id': [1, 2]}).then(function(type1and2items) {
+    type1and2items.forEach(function(item) {
+        console.log(item.id, item.label);
+    });
+});
+
+// Filter on predicate function (new in wq.app 1.2)
+myModel.filter(function(item) {
+    return item.size > 100;
+}).then(function(bigItems) {
+    bigItems.forEach(function(item) {
+        console.log(item.id, item.label);
+    });
+});
+
+// Filter on a predefined computed field
 var functions = {
     'big': function(item) {
         return item.size > 100;
     }
 };
-var myModel = model({'url': items', 'functions': functions});
+var myModel = model({'name': 'item', 'url': items', 'functions': functions});
 myModel.filter({'big': true}).then(function(bigItems) {
     bigItems.forEach(function(item) {
         console.log(item.id, item.label);
@@ -146,10 +260,45 @@ myModel.filter({'big': true}).then(function(bigItems) {
 });
 ```
 
+##### wq for Node
+```javascript
+// Filter on existing field
+const type3items = await myModel.filter({'type_id': 3});
+type3items.forEach(item => {
+    console.log(item.id, item.label);
+});
+
+// Filter on existing field, match multiple values
+const type1and2items = await myModel.filter({'type_id': [1, 2]});
+type1and2items.forEach(function(item) {
+     console.log(item.id, item.label);
+});
+
+// Filter on predicate function (new in wq.app 1.2)
+const bigItems = await myModel.filter(item => item.size > 100);
+bigItems.forEach(function(item) {
+     console.log(item.id, item.label);
+});
+
+// Filter on a predefined computed field
+const functions = {
+    big(item) {
+        return item.size > 100;
+    }
+};
+const myModel = model({'name': 'item', 'url': items', functions});
+const bigItems = await myModel.filter({'big': true});
+bigItems.forEach(item => {
+    console.log(item.id, item.label);
+});
+```
+> **Changed in wq.app 1.2:**.  [model].filter() is now a wrapper for [Redux-ORM's filter()][Redux-ORM], which provides additional features such as predicate function filters and better indexing.  However, note that Redux-ORM uses strict equality when comparing object attributes.  In wq.app 1.1 and earlier, `{'type_id': '3'}` and `{'type_id': 3}` returned the same result, whereas in wq.app 1.2 they are different.
+
 #### `[model].forEach(callback, thisarg)`
 
-`[model].forEach()` mimics `Array.prototype.forEach` to provide a simple way to iterate over all values in the local (first page) of the list.  Note that unlike a "real" `forEach` loop, you should not rely on the loop completing before the next line of code, as there is an intermediate `load()` to retrieve the actual data.
+`[model].forEach()` mimics `Array.prototype.forEach` to provide a simple way to iterate over all values in the local (first page) of the list.  Note that this function is asynchronous, unlike a "real" `forEach` loop.
 
+##### wq for Django
 ```javascript
 // Using load()
 myModel.load().then(function(data) {
@@ -159,19 +308,54 @@ myModel.load().then(function(data) {
     nextThing(); // This will execute after loop is done
 });
 
-// Almost - but not quite - the same:
+// Using forEach() with then()
+myModel.forEach(function(item) {
+    console.log(item.id, item.label);
+}).then(function() {
+    nextThing();
+});
+
+// Using forEach() without then()
 myModel.forEach(function(item) {
     console.log(item.id, item.label);
 });
-nextThing(); // This will execute *before* loop is done!
+nextThing();  // This will happen before forEach is done!
+```
+
+##### wq for Node
+```javascript
+// Using load()
+const data = await myModel.load();
+data.list.forEach(item => {
+    console.log(item.id, item.label);
+});
+nextThing(); // This will execute after loop is done
+
+// Using forEach() with await
+await myModel.forEach(function(item) {
+    console.log(item.id, item.label);
+});
+nextThing();
+
+// Using forEach() without await
+myModel.forEach(function(item) {
+    console.log(item.id, item.label);
+});
+nextThing();  // This will happen before forEach is done!
 ```
 
 #### `[model].prefetch()`
 
 `prefetch()` prefetches all the local data pages in the list.  It's usually important to do this whenever the application starts up.  Note that [@wq/app] includes a `prefetchAll()` method that can automatically prefetch data for all registered models.
 
-#### `[model].update(items, [key])`
-`update()` updates the locally stored list with new and updated items.  The `items` should be an array of items to update, and the `key` should be the name of a primary key to use to differentiate between existing and new items (default `"id"`).  Any items that aren't found in the list will be appended to the end (or to the front if the model is initialized with `reversed: true`.)
+#### `[model].unsyncedItems(withData)`
+
+Returns a list of all pending form submissions in the outbox that are associated with this model.  If `withData` is true, the full form submissions will be loaded (including any binary attachments).  `withData` is false by default.
+
+### Update APIs
+
+#### `[model].update(items)`
+`update()` updates the locally stored list with new and updated items, using the model primary key to differentiate.  Any items that aren't found in the list will be appended.
 
 ```javascript
 var newItem = {'id': 35, 'name': "New Item"};
@@ -179,17 +363,29 @@ var items = [newItem];
 myModel.update(items);
 ```
 
-As with `ds.set()` (which is called internally), it is not strictly necessary to wait for the promise returned by `update()` to resolve, but it's still a good idea.
+Note that `[model].update()` is not designed to automatically publish local changes to a remote database.  Instead, [@wq/outbox] can be used to sync changes back to the server.  The typical workflow (configured automatically by [@wq/app]) is to have each `<form>` submission be processed by [@wq/outbox], which will sync the form data to the server and then update any local models with the newly saved data.
 
-> Note: `[model].update()` is not designed to automatically publish local changes to a remote database.  Instead, [@wq/outbox] can be used to sync changes back to the server.  The typical workflow (configured automatically by [@wq/app]) is to have each `<form>` submission be processed by [@wq/outbox], which will sync the form data to the server and then update any local models with the newly saved data.
+> **Changed in wq.app 1.2:**  update() no longer accepts a custom id column as the second argument.  If the primary key is not `"id"`, specify `idCol` when defining the model.
 
-#### `[model].fetchUpdate(params, [key])`
-`fetchUpdate()` retrieves and applies an update to a locally cached model.  The web query used to retrieve the original list will be combined with the `params` object to request a partial update from the server.  The `key` argument is passed on to `update()`.
+#### `[model].fetchUpdate(params)`
+`fetchUpdate()` asynchronously retrieves and applies an update to a locally cached model.  The `params` object will be added to the list URL to request a partial update from the server.
 
 ```javascript
 // Assuming server supports query "/items?since=-2h"
 myModel.fetchUpdate({'since': '-2h'}};
 ```
+
+> **Changed in wq.app 1.2:**  fetchUpdate() no longer accepts a custom id column as the second argument.  If the primary key is not `"id"`, specify `idCol` when defining the model.
+
+
+#### `[model].remove(id)`
+`remove()` deletes a single item from the locally cached model.
+
+```javascript
+myModel.remove(12)
+```
+
+> **Changed in wq.app 1.2:**  remove() no longer accepts a custom id column as the second argument.  If the primary key is not `"id"`, specify `idCol` when defining the model.
 
 #### `[model].overwrite(items)`
 
@@ -200,11 +396,29 @@ Completely replace the current locally stored data with a new set of items.
 myModel.overwrite([]);
 ```
 
+#### `[model].dispatch(type, payload)`
+
+Constructs and immediately dispatches a Redux action appropriate for the model.  The type argument will be expanded to `ORM_{model}_{type}`.  The built-in reducer recognizes the following actions:
+
+name | effect
+-------|----------------
+`ORM_{model}_CREATE` | Create a new item with the specified object.  If there is no `id` attribute, one will be generated automatically by Redux-ORM.  (Note that this action is not currently used by @wq/app, as IDs are always generated by the server).
+`ORM_{model}_UPDATE` | Upsert (update or insert) an array of items into the model.  Called internally by `[model].update()`.
+`ORM_{model}_DELETE` | Delete the item with the specified id.  Called internally by `[model].remove()`.
+`ORM_{model}_OVERWRITE` | Replace the entire dataset with a new array of items.  Called internally by `[model].overwrite()`.
+
+```javascript
+myModel.dispatch('CREATE', {"name": "New Item"});
+myModel.dispatch('UPDATE', [{"id": 35, "name": "Updated Item"}]);
+myModel.dispatch('DELETE', 12);
+myModel.dispatch('OVERWRITE', []);
+```
+
 [@wq/model]: https://github.com/wq/wq.app/blob/master/packages/model
 [wq.app]: https://wq.io/wq.app
+[Redux-ORM]: https://github.com/redux-orm/redux-orm
 [@wq/app]: https://wq.io/docs/app-js
 [@wq/store]: https://wq.io/docs/store-js
-[AMD]: https://wq.io/docs/amd
 [wq.db]: https://wq.io/wq.db
 [wq configuration object]: https://wq.io/docs/config
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
