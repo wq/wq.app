@@ -20,6 +20,7 @@ const models = {},
         name: name,
         url: name + 's',
         list: true,
+        cache: 'all',
         store: ds
     };
     models[name] = model(modelConf[name]);
@@ -193,7 +194,7 @@ test('handle 500 error', async () => {
     });
 });
 
-test('sync dependent records in order', async () => {
+test('sync dependent records in order - with ON_SUCCESS', async () => {
     const itemtype = {
         data: {
             label: 'New ItemType'
@@ -346,4 +347,136 @@ test('apply state LOCAL_ONLY', async () => {
     expect(result).toBeNull();
     expect((await outbox.loadItems()).list).toHaveLength(0);
     expect(await checkName()).toBe(NEW_VALUE);
+});
+
+test('sync dependent records in order - with IMMEDIATE', async () => {
+    const itemtype = {
+        data: {
+            label: 'New ItemType'
+        },
+        options: {
+            url: 'itemtypes',
+            modelConf: modelConf.itemtype,
+            applyState: 'IMMEDIATE'
+        }
+    };
+
+    var attribute = {
+        data: {
+            label: 'New Attribute'
+        },
+        options: {
+            url: 'attributes',
+            modelConf: modelConf.attribute,
+            applyState: 'IMMEDIATE'
+        }
+    };
+
+    var item = {
+        data: {
+            type_id: 'outbox-1',
+            color: 'red',
+            'values[0][attribute_id]': 'outbox-2',
+            'values[0][value]': 'Test Value'
+        },
+        options: {
+            url: 'items',
+            modelConf: modelConf.item,
+            applyState: 'IMMEDIATE'
+        }
+    };
+
+    // Save three records to outbox
+    await outbox.pause();
+    await outbox.save(itemtype.data, itemtype.options);
+    await outbox.save(attribute.data, attribute.options);
+    await outbox.save(item.data, item.options);
+
+    expect(await outbox.loadItems()).toEqual({
+        list: [
+            {
+                id: 3,
+                data: item.data,
+                options: item.options,
+                synced: false,
+                parents: [1, 2]
+            },
+            {
+                id: 2,
+                data: attribute.data,
+                options: attribute.options,
+                synced: false
+            },
+            {
+                id: 1,
+                data: itemtype.data,
+                options: itemtype.options,
+                synced: false
+            }
+        ],
+        pages: 1,
+        count: 3,
+        per_page: 3
+    });
+
+    // Since IMMEDIATE is set, local models should already contain records
+    expect(await models.itemtype.find('outbox-1')).toMatchObject({
+        label: 'New ItemType'
+    });
+    expect(await models.attribute.find('outbox-2')).toMatchObject({
+        label: 'New Attribute'
+    });
+    expect(await models.item.find('outbox-3')).toMatchObject({
+        type_id: 'outbox-1',
+        color: 'red',
+        values: [
+            {
+                attribute_id: 'outbox-2',
+                value: 'Test Value'
+            }
+        ]
+    });
+
+    // Sync records.  sendAll() should automatically sync the parent
+    // records (itemtype, attribute) before syncing item.
+    await outbox.resume();
+    await outbox.waitForAll();
+    const syncedOutbox = await outbox.loadItems();
+
+    // All records should now be synced and have results
+    let results = {};
+    syncedOutbox.list.forEach(function(item) {
+        const name =
+            item.options &&
+            item.options.modelConf &&
+            item.options.modelConf.name;
+        expect(item.synced).toBeTruthy();
+        results[name] = item.result;
+    });
+
+    expect(results.item.type_id).toEqual(results.itemtype.id);
+    expect(results.item.values[0].attribute_id).toEqual(results.attribute.id);
+
+    // Local models should now be updated with the server-generated IDs, with
+    // no trace of the outbox ids.
+    expect(await models.itemtype.find('outbox-1')).toBeNull();
+    expect(await models.attribute.find('outbox-2')).toBeNull();
+    expect(await models.item.find('outbox-3')).toBeNull();
+
+    expect(await models.itemtype.find(results.itemtype.id)).toMatchObject({
+        label: 'New ItemType'
+    });
+    expect(await models.attribute.find(results.attribute.id)).toMatchObject({
+        label: 'New Attribute'
+    });
+    expect(await models.item.find(results.item.id)).toMatchObject({
+        type_id: results.itemtype.id,
+        color: 'red',
+        values: [
+            {
+                attribute_id: results.attribute.id,
+                value: 'Test Value'
+            }
+        ]
+    });
 });

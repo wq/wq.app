@@ -5,7 +5,7 @@
 
 **@wq/outbox** is a [wq.app] module providing an offline-cabable "outbox" of unsynced form entries for submission to a web service.  @wq/outbox integrates with [@wq/store] to handle offline storage, and with [@wq/model] for managing collections of editable objects.
 
-By default, @wq/outbox is designed to sync form submissions to the server *before* reflecting the same changes in the local @wq/model state.  Accordingly, [@wq/app] is configured to show unsynced outbox records at the top of model list views and/or in a separate screen.  As of wq.app 1.2, it is also possible to configure @wq/outbox to apply all changes to the local @wq/model state *immediately*, with syncing happening entirely in the background.
+By default, @wq/outbox does not apply changes to the local @wq/model state until *after* form submissions are succesfully synced to the server.  Accordingly, [@wq/app] is configured to show unsynced outbox records at the top of model list views and/or in a separate screen.  As of wq.app 1.2, it is also possible to configure @wq/outbox to optimistically apply @wq/model changes *immediately*, with syncing happening in the background.
 
 As of wq.app 1.2, @wq/outbox is based on [Redux Offline], and leverages its strategies for detecting network state and retrying failed submissions.  Most notably, Redux Offline schedules sync attempts automatically, whereas @wq/outbox in wq.app 1.1 and earlier relied on @wq/app to manage the sync interval.
 
@@ -196,12 +196,12 @@ When `applyState` is set to `"IMMEDIATE"`, form submissions are reflected in the
 
 Form Type | Submit Action | Commit Action | Rollback Action
 ----------|---------------|---------------|------------------
-@wq/model (POST, PUT) | `ORM_{model}_UPDATE`* | `ORM_{model}_SUCCESS` | `ORM_{model}_ERROR`
+@wq/model (POST, PUT) | `ORM_{model}_UPDATE`* | `ORM_{model}_SUCCESS`* | `ORM_{model}_ERROR`
 @wq/model (DELETE) | `ORM_{model}_DELETE`* | `ORM_{model}_DELETESUCCESS` | `ORM_{model}_DELETEERROR`
 
-Note that if the request fails, there is currently no code to process the Rollback Action (e.g. to revert the local change).
+If the record does not already have a server-assigned ID, a temporary local id will be generated.  When `ORM_{model}_SUCCESS` is dispatched, the local record will be updated with the new ID from the server.
 
-> FIXME: Still need to define how local IDs are assigned and how they are updated once the item is synced.
+Note that if the request fails, there is currently no code to process the Rollback Action (e.g. to revert the local change).
 
 ###### applyState = LOCAL_ONLY
 

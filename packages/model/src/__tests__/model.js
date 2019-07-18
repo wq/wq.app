@@ -19,6 +19,11 @@ var itemtypes = model({
     store: ds,
     cache: 'all'
 });
+var localmodel = model({
+    name: 'localmodel',
+    store: ds
+});
+
 ds.init({
     service: 'http://localhost:8080/tests',
     defaults: {
@@ -106,4 +111,74 @@ test('filter by boolean & non-boolean', async () => {
     const types2 = await itemtypes.filter({ id: '1', is_active: 'true' });
     expect(types1).toHaveLength(1);
     expect(types1).toEqual(types2);
+});
+
+test('create', async () => {
+    await localmodel.overwrite([]);
+
+    // Update is really upsert
+    await localmodel.update([
+        { id: 1, label: 'Test 1' },
+        { id: 2, label: 'Test 2' }
+    ]);
+    expect(await localmodel.info()).toEqual({
+        count: 2,
+        pages: 1,
+        per_page: 2
+    });
+
+    await localmodel.create({ label: 'Test 3' });
+    expect(await localmodel.load()).toEqual({
+        count: 3,
+        pages: 1,
+        per_page: 3,
+        list: [
+            { id: 3, label: 'Test 3' },
+            { id: 2, label: 'Test 2' },
+            { id: 1, label: 'Test 1' }
+        ]
+    });
+});
+
+test('update', async () => {
+    await localmodel.overwrite([]);
+    await localmodel.create({ id: 1, label: 'Test 1' });
+    await localmodel.update([{ id: 1, label: 'Update Test 1' }]);
+    expect(await localmodel.info()).toEqual({
+        count: 1,
+        pages: 1,
+        per_page: 1
+    });
+    expect(await localmodel.find(1)).toEqual({
+        id: 1,
+        label: 'Update Test 1'
+    });
+});
+
+test('update - change ID', async () => {
+    await localmodel.overwrite([]);
+    await localmodel.create({ id: 'local-1', label: 'Test 1' });
+    await localmodel.dispatch(
+        'UPDATE',
+        { id: 1234, label: 'Update Test 1' },
+        { currentId: 'local-1' }
+    );
+    expect(await localmodel.load()).toEqual({
+        count: 1,
+        pages: 1,
+        per_page: 1,
+        list: [{ id: 1234, label: 'Update Test 1' }]
+    });
+});
+
+test('delete', async () => {
+    await localmodel.overwrite([]);
+    await localmodel.create({ id: 1, label: 'Test 1' });
+    await localmodel.remove(1);
+    expect(await localmodel.load()).toEqual({
+        count: 0,
+        pages: 1,
+        per_page: 0,
+        list: []
+    });
 });

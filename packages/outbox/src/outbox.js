@@ -186,12 +186,12 @@ class Outbox {
                     type = model.expandActionType(UPDATE);
                     commitType = model.expandActionType(SUCCESS);
                     rollbackType = model.expandActionType(ERROR);
-                    payload = this._parseJsonForm({ data }).data;
+                    payload = this._localUpdate(data, id);
                 } else if (applyState === LOCAL_ONLY) {
                     type = model.expandActionType(UPDATE);
                     commitType = null;
                     rollbackType = null;
-                    payload = this._parseJsonForm({ data }).data;
+                    payload = this._localUpdate(data);
                 } else {
                     throw new Error('Unknown applyState ' + applyState);
                 }
@@ -254,7 +254,7 @@ class Outbox {
         }
 
         if (!offline.rollback) {
-            offline.rollback = { type: `${action.type}_${SUCCESS}` };
+            offline.rollback = { type: `${action.type}_${ERROR}` };
         }
         if (!offline.rollback.meta) {
             offline.rollback.meta = {};
@@ -273,6 +273,12 @@ class Outbox {
 
         offline.commit.meta.offlineAction = offlineAction;
         offline.rollback.meta.offlineAction = offlineAction;
+
+        const currentId = action.payload && action.payload.id;
+        if (currentId) {
+            offline.commit.meta.currentId = currentId;
+            offline.rollback.meta.currentId = currentId;
+        }
 
         Object.keys(data || {}).forEach(key => {
             var match = data[key].match && data[key].match(/^outbox-(\d+)$/);
@@ -391,6 +397,14 @@ class Outbox {
                 return res;
             }
         });
+    }
+
+    _localUpdate(data, outboxId) {
+        data = this._parseJsonForm({ data }).data;
+        if (outboxId && !data.hasOwnProperty('id')) {
+            data.id = 'outbox-' + outboxId;
+        }
+        return data;
     }
 
     _updateParents(item, outboxId, resultId) {

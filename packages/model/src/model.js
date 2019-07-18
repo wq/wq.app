@@ -10,6 +10,7 @@ const _orms = {};
 
 const CREATE = 'CREATE',
     UPDATE = 'UPDATE',
+    SUCCESS = 'SUCCESS',
     DELETE = 'DELETE',
     OVERWRITE = 'OVERWRITE';
 
@@ -40,29 +41,45 @@ class ORMWithReducer extends ORM {
         if (!cls) {
             return session.state;
         }
+        const currentCount = cls.count();
+        let updateCount;
 
         switch (actName) {
             case CREATE: {
                 cls.create(action.payload);
+                updateCount = true;
                 break;
             }
-            case UPDATE: {
+            case UPDATE:
+            case SUCCESS: {
                 const items = Array.isArray(action.payload)
                     ? action.payload
                     : [action.payload];
-                items.forEach(item => cls.upsert(item));
-                const meta = session._modelmeta.withId(cls.modelName);
-                if (meta) {
-                    var update = { count: meta.count + 1 };
-                    if (meta.pages === 1 && meta.per_page === meta.count) {
-                        update.per_page = update.count;
+
+                if (
+                    action.meta &&
+                    action.meta.currentId &&
+                    action.meta.currentId != items[0].id
+                ) {
+                    const exist = cls.withId(action.meta.currentId);
+                    if (exist) {
+                        // See redux-orm #176
+                        cls.create({
+                            ...exist.ref,
+                            id: items[0].id
+                        });
+                        exist.delete();
                     }
-                    meta.update(update);
                 }
+                items.forEach(item => cls.upsert(item));
+
+                updateCount = true;
+
                 break;
             }
             case DELETE: {
                 cls.withId(action.payload).delete();
+                updateCount = true;
                 break;
             }
             case OVERWRITE: {
@@ -74,6 +91,26 @@ class ORMWithReducer extends ORM {
                     ...info
                 });
                 break;
+            }
+        }
+
+        if (updateCount) {
+            const meta = session._modelmeta.withId(cls.modelName);
+            if (meta) {
+                // Use delta in case server count != local count.
+                const countChange = cls.count() - currentCount,
+                    update = { count: meta.count + countChange };
+                if (meta.pages === 1 && meta.per_page === meta.count) {
+                    update.per_page = update.count;
+                }
+                meta.update(update);
+            } else {
+                session._modelmeta.create({
+                    id: cls.modelName,
+                    pages: 1,
+                    count: cls.count(),
+                    per_page: cls.count()
+                });
             }
         }
 
@@ -211,11 +248,14 @@ class Model {
         return `${this.orm.prefix}_${this.name.toUpperCase()}_${type}`;
     }
 
-    dispatch(type, payload) {
+    dispatch(type, payload, meta) {
         const action = {
             type: this.expandActionType(type),
             payload: payload
         };
+        if (meta) {
+            action.meta = meta;
+        }
         return this.store.dispatch(action);
     }
 
@@ -426,15 +466,17 @@ class Model {
         return data.list;
     }
 
+    // Create new item
+    async create(object) {
+        this.dispatch(CREATE, object);
+    }
+
     // Merge new/updated items into list
     async update(update, idCol) {
         if (idCol) {
             throw new Error(
                 'Usage: update(items).  To customize id attr use config.idCol'
             );
-        }
-        if (!Array.isArray(update)) {
-            throw new Error('Data is not an array!');
         }
         return this.dispatch(UPDATE, update);
     }
