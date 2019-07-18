@@ -232,6 +232,7 @@ app.init = function(config) {
                     list: conf.list
                 };
             });
+            return context;
         });
     }
 
@@ -403,8 +404,13 @@ app.runPlugins = function(arg) {
 };
 
 // Sync outbox and handle result
-app.sync = function() {
-    throw new Error('app.sync() renamed to app.retryAll()');
+app.sync = function(retryAll) {
+    if (retryAll) {
+        console.warn('app.sync(true) renamed to app.retryAll()');
+        app.retryAll();
+    } else {
+        throw new Error('app.sync() no longer used.');
+    }
 };
 app.retryAll = function() {
     app.outbox.unsynced().then(function(unsynced) {
