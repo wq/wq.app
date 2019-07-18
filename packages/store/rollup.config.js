@@ -1,5 +1,6 @@
 import ignore from 'rollup-plugin-ignore';
 import resolve from 'rollup-plugin-node-resolve';
+import replace from 'rollup-plugin-replace';
 import pkg from './package.json';
 import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
@@ -63,7 +64,15 @@ export default [
     {
         input: 'packages/store/index.js',
         external: ['redux', 'redux-logger', 'redux-persist', 'localforage'],
-        plugins: [ignore(['whatwg-fetch']), wqDeps(), babelAMD(), resolveMerge],
+        plugins: [
+            ignore(['whatwg-fetch']),
+            wqDeps(),
+            babelAMD(),
+            resolveMerge,
+            replace({
+                'process.env.NODE_ENV': "'production'"
+            })
+        ],
         output: [
             {
                 banner: banner,
