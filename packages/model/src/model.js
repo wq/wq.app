@@ -64,7 +64,7 @@ class ORMWithReducer extends ORM {
                     const exist = cls.withId(action.meta.currentId);
                     if (exist) {
                         // See redux-orm #176
-                        cls.create({
+                        cls.upsert({
                             ...exist.ref,
                             id: items[0].id
                         });

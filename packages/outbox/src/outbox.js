@@ -71,6 +71,7 @@ class Outbox {
 
             // Outbox-specific options
             'syncMethod',
+            'applyState',
             'cleanOutbox',
             'maxRetries',
             'batchService',
@@ -143,23 +144,37 @@ class Outbox {
         }
 
         // FIXME: What if next id changes during await?
-        const id =
+        const outboxId =
             options.id ||
             (this.store.getState().offline.lastTransaction || 0) + 1;
-        const item = await this._updateItemData({ id, data, options });
+        const item = await this._updateItemData({
+            id: outboxId,
+            data,
+            options
+        });
         data = item.data;
         options = item.options;
+
+        var currentId;
+        if (data && data.id) {
+            currentId = data.id;
+        } else if (options.url && options.modelConf && options.modelConf.url) {
+            const match = options.url.match(options.modelConf.url + '/(.+)');
+            if (match) {
+                if (!isNaN(+match[1])) {
+                    currentId = +match[1];
+                } else {
+                    currentId = match[1];
+                }
+            }
+        }
 
         var type, payload, commitType, rollbackType;
         const model = this._getModel(options.modelConf);
         if (model) {
             const applyState = options.applyState || this.applyState;
 
-            if (options.method === DELETE && options.url) {
-                const deletedId = options.url.replace(
-                    options.modelConf.url + '/',
-                    ''
-                );
+            if (options.method === DELETE && currentId) {
                 if (applyState === ON_SUCCESS) {
                     commitType = model.expandActionType(DELETE);
                     type = commitType + SUBMIT;
@@ -175,7 +190,7 @@ class Outbox {
                 } else {
                     throw new Error('Unknown applyState ' + applyState);
                 }
-                payload = deletedId;
+                payload = currentId;
             } else {
                 if (applyState === ON_SUCCESS) {
                     type = model.expandActionType(SUBMIT);
@@ -186,12 +201,12 @@ class Outbox {
                     type = model.expandActionType(UPDATE);
                     commitType = model.expandActionType(SUCCESS);
                     rollbackType = model.expandActionType(ERROR);
-                    payload = this._localUpdate(data, id);
+                    payload = this._localUpdate(data, currentId, outboxId);
                 } else if (applyState === LOCAL_ONLY) {
                     type = model.expandActionType(UPDATE);
                     commitType = null;
                     rollbackType = null;
-                    payload = this._localUpdate(data);
+                    payload = this._localUpdate(data, currentId);
                 } else {
                     throw new Error('Unknown applyState ' + applyState);
                 }
@@ -399,10 +414,14 @@ class Outbox {
         });
     }
 
-    _localUpdate(data, outboxId) {
+    _localUpdate(data, currentId, outboxId) {
         data = this._parseJsonForm({ data }).data;
-        if (outboxId && !data.hasOwnProperty('id')) {
-            data.id = 'outbox-' + outboxId;
+        if (!data.hasOwnProperty('id')) {
+            if (currentId) {
+                data.id = currentId;
+            } else if (outboxId) {
+                data.id = 'outbox-' + outboxId;
+            }
         }
         return data;
     }
