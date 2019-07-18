@@ -1,5 +1,11 @@
 import pkg from './package.json';
-import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
+import {
+    makeBanner,
+    wqDeps,
+    babelNPM,
+    babelAMD,
+    outputAMD
+} from '../../rollup-utils.js';
 const banners = {
     app: makeBanner(pkg, 2012),
     patterns: makeBanner(
@@ -62,50 +68,22 @@ export default [
         input: 'packages/app/src/app.js',
         plugins: [wqDeps('.'), babelAMD()],
         external: ['./spinner'],
-        output: [
-            {
-                banner: banners.app,
-                file: 'packages/app/dist/app.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('app', banners.app)
     },
     {
         input: 'packages/app/src/patterns.js',
         plugins: [wqDeps('.'), babelAMD()],
-        output: [
-            {
-                banner: banners.patterns,
-                file: 'packages/app/dist/patterns.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('patterns', banners.patterns, 'app')
     },
     {
         input: 'packages/app/src/photos.js',
         plugins: [wqDeps('.'), babelAMD()],
         external: ['localforage'],
-        output: [
-            {
-                banner: banners.photos,
-                file: 'packages/app/dist/photos.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('photos', banners.photos, 'app')
     },
     {
         input: 'packages/app/src/spinner.js',
         plugins: [babelAMD()],
-        output: [
-            {
-                banner: banners.spinner,
-                file: 'packages/app/dist/spinner.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('spinner', banners.spinner, 'app')
     }
 ];

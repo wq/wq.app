@@ -13,22 +13,22 @@ js_build: init
 	npm run build
 
 js_wq: js_build
-	cp -p packages/app/dist/app.js js/wq/app.js
-	cp -p packages/chart/dist/chart.js js/wq/chart.js
-	cp -p packages/chart/dist/chartapp.js js/wq/chartapp.js
-	cp -p packages/map/dist/locate.js js/wq/locate.js
-	cp -p packages/map/dist/map.js js/wq/map.js
-	cp -p packages/map/dist/mapserv.js js/wq/mapserv.js
-	cp -p packages/markdown/dist/markdown.js js/wq/markdown.js
-	cp -p packages/model/dist/model.js js/wq/model.js
-	cp -p packages/outbox/dist/outbox.js js/wq/outbox.js
-	cp -p packages/chart/dist/pandas.js js/wq/pandas.js
-	cp -p packages/app/dist/patterns.js js/wq/patterns.js
-	cp -p packages/app/dist/photos.js js/wq/photos.js
-	cp -p packages/router/dist/router.js js/wq/router.js
-	cp -p packages/app/dist/spinner.js js/wq/spinner.js
-	cp -p packages/store/dist/store.js js/wq/store.js
-	cp -p packages/template/dist/template.js js/wq/template.js
+	cp -p packages/app/dist/app.js* js/wq/
+	cp -p packages/chart/dist/chart.js* js/wq/
+	cp -p packages/chart/dist/chartapp.js* js/wq/
+	cp -p packages/map/dist/locate.js* js/wq/
+	cp -p packages/map/dist/map.js* js/wq/
+	cp -p packages/map/dist/mapserv.js* js/wq/
+	cp -p packages/markdown/dist/markdown.js* js/wq/
+	cp -p packages/model/dist/model.js* js/wq/
+	cp -p packages/outbox/dist/outbox.js* js/wq/
+	cp -p packages/chart/dist/pandas.js* js/wq/
+	cp -p packages/app/dist/patterns.js* js/wq/
+	cp -p packages/app/dist/photos.js* js/wq/
+	cp -p packages/router/dist/router.js* js/wq/
+	cp -p packages/app/dist/spinner.js* js/wq/
+	cp -p packages/store/dist/store.js* js/wq/
+	cp -p packages/template/dist/template.js* js/wq/
 
 js_leaflet_draw:
 	echo "define(['leaflet'], function(L) {" > js/leaflet.draw.js

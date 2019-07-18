@@ -1,7 +1,13 @@
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import pkg from './package.json';
-import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
+import {
+    makeBanner,
+    wqDeps,
+    babelNPM,
+    babelAMD,
+    outputAMD
+} from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
 export default [
@@ -37,15 +43,10 @@ export default [
         input: 'packages/model/index.js',
         plugins: [wqDeps(), commonjs(), resolve(), babelAMD()],
         external: ['redux-orm'],
-        output: [
-            {
-                banner: banner,
-                file: 'packages/model/dist/model.js',
-                format: 'amd',
-                exports: 'named',
-                indent: false
-            }
-        ]
+        output: {
+            ...outputAMD('model', banner),
+            exports: 'named'
+        }
     },
     {
         input: 'packages/model/node_modules/redux-orm/es/index.js',

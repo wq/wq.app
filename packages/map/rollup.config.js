@@ -1,5 +1,11 @@
 import pkg from './package.json';
-import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
+import {
+    makeBanner,
+    wqDeps,
+    babelNPM,
+    babelAMD,
+    outputAMD
+} from '../../rollup-utils.js';
 const banners = {
     map: makeBanner(pkg, 2013),
     locate: makeBanner(
@@ -54,39 +60,18 @@ export default [
         input: 'packages/map/src/map.js',
         plugins: [wqDeps('.'), babelAMD()],
         external: ['leaflet'],
-        output: [
-            {
-                banner: banners.map,
-                file: 'packages/map/dist/map.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('map', banners.map)
     },
     {
         input: 'packages/map/src/locate.js',
         external: ['leaflet'],
         plugins: [babelAMD()],
-        output: [
-            {
-                banner: banners.locate,
-                file: 'packages/map/dist/locate.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('locate', banners.locate, 'map')
     },
     {
         input: 'packages/map/src/mapserv.js',
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms', './map'],
         plugins: [babelAMD()],
-        output: [
-            {
-                banner: banners.mapserv,
-                file: 'packages/map/dist/mapserv.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('mapserv', banners.mapserv, 'map')
     }
 ];

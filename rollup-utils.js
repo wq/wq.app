@@ -119,3 +119,20 @@ function generator(ast, opts, code) {
 }
 
 const generatorOverride = { generatorOverride: generator };
+
+export function outputAMD(name, banner, module) {
+    if (!module) {
+        module = name;
+    }
+    return {
+        banner,
+        file: `packages/${module}/dist/${name}.js`,
+        format: 'amd',
+        sourcemap: true,
+        sourcemapPathTransform: path =>
+            '../' +
+            // eslint-disable-next-line no-useless-escape
+            path.replace(/^\.\.\/src/, `../node_modules\/@wq\/${module}\/src`),
+        indent: false
+    };
+}

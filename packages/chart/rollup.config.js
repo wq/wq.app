@@ -1,6 +1,12 @@
 import ignore from 'rollup-plugin-ignore';
 import pkg from './package.json';
-import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
+import {
+    makeBanner,
+    wqDeps,
+    babelNPM,
+    babelAMD,
+    outputAMD
+} from '../../rollup-utils.js';
 const banners = {
     chart: makeBanner(pkg, 2013),
     chartapp: makeBanner(
@@ -55,39 +61,18 @@ export default [
         input: 'packages/chart/src/chart.js',
         plugins: [wqDeps(), babelAMD()],
         external: ['d3'],
-        output: [
-            {
-                banner: banners.chart,
-                file: 'packages/chart/dist/chart.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('chart', banners.chart)
     },
     {
         input: 'packages/chart/src/chartapp.js',
         plugins: [wqDeps(), ignore(['whatwg-fetch']), babelAMD()],
         external: ['d3', './chart', './pandas'],
-        output: [
-            {
-                banner: banners.chartapp,
-                file: 'packages/chart/dist/chartapp.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('chartapp', banners.chartapp, 'chart')
     },
     {
         input: 'packages/chart/src/pandas.js',
         plugins: [wqDeps(), ignore(['whatwg-fetch']), babelAMD()],
         external: ['d3'],
-        output: [
-            {
-                banner: banners.pandas,
-                file: 'packages/chart/dist/pandas.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('pandas', banners.pandas, 'chart')
     }
 ];

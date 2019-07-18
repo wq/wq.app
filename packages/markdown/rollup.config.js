@@ -5,7 +5,8 @@ import {
     makeBanner,
     vendorLib,
     babelNPM,
-    babelAMD
+    babelAMD,
+    outputAMD
 } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2013);
 
@@ -41,14 +42,7 @@ export default [
         input: 'packages/markdown/index.js',
         external: ['marked'],
         plugins: [vendorLib('./highlight'), babelAMD()],
-        output: [
-            {
-                banner: banner,
-                file: 'packages/markdown/dist/markdown.js',
-                format: 'amd',
-                indent: false
-            }
-        ]
+        output: outputAMD('markdown', banner)
     },
     {
         input: 'packages/markdown/src/highlight.js',

@@ -6,7 +6,8 @@ import {
     wqDeps,
     vendorLib,
     babelNPM,
-    babelAMD
+    babelAMD,
+    outputAMD
 } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
@@ -67,15 +68,10 @@ export default [
             vendorLib('../vendor/json-forms'),
             babelAMD()
         ],
-        output: [
-            {
-                banner: banner,
-                file: 'packages/outbox/dist/outbox.js',
-                format: 'amd',
-                exports: 'named',
-                indent: false
-            }
-        ]
+        output: {
+            ...outputAMD('outbox', banner),
+            exports: 'named'
+        }
     },
     {
         input: 'packages/outbox/vendor/json-forms.js',

@@ -2,7 +2,13 @@ import ignore from 'rollup-plugin-ignore';
 import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
 import pkg from './package.json';
-import { makeBanner, wqDeps, babelNPM, babelAMD } from '../../rollup-utils.js';
+import {
+    makeBanner,
+    wqDeps,
+    babelNPM,
+    babelAMD,
+    outputAMD
+} from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
 
 const autoMergeLevel2 = 'redux-persist/lib/stateReconciler/autoMergeLevel2';
@@ -73,15 +79,10 @@ export default [
                 'process.env.NODE_ENV': "'production'"
             })
         ],
-        output: [
-            {
-                banner: banner,
-                file: 'packages/store/dist/store.js',
-                format: 'amd',
-                exports: 'named',
-                globals: { 'whatwg-fetch': 'fetch' },
-                indent: false
-            }
-        ]
+        output: {
+            ...outputAMD('store', banner),
+            exports: 'named',
+            globals: { 'whatwg-fetch': 'fetch' }
+        }
     }
 ];
