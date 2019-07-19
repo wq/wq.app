@@ -6,9 +6,10 @@
         "color": "#f00",
         "markdown": "# Item One\nThis is a test.\n```python\nfrom tests.models import Item\nitem = Item.objects.find('one')\n```",
         "values": [
-            {"attribute_id": 1, "value": "Value One", "@index": 0},
-            {"attribute_id": 2, "value": "Value Two", "@index": 1}
-        ]
+            { "id": 1, "attribute_id": 1, "value": "Value One", "@index": 0 },
+            { "id": 2, "attribute_id": 2, "value": "Value Two", "@index": 1 }
+        ],
+        "other_nested": [{ "label": "Nested 1" }, { "label": "Nested 2" }]
     },
     {
         "id": "two",
@@ -17,9 +18,10 @@
         "color": "#0f0",
         "markdown": "# Item Two\nThis is a test.\n```javascript\napp.models.item.find('two');\n```",
         "values": [
-            {"attribute_id": 1, "value": "Value Three", "@index": 0},
-            {"attribute_id": 2, "value": "Value Four", "@index": 1}
-        ]
+            { "id": 3, "attribute_id": 1, "value": "Value Three", "@index": 0 },
+            { "id": 4, "attribute_id": 2, "value": "Value Four", "@index": 1 }
+        ],
+        "other_nested": [{ "label": "Nested 3" }]
     },
     {
         "id": "three",
@@ -28,8 +30,9 @@
         "color": "#00f",
         "markdown": "# Item Three\nThis is a test.\n```xml\n<html>\n  <h1>Item Three</h1>\n</html>\n```",
         "values": [
-            {"attribute_id": 1, "value": "Value Five", "@index": 0},
-            {"attribute_id": 2, "value": "Value Six", "@index": 1}
-        ]
+            { "id": 5, "attribute_id": 1, "value": "Value Five", "@index": 0 },
+            { "id": 6, "attribute_id": 2, "value": "Value Six", "@index": 1 }
+        ],
+        "other_nested": []
     }
 ]

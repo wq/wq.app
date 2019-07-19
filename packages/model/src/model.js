@@ -1,6 +1,6 @@
 import ds from '@wq/store';
 import deepcopy from 'deepcopy';
-import { Model as ORMModel, ORM } from 'redux-orm';
+import { Model as ORMModel, ORM, attr, fk, ForeignKey } from 'redux-orm';
 
 function model(config) {
     return new Model(config);
@@ -19,6 +19,53 @@ class ORMWithReducer extends ORM {
         super();
         this.store = store;
     }
+
+    getReverseRels(modelName) {
+        if (!this._rrel) {
+            this._rrel = {};
+            const models = {};
+            this.getModelClasses().forEach(cls => {
+                models[cls.modelName] = cls;
+            });
+            Object.values(models).forEach(cls => {
+                Object.entries(cls.fields).forEach(([name, field]) => {
+                    if (!(field instanceof ForeignKey)) {
+                        return;
+                    }
+
+                    const to = field.toModelName,
+                        toModel = models[to];
+
+                    if (!toModel || !toModel.wqConfig) {
+                        return;
+                    }
+                    const isNested =
+                        (toModel.wqConfig.form || []).filter(
+                            f =>
+                                f.type === 'repeat' &&
+                                f.name === field.relatedName
+                        ).length > 0;
+
+                    if (!this._rrel[to]) {
+                        this._rrel[to] = [];
+                    }
+
+                    this._rrel[to].push({
+                        model: cls.modelName,
+                        fkName: name,
+                        relatedName: field.relatedName,
+                        nested: isNested
+                    });
+                });
+            });
+        }
+        return this._rrel[modelName] || [];
+    }
+
+    getNestedModels(modelName) {
+        return this.getReverseRels(modelName).filter(rel => rel.nested);
+    }
+
     get prefix() {
         if (this.store.name === 'main') {
             return 'ORM';
@@ -42,11 +89,12 @@ class ORMWithReducer extends ORM {
             return session.state;
         }
         const currentCount = cls.count();
+
         let updateCount;
 
         switch (actName) {
             case CREATE: {
-                cls.create(action.payload);
+                this._nestedCreate(cls, action.payload);
                 updateCount = true;
                 break;
             }
@@ -61,31 +109,27 @@ class ORMWithReducer extends ORM {
                     action.meta.currentId &&
                     action.meta.currentId != items[0].id
                 ) {
-                    const exist = cls.withId(action.meta.currentId);
-                    if (exist) {
-                        // See redux-orm #176
-                        cls.upsert({
-                            ...exist.ref,
-                            id: items[0].id
-                        });
-                        exist.delete();
-                    }
+                    this._updateID(cls, action.meta.currentId, items[0].id);
                 }
-                items.forEach(item => cls.upsert(item));
+
+                items.forEach(item => this._nestedUpdate(cls, item));
 
                 updateCount = true;
 
                 break;
             }
             case DELETE: {
-                cls.withId(action.payload).delete();
+                this._nestedDelete(cls.withId(action.payload));
                 updateCount = true;
                 break;
             }
+
             case OVERWRITE: {
                 const { list, ...info } = action.payload;
-                cls.all().delete();
-                list.forEach(item => cls.create(item));
+                cls.all()
+                    .toModelArray()
+                    .map(instance => this._nestedDelete(instance));
+                list.forEach(item => this._nestedCreate(cls, item));
                 session._modelmeta.upsert({
                     id: cls.modelName,
                     ...info
@@ -112,9 +156,82 @@ class ORMWithReducer extends ORM {
                     per_page: cls.count()
                 });
             }
+            // FIXME: Update count for nested models
         }
 
         return session.state;
+    }
+
+    _setNested(cls, data) {
+        const item = { ...data },
+            session = cls.session,
+            nested = this.getNestedModels(cls.modelName);
+
+        const exist = data.id ? cls.withId(data.id) : null;
+
+        // Normalize nested records into their own models
+        nested.forEach(({ model, fkName, relatedName }) => {
+            if (!Array.isArray(item[relatedName])) {
+                return;
+            }
+            if (exist && exist[relatedName] && exist[relatedName].toRefArray) {
+                const idsToKeep = item[relatedName]
+                    .map(row => row.id)
+                    .filter(id => !!id);
+                exist[relatedName]
+                    .filter(item => !idsToKeep.includes(item.id))
+                    .delete();
+            }
+            item[relatedName].forEach(row => {
+                session[model].upsert({
+                    ...row,
+                    [fkName]: item.id
+                });
+            });
+            delete item[relatedName];
+        });
+        return item;
+    }
+
+    _nestedCreate(cls, data) {
+        const item = this._setNested(cls, data);
+        cls.create(item);
+    }
+
+    _nestedUpdate(cls, data) {
+        const item = this._setNested(cls, data);
+        cls.upsert(item);
+    }
+
+    _nestedDelete(instance) {
+        const nested = this.getNestedModels(instance.getClass().modelName);
+        nested.forEach(({ relatedName }) => {
+            instance[relatedName].delete();
+        });
+        instance.delete();
+    }
+
+    _updateID(cls, oldId, newId) {
+        // New ID was assigned (i.e. by the server)
+        const exist = cls.withId(oldId),
+            rrel = this.getReverseRels(cls.modelName);
+        if (!exist) {
+            return;
+        }
+        // Update any existing FKs to point to the new ID
+        // (including both nested and non-nested relationships)
+        rrel.forEach(({ fkName, relatedName }) => {
+            exist[relatedName].update({
+                [fkName]: newId
+            });
+        });
+
+        // Remove and replace (see redux-orm #176)
+        cls.upsert({
+            ...exist.ref,
+            id: newId
+        });
+        exist.delete();
     }
 }
 
@@ -218,7 +335,7 @@ class Model {
         this.orm = orm(this.store);
 
         try {
-            this.model = this.orm.get(this.name);
+            this._model = this.orm.get(this.name);
         } catch (e) {
             const idCol = this.idCol;
             class M extends ORMModel {
@@ -226,12 +343,30 @@ class Model {
                     return idCol;
                 }
                 static get fields() {
-                    return {};
+                    const fields = {};
+                    (config.form || []).forEach(field => {
+                        if (field['wq:ForeignKey']) {
+                            fields[field.name + '_id'] = fk({
+                                to: field['wq:ForeignKey'],
+                                as: field.name,
+                                relatedName:
+                                    field['wq:related_name'] ||
+                                    config.url ||
+                                    config.name + 's'
+                            });
+                        } else if (field.type !== 'repeat') {
+                            fields[field.name] = attr();
+                        }
+                    });
+                    return fields;
+                }
+                static get wqConfig() {
+                    return config;
                 }
             }
             M.modelName = this.name;
             this.orm.register(M);
-            this.model = M;
+            this._model = M;
         }
 
         if (config.query) {
@@ -269,6 +404,10 @@ class Model {
             throw new Error('Could not find model in session');
         }
         return model;
+    }
+
+    get model() {
+        return this.getSessionModel();
     }
 
     getQuerySet() {
@@ -315,11 +454,22 @@ class Model {
         return data;
     }
 
+    _withNested(instance) {
+        const data = deepcopy(instance.ref);
+        const nested = this.orm.getNestedModels(instance.getClass().modelName);
+        nested.forEach(({ relatedName }) => {
+            data[relatedName] = instance[relatedName].toRefArray();
+        });
+        return data;
+    }
+
     async load() {
         const info = await this.info();
         return {
             ...info,
-            list: this.getQuerySet().toRefArray()
+            list: this.getQuerySet()
+                .toModelArray()
+                .map(instance => this._withNested(instance))
         };
     }
 
@@ -380,7 +530,7 @@ class Model {
             instance = model.withId(value);
 
         if (instance) {
-            return deepcopy(instance.ref);
+            return this._withNested(instance);
         } else if (
             value !== undefined &&
             !localOnly &&
@@ -457,7 +607,9 @@ class Model {
                 });
             }
         }
-        return deepcopy(this._processData(qs.toRefArray()));
+        return this._processData(
+            qs.toModelArray().map(instance => this._withNested(instance))
+        );
     }
 
     // Filter an array of objects by one or more attributes
@@ -467,37 +619,37 @@ class Model {
     }
 
     // Create new item
-    async create(object) {
-        this.dispatch(CREATE, object);
+    async create(object, meta) {
+        this.dispatch(CREATE, object, meta);
     }
 
     // Merge new/updated items into list
-    async update(update, idCol) {
-        if (idCol) {
+    async update(update, meta) {
+        if (meta && typeof meta === 'string') {
             throw new Error(
-                'Usage: update(items).  To customize id attr use config.idCol'
+                'Usage: update(items[, meta]).  To customize id attr use config.idCol'
             );
         }
-        return this.dispatch(UPDATE, update);
+        return this.dispatch(UPDATE, update, meta);
     }
 
-    async remove(id, idCol) {
-        if (idCol) {
+    async remove(id, meta) {
+        if (meta && typeof meta === 'string') {
             throw new Error(
                 'Usage: remove(id).  To customize id attr use config.idCol'
             );
         }
-        return this.dispatch(DELETE, id);
+        return this.dispatch(DELETE, id, meta);
     }
 
     // Overwrite entire list
-    async overwrite(data) {
+    async overwrite(data, meta) {
         if (data.pages == 1 && data.list) {
             data.count = data.per_page = data.list.length;
         } else {
             data = this._processData(data);
         }
-        return this.dispatch(OVERWRITE, data);
+        return this.dispatch(OVERWRITE, data, meta);
     }
 
     // Prefetch list

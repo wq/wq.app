@@ -4,6 +4,7 @@ import { URLSearchParams } from 'url';
 global.URLSearchParams = URLSearchParams;
 
 var ds = store.getStore('model-test');
+
 var items = model({
     name: 'item',
     url: 'items',
@@ -11,14 +12,55 @@ var items = model({
     cache: 'all',
     functions: {
         is_red: item => item.color === '#f00'
-    }
+    },
+    form: [
+        {
+            name: 'type',
+            'wq:ForeignKey': 'itemtype'
+        },
+        {
+            name: 'values',
+            type: 'repeat',
+            children: [
+                {
+                    name: 'attribute',
+                    'wq:ForeignKey': 'attribute'
+                }
+            ]
+        }
+    ]
 });
+
 var itemtypes = model({
     name: 'itemtype',
     url: 'itemtypes',
     store: ds,
     cache: 'all'
 });
+
+model({
+    name: 'attribute',
+    url: 'attributes',
+    store: ds,
+    cache: 'all'
+});
+
+var values = model({
+    name: 'value',
+    store: ds,
+    form: [
+        {
+            name: 'item',
+            'wq:ForeignKey': 'item',
+            'wq:related_name': 'values'
+        },
+        {
+            name: 'attribute',
+            'wq:ForeignKey': 'attribute'
+        }
+    ]
+});
+
 var localmodel = model({
     name: 'localmodel',
     store: ds
@@ -44,7 +86,15 @@ test('find item', async () => {
     const item = await items.find('one');
     expect(item.id).toEqual('one');
     expect(item.label).toEqual('ONE');
+    expect(item.other_nested).toHaveLength(2);
+});
+
+test('find item - nested related model', async () => {
+    const item = await items.find('one'),
+        value = await values.find(1);
     expect(item.values).toHaveLength(2);
+    expect(value.item_id).toEqual(item.id);
+    expect(item.values[0]).toEqual(value);
 });
 
 test('filter by single value', async () => {
@@ -113,6 +163,30 @@ test('filter by boolean & non-boolean', async () => {
     expect(types1).toEqual(types2);
 });
 
+test('orm - objects.all()', async () => {
+    await items.prefetch();
+    expect(items.objects.all().count()).toBe(3);
+});
+
+test('orm - foreign key', async () => {
+    await items.ensureLoaded();
+    await itemtypes.ensureLoaded();
+    const item = items.model.withId('one');
+    expect(item.type_id).toEqual(1);
+    expect(item.type && item.type.ref).toEqual({
+        id: 1,
+        label: 'Type #1',
+        is_active: true
+    });
+});
+
+test('orm - reverse lookup', async () => {
+    await items.ensureLoaded();
+    const item = items.model.withId('one');
+    expect(item.ref.values).toBeUndefined();
+    expect(item.values.toRefArray()).toHaveLength(2);
+});
+
 test('create', async () => {
     await localmodel.overwrite([]);
 
@@ -140,6 +214,38 @@ test('create', async () => {
     });
 });
 
+test('create - nested model', async () => {
+    await items.create({
+        id: 'five',
+        values: [{ id: 100, value: 'Value', attribute_id: 1 }]
+    });
+    const item = items.model.withId('five'),
+        value = values.model.withId(100);
+    expect(item.ref.values).toBeUndefined();
+    expect(value.item_id).toEqual(item.id);
+    expect(item.values.toRefArray()[0]).toBe(value.ref);
+});
+
+test('create - related but not nested', async () => {
+    await itemtypes.create({
+        id: 4,
+        label: 'Type #4',
+        items: [{ id: 'item1' }]
+    });
+    await items.create({
+        id: 'item2',
+        type_id: 4
+    });
+    const itemtype = itemtypes.model.withId(4);
+    expect(itemtype.ref.items).toEqual([{ id: 'item1' }]);
+    expect(itemtype.items.toRefArray()).toEqual([{ id: 'item2', type_id: 4 }]);
+    expect(await itemtypes.find(4)).toEqual({
+        id: 4,
+        label: 'Type #4',
+        items: [{ id: 'item1' }]
+    });
+});
+
 test('update', async () => {
     await localmodel.overwrite([]);
     await localmodel.create({ id: 1, label: 'Test 1' });
@@ -155,11 +261,37 @@ test('update', async () => {
     });
 });
 
+test('update - nested model', async () => {
+    await items.create({
+        id: 'six',
+        values: [
+            { id: 101, value: 'Value 1', attribute_id: 1 },
+            { id: 102, value: 'Value 2', attribute_id: 1 },
+            { id: 103, value: 'Value 3', attribute_id: 1 }
+        ]
+    });
+
+    const item1 = items.model.withId('six');
+    expect(item1.values.count()).toEqual(3);
+
+    await items.update({
+        id: 'six',
+        values: [
+            { id: 102, value: 'Value 2 - Updated', attribute_id: 1 },
+            { id: 104, value: 'Value 4', attribute_id: 1 }
+        ]
+    });
+
+    const item2 = items.model.withId('six');
+    expect(item2.values.count()).toEqual(2);
+    expect(values.model.withId(102).value).toEqual('Value 2 - Updated');
+    expect(values.model.withId(104).value).toEqual('Value 4');
+});
+
 test('update - change ID', async () => {
     await localmodel.overwrite([]);
     await localmodel.create({ id: 'local-1', label: 'Test 1' });
-    await localmodel.dispatch(
-        'UPDATE',
+    await localmodel.update(
         { id: 1234, label: 'Update Test 1' },
         { currentId: 'local-1' }
     );
@@ -169,6 +301,20 @@ test('update - change ID', async () => {
         per_page: 1,
         list: [{ id: 1234, label: 'Update Test 1' }]
     });
+});
+
+test('update - change ID & update related FK', async () => {
+    await items.create({
+        id: 'eihgt',
+        values: [{ id: 301, value: 'Value', attribute_id: 1 }]
+    });
+    expect(values.model.withId(301).item_id).toBe('eihgt');
+
+    await items.update({ id: 'eight' }, { currentId: 'eihgt' });
+
+    const item = items.model.withId('eight');
+    expect(item.values.count()).toEqual(1);
+    expect(values.model.withId(301).item_id).toBe('eight');
 });
 
 test('delete', async () => {
@@ -181,4 +327,19 @@ test('delete', async () => {
         per_page: 0,
         list: []
     });
+});
+
+test('delete - nested model', async () => {
+    await items.create({
+        id: 'seven',
+        values: [{ id: 201, value: 'Value', attribute_id: 1 }]
+    });
+
+    const item1 = items.model.withId('seven');
+    expect(item1.values.count()).toEqual(1);
+
+    await items.remove('seven');
+
+    expect(items.model.withId('seven')).toBeNull();
+    expect(values.model.withId(201)).toBeNull();
 });
