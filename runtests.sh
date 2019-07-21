@@ -1,9 +1,7 @@
 set -e
-if [ "$LINT" ]; then
-    npm run lint
+if [ "$PACKAGE" ]; then
+    cd packages/$PACKAGE
+    npm run test
 else
-    cd tests/commands;
-    ./test_commands.sh
-    cd ../..;
-    npm test
+    npm run test
 fi
