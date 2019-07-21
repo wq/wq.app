@@ -123,6 +123,7 @@ def _parse_css_urls(path, filename, ignore=None):
     os.chdir(cur)
     return urls
 
+
 APPCACHE_TMPL = """CACHE MANIFEST
 
 # Version %(version)s

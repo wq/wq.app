@@ -38,4 +38,5 @@ def setversion(**conf):
 
     return version
 
+
 VERSIONJS_TMPL = """define(function(){return "%s";});"""
