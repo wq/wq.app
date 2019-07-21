@@ -9,29 +9,29 @@ script:
  - ./runtests.sh
 matrix:
   include:
-    - name: @wq/app
+    - name: "@wq/app"
       env: PACKAGE=app
-    - name: @wq/chart
+    - name: "@wq/chart"
       env: PACKAGE=chart
-    - name: @wq/jest-env-jsdom-idb
+    - name: "@wq/jest-env-jsdom-idb"
       env: PACKAGE=jest-env-jsdom-idb
-    - name: @wq/jquery-mobile
+    - name: "@wq/jquery-mobile"
       env: PACKAGE=jquery-mobile
-    - name: @wq/map
+    - name: "@wq/map"
       env: PACKAGE=map
-    - name: @wq/markdown
+    - name: "@wq/markdown"
       env: PACKAGE=markdown
-    - name: @wq/model
+    - name: "@wq/model"
       env: PACKAGE=model
-    - name: @wq/outbox
+    - name: "@wq/outbox"
       env: PACKAGE=outbox
-    - name: @wq/router
+    - name: "@wq/router"
       env: PACKAGE=router
-    - name: @wq/store
+    - name: "@wq/store"
       env: PACKAGE=store
-    - name: @wq/template
+    - name: "@wq/template"
       env: PACKAGE=template
-    - name: wq.app PyPI Package
+    - name: "wq.app PyPI Package"
       language: python
       python: 3.7
       install:
@@ -43,10 +43,10 @@ matrix:
         - mkdir css && wq init && wq scss --indir scss --outdir css
         - cd commands;
         - ./test_commands.sh
-    - name: JavaScript Lint
+    - name: "JavaScript Lint"
       install: npm install
       script: npm run lint
-    - name: Python Lint
+    - name: "Python Lint"
       language: python
       python: 3.7
       install: pip install flake8
