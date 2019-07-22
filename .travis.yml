@@ -6,6 +6,8 @@ install:
 script:
  - python3 -m tests.server &
  - ./runtests.sh
+git:
+  depth: false
 matrix:
   include:
     - name: "@wq/app"
@@ -35,13 +37,28 @@ matrix:
       python: 3.7
       install:
         - pip install --upgrade pip
-        - make
-        - pip install .
+        - python setup.py bdist_wheel
+        - pip install dist/*.whl
       script:
         - cd tests
         - mkdir css && wq init && wq scss --indir scss --outdir css
-        - cd commands;
+        - cd commands
         - ./test_commands.sh
+      before_deploy:
+        - pip install setuptools_scm
+        - cd ../..
+        - git checkout .
+        - python3 -m tests.bintray > dist/bintray.json
+      deploy:
+        provider: bintray
+        file: dist/bintray.json
+        skip_cleanup: true
+        user: "$BINTRAY_USER"
+        key: "$BINTRAY_KEY"
+      after_deploy:
+        - sleep 20
+        - WHEEL=`cd dist && ls *.whl | tail -n 1 && cd ..`
+        - "curl -X PUT -H 'Content-Type: application/json' -u $BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/file_metadata/wq/wq.app/$WHEEL -d '{\"list_in_downloads\": true}'"
     - name: "JavaScript Lint"
       install: npm install
       script: npm run lint
