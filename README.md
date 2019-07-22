@@ -2,17 +2,18 @@
 
 [wq.app](https://wq.io/wq.app) is a suite of Javascript modules and related assets, created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps for **crowdsourcing**, **citizen science**, and **volunteered geographic information**, as well as professional **field data collection**.  wq.app is the client component of the [wq framework], and can be used with any REST service as a backend.  In particular, when combined with a Mustache-capable REST service like [wq.db], wq.app can be used to create **responsive, progressively enhanced** websites / apps, that can selectively render individual application screens [on the server or on the client] depending on project needs, network connectivity, and offline storage availability.
 
-
-
 [![Latest PyPI Release](https://img.shields.io/pypi/v/wq.app.svg)](https://pypi.org/project/wq.app)
 [![Release Notes](https://img.shields.io/github/release/wq/wq.app.svg)](https://github.com/wq/wq.app/releases)
-[![Documentation](https://img.shields.io/badge/Docs-1.0-blue.svg)](https://wq.io/wq.app)
+[![Documentation](https://img.shields.io/badge/Docs-1.1-blue.svg)](https://wq.io/wq.app)
 [![License](https://img.shields.io/pypi/l/wq.app.svg)](https://wq.io/license)
 [![GitHub Stars](https://img.shields.io/github/stars/wq/wq.app.svg)](https://github.com/wq/wq.app/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/wq/wq.app.svg)](https://github.com/wq/wq.app/network)
 [![GitHub Issues](https://img.shields.io/github/issues/wq/wq.app.svg)](https://github.com/wq/wq.app/issues)
 
+#### Latest Build
+
 [![Travis Build Status](https://img.shields.io/travis/wq/wq.app/master.svg)](https://travis-ci.org/wq/wq.app)
+[![Python Wheel](https://img.shields.io/bintray/v/wq/wq.app/wq.app.svg)](https://bintray.com/wq/wq.app/wq.app/_latestVersion)
 
 ## Getting Started
 
