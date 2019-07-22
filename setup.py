@@ -1,6 +1,6 @@
 import os
 from setuptools import setup
-from distutils.command.build import build
+from setuptools.command.build_py import build_py
 import subprocess
 
 
@@ -9,9 +9,17 @@ Offline-capable HTML5 web and hybrid apps for citizen science field data collect
 """
 
 
-class BuildJS(build):
+class BuildJS(build_py):
     def run(self):
         subprocess.check_call(['make'])
+
+        package_data = []
+        for folder in ['js', 'css', 'scss']:
+            package_data.extend(list_package_data(folder))
+        self.package_data = {
+            'wq.app': package_data
+        }
+
         super().run()
 
 
@@ -48,9 +56,6 @@ def create_wq_namespace():
 
 
 create_wq_namespace()
-package_data = []
-for folder in ['js', 'css', 'scss']:
-    package_data.extend(list_package_data(folder))
 
 setup(
     name='wq.app',
@@ -63,9 +68,6 @@ setup(
     package_dir={
         'wq.app': '.',
         'wq.app.build': './build',
-    },
-    package_data={
-        'wq.app': package_data
     },
     install_requires=[
         'wq.core',
@@ -107,7 +109,7 @@ setup(
         'setuptools_scm',
     ],
     cmdclass={
-        'build': BuildJS,
+        'build_py': BuildJS,
     },
     project_urls={
         'Homepage': 'https://wq.io/wq.app',
