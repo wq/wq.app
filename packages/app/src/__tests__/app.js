@@ -51,6 +51,7 @@ beforeAll(async () => {
     app.service = app.base_url;
     $('body').append('<div data-role=page></div>');
     app.jqmInit();
+    await app.prefetchAll();
 });
 
 test('models defined', () => {
@@ -86,9 +87,9 @@ test('item edit page', async () => {
     var formdata = encode($page.find('form')[0]);
 
     const data = await app.models.item.find('two');
-    expect(data.type_id).toEqual(+formdata.type_id);
-    expect(data.color).toEqual(formdata.color);
-    expect(data.values[0].value).toEqual(formdata.values[0].value);
+    expect(+formdata.type_id).toEqual(data.type_id);
+    expect(formdata.color).toEqual(data.color);
+    expect(formdata.values[0].value).toEqual(data.values[0].value);
 
     // Submit form, confirm data is in outbox
     await app.emptyOutbox();

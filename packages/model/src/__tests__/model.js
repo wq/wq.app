@@ -343,3 +343,33 @@ test('delete - nested model', async () => {
     expect(items.model.withId('seven')).toBeNull();
     expect(values.model.withId(201)).toBeNull();
 });
+
+test("overwrite - don't break foreign key", async () => {
+    expect((await items.find('two')).type_id).toEqual(1);
+    await itemtypes.overwrite(await itemtypes.load());
+    expect((await items.find('two')).type_id).toEqual(1);
+});
+
+test('overwrite - remove obsolete items', async () => {
+    await localmodel.overwrite([
+        { id: 1, name: 'Test #1' },
+        { id: 2, name: 'Test #2' }
+    ]);
+    await localmodel.overwrite([
+        { id: 2, name: 'Test #2' },
+        { id: 3, name: 'Test #3' }
+    ]);
+    expect(await localmodel.load()).toEqual({
+        count: 2,
+        pages: 1,
+        per_page: 2,
+        list: [{ id: 3, name: 'Test #3' }, { id: 2, name: 'Test #2' }]
+    });
+    await localmodel.overwrite([]);
+    expect(await localmodel.load()).toEqual({
+        count: 0,
+        pages: 1,
+        per_page: 0,
+        list: []
+    });
+});

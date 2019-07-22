@@ -126,10 +126,8 @@ class ORMWithReducer extends ORM {
 
             case OVERWRITE: {
                 const { list, ...info } = action.payload;
-                cls.all()
-                    .toModelArray()
-                    .map(instance => this._nestedDelete(instance));
-                list.forEach(item => this._nestedCreate(cls, item));
+                this._removeObsolete(cls.all(), list, true);
+                list.forEach(item => this._nestedUpdate(cls, item));
                 session._modelmeta.upsert({
                     id: cls.modelName,
                     ...info
@@ -175,12 +173,7 @@ class ORMWithReducer extends ORM {
                 return;
             }
             if (exist && exist[relatedName] && exist[relatedName].toRefArray) {
-                const idsToKeep = item[relatedName]
-                    .map(row => row.id)
-                    .filter(id => !!id);
-                exist[relatedName]
-                    .filter(item => !idsToKeep.includes(item.id))
-                    .delete();
+                this._removeObsolete(exist[relatedName], item[relatedName]);
             }
             item[relatedName].forEach(row => {
                 session[model].upsert({
@@ -191,6 +184,16 @@ class ORMWithReducer extends ORM {
             delete item[relatedName];
         });
         return item;
+    }
+
+    _removeObsolete(qs, newItems, nested) {
+        const idsToKeep = newItems.map(row => row.id).filter(id => !!id),
+            obsolete = qs.filter(item => !idsToKeep.includes(item.id));
+        if (nested) {
+            obsolete.toModelArray().forEach(item => this._nestedDelete(item));
+        } else {
+            obsolete.delete();
+        }
     }
 
     _nestedCreate(cls, data) {
