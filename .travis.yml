@@ -3,9 +3,8 @@ language: node_js
 node_js: 11
 install:
  - make js_build
- - pip install html-json-forms
 script:
- - python -m tests.server &
+ - python3 -m tests.server &
  - ./runtests.sh
 matrix:
   include:

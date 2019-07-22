@@ -1,6 +1,11 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from html_json_forms import parse_json_form
-from urllib.parse import parse_qs
+try:
+    from html_json_forms import parse_json_form
+except ImportError:
+    def parse_json_form(data):
+        return parse_values_array(data)
+
+
 import json
 import time
 import random
@@ -72,6 +77,20 @@ def run():
         httpd.serve_forever()
     except KeyboardInterrupt:
         httpd.server_close()
+
+
+def parse_values_array(data):
+    for key, val in list(data.items()):
+        if key.startswith('values['):
+            i = int(key[7])
+            if 'values' not in data:
+                data['values'] = []
+            while len(data['values']) < i + 1:
+                data['values'].append({})
+            data['values'][i][key[9:].strip('[]')] = data[key]
+            data.pop(key)
+    return data
+
 
 if __name__ == "__main__":
     run()

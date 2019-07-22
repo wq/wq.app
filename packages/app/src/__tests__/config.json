@@ -1,0 +1,82 @@
+{
+    "pages": {
+        "about": {
+            "label": "About",
+            "url": "about"
+        },
+        "attribute": {
+            "cache": "all",
+            "form": [],
+            "label": "Attribute",
+            "list": true,
+            "url": "attributes"
+        },
+        "campaign": {
+            "form": [],
+            "label": "Campaign",
+            "list": true,
+            "url": "campaigns"
+        },
+        "item": {
+            "form": [
+                {
+                    "name": "type",
+                    "wq:ForeignKey": "itemtype"
+                },
+                {
+                    "name": "parent",
+                    "wq:ForeignKey": "item"
+                },
+                {
+                    "choices": [
+                        {
+                            "label": "Red",
+                            "name": "#f00"
+                        },
+                        {
+                            "label": "Green",
+                            "name": "#0f0"
+                        },
+                        {
+                            "label": "Blue",
+                            "name": "#00f"
+                        }
+                    ],
+                    "name": "color"
+                },
+                {
+                    "children": [
+                        {
+                            "name": "attribute",
+                            "wq:ForeignKey": "attribute"
+                        },
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "initial": {
+                        "filter": {},
+                        "type_field": "attribute"
+                    },
+                    "name": "values",
+                    "type": "repeat"
+                }
+            ],
+            "label": "Items",
+            "label_template": "{{label}}",
+            "list": true,
+            "map": true,
+            "url": "items"
+        },
+        "itemtype": {
+            "form": [],
+            "label": "Item Types",
+            "label_template": "{{label}}",
+            "list": true,
+            "url": "itemtypes"
+        },
+        "version": {
+            "url": "version"
+        }
+    }
+}
