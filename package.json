@@ -3,7 +3,7 @@
     "bootstrap": "lerna bootstrap",
     "test": "lerna run test",
     "build": "lerna run build",
-    "jest": "jest",
+    "jest": "jest --verbose",
     "rollup": "rollup",
     "precise-commits": "precise-commits",
     "prettier": "prettier",

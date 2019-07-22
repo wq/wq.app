@@ -49,4 +49,4 @@ matrix:
       language: python
       python: 3.7
       install: pip install flake8
-      script: flake8 build/*.py
+      script: flake8 build/*.py tests/*.py
