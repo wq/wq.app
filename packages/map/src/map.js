@@ -702,7 +702,14 @@ map.createMap = function(routeInfo, divid, mapname, $page) {
 
     if (map.config.defaults.autoZoom.sticky) {
         m.on('moveend', function() {
-            map.config.defaults.lastBounds = m.getBounds();
+            const bounds = m.getBounds();
+            if (!bounds.isValid()) {
+                return;
+            }
+            if (bounds.getSouthWest().equals(bounds.getNorthEast())) {
+                return;
+            }
+            map.config.defaults.lastBounds = bounds;
         });
     }
 
