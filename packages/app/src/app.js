@@ -1295,7 +1295,10 @@ async function _handleForm(evt) {
     item = await outbox.waitForItem(item.id);
     $form.find('[type=submit]').prop('disabled', false);
     app.spin.stop();
-    if (!item || item.synced) {
+    if (!item) {
+        return;
+    }
+    if (item.synced) {
         // Item was synced
         app.postsave(item, false);
         return;

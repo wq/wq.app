@@ -16,6 +16,9 @@ const REMOVE_ITEMS = '@@REMOVE_OUTBOX_ITEMS',
     FORM_SUBMIT = 'FORM_SUBMIT',
     FORM_SUCCESS = 'FORM_SUCCESS',
     FORM_ERROR = 'FORM_ERROR',
+    BATCH_SUBMIT = '@@BATCH_SUBMIT',
+    BATCH_SUCCESS = '@@BATCH_SUCCESS',
+    BATCH_ERROR = '@@BATCH_ERROR',
     ON_SUCCESS = 'ON_SUCCESS',
     IMMEDIATE = 'IMMEDIATE',
     LOCAL_ONLY = 'LOCAL_ONLY';
@@ -53,6 +56,9 @@ class Outbox {
 
         store.subscribe(() => this._onUpdate());
         this.syncMethod = POST;
+        this.batchService = null;
+        this.batchSizeMin = 2;
+        this.batchSizeMax = 50;
         this.applyState = ON_SUCCESS;
         this.cleanOutbox = true;
         this.maxRetries = 10;
@@ -75,13 +81,14 @@ class Outbox {
             'cleanOutbox',
             'maxRetries',
             'batchService',
+            'batchSizeMin',
+            'batchSizeMax',
             'csrftokenField',
 
             // Outbox functions
             'validate',
             'applyResult',
-            'updateModels',
-            'parseBatchResult'
+            'updateModels'
         ];
 
         optlist.forEach(opt => {
@@ -92,6 +99,12 @@ class Outbox {
                 this[opt] = opts[opt];
             }
         });
+
+        if (opts.parseBatchResult) {
+            throw new Error(
+                'parseBatchResult() no longer supported.  Use ajax() hook instead.'
+            );
+        }
 
         if (this.cleanOutbox) {
             // Clear out successfully synced items from previous runs, if any
@@ -112,8 +125,13 @@ class Outbox {
                 .then(() => this._cleanUpItemData);
         }
 
-        if (this.batchService && !this.parseBatchResult) {
-            this.parseBatchResult = this.store.parseData;
+        if (this.batchService) {
+            this.store.addThunk(BATCH_SUCCESS, (dispatch, getState, bag) =>
+                this._dispatchBatchResponse(bag.action, dispatch)
+            );
+            this.store.addThunk(BATCH_ERROR, (dispatch, getState, bag) =>
+                this._dispatchBatchResponse(bag.action, dispatch)
+            );
         }
     }
 
@@ -329,13 +347,19 @@ class Outbox {
             }
             return true;
         });
-        if (this.batchService) {
-            // FIXME: Generate batch request as a single action, which will
-            // generate multiple commit/rollback actions after sync.
-            throw new Error('FIXME: Not implemented');
-        } else {
-            return pending[0];
+        if (
+            this.batchService &&
+            pending.length &&
+            pending.length >= this.batchSizeMin
+        ) {
+            const action = this._createBatchAction(
+                pending.slice(0, this.batchSizeMax)
+            );
+            if (action) {
+                return action;
+            }
         }
+        return pending[0];
     }
     async _effect({ data, options }, action) {
         const item = await this._loadItemData({
@@ -355,10 +379,12 @@ class Outbox {
         var csrftoken = this.csrftoken || options.csrftoken;
         if (csrftoken) {
             headers['X-CSRFToken'] = csrftoken;
-            data = {
-                ...data,
-                [this.csrftokenField]: csrftoken
-            };
+            if (!options.json) {
+                data = {
+                    ...data,
+                    [this.csrftokenField]: csrftoken
+                };
+            }
         }
 
         var defaults = { ...this.defaults };
@@ -379,6 +405,22 @@ class Outbox {
             }
         }
 
+        if (options.json) {
+            headers['Content-Type'] = 'application/json';
+            data = JSON.stringify(data);
+        } else {
+            data = this._createFormData(data);
+        }
+        return this.store.ajax(urlObj, data, method, headers).then(res => {
+            if (!res && method === DELETE) {
+                return action.payload;
+            } else {
+                return res;
+            }
+        });
+    }
+
+    _createFormData(data) {
         // Use a FormData object to submit
         var formData = new FormData();
         Object.entries(data).forEach(([key, val]) => {
@@ -405,12 +447,146 @@ class Outbox {
             }
         }
 
-        return this.store.ajax(urlObj, formData, method, headers).then(res => {
-            if (!res && method === DELETE) {
-                return action.payload;
+        return formData;
+    }
+
+    _createBatchAction(actions) {
+        const loadEffect = action => {
+            const { effect } = action.meta.offline,
+                { options } = effect;
+            let data;
+            if (!options.storage) {
+                data = effect.data;
+            } else if (options.storage === 'temporary') {
+                data = this.#_memoryItems[options.id];
             } else {
-                return res;
+                throw new Error(
+                    'Binary submissions not currently supported in batch mode.'
+                );
             }
+            data = this._parseJsonForm({ data }).data;
+            return { data, options };
+        };
+
+        let effects;
+        try {
+            effects = actions.map(loadEffect);
+        } catch (e) {
+            console.warn(e);
+            return false;
+        }
+
+        return {
+            type: BATCH_SUBMIT,
+            meta: {
+                offline: {
+                    effect: {
+                        data: effects.map(effect => {
+                            const { data, options } = effect;
+                            return {
+                                url: this.store.service + '/' + options.url,
+                                method: options.method || this.syncMethod,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Accept: 'application/json',
+                                    'X-CSRFToken': this.csrftoken
+                                },
+                                body: JSON.stringify(data)
+                            };
+                        }),
+                        options: {
+                            url: this.batchService,
+                            json: true
+                        }
+                    },
+                    commit: {
+                        type: BATCH_SUCCESS,
+                        meta: { actions }
+                    },
+                    rollback: {
+                        type: BATCH_ERROR,
+                        meta: { actions }
+                    }
+                }
+            }
+        };
+    }
+
+    _processBatchResponse(batchAction) {
+        let responses, batchError;
+
+        if (batchAction.type == BATCH_SUCCESS) {
+            if (Array.isArray(batchAction.payload)) {
+                responses = batchAction.payload;
+            }
+        } else {
+            // batchAction.type == BATCH_ERROR
+            if (batchAction.payload) {
+                batchError = batchAction.payload;
+            } else {
+                batchError = new Error('Batch submission error');
+            }
+        }
+
+        return batchAction.meta.actions.map((action, i) => {
+            const resp = responses ? responses[i] : null,
+                { offline } = action.meta,
+                { commit, rollback } = offline;
+            let nextAction;
+            if (resp && resp.status_code >= 200 && resp.status_code <= 299) {
+                let payload;
+                try {
+                    payload = JSON.parse(resp.body);
+                } catch (e) {
+                    payload = resp.body;
+                }
+                nextAction = {
+                    ...commit,
+                    payload,
+                    meta: {
+                        ...commit.meta,
+                        success: true
+                    }
+                };
+            } else {
+                let error;
+                if (resp && resp.body) {
+                    error = new Error();
+                    try {
+                        error.json = JSON.parse(resp.body);
+                    } catch (e) {
+                        error.text = resp.body;
+                    }
+                    error.status = resp.status_code;
+                } else if (batchError) {
+                    error = batchError;
+                } else {
+                    error = new Error('Missing from batch response');
+                }
+                nextAction = {
+                    ...rollback,
+                    payload: error,
+                    meta: {
+                        ...rollback.meta,
+                        success: false
+                    }
+                };
+            }
+            return nextAction;
+        });
+    }
+
+    _dispatchBatchResponse(batchAction, dispatch) {
+        this._processBatchResponse(batchAction).forEach(nextAction => {
+            const action = {
+                ...nextAction,
+                meta: {
+                    ...nextAction.meta
+                }
+            };
+            // Avoid double-dequeue
+            delete action.meta.offlineAction;
+            dispatch(action);
         });
     }
 
@@ -537,6 +713,11 @@ class Outbox {
                     };
                 }
             });
+        } else if (action.type == BATCH_SUCCESS || action.type == BATCH_ERROR) {
+            this._processBatchResponse(action).forEach(nextAction => {
+                array = this._dequeue(array, nextAction, context);
+            });
+            return array;
         } else if (action.meta.offlineAction) {
             // Mark status but don't remove item completely
             const outboxId = action.meta.offlineAction.meta.outboxId;

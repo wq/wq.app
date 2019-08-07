@@ -9,7 +9,11 @@ except ImportError:
 import json
 import time
 import random
+import string
 import cgi
+
+
+batch_number = 0
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
@@ -39,12 +43,21 @@ class RequestHandler(SimpleHTTPRequestHandler):
             self.status_400()
         elif 'status/500' in self.path:
             self.status_500()
+        elif 'reset-batch-number' in self.path:
+            self.reset_batch_number()
+        elif 'batch' in self.path:
+            self.process_batch()
         else:
             self.status_200()
 
+    def generate_id(self):
+        return ''.join([
+            random.choice(string.ascii_lowercase)
+            for o in range(3)
+        ])
+
     def status_200(self):
-        pk = ''.join([chr(ord('a') + random.randint(0, 25)) for o in range(3)])
-        self.echo(id=pk)
+        self.echo(id=self.generate_id())
 
     def status_400(self):
         self.echo(status=400)
@@ -54,6 +67,38 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(b"SERVER ERROR")
+
+    def reset_batch_number(self):
+        global batch_number
+        batch_number = 0
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"{}")
+
+    def process_batch(self):
+        global batch_number
+        batch_number += 1
+        size = int(self.headers['Content-Length'])
+        requests = json.loads(self.rfile.read(size).decode('utf-8'))
+
+        def process_request(request):
+            data = json.loads(request['body'])
+            data['id'] = self.generate_id()
+            data['batch'] = batch_number
+            return {
+                'status_code': 200,
+                'headers': {},
+                'body': json.dumps(data)
+            }
+
+        responses = [
+            process_request(request) for request in requests
+        ]
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(responses).encode('utf-8'))
 
     def do_PUT(self):
         pk = self.path.split('/')[-1].split('.')[0]

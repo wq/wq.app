@@ -104,10 +104,12 @@ name | purpose
 `maxRetries` | The maximum number of times to attempt sending an outbox item before giving up.  In wq.app 1.2, the default changed from 3 to 10.  Note that [Redux Offline] automatically increases the interval between consecutive failed sync attempts (whereas wq.app 1.1 and earlier used a fixed interval.) 
 `csrftokenField` | The form field name to use when submitting the [CSRF token].  Note that the token will be set when the form is actually uploaded to the server (and may override the csrf token that was initially submitted to the outbox).  The default field name is `csrfmiddlewaretoken` since that's what Django calls it.
 `validate(data, item)` | Defines a callback that ensures data is valid before saving it to the outbox.  The default implementation always returns `true`
-`batchService` | An alternate URL to use when submitting multiple requests as a batch (see `sendBatch()` below)
-`parseBatchResult(result)` | A callback to use when parsing the result of a batch submit.  If not specified, the store's `parseData` setting will be used.
+`batchService` | Specifies that the server supports submitting multiple requests as a batch.  **Changed in wq.app 1.2**: This should be specified as an API path relative to the main `service` URL.  By default, the server's batch API is assumed to be compatible with [Django Batch Requests].
+`batchMinSize` | **New in wq.app 1.2**.  Specifies the threshold at which batch mode should be activated.  The default is 2, meaning the `batchService` will only be used when there are at least 2 records in the outbox that are ready to sync.  Set this to 1 (or 0) to ensure that batch mode is always used.
+`batchMaxSize` | **New in wq.app 1.2**.  Specifies the maximum number of requests to include in a single batch.  Defaults to 50.
+`parseBatchResult(result)` | **Removed in wq.app 1.2**.  This option was used to parse the result of a batch upload.  In wq.app 1.2 the result is assumed to match the output structure of [Django Batch Requests].  If not, you can use an [ajax() plugin hook](@wq/store) to specify a custom parsing function.
 `applyResult()` | **Removed in wq.app 1.2**.  This option was used to customize whether a form submission is successful.  In wq.app 1.2 this can be done with an [ajax() plugin hook][@wq/store] that throws an error on failure.
-`updateModels()` | **Removed in wq.app 1.2**. This was used to configure how local models are updated based on the returned state.  In wq.app 1.2, this is done by dispatching the appropriate Redux actions to update the local state.
+`updateModels()` | **Removed in wq.app 1.2**. This was used to configure how local models are updated based on the server response.  In wq.app 1.2, this is done by dispatching the appropriate Redux actions to update the local state.
 
 ### Outbox Methods
 
@@ -269,3 +271,4 @@ Like `unsyncedItems()`, but limited to items that haven't been sent at all (or a
 [wq.db]: https://wq.io/wq.db
 [CSRF Token]: https://docs.djangoproject.com/en/1.8/ref/csrf/
 [Redux Offline]: https://github.com/redux-offline/redux-offline
+[Django Batch Requests]: https://github.com/tomaszn/django-batch-requests

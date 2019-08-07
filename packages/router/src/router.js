@@ -65,6 +65,7 @@ router.init = function(config) {
     router.store.addReducer('context', contextReducer);
     router.store.addEnhancer(enhancer);
     router.store.addMiddleware(middleware);
+    router.store.setThunkHandler(router.addThunk);
     router.store.subscribe(router.go);
     router._initialDispatch = initialDispatch;
 };

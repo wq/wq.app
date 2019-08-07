@@ -46,6 +46,7 @@ class Store {
     #enhancers = [];
     #subscribers = [];
     #deferActions = [];
+    #thunkHandler = null;
 
     #_promises = {}; // Save promises to prevent redundant fetches
 
@@ -176,6 +177,17 @@ class Store {
 
     bindActionCreators(actions) {
         return bindActionCreators(actions, this.dispatch.bind(this));
+    }
+
+    addThunk(name, thunk) {
+        if (!this.#thunkHandler) {
+            throw new Error('@wq/router is required to handle thunks');
+        }
+        this.#thunkHandler(name, thunk);
+    }
+
+    setThunkHandler(handler) {
+        this.#thunkHandler = handler;
     }
 
     kvpReducer(state = {}, action) {
