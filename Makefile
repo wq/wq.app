@@ -7,7 +7,7 @@ init:
 	mkdir -p css/wq
 	mkdir -p scss/wq
 
-js: js_wq js_lib js_compat
+js: js_wq js_lib
 
 js_build: init
 	npm run build
@@ -61,15 +61,6 @@ js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	cp -p packages/markdown/node_modules/marked/lib/marked.js js/marked.js
 	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
 	cp -p node_modules/requirejs/require.js js/require.js
-
-V1_URL = https://raw.githubusercontent.com/wq/wq.app/v1.1.1/js
-
-js_compat: init
-	curl -s $(V1_URL)/wq/autocomplete.js > js/wq/autocomplete.js
-	curl -s $(V1_URL)/wq/console.js > js/wq/console.js
-	curl -s $(V1_URL)/wq/json.js > js/wq/json.js
-	curl -s $(V1_URL)/wq/progress.js > js/wq/progress.js
-	curl -s $(V1_URL)/qunit.js > js/qunit.js
 
 css: init
 	cp -a packages/jquery-mobile/css/* css/
