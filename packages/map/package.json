@@ -1,6 +1,6 @@
 {
   "name": "@wq/map",
-  "version": "1.1.2",
+  "version": "1.2.0-alpha.1",
   "description": "Leaflet integration for @wq/app pages",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -30,6 +30,6 @@
     "leaflet-draw": "^1.0.4",
     "leaflet.markercluster": "^1.4.1",
     "leaflet.wms": "^0.2.0",
-    "@wq/template": "^1.1.2"
+    "@wq/template": "^1.2.0-alpha.1"
   }
 }
