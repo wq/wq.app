@@ -18,9 +18,9 @@
 
 ## Installation
 
-@wq/app is available via a PyPI package for Django ([wq.app](http://pypi.org/project/wq.app)) as well as an NPM package for node ([@wq/app](https://www.npmjs.com/package/@wq/app)).  If you are not sure which one to use, use the PyPI package to get started.  It is possible to later convert a PyPI wq.app project into a NPM @wq/app project (with a few changes).
+@wq/app is available via a PyPI package ([wq.app](http://pypi.org/project/wq.app)) as well as an npm package ([@wq/app](https://www.npmjs.com/package/@wq/app)).  If you are not sure which one to use, use the PyPI package to get started.  It is possible to later convert a PyPI wq.app project into a npm @wq/app project (with a few changes).
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -29,7 +29,7 @@ pip install wq            # install wq framework (wq.app, wq.db, wq.start, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```bash
 npm install @wq/app
@@ -37,9 +37,9 @@ npm install @wq/app
 
 ### Project Layout
 
-When working with the wq.app PyPI package (AKA wq for Django), use [wq.start] to initialize your project.  In particular, wq.start will automatically configure your RequireJS settings and link wq.app's bundled JavaScript assets into your folder.  When using wq for Node, use [create-react-app] as a starting point and then install the @wq/app package.
+When working with wq.app for PyPI, use [wq.start] to initialize your project.  In particular, wq.start will automatically configure your RequireJS settings and link wq.app's bundled JavaScript assets into your folder.  When using @wq/app for npm, use [create-react-app] as a starting point and then install the @wq/app package.
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```javascript
 // wq.start will set up a project similar to this:
@@ -65,7 +65,7 @@ define(['wq/app', './config'], function() {
 // <script src="js/lib/require.js" data-main="js/myapp"></script>
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```javascript
 // Replace the contents of src/index.js with something like this:
@@ -159,7 +159,7 @@ Configuration for jQuery Mobile's built in [page transitions].  Where applicable
 
 The configuration object is typically defined as a module `config.js` that depends on the [server-created wq config][router] and a template fixture, then adds the additional attributes needed to initialize @wq/app.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 define(['data/config', 'data/templates', function(config, templates) {
@@ -176,7 +176,7 @@ return config;
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 import config from './data/config';
@@ -310,7 +310,7 @@ wq.app comes with a number of predefined plugins for common use cases.  The most
 
 Plugins are typically defined separate JavaScript files and imported.  `app.use()` registers the plugin and any provided hooks. 
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```javascript
 // myapp/myplugin.js
@@ -341,7 +341,7 @@ app.init(config).then(function() {
 });
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```javascript
 // src/myplugin.js
@@ -377,7 +377,7 @@ app.init(config).then(function() {
 
 **@wq/app:patterns** is a @wq/app plugin providing support for [nested forms].
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```
 define(['wq/app', 'wq/patterns', './config'],
@@ -389,7 +389,7 @@ app.init(config).then(...);
 });
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```
 import app, { patterns } from '@wq/app';
@@ -421,7 +421,7 @@ The [Species Tracker](http://species.wq.io) application provides a complete demo
 ### API
 @wq/app:photos does not require a global configuration, as it is configured via data-wq- attributes on the related form elements.
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```
 define(['wq/app', 'wq/photos', './config'],
@@ -431,7 +431,7 @@ app.use(photos);
 app.init(config).then(...);
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```
 import app, { photos } from '@wq/app';

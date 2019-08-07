@@ -9,7 +9,7 @@ As of wq.app 1.2, @wq/router is based on [Redux-First Router] and leverages simi
 
 ## Installation
 
-### wq for Django
+### wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -18,18 +18,18 @@ pip install wq            # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-### wq for Node
+### @wq/app for npm
 
 ```bash
-npm install @wq/router    # install @wq/router only
-npm install @wq/app       # install all @wq/app deps
+npm install @wq/app       # install all @wq/app deps including @wq/router
+# npm install @wq/router  # install only @wq/router and deps
 ```
 
 ## API
 
 When using @wq/app, the router is made available as `app.router`.  Otherwise, `@wq/router` is typically imported as `router`, though any local variable name can be used.
 
-### wq for Django
+### wq.app for PyPI
 
 ```javascript
 define(['wq/router', ...], function(router, ...) {
@@ -39,7 +39,7 @@ define(['wq/router', ...], function(router, ...) {
 });
 ```
 
-### wq for Node
+### @wq/app for npm
 
 ```javascript
 import router from '@wq/router';
@@ -126,7 +126,7 @@ The `context()` plugin hook can be used to generate template contexts for render
 
 The `ctx` argument passed to `context()` includes the default context as well as any additional attributes from previous context plugins.  The `routeInfo` argument provides path information about the page (see above) and is also available as `ctx.router_info`.  `context()` should return an object with any additional properties to be added to the existing context, or a `Promise` that resolves to such an object.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // myapp/date.js
@@ -151,7 +151,7 @@ app.init(config).then(...);
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 // src/date.js
@@ -180,7 +180,7 @@ app.init(config).then(...);
 
 The `run()` context hook is called right after rendering and displaying a page (the `pageshow` event in jQuery Mobile).  `$page` is the equivalent of `$.mobile.activePage` and should be used to scope jQuery lookups to avoid conflicts with any previously rendered pages (i.e., use `$page.find('button#custom')` rather than `$('button#custom')` in your callback).  `routeInfo` is a route information object (see above).
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // myapp/button.js
@@ -204,7 +204,7 @@ app.init(config).then(...);
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 ```javascript
 // src/button.js
 export default {
@@ -233,7 +233,7 @@ The `thunks` plugin hook can be used to define arbitrary asynchronous functions 
 
 A thunk plugin should define a `thunks` object mapping each Redux action type to a thunk definition.  While it is not required, the plugin should generally also have a `name` and [actions][@wq/store] defined as well. 
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // myapp/search.js
@@ -325,7 +325,7 @@ timer.start(); // Equivalent to app.store.dispatch(timer.actions.start())
 timer.stop();
 ```
 
-##### wq for Node
+##### @wq/app for npm
 ```javascript
 // src/search.js
 export default {
@@ -382,7 +382,7 @@ name | purpose
 
 > **Changed in wq.app 1.2**: With the exeption of `path`, the arguments to `router.register()` have completely changed, though they serve a similar function.  With wq.app 1.1 and earlier, a callback function was required, and needed to explicitly call router.go() with the generated context.  Starting in 1.2, the callback function is optional, and only needs to return a new context object.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 router.register('custom-path/:category/:id', 'custom_route', function(ctx) {
@@ -404,7 +404,7 @@ router.register('custom-path/:category/:id', 'custom_route', function(ctx) {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 router.register('custom-path/:category/:id', 'custom_route', async ctx => {

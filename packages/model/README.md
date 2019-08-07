@@ -9,7 +9,7 @@ As of wq.app 1.2, @wq/model is based on [Redux-ORM] and provides similar queryin
 
 ## Installation
 
-### wq for Django
+### wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -18,18 +18,18 @@ pip install wq            # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-### wq for Node
+### @wq/app for npm
 
 ```bash
-npm install @wq/model     # install @wq/model and @wq/store
-npm install @wq/app       # install all @wq/app deps
+npm install @wq/app       # install all @wq/app deps including @wq/model
+# npm install @wq/model   # install only @wq/model and deps
 ```
 
 ## API
 
 When using [@wq/app], @wq/model instances are automatically defined for all `"list"` pages in the [wq configuration object].  When used directly, `@wq/model` is typically imported as `model`, though any local variable name can be used.
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```javascript
 // @wq/app usage
@@ -44,7 +44,7 @@ define(['wq/model', ...], function(model, ...) {
 });
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```javascript
 // @wq/app usage
@@ -139,9 +139,9 @@ Asynchronously loads the (local) contents of the model into memory.  If the loca
 
 Note that the values for `pages`, `count`, and `per_page` will be set by the REST API if the server is [wq.db] or a compatible web service.
 
-This function (and the related query functions below) all return a [Promise] that will resolve to the requested data.  If you are using wq for Node (or are only targeting modern browsers), the `async`/`await` keywords will help streamline your code.
+This function (and the related query functions below) all return a [Promise] that will resolve to the requested data.  If you are using @wq/app for npm (or are only targeting modern browsers), the `async`/`await` keywords will help streamline your code.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 myModel.load().then(function(data) {
@@ -151,7 +151,7 @@ myModel.load().then(function(data) {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 const data = await myModel.load();
@@ -164,7 +164,7 @@ data.list.forEach(item => {
 
 `info()` returns a Promise that resolves to a value with the same structure as `load()` but without the actual list of data.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 myModel.info().then(function(info) {
@@ -172,7 +172,7 @@ myModel.info().then(function(info) {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 const info = await myModel.info();
@@ -183,7 +183,7 @@ console.log("Total Items:", info.count);
 
 Like `load()`, but retrieves the items in the list at the specified page number (starting with page 1).  If the `cache` setting is `"first_page"` or `"all"`, `page(1)` is effectively equivalent to `load()`.  In most other cases, `page()` will generate a network request to retrieve the data from the server, and the result will not be stored locally.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 myModel.page(4).then(function(data) {
@@ -193,7 +193,7 @@ myModel.page(4).then(function(data) {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 const data = await myModel.page(4);
@@ -206,7 +206,7 @@ data.list.forEach(item => {
 
 `find()` can be used to asynchronously retrieve a single item from the model based on the primary key (usually `"id"`).  If not all of the data for the model is stored locally (i.e. `cache` is not `"all"`), then `find()` will automatically query the server for any items not found locally.  This behavior can be disabled by setting `localOnly` to true.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 myModel.find(27).then(function(item) {
@@ -214,7 +214,7 @@ myModel.find(27).then(function(item) {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 const item = await myModel.find(27);
@@ -229,7 +229,7 @@ console.log(item.id, item.label);
 
 If not all of the data for the model is stored locally (i.e. `cache` is not `"all"`), then `filter()` will always query the server even if some items might be found locally.  This behavior can be disabled by setting `localOnly` to true.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // Filter on existing field
@@ -269,7 +269,7 @@ myModel.filter({'big': true}).then(function(bigItems) {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 // Filter on existing field
@@ -308,7 +308,7 @@ bigItems.forEach(item => {
 
 `[model].forEach()` mimics `Array.prototype.forEach` to provide a simple way to iterate over all values in the local (first page) of the list.  Note that this function is asynchronous, unlike a "real" `forEach` loop.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // Using load()
@@ -333,7 +333,7 @@ myModel.forEach(function(item) {
 nextThing();  // This will happen before forEach is done!
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 // Using load()

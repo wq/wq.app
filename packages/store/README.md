@@ -9,7 +9,7 @@
 
 ## Installation
 
-### wq for Django
+### wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -18,11 +18,11 @@ pip install wq            # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-### wq for Node
+### @wq/app for npm
 
 ```bash
-npm install @wq/store     # install @wq/store only
-npm install @wq/app       # install all @wq/app deps
+npm install @wq/app       # install all @wq/app deps including @wq/store
+# npm install @wq/store   # install only @wq/store and deps
 ```
 
 ## API
@@ -31,7 +31,7 @@ npm install @wq/app       # install all @wq/app deps
 
 > Note: When working with [@wq/app], the store is initialized automatically and exported as `app.store`.
 
-### wq for Django
+### wq.app for PyPI
 
 ```javascript
 // myapp.js
@@ -42,7 +42,7 @@ define(['wq/store', ...], function(ds, ...) {
 });
 ```
 
-### wq for Node
+### @wq/app for npm
 
 ```javascript
 // myapp.js
@@ -109,7 +109,7 @@ The `ajax()` hook allows customization of how requests are sent and processed.  
 
 When using with @wq/app, it is recommended to use the plugin syntax.  It is also possible to set `config.store.ajax` (as noted above), but this may be removed in a later version.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // myapp/ajax.js
@@ -132,7 +132,7 @@ app.init(config).then(...);
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 // src/ajax.js
@@ -170,7 +170,7 @@ Here are a few things to keep in mind:
 **New in wq.app 1.2.**
 The `reducer()` plugin hook makes it possible to define a [reducer] that subscribes to Redux actions and updates a plugin-specific state.  Reducer plugins and are generally defined with a `name` and an `action` object containing [action creator functions][action-creators].  The action creators are bound to the dispatch method and re-attached to the plugin, as shown in the example below.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 // myapp/timer.js
@@ -223,7 +223,7 @@ timer.stop();
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 // src/timer.js

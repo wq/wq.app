@@ -7,7 +7,7 @@
 
 ### Installation
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -16,11 +16,11 @@ pip install wq            # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```bash
-npm install @wq/template  # install @wq/template only
-npm install @wq/app       # install all @wq/app deps
+npm install @wq/app        # install all @wq/app deps including @wq/template
+# npm install @wq/template # install only @wq/template and deps
 ```
 
 
@@ -29,13 +29,13 @@ npm install @wq/app       # install all @wq/app deps
 @wq/template is typically imported  as `tmpl`, though any local variable name can be used.  `tmpl` provides an `init()` function which accepts a configuration object that defines a set of templates and template partials.  `tmpl.setDefault(name, value)` can be used after initialization to assign default context variables, though this usage is deprecated in favor of [@wq/app context plugins][@wq/app].  `tmpl.render(template, context)` renders a template with the given context.  `template` can be either the name of an existing template or the content of a new template.
 
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```javascript
 define(['wq/template', ...], function(tmpl, ...) {
 ```
 
-#### wq for Node
+#### @wq/app for npm
 ```javascript
 import tmpl from '@wq/template';
 ```

@@ -13,7 +13,7 @@ As of wq.app 1.2, @wq/outbox is based on [Redux Offline], and leverages its stra
 
 ## Installation
 
-### wq for Django
+### wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -22,11 +22,11 @@ pip install wq            # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-### wq for Node
+### @wq/app for npm
 
 ```bash
-npm install @wq/outbox    # install @wq/outbox, @wq/model and @wq/store
-npm install @wq/app       # install all @wq/app deps
+npm install @wq/app       # install all @wq/app deps including @wq/outbox
+# npm install @wq/outbox  # install only @wq/outbox and deps
 ```
 
 ## API
@@ -34,7 +34,7 @@ npm install @wq/app       # install all @wq/app deps
 When used with [@wq/app], @wq/outbox is available as `app.outbox`.  When using directly, `@wq/outbox` is typically imported as `outbox`, though any local variable name can be used.  Each outbox instance should be bound to the corresponding [@wq/store] instance it will use for managing data.  The main outbox is pre-bound to the main store instance and should be suitable as-is for most use cases.
 
 
-#### wq for Django
+#### wq.app for PyPI
 
 ```javascript
 // @wq/app usage
@@ -53,7 +53,7 @@ define(['wq/store', 'wq/outbox', ...], function(ds, outbox, ...) {
 });
 ```
 
-#### wq for Node
+#### @wq/app for npm
 
 ```javascript
 // @wq/app usage
@@ -137,7 +137,7 @@ name | purpose
 
 > **Changed in wq.app 1.2**: @wq/outbox now uses [Redux Offline] to handle syncing in the background.  Because of this, the returned `Promise` is always resolved *before* the record is synced.  If you need to wait for the sync result, call `outbox.waitForItem()` after calling `outbox.save()`).  Relatedly, `outbox.save()` no longer accepts a third `noSend` argument.  If you would like to save an item to the outbox without triggering an immediate sync attempt, call `outbox.pause()` before `outbox.save()`.
 
-##### wq for Django
+##### wq.app for PyPI
 
 ```javascript
 $form.submit(function() {
@@ -157,7 +157,7 @@ $form.submit(function() {
 });
 ```
 
-##### wq for Node
+##### @wq/app for npm
 
 ```javascript
 $form.submit(async () => {
