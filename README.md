@@ -4,7 +4,7 @@
 
 [![Latest PyPI Release](https://img.shields.io/pypi/v/wq.app.svg)](https://pypi.org/project/wq.app)
 [![Release Notes](https://img.shields.io/github/release/wq/wq.app.svg)](https://github.com/wq/wq.app/releases)
-[![Documentation](https://img.shields.io/badge/Docs-1.1-blue.svg)](https://wq.io/wq.app)
+[![Documentation](https://img.shields.io/badge/Docs-1.2-blue.svg)](https://wq.io/wq.app)
 [![License](https://img.shields.io/pypi/l/wq.app.svg)](https://wq.io/license)
 [![GitHub Stars](https://img.shields.io/github/stars/wq/wq.app.svg)](https://github.com/wq/wq.app/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/wq/wq.app.svg)](https://github.com/wq/wq.app/network)
@@ -23,33 +23,33 @@
 # . venv/bin/activate
 
 # Install entire wq suite (recommended)
-pip install wq
+python3 -m pip install wq
 
 # Install only wq.app
-pip install wq.app
+python3 -m pip install wq.app
 ```
 
 See [the documentation] for more information.
 
 ## Features
 
-wq.app's [JavaScript modules] are built on [a number of libraries] including [RequireJS], [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
+wq.app's [JavaScript modules] are built on [a number of libraries] including [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
 
- * [wq/app.js], a high-level application controller and configuration-driven CRUD client (optimized for use with [wq.db.rest])
- * [wq/model.js], a lightweight implementation of models / collections
- * [wq/outbox.js], an offline queue of `<form>` submissions for later synchronization
- * and a number of [other useful utilities]
+ * [@wq/app], a high-level application controller and configuration-driven CRUD client (optimized for use with [wq.db.rest])
+ * [@wq/model], a lightweight implementation of models / collections
+ * [@wq/outbox], an offline queue of `<form>` submissions for later synchronization
+ * and a number of other useful utilities
 
-wq/app.js can be extended with a number of [plugins] to integrate [Leaflet-powered maps][wq/map.js], [d3.js-powered charts][wq/chartapp.js], and other enhanced functionality for project-specific use cases.  wq.app comes bundled with all of the required [third-party JavaScript libraries][third-party].  To facilitate compact deployment, wq.app provides a Python-based [build process] for compiling wq apps: inlining templates, optimizing code (via [r.js]), and generating a native application package (via [PhoneGap Build]).  wq.app also includes [jquery-mobile.scss], a SASS/SCSS stylesheet for generating custom jQuery Mobile themes.
+@wq/app can be extended with a number of plugins such as the Leaflet-powered [@wq/map] and the d3.js-powered [@wq/chart].  wq.app comes bundled with all of the required third-party JavaScript libraries.  To facilitate compact deployment, wq.app provides a Python-based [build process] for compiling wq apps: inlining templates, optimizing code (via [r.js]), and generating a native application package (via [PhoneGap Build]).
 
-See the notes in [Getting Started] for more information about setting up a project layout that utilizes wq.app and/or its bundled third-party libraries.
+See the notes in [Getting Started] for more information about setting up a project layout that utilizes wq.app and its bundled JavaScript libraries.
 
  [wq framework]: https://wq.io
  [recommended project layout]: https://github.com/wq/django-wq-template
  [a number of libraries]: https://wq.io/docs/third-party
 
  [the documentation]: https://wq.io/docs/setup
- [JavaScript modules]: https://wq.io/docs/app
+ [JavaScript modules]: https://wq.io/docs/?chapter_id=app
  [RequireJS]: http://requirejs.org
  [r.js]: https://github.com/jrburke/r.js
  [jQuery Mobile]: http://jquerymobile.com
@@ -58,13 +58,11 @@ See the notes in [Getting Started] for more information about setting up a proje
  [Mustache.js]: https://mustache.github.com/
  [PhoneGap Build]: https://build.phonegap.com/
  
- [wq/app.js]: https://wq.io/docs/app-js
- [wq/chart.js]: https://wq.io/docs/chart-js
- [wq/map.js]: https://wq.io/docs/map-js
- [wq/model.js]: https://wq.io/docs/model-js
- [wq/outbox.js]: https://wq.io/docs/outbox-js
- [other useful utilities]: https://wq.io/docs/app
- 
+ [@wq/app]: https://wq.io/docs/app-js
+ [@wq/chart]: https://wq.io/docs/chart-js
+ [@wq/map]: https://wq.io/docs/map-js
+ [@wq/model]: https://wq.io/docs/model-js
+ [@wq/outbox]: https://wq.io/docs/outbox-js 
  
  [jquery-mobile.scss]: https://wq.io/docs/jquery-mobile-scss-themes
  [build process]: https://wq.io/docs/build
@@ -73,7 +71,5 @@ See the notes in [Getting Started] for more information about setting up a proje
  [wq.db.rest]: https://wq.io/docs/about-rest
  [on the server or on the client]: https://wq.io/docs/templates
 
- [plugins]: https://wq.io/docs/app-plugins
- [wq/chartapp.js]: https://wq.io/docs/chartapp-js
  [third-party]: https://wq.io/docs/third-party
  [Getting Started]: https://wq.io/docs/setup
