@@ -14,7 +14,7 @@ As of wq.app 1.2, @wq/model is based on [Redux-ORM] and provides similar queryin
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
 . venv/bin/activate       # activate virtual env
-pip install wq            # install wq framework (wq.app, wq.db, etc.)
+python3 -m pip install wq # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
