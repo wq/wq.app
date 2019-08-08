@@ -34,8 +34,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        # FIXME: This is to avoid a race condition in wq/outbox
-        time.sleep(random.random())
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
     def do_POST(self):
