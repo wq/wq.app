@@ -7,7 +7,6 @@ except ImportError:
 
 
 import json
-import time
 import random
 import string
 import cgi
