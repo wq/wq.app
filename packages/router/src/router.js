@@ -253,7 +253,10 @@ router.push = function(path) {
 
 router.render = function(context, refresh) {
     if (refresh) {
-        context._refreshCount = (context._refreshCount || 0) + 1;
+        if (refresh === true) {
+            refresh = (context._refreshCount || 0) + 1;
+        }
+        context._refreshCount = refresh;
     }
     return router.store.dispatch({
         type: RENDER,
@@ -269,10 +272,12 @@ router.refresh = function() {
 
 // Regenerate context, then re-render page
 router.reload = function() {
+    const context = router.store.getState().context,
+        refresh = (context._refreshCount || 0) + 1;
     return _generateContext(
         action => router.store.dispatch(action),
         () => router.store.getState(),
-        true
+        refresh
     );
 };
 
