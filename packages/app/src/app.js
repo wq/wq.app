@@ -885,6 +885,8 @@ async function _displayList(ctx, parentInfo) {
         if (pnum > model.opts.page) {
             return _loadFromServer(url);
         }
+    } else if (filter && pnum > model.opts.page) {
+        filter.page = pnum;
     }
 
     if (!pnum && !model.opts.client) {
@@ -924,20 +926,19 @@ async function _displayList(ctx, parentInfo) {
     var prevIsLocal, currentIsLocal;
 
     if (pnum > model.opts.page && (model.opts.client || pnum > 1)) {
-        prev = conf.url + '/';
         if (+pnum - 1 > model.opts.page && (model.opts.client || pnum > 2)) {
-            prev +=
-                '?' +
-                $.param({
-                    page: +pnum - 1
-                });
+            let prevp = filter ? { ...filter } : {};
+            prevp.page = +pnum - 1;
+            prev = conf.url + '/?' + $.param(prevp);
         } else if (pnum == 1) {
+            prev = conf.url + '/';
             prevIsLocal = true;
         }
     }
 
     if (pnum < data.pages && (model.opts.server || pnum)) {
-        var nextp = { page: +pnum + 1 };
+        let nextp = filter ? { ...filter } : {};
+        nextp.page = +pnum + 1;
         next = conf.url + '/?' + $.param(nextp);
         if (nextp.page == 1) {
             currentIsLocal = true;
