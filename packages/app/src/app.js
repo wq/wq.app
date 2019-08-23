@@ -400,13 +400,7 @@ app.runPlugins = function(arg) {
             item,
             context
         };
-        if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
-            window.MSApp.execUnsafeLocalFunction(function() {
-                app.callPlugins('run', [jqm.activePage, routeInfo]);
-            });
-        } else {
-            app.callPlugins('run', [jqm.activePage, routeInfo]);
-        }
+        app.callPlugins('run', [jqm.activePage, routeInfo]);
     });
 };
 

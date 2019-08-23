@@ -41,7 +41,7 @@ patterns.run = function($page, routeInfo) {
     }
 };
 
-function addAttachment(page, section, index, $button, mode) {
+patterns.addAttachment = function(page, section, index, $button, mode) {
     var template = _templates[page + '_' + (mode ? mode : 'edit')],
         pattern = '{{#' + section + '}}([\\s\\S]+){{/' + section + '}}',
         match,
@@ -71,16 +71,6 @@ function addAttachment(page, section, index, $button, mode) {
         $attachment.enhanceWithin();
         $button.parents('ul').listview('refresh');
     }
-}
-
-if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
-    patterns.addAttachment = function(page, section, index, $button, mode) {
-        window.MSApp.execUnsafeLocalFunction(function() {
-            addAttachment(page, section, index, $button, mode);
-        });
-    };
-} else {
-    patterns.addAttachment = addAttachment;
-}
+};
 
 export default patterns;
