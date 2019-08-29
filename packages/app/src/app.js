@@ -75,10 +75,12 @@ app.init = function(config) {
             config.store.ajax = plugin.ajax;
         }
         if (plugin.reducer) {
-            ds.addReducer(name, plugin.reducer);
+            ds.addReducer(name, (state, action) =>
+                plugin.reducer(state, action)
+            );
         }
         if (plugin.render) {
-            router.addRender(plugin.render);
+            router.addRender(state => plugin.render(state));
         }
         if (plugin.actions) {
             Object.assign(plugin, ds.bindActionCreators(plugin.actions));
