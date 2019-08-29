@@ -891,7 +891,7 @@ async function _displayList(ctx, parentInfo) {
         filter.page = pnum;
     }
 
-    if (!pnum && !model.opts.client) {
+    if (!pnum && (!model.opts.client || filter)) {
         pnum = 1;
     }
 
@@ -932,7 +932,7 @@ async function _displayList(ctx, parentInfo) {
             let prevp = filter ? { ...filter } : {};
             prevp.page = +pnum - 1;
             prev = conf.url + '/?' + $.param(prevp);
-        } else if (pnum == 1) {
+        } else if (pnum == 1 && !filter) {
             prev = conf.url + '/';
             prevIsLocal = true;
         }
@@ -952,7 +952,7 @@ async function _displayList(ctx, parentInfo) {
         ...parentInfo,
         previous: prev ? '/' + prev : null,
         next: next ? '/' + next : null,
-        multiple: model.opts.server && data.pages > model.opts.page,
+        multiple: prev || next ? true : false,
         previous_is_local: prevIsLocal,
         current_is_local: currentIsLocal
     };
