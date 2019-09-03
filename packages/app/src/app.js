@@ -1160,7 +1160,7 @@ async function _handleForm(evt) {
     // serialization.
     function addVal(name, val) {
         if (vals[name] !== undefined) {
-            if (!$.isArray(vals[name])) {
+            if (!Array.isArray(vals[name])) {
                 vals[name] = [vals[name]];
             }
             vals[name].push(val);
@@ -1198,7 +1198,7 @@ async function _handleForm(evt) {
         // wq/photo.js files in memory, copy over to form
         var name = this.name;
         var value = this.value;
-        var curVal = $.isArray(vals[name]) ? vals[name][0] : vals[name];
+        var curVal = Array.isArray(vals[name]) ? vals[name][0] : vals[name];
         var photos = app.plugins.photos;
         if (curVal && typeof curVal === 'string') {
             delete vals[name];
@@ -1518,7 +1518,7 @@ function _addLookups(page, context, editable) {
                 if (!nested) {
                     return;
                 }
-                if (!$.isArray(nested)) {
+                if (!Array.isArray(nested)) {
                     nested = [nested];
                 }
                 nested.forEach(function(row) {
@@ -1767,7 +1767,7 @@ function _computeFilter(filter, context) {
     var computedFilter = {};
     Object.keys(filter).forEach(function(key) {
         var values = filter[key];
-        if (!$.isArray(values)) {
+        if (!Array.isArray(values)) {
             values = [values];
         }
         values = values.map(function(value) {
