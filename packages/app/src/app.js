@@ -1,4 +1,3 @@
-import jQM from '@wq/jquery-mobile';
 import ds from '@wq/store';
 import modelModule from '@wq/model';
 import outbox from '@wq/outbox';
@@ -30,17 +29,16 @@ const SERVER = '@@SERVER',
 app.models = {};
 app.plugins = {};
 
-var _register = {},
-    _onShow = {};
-
-var $, jqm;
+var _register = {};
 
 app.init = function(config) {
-    app.jQuery = $ = config.jQuery || window.jQuery || jQM();
-    jqm = $.mobile || jQM().mobile;
+    ['renderer'].forEach(type => {
+        if (!app[type]) {
+            throw new Error(`Register a ${type} with app.use()`);
+        }
+    });
     app.use(spinner);
     app.use(syncRefresh);
-    app.use(showOutboxErrors);
     router.addContext(() => spinner.start() && {});
     router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
@@ -56,7 +54,7 @@ app.init = function(config) {
             base_url: ''
         };
     }
-    config.router.getTemplateName = getTemplateName;
+    config.router.getTemplateName = name => name.split(':')[0];
 
     // Store (wq/store.js) configuration
     if (!config.store) {
@@ -80,14 +78,14 @@ app.init = function(config) {
                 plugin.reducer(state, action)
             );
         }
-        if (plugin.render) {
-            router.addRender(state => plugin.render(state));
-        }
         if (plugin.actions) {
             Object.assign(plugin, ds.bindActionCreators(plugin.actions));
         }
         if (plugin.thunks) {
-            router.addThunks(plugin.thunks);
+            router.addThunks(plugin.thunks, plugin);
+        }
+        if (plugin.subscriber) {
+            ds.subscribe(() => plugin.subscriber(ds.getState()));
         }
     });
 
@@ -108,14 +106,6 @@ app.init = function(config) {
         config.store.debug = config.debug;
         config.template.debug = config.debug;
     }
-
-    // Copy jQuery to plugins (in case not set globally)
-    ['router', 'template'].concat(Object.keys(app.plugins)).forEach(key => {
-        if (!config[key]) {
-            config[key] = {};
-        }
-        config[key].jQuery = $;
-    });
 
     // Load missing (non-local) content as JSON, or as server-rendered HTML?
     // Default (as of 1.0) is to load JSON and render on client.
@@ -183,18 +173,6 @@ app.init = function(config) {
         );
     }
 
-    // Configure jQuery Mobile transitions
-    if (config.transitions) {
-        var def = 'default';
-        if (config.transitions[def]) {
-            jqm.defaultPageTransition = config.transitions[def];
-        }
-        if (config.transitions.dialog) {
-            jqm.defaultDialogTransition = config.transitions.dialog;
-        }
-        jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
-    }
-
     Object.keys(app.config.pages).forEach(function(page) {
         app.config.pages[page].name = page;
     });
@@ -211,29 +189,21 @@ app.init = function(config) {
         if (conf.list) {
             conf.modes.forEach(function(mode) {
                 var register = _register[mode] || _register.detail;
-                var onShow = _onShow[mode] || _onShow.detail;
                 register(page, mode);
-                onShow(page, mode);
             });
             (conf.server_modes || []).forEach(function(mode) {
                 _register.detail(page, mode, _serverContext);
-                var onShow = _onShow[mode] || _onShow.detail;
-                onShow(page, mode);
             });
             app.models[page] = modelModule(conf);
         } else if (conf) {
             _registerOther(page);
-            _onShowOther(page);
         }
     });
 
     // Register outbox
     router.register('outbox', 'outbox', () => outbox.loadItems());
-    router.onShow('outbox', app.runPlugins);
     router.register('outbox/<slug>', 'outbox_detail', _renderOutboxItem);
     router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
-    router.onShow('outbox_detail', app.runPlugins);
-    router.onShow('outbox_edit', app.runPlugins);
 
     // Fallback index page
     if (!root && !app.config.pages.index && config.template.templates.index) {
@@ -253,10 +223,6 @@ app.init = function(config) {
 
     // Fallback for all other URLs
     router.registerLast(':path*', SERVER, _serverContext);
-
-    // Handle form events
-    $(document).on('submit', 'form', _handleForm);
-    $(document).on('click', 'form [type=submit]', _submitClick);
 
     Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.context) {
@@ -285,7 +251,12 @@ app.init = function(config) {
     }
 
     if (app.config.jqmInit) {
+        // FIXME: Remove in 2.0
         ready = ready.then(app.jqmInit);
+    }
+
+    if (app.config.autoStart) {
+        ready = ready.then(app.start);
     }
 
     return ready;
@@ -299,6 +270,14 @@ app.use = function(plugin) {
     }
     app.plugins[plugin.name] = plugin;
     plugin.app = app;
+    if (plugin.type) {
+        if (app[plugin.type]) {
+            throw new Error(
+                `App already has a ${plugin.type} (${app[plugin.type].name})`
+            );
+        }
+        app[plugin.type] = plugin;
+    }
 };
 
 app.prefetchAll = function() {
@@ -309,7 +288,8 @@ app.prefetchAll = function() {
     );
 };
 
-app.jqmInit = router.jqmInit;
+app.jqmInit = router.jqmInit; // FIXME: Remove in 2.0
+app.start = router.start;
 
 app.logout = function() {
     if (!app.can_login || !app.user) {
@@ -371,39 +351,6 @@ app.go = function() {
     throw new Error('app.go() has been removed.  Use app.nav() instead');
 };
 
-// Run any/all plugins on the specified page
-app.runPlugins = function(arg) {
-    if (arg) {
-        throw new Error('runPlugins() now loads args from context');
-    }
-    const state = router.store.getState(),
-        { context } = state;
-
-    var { router_info: routeInfo } = context;
-
-    var getItem;
-
-    if (context.outbox_id) {
-        getItem = Promise.resolve(context);
-    } else if (routeInfo.item_id) {
-        if (context.local) {
-            getItem = Promise.resolve(context);
-        } else {
-            getItem = app.models[routeInfo.page].find(routeInfo.item_id);
-        }
-    } else {
-        getItem = Promise.resolve({});
-    }
-    getItem.then(function(item) {
-        routeInfo = {
-            ...routeInfo,
-            item,
-            context
-        };
-        app.callPlugins('run', [jqm.activePage, routeInfo]);
-    });
-};
-
 // Sync outbox and handle result
 app.sync = function(retryAll) {
     if (retryAll) {
@@ -443,16 +390,14 @@ app.emptyOutbox = function(confirmFirst) {
 
 app.confirmSubmit = function(form, message) {
     /* global confirm */
-    var $form;
     if (navigator.notification && navigator.notification.confirm) {
-        $form = $(form);
-        if ($form.data('wq-confirm-submit')) {
+        if (form.dataset.wqConfirmSubmit) {
             return true;
         }
         navigator.notification.confirm(message, function(button) {
             if (button == 1) {
-                $form.data('wq-confirm-submit', true);
-                $form.trigger('submit');
+                form.dataset.wqConfirmSubmit = true;
+                form.submit();
             }
         });
     } else {
@@ -572,21 +517,6 @@ app.postsaveurl = function(item, alreadySynced) {
     return url;
 };
 
-// Hook for handling navigation / alerts after a submission error
-// (only used when !backgroundSync)
-app.saveerror = function(item, reason, $form) {
-    // Save failed for some reason, perhaps due to being offline
-    // (override to customize behavior, e.g. display an outbox)
-    if (app.config.debug) {
-        console.warn('Could not save: ' + reason);
-    }
-    if (reason == app.OFFLINE) {
-        app.postSaveNav(item, false);
-    } else {
-        app.showOutboxErrors(item, $form);
-    }
-};
-
 const syncRefresh = {
     onsync(obitem) {
         const { context } = this.app.store.getState(),
@@ -598,7 +528,7 @@ const syncRefresh = {
 
         if (resultId && (item_id === outboxSlug || parent_id === outboxSlug)) {
             router.push(full_path.replace(outboxSlug, resultId));
-        } else if (jqm.activePage.data('wq-sync-refresh')) {
+        } else if (routeInfo.name === 'outbox' || routeInfo.mode === 'list') {
             router.reload();
         }
     }
@@ -739,14 +669,6 @@ function _getRouteInfo(ctx, arg) {
     };
 }
 
-function getTemplateName(name, context) {
-    if (context.template) {
-        return context.template;
-    } else {
-        return name.split(':')[0];
-    }
-}
-
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 _register.list = function(page) {
@@ -798,15 +720,6 @@ _register.list = function(page) {
         info['parent_is_' + ppage] = true;
         return _displayList(ctx, info);
     }
-};
-
-_onShow.list = function(page) {
-    router.onShow(_joinRoute(page, 'list'), app.runPlugins);
-
-    // Special handling for /[parent_list_url]/[parent_id]/[url]
-    app.getParents(page).forEach(function(ppage) {
-        router.onShow(_joinRoute(page, 'list', ppage), app.runPlugins);
-    });
 };
 
 app._addOutboxItemsToContext = function(context, unsyncedItems) {
@@ -901,7 +814,7 @@ async function _displayList(ctx, parentInfo) {
         if (+pnum - 1 > model.opts.page && (model.opts.client || pnum > 2)) {
             let prevp = filter ? { ...filter } : {};
             prevp.page = +pnum - 1;
-            prev = conf.url + '/?' + $.param(prevp);
+            prev = conf.url + '/?' + new URLSearchParams(prevp).toString();
         } else if (pnum == 1 && !filter) {
             prev = conf.url + '/';
             prevIsLocal = true;
@@ -911,7 +824,7 @@ async function _displayList(ctx, parentInfo) {
     if (pnum < data.pages && (model.opts.server || pnum)) {
         let nextp = filter ? { ...filter } : {};
         nextp.page = +pnum + 1;
-        next = conf.url + '/?' + $.param(nextp);
+        next = conf.url + '/?' + new URLSearchParams(nextp).toString();
         if (nextp.page == 1) {
             currentIsLocal = true;
         }
@@ -941,11 +854,6 @@ _register.detail = function(page, mode, contextFn = _displayItem) {
     register(url, _joinRoute(page, mode), contextFn);
 };
 
-// Register an onshow event for item detail views
-_onShow.detail = function(page, mode) {
-    router.onShow(_joinRoute(page, mode), app.runPlugins);
-};
-
 function _getDetailUrl(url, mode) {
     if (url) {
         url += '/';
@@ -972,12 +880,6 @@ _register.edit = function(page) {
         _joinRoute(page, 'edit', 'new'),
         _displayItem
     );
-};
-
-// Register an onshow event for item edit views
-_onShow.edit = function(page) {
-    router.onShow(_joinRoute(page, 'edit'), app.runPlugins);
-    router.onShow(_joinRoute(page, 'edit', 'new'), app.runPlugins);
 };
 
 async function _displayItem(ctx) {
@@ -1044,11 +946,6 @@ function _registerOther(page) {
     }
 }
 
-// Register an onshow event for non-list single pages
-function _onShowOther(page) {
-    router.onShow(page, app.runPlugins);
-}
-
 async function _renderOutboxItem(ctx) {
     // Display outbox item using model-specific detail/edit view
     const { router_info: routeInfo } = ctx,
@@ -1074,10 +971,10 @@ async function _renderOutboxItem(ctx) {
     }
     var context = {
         outbox_id: item.id,
-        template: template,
         error: item.error,
         router_info: {
             ...routeInfo,
+            template: template,
             outbox_id: item.id
         },
         ...item.data
@@ -1088,130 +985,26 @@ async function _renderOutboxItem(ctx) {
     return _addLookups(page, context, false);
 }
 
-// Handle form submit from [url]_edit views
-async function _handleForm(evt) {
-    var $form = $(this),
-        $submitVal,
-        backgroundSync,
-        storage;
-    if (evt.isDefaultPrevented()) {
-        return;
-    }
-    $form.find('[type=submit]').prop('disabled', true);
-    if ($form.data('wq-submit-button-name')) {
-        $submitVal = $('<input>')
-            .attr('name', $form.data('wq-submit-button-name'))
-            .attr('value', $form.data('wq-submit-button-value'));
-        $form.append($submitVal);
-    }
-    if ($form.data('wq-json') !== undefined && !$form.data('wq-json')) {
-        app.spin.forSeconds(10);
-        return; // Defer to default (HTML-based) handler
-    }
-
-    if ($form.data('wq-background-sync') !== undefined) {
-        backgroundSync = $form.data('wq-background-sync');
+app.isRegistered = function(url) {
+    if (_getConfByUrl(url, true)) {
+        return true;
     } else {
-        backgroundSync = app.config.backgroundSync;
+        return false;
     }
+};
 
-    if ($form.data('wq-storage') !== undefined) {
-        storage = $form.data('wq-storage');
-    }
+app.submitForm = async function(kwargs) {
+    const {
+        url,
+        storage,
+        backgroundSync,
+        has_files,
+        outboxId,
+        preserve,
+        data: vals
+    } = kwargs;
 
-    var outboxId = $form.data('wq-outbox-id');
-    var preserve = $form.data('wq-outbox-preserve');
-    var url = $form.attr('action').replace(app.service + '/', '');
-    var conf = _getConfByUrl(url, true);
-    var vals = {};
-    var $files = $form.find('input[type=file]');
-    var has_files = false;
-    $files.each(function(i, input) {
-        if ($(input).val().length > 0) {
-            has_files = true;
-        }
-    });
-
-    if (!conf) {
-        // Unrecognized URL; assume a regular form post
-        app.spin.forSeconds(10);
-        return;
-    }
-    if (has_files && !window.Blob) {
-        // Files present but there's no Blob API.  Looks like we're in a an old
-        // browser that can't upload files via AJAX.  Bypass wq/outbox.js
-        // entirely and hope server is able to respond to regular form posts
-        // with HTML (hint: wq.db is).
-        app.spin.forSeconds(10);
-        return;
-    }
-
-    // Modern browser and/or no files present; skip regular form submission,
-    // we're saving this via wq/outbox.js
-    evt.preventDefault();
-
-    // Use a simple JSON structure for values, which is better for outbox
-    // serialization.
-    function addVal(name, val) {
-        if (vals[name] !== undefined) {
-            if (!Array.isArray(vals[name])) {
-                vals[name] = [vals[name]];
-            }
-            vals[name].push(val);
-        } else {
-            vals[name] = val;
-        }
-    }
-    $.each($form.serializeArray(), function(i, v) {
-        addVal(v.name, v.value);
-    });
-    // Handle <input type=file>.  Use HTML JSON form-style objects, but
-    // with Blob instead of base64 encoding to represent the actual file.
-    if (has_files) {
-        $files.each(function() {
-            var name = this.name,
-                file,
-                slice;
-            if (!this.files || !this.files.length) {
-                return;
-            }
-            for (var i = 0; i < this.files.length; i++) {
-                file = this.files[i];
-                slice = file.slice || file.webkitSlice;
-                addVal(name, {
-                    type: file.type,
-                    name: file.name,
-                    // Convert to blob for better serialization
-                    body: slice.call(file, 0, file.size, file.type)
-                });
-            }
-        });
-    }
-    // Handle blob-stored files created by (e.g.) wq/photos.js
-    $form.find('input[data-wq-type=file]').each(function() {
-        // wq/photo.js files in memory, copy over to form
-        var name = this.name;
-        var value = this.value;
-        var curVal = Array.isArray(vals[name]) ? vals[name][0] : vals[name];
-        var photos = app.plugins.photos;
-        if (curVal && typeof curVal === 'string') {
-            delete vals[name];
-        }
-        if (!value || !photos) {
-            return;
-        }
-
-        var data = photos._files[value];
-        if (data) {
-            has_files = true;
-            addVal(name, data);
-            delete photos._files[value];
-        }
-    });
-
-    if ($submitVal) {
-        $submitVal.remove();
-    }
+    const conf = _getConfByUrl(url, true);
 
     var options = {
         url: url
@@ -1244,131 +1037,42 @@ async function _handleForm(evt) {
         options.label = tmpl.render(conf.label_template, vals);
     }
 
-    $form.find('.error').html('');
     options.csrftoken = app.csrftoken;
     var item = await outbox.save(vals, options);
     if (backgroundSync) {
         // Send user to next screen while app syncs in background
         app.postSaveNav(item, false);
-        return;
+        return [item, null];
     }
 
     // Submit form immediately and wait for server to respond
-    $form.attr('data-wq-outbox-id', item.id);
     app.spin.start();
     item = await outbox.waitForItem(item.id);
-    $form.find('[type=submit]').prop('disabled', false);
     app.spin.stop();
     if (!item) {
-        return;
+        return [item, app.FAILURE];
     }
     if (item.synced) {
         // Item was synced
         app.postSaveNav(item, true);
-        return;
+        return [item, null];
     }
     // Something went wrong
-    var error;
     if (!item.error) {
         // Save failed without server error: probably offline
         // FIXME: waitForItem() probably doesn't resolve until back online.
-        error = app.OFFLINE;
+        app.postSaveNav(item, false);
+        return [item, null];
     } else if (typeof item.error === 'string') {
         // Save failed and error information is not in JSON format
         // (likely a 500 server failure)
-        error = app.FAILURE;
+        return [item, app.FAILURE];
     } else {
         // Save failed and error information is in JSON format
         // (likely a 400 bad data error)
-        error = app.ERROR;
-    }
-    app.saveerror(item, error, $form);
-}
-
-const showOutboxErrors = {
-    async run($page, routeInfo) {
-        const { name, outbox_id } = routeInfo;
-        if (name === 'outbox_edit') {
-            const item = await outbox.loadItem(routeInfo.outbox_id);
-            if (item.error) {
-                app.showOutboxErrors(item, $page);
-            }
-        }
+        return [item, app.ERROR];
     }
 };
-
-app.showOutboxErrors = function(item, $page) {
-    if ($page.is('form') && item.options.method == 'DELETE') {
-        if (!$page.find('.error').length) {
-            // Delete form does not contain error placeholders
-            // but main form might
-            $page = $page.parents('.ui-page');
-        }
-    }
-    if (!item.error) {
-        showError('Error saving data.');
-        return;
-    } else if (typeof item.error === 'string') {
-        showError(item.error);
-        return;
-    }
-    // Save failed and error information is in JSON format
-    // (likely a 400 bad data error)
-    var errs = Object.keys(item.error);
-
-    if (errs.length == 1 && errs[0] == 'detail') {
-        // General API errors have a single "detail" attribute
-        showError(item.error.detail);
-    } else {
-        // REST API provided per-field error information
-
-        // Form errors (other than non_field_errors) are keyed by fieldname
-        errs.forEach(function(f) {
-            // FIXME: there may be multiple errors per field
-            var err = item.error[f][0];
-            if (f == 'non_field_errors') {
-                showError(err);
-            } else {
-                if (typeof err !== 'object') {
-                    showError(err, f);
-                } else {
-                    // Nested object errors (e.g. attachment)
-                    item.error[f].forEach(function(err, i) {
-                        for (var n in err) {
-                            var fid = f + '-' + i + '-' + n;
-                            showError(err[n][0], fid);
-                        }
-                    });
-                }
-            }
-        });
-        if (!item.error.non_field_errors) {
-            showError('One or more errors were found.');
-        }
-    }
-
-    function showError(err, field) {
-        if (field) {
-            field = field + '-';
-        } else {
-            field = '';
-        }
-        var sel = '.' + item.options.modelConf.name + '-' + field + 'errors';
-        $page.find(sel).html(err);
-    }
-};
-
-// Remember which submit button was clicked (and its value)
-function _submitClick() {
-    var $button = $(this),
-        $form = $(this.form),
-        name = $button.attr('name'),
-        value = $button.attr('value');
-    if (name !== undefined && value !== undefined) {
-        $form.data('wq-submit-button-name', name);
-        $form.data('wq-submit-button-value', value);
-    }
-}
 
 app.getAuthState = function() {
     return this.store.getState().auth || {};
@@ -1805,10 +1509,7 @@ function _serverContext(ctx) {
 
 function _fetchFail(query, error) {
     /* eslint no-unused-vars: off */
-    app.spin.start('Error Loading Data', 1.5, {
-        theme: jqm.pageLoadErrorMessageTheme,
-        textonly: true
-    });
+    app.spin.alert('Error Loading Data');
 }
 
 export default app;

@@ -1,28 +1,22 @@
 import router from '../router';
-import tmpl from '@wq/template';
-import jQM from '@wq/jquery-mobile';
 
-var jQuery;
+var handleRender;
+
 beforeAll(() => {
-    jQuery = jQM(true);
     router.init({
-        jQuery,
         debug: true
     });
     router.store.init();
     router.register('test/<slug>', 'test_detail');
-    tmpl.init({
-        jQuery,
-        templates: {
-            404: '<html><body><div data-role=page>Not Found</div></body></html>',
-            test_detail:
-                '<html><body><div data-role=page>TEST {{title}} {{params}}</div></body></html>'
-        }
+    router.addThunk('RENDER', (dispatch, getState, bag) => {
+        const { action } = bag,
+            { payload: context } = action;
+        handleRender(context);
     });
-    router.jqmInit();
+    router.start();
 });
 
-test('register route and render page', done => {
+test('render page', done => {
     router.addContextForRoute('test/<slug>', async ctx => {
         await new Promise(resolve => setTimeout(resolve, 200));
         return {
@@ -30,13 +24,12 @@ test('register route and render page', done => {
             params: JSON.stringify(ctx.router_info.params)
         };
     });
-    router.onShow('test/<slug>', testOnShow);
+
+    handleRender = context => {
+        expect(context.title).toBe('1234');
+        expect(context.params).toBe('{"p":"1"}');
+        done();
+    };
 
     router.push('/test/1234?p=1');
-
-    function testOnShow() {
-        const $page = jQuery('.ui-page-active');
-        expect($page.text()).toEqual('TEST 1234 {"p":"1"}');
-        done();
-    }
 });

@@ -26,9 +26,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@wq/jquery-mobile": "^1.2.0",
         "@wq/store": "^1.2.0",
-        "@wq/template": "^1.2.0",
         "query-string": "^6.8.3",
         "redux-first-router": "^2.1.5"
     }

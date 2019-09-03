@@ -29,7 +29,6 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@wq/jquery-mobile": "^1.2.0",
         "@wq/model": "^1.2.0",
         "@wq/outbox": "^1.2.0",
         "@wq/router": "^1.2.0",
@@ -38,6 +37,7 @@
         "localforage": "^1.7.3"
     },
     "devDependencies": {
+        "@wq/jquery-mobile": "^1.2.0",
         "promise.prototype.finally": "^3.1.1"
     }
 }

@@ -1,7 +1,6 @@
 import pkg from './package.json';
 import {
     makeBanner,
-    wqDeps,
     babelNPM,
     babelAMD,
     outputAMD
@@ -12,7 +11,7 @@ export default [
     // ESM
     {
         input: 'packages/template/index.js',
-        plugins: [wqDeps('@wq'), babelNPM()],
+        plugins: [babelNPM()],
         external: ['mustache'],
         output: [
             {
@@ -25,7 +24,7 @@ export default [
     // CJS
     {
         input: 'packages/template/index.js',
-        plugins: [wqDeps('@wq'), babelNPM()],
+        plugins: [babelNPM()],
         external: ['mustache'],
         output: [
             {
@@ -38,7 +37,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/template/index.js',
-        plugins: [wqDeps(), babelAMD()],
+        plugins: [babelAMD()],
         external: ['mustache'],
         output: outputAMD('template', banner)
     }

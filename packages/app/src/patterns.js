@@ -4,11 +4,10 @@ var patterns = {
     name: 'patterns'
 };
 
-var _templates, _pageContext, $;
+var _templates, _pageContext;
 
 patterns.init = function(conf) {
     _templates = (conf && conf.templates) || this.app.config.template.templates;
-    $ = (conf && conf.jQuery) || window.jQuery;
 };
 
 patterns.context = function(context, routeInfo) {
@@ -19,6 +18,7 @@ patterns.context = function(context, routeInfo) {
 };
 
 patterns.run = function($page, routeInfo) {
+    const $ = $page.constructor;
     $page.find('button[data-wq-action=addattachment]').click(add);
     $page.on('click', 'button[data-wq-action=removeattachment]', remove);
     function add(evt) {
@@ -44,6 +44,7 @@ patterns.run = function($page, routeInfo) {
 patterns.addAttachment = function(page, section, index, $button, mode) {
     var template = _templates[page + '_' + (mode ? mode : 'edit')],
         pattern = '{{#' + section + '}}([\\s\\S]+){{/' + section + '}}',
+        $ = $button.constructor,
         match,
         $attachment,
         context;

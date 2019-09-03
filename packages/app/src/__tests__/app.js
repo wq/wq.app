@@ -8,19 +8,16 @@ import photos from '../photos';
 import router from '@wq/router';
 import routeConfig from './config.json';
 import templates from './templates.json';
-import jQM from '@wq/jquery-mobile';
+import jqmrenderer from '@wq/jquery-mobile';
 import { encode } from '@wq/outbox/vendor/json-forms';
 import promiseFinally from 'promise.prototype.finally';
 
 promiseFinally.shim();
 
-var $, jqm;
+var onPageShow;
 
 beforeAll(async () => {
-    $ = jQM(true);
-    jqm = $.mobile;
     const config = {
-        jQuery: $,
         router: {
             base_url: '/tests'
         },
@@ -30,6 +27,9 @@ beforeAll(async () => {
         store: {
             service: 'http://localhost:8080/tests',
             defaults: { format: 'json' }
+        },
+        jqmrenderer: {
+            noScroll: true
         },
         backgroundSync: -1,
         loadMissingAsJson: true,
@@ -41,21 +41,27 @@ beforeAll(async () => {
         ...routeConfig
     };
 
+    app.use(jqmrenderer);
     app.use(patterns);
     app.use(photos);
     app.use({
-        context: function(context, routeInfo) {
+        context(context, routeInfo) {
             return Promise.resolve({
                 context_page_url: context.page_config.url,
                 route_info_mode: routeInfo.mode,
                 route_info_parent_page: routeInfo.parent_page
             });
+        },
+        run($page) {
+            if (onPageShow) {
+                onPageShow($page);
+            }
         }
     });
     await app.init(config);
     app.service = app.base_url;
-    $('body').append('<div data-role=page></div>');
-    app.jqmInit();
+    jqmrenderer.$('body').append('<div data-role=page></div>');
+    app.start();
     await app.prefetchAll();
 });
 
@@ -102,7 +108,7 @@ test('item edit page', async () => {
     $page.find('input#values-0-value').val('Test Change');
     $page = await submitForm($page);
 
-    expect(jqm.activePage.data('url')).toBe('/tests/items/');
+    expect($page.data('url')).toBe('/tests/items/');
     const obdata = await app.outbox.loadItems();
     expect(obdata.list).toHaveLength(1);
     var obitem = obdata.list[0];
@@ -188,7 +194,7 @@ test('sync refresh', async () => {
     await nextTick();
 
     // Item should be gone from list view
-    $page = jqm.activePage;
+    $page = jqmrenderer.jqm.activePage;
     expect($page.find("a[href='/tests/outbox/1']")).toHaveLength(0);
 });
 
@@ -221,7 +227,7 @@ test('sync refresh - update URL', async () => {
 
     // List URL should update to reflect new parent id
     await nextTick();
-    $page = jqm.activePage;
+    $page = jqmrenderer.jqm.activePage;
     expect($page.data('url')).toBe(`/tests/itemtypes/${item1.result.id}/items`);
     expect($page.find('li a')[0].href).toBe(
         `http://localhost/tests/items/${item2.result.id}`
@@ -254,7 +260,7 @@ test('show outbox errors - background sync', async () => {
     await nextTick();
 
     // Item should have an error flag
-    $page = jqm.activePage;
+    $page = jqmrenderer.jqm.activePage;
     $link = $page.find("a[href='/tests/outbox/1']");
     expect($link.parents('li').data('icon')).toBe('alert');
 
@@ -279,14 +285,14 @@ test('show outbox errors - foreground sync', async () => {
         .data('wq-background-sync', false);
     $page.find('input[name=label]').val('Invalid');
     $page.find('form').submit();
-    await nextTick();
-    expect($page.find('form').attr('data-wq-outbox-id')).toBe('1');
 
     // Attempt sync
     await app.outbox.resume();
     await app.outbox.waitForItem(1);
+    await nextTick();
 
     // Error should show up in form
+    expect($page.find('form').attr('data-wq-outbox-id')).toBe('1');
     expect($page.find('.error.item-label-errors').text()).toBe(
         'Not a valid label'
     );
@@ -353,16 +359,16 @@ async function changePage(path, path2) {
         done = resolve;
     });
 
-    $('body').on('pageshow.changepage', next);
+    onPageShow = next;
     router.push('/tests/' + path); //, { transition: 'none' });
 
-    function next() {
-        if (jqm.activePage.jqmData('url') != '/tests/' + path) {
+    function next($page) {
+        if ($page.jqmData('url') != '/tests/' + path) {
             // FIXME: Sometimes / is shown before navigating to path?
             return;
         }
-        $('body').off('pageshow.changepage', next);
-        done(jqm.activePage);
+        onPageShow = null;
+        done($page);
     }
 
     return promise;
@@ -374,12 +380,12 @@ async function submitForm($page) {
         done = resolve;
     });
 
-    $('body').on('pageshow', next);
+    onPageShow = next;
     $page.find('form').submit();
 
-    function next() {
-        $('body').off('pageshow', next);
-        done(jqm.activePage);
+    function next($page) {
+        onPageShow = null;
+        done($page);
     }
 
     return promise;
