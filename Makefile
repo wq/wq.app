@@ -18,6 +18,7 @@ js_wq: js_build
 	cp -p packages/map/dist/locate.js* js/wq/
 	cp -p packages/map/dist/map.js* js/wq/
 	cp -p packages/map/dist/mapserv.js* js/wq/
+	cp -p packages/material/dist/material.js* js/wq/
 	cp -p packages/model/dist/model.js* js/wq/
 	cp -p packages/outbox/dist/outbox.js* js/wq/
 	cp -p packages/app/dist/patterns.js* js/wq/

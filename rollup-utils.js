@@ -43,10 +43,9 @@ export function makeBanner(pkg, startYear) {
 `;
 }
 
-export function babelNPM() {
-    return babelPlugin({
-        configFile: false,
-        presets: [
+export function babelNPM(opts) {
+    const { jsx } = opts || {},
+        presets = [
             [
                 '@babel/preset-env',
                 {
@@ -55,15 +54,20 @@ export function babelNPM() {
                     }
                 }
             ]
-        ],
+        ];
+    if (jsx) {
+        presets.push('@babel/preset-react');
+    }
+    return babelPlugin({
+        configFile: false,
+        presets,
         plugins: ['@babel/plugin-proposal-class-properties', generatorOverride]
     });
 }
 
-export function babelAMD() {
-    const plugin = babelPlugin({
-        configFile: false,
-        presets: [
+export function babelAMD(opts) {
+    const { jsx } = opts || {},
+        presets = [
             [
                 '@babel/preset-env',
                 {
@@ -72,7 +76,13 @@ export function babelAMD() {
                     }
                 }
             ]
-        ],
+        ];
+    if (jsx) {
+        presets.push('@babel/preset-react');
+    }
+    const plugin = babelPlugin({
+        configFile: false,
+        presets,
         plugins: [
             '@babel/plugin-proposal-class-properties',
             [

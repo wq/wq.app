@@ -26,13 +26,15 @@ const SERVER = '@@SERVER',
     CSRFTOKEN = 'CSRFTOKEN',
     LOGOUT = '@@LOGOUT';
 
+const CORE_PLUGINS = ['renderer'];
+
 app.models = {};
 app.plugins = {};
 
 var _register = {};
 
 app.init = function(config) {
-    ['renderer'].forEach(type => {
+    CORE_PLUGINS.forEach(type => {
         if (!app[type]) {
             throw new Error(`Register a ${type} with app.use()`);
         }
@@ -104,7 +106,11 @@ app.init = function(config) {
     if (config.debug) {
         config.router.debug = config.debug;
         config.store.debug = config.debug;
-        config.template.debug = config.debug;
+        CORE_PLUGINS.forEach(type => {
+            if (config[type]) {
+                config[type].debug = config.debug;
+            }
+        });
     }
 
     // Load missing (non-local) content as JSON, or as server-rendered HTML?
@@ -206,7 +212,7 @@ app.init = function(config) {
     router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
 
     // Fallback index page
-    if (!root && !app.config.pages.index && config.template.templates.index) {
+    if (!root && !app.config.pages.index) {
         router.registerLast('', 'index', function(ctx) {
             var context = {};
             context.pages = Object.keys(app.config.pages).map(function(page) {
@@ -288,8 +294,15 @@ app.prefetchAll = function() {
     );
 };
 
-app.jqmInit = router.jqmInit; // FIXME: Remove in 2.0
-app.start = router.start;
+app.jqmInit = function() {
+    console.warn(new Error('jqmInit() renamed to start()'));
+    app.start();
+};
+
+app.start = function() {
+    router.start();
+    app.callPlugins('start');
+};
 
 app.logout = function() {
     if (!app.can_login || !app.user) {

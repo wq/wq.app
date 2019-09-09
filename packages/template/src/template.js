@@ -8,6 +8,9 @@ var _templates = {};
 var _partials = {};
 
 tmpl.init = function(config) {
+    if (!config) {
+        config = {};
+    }
     _templates = config.templates || {};
     _partials = config.partials || _templates.partials || {};
     if (config.defaults) {

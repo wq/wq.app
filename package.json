@@ -7,14 +7,15 @@
         "rollup": "rollup",
         "precise-commits": "precise-commits",
         "prettier": "prettier",
-        "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/__tests__/}*.js{,on}",
+        "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/*/}*.js{,on}",
         "eslint": "eslint",
-        "lint": "eslint *.js packages/*/{,src/,src/__tests__/}*.js"
+        "lint": "eslint *.js packages/*/{,src/,src/*/}*.js"
     },
     "devDependencies": {
         "@babel/plugin-proposal-class-properties": "^7.5.5",
         "@babel/plugin-transform-runtime": "^7.6.2",
         "@babel/preset-env": "^7.6.2",
+        "@babel/preset-react": "^7.6.3",
         "@wq/jest-env-jsdom-idb": "^0.1.2",
         "babel-eslint": "^10.0.3",
         "eslint": "^6.5.1",
