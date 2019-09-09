@@ -29,14 +29,18 @@ export function useRenderContext() {
 }
 
 export function useRouteInfo() {
-    const context = useSelector(state => state.context),
-        location = useSelector(selectLocationState),
-        { router_info: routeInfo } = context;
+    const routeInfo = useSelector(state => state.routeInfo),
+        context = useSelector(state => state.context),
+        { router_info: ctxRouteInfo } = context;
     if (routeInfo) {
-        return {
-            ...routeInfo,
-            pending: routeInfo.full_path.split('?')[0] !== location.pathname
-        };
+        if (!ctxRouteInfo || ctxRouteInfo.full_path !== routeInfo.full_path) {
+            return {
+                ...routeInfo,
+                pending: true
+            };
+        } else {
+            return routeInfo;
+        }
     } else {
         return { pending: true };
     }
@@ -46,11 +50,18 @@ export function useTitle() {
     const context = useRenderContext(),
         routeInfo = useRouteInfo();
 
-    const title =
-        context.title ||
-        context.label ||
-        (routeInfo && routeInfo.name && routeInfo.name.replace('_', ' ')) ||
-        'Loading...';
+    var title;
+    if (routeInfo && !routeInfo.pending) {
+        title = context.title || context.label;
+    }
+
+    if (!title && routeInfo) {
+        title = routeInfo.name && routeInfo.name.replace('_', ' ');
+    }
+
+    if (!title) {
+        title = 'Loading...';
+    }
 
     return title;
 }

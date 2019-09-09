@@ -22,6 +22,7 @@ var router = {
         getTemplateName: name => name
     },
     routesMap: {},
+    routeInfoFn: [],
     contextProcessors: []
 };
 
@@ -54,6 +55,7 @@ router.init = function(config) {
     router.store = getStore(router.config.store);
     router.store.addReducer('location', routeReducer);
     router.store.addReducer('context', contextReducer);
+    router.store.addReducer('routeInfo', routeInfoReducer);
     router.store.addEnhancer(enhancer);
     router.store.addMiddleware(middleware);
     router.store.setThunkHandler(router.addThunk);
@@ -89,21 +91,34 @@ function contextReducer(context = {}, action) {
         return context;
     }
     if (action.type === RENDER) {
-        context = action.payload;
+        return action.payload;
     } else if (action.type === NOT_FOUND) {
-        context = _routeInfo({
-            ...action.meta.location.current,
-            prev: action.meta.location.prev
-        });
-        context.router_info.template = router.config.tmpl404;
-        context.url = context.router_info.full_path;
+        const routeInfo = _routeInfo(action.meta.location);
+        return {
+            router_info: {
+                ...routeInfo,
+                template: router.config.tmpl404
+            },
+            rt: router.base_url,
+            url: routeInfo.full_path
+        };
     }
-    return context;
+}
+
+function routeInfoReducer(routeInfo = {}, action) {
+    if (action.meta && action.meta.location) {
+        return _routeInfo(action.meta.location);
+    } else {
+        return routeInfo;
+    }
 }
 
 async function _generateContext(dispatch, getState, refresh = false) {
     const location = getState().location;
-    var context = _routeInfo(location);
+    var context = {
+        router_info: _routeInfo(location),
+        rt: router.base_url
+    };
     for (var i = 0; i < router.contextProcessors.length; i++) {
         var fn = router.contextProcessors[i];
         context = {
@@ -276,6 +291,10 @@ router.rawHTML = function(html) {
 
 router.base_url = '';
 
+router.addRouteInfo = function(fn) {
+    router.routeInfoFn.push(fn);
+};
+
 function _normalizePath(path) {
     path = path.replace('<slug>', ':slug');
     return router.base_url + '/' + path;
@@ -303,6 +322,12 @@ function _removeBase(pathname) {
 }
 
 function _routeInfo(location) {
+    if (location.current && location.prev) {
+        location = {
+            ...location.current,
+            prev: location.prev
+        };
+    }
     var info = {};
     info.name = location.type.toLowerCase();
     info.template = router.config.getTemplateName(info.name);
@@ -315,10 +340,9 @@ function _routeInfo(location) {
     info.params = location.query;
     info.slugs = location.payload;
     info.base_url = router.base_url;
-    return {
-        router_info: info,
-        rt: router.base_url
-    };
+
+    router.routeInfoFn.forEach(fn => (info = fn(info)));
+    return info;
 }
 
 export default router;

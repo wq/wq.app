@@ -41,8 +41,8 @@ app.init = function(config) {
     });
     app.use(spinner);
     app.use(syncRefresh);
+    router.addRouteInfo(_extendRouteInfo);
     router.addContext(() => spinner.start() && {});
-    router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
     router.addContext(_getSyncInfo);
     router.addThunk(LOGIN_SUCCESS, _refreshUserInfo);
@@ -355,6 +355,8 @@ async function _refreshCSRFToken() {
 async function _getSyncInfo() {
     const unsynced = await outbox.unsynced();
     return {
+        svc: app.service,
+        native: app['native'],
         syncing: app.syncing,
         unsynced: unsynced
     };
@@ -635,15 +637,11 @@ function _joinRoute(page, mode, variant) {
     }
 }
 
-function _getRouteInfo(ctx, arg) {
-    if (arg) {
-        throw new Error('_getRouteInfo() now auto-created from context');
-    }
-    const { router_info: routeInfo } = ctx,
-        routeName = routeInfo.name,
+function _extendRouteInfo(routeInfo) {
+    const routeName = routeInfo.name,
         itemid = routeInfo.slugs.slug || null;
     var [page, mode, variant] = _splitRoute(routeName),
-        conf = _getConf(page, true),
+        conf = _getConf(page, true, true),
         pageid = null;
 
     if (conf) {
@@ -667,18 +665,13 @@ function _getRouteInfo(ctx, arg) {
         };
     }
     return {
-        svc: app.service,
-        native: app['native'],
+        ...routeInfo,
+        page: page,
         page_config: conf,
-        router_info: {
-            ...routeInfo,
-            page: page,
-            page_config: conf,
-            mode: mode,
-            variant: variant,
-            item_id: itemid,
-            dom_id: pageid
-        }
+        mode: mode,
+        variant: variant,
+        item_id: itemid,
+        dom_id: pageid
     };
 }
 
