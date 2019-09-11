@@ -36,6 +36,8 @@ matrix:
       env: PACKAGE=model
     - name: "@wq/outbox"
       env: PACKAGE=outbox
+    - name: "@wq/react"
+      env: PACKAGE=react
     - name: "@wq/router"
       env: PACKAGE=router
     - name: "@wq/store"

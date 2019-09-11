@@ -6,13 +6,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { makeStyles } from '@material-ui/core/styles';
-import {
-    useTitle,
-    useRouteInfo,
-    useReverse,
-    useIndexRoute,
-    useComponents
-} from '../hooks';
+import { useBreadcrumbs, useComponents } from '@wq/react';
 
 const useStyles = makeStyles(theme => ({
     breadcrumbs: {
@@ -25,40 +19,27 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Breadcrumbs() {
-    const title = useTitle(),
-        { name, page, item_id, mode, full_path } = useRouteInfo(),
-        { ButtonLink } = useComponents(),
-        reverse = useReverse(),
-        index = useIndexRoute(),
-        classes = useStyles();
+    const links = useBreadcrumbs(),
+        classes = useStyles(),
+        { ButtonLink } = useComponents();
 
-    const links = [];
-
-    const addLink = (url, label, active) =>
-        links.push([url, label, active ? 'textPrimary' : 'inherit']);
+    if (!links) {
+        return null;
+    }
+    links[0].label = <HomeIcon className={classes.icon} />;
 
     // FIXME: NavLink should already be able to detect current page
-    const addCurrentPage = label => addLink(full_path, label, true);
+    links[links.length - 1].active = true;
 
-    if (name !== index) {
-        addLink(reverse(index), <HomeIcon className={classes.icon} />);
-        if (item_id) {
-            addLink(reverse(`${page}_list`), `${page} list`);
-            if (mode !== 'detail') {
-                addLink(reverse(`${page}_detail`, item_id), title);
-                addCurrentPage(mode);
-            } else {
-                addCurrentPage(title);
-            }
-        } else {
-            addCurrentPage(title);
-        }
-    }
     return (
         <Paper elevation={0} className={classes.breadcrumbs} square>
             <UIBreadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-                {links.map(([path, label, color], i) => (
-                    <ButtonLink key={i} to={path} color={color}>
+                {links.map(({ url, label, active }, i) => (
+                    <ButtonLink
+                        key={i}
+                        to={url}
+                        color={active ? 'textPrimary' : 'inherit'}
+                    >
                         {label}
                     </ButtonLink>
                 ))}

@@ -1,2 +1,2 @@
-import muiRenderer from './src/index.js';
-export default muiRenderer;
+import material from './src/index.js';
+export default material;

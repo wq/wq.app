@@ -1,7 +1,7 @@
 import React from 'react';
-import { NavLink } from 'redux-first-router-link';
+import { Link } from '@wq/react';
 import Button from '@material-ui/core/Button';
 
 export default function ButtonLink(props) {
-    return <Button component={NavLink} {...props} />;
+    return <Button component={Link} {...props} />;
 }

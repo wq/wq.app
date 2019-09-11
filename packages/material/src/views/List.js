@@ -1,30 +1,53 @@
 import React from 'react';
 import UIList from '@material-ui/core/List';
+import Grid from '@material-ui/core/Grid';
 import {
     useRenderContext,
     useRouteInfo,
     useComponents,
-    useReverse
-} from '../hooks';
+    useReverse,
+    usePluginContent
+} from '@wq/react';
 
-export default function List() {
-    const { list } = useRenderContext(),
+function LinkList() {
+    const reverse = useReverse(),
+        { list } = useRenderContext(),
         { page } = useRouteInfo(),
-        { ListItemLink, Pagination } = useComponents(),
-        reverse = useReverse();
+        { ListItemLink } = useComponents();
 
     return (
+        <UIList>
+            {list.map(row => (
+                <ListItemLink
+                    key={row.id}
+                    to={reverse(`${page}_detail`, row.id)}
+                >
+                    {row.label}
+                </ListItemLink>
+            ))}
+        </UIList>
+    );
+}
+
+export default function List() {
+    const PluginContent = usePluginContent(),
+        { Pagination } = useComponents();
+
+    return PluginContent ? (
         <>
-            <UIList>
-                {list.map(row => (
-                    <ListItemLink
-                        key={row.id}
-                        to={reverse(`${page}_detail`, row.id)}
-                    >
-                        {row.label}
-                    </ListItemLink>
-                ))}
-            </UIList>
+            <Grid container>
+                <Grid item xs={6}>
+                    <LinkList />
+                </Grid>
+                <Grid item xs={6}>
+                    <PluginContent />
+                </Grid>
+            </Grid>
+            <Pagination />
+        </>
+    ) : (
+        <>
+            <LinkList />
             <Pagination />
         </>
     );

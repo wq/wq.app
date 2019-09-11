@@ -1,6 +1,5 @@
-import muiRenderer from '../index';
-
+import material from '../index';
 
 test('it loads', () => {
-    expect(muiRenderer.name).toBe('muirenderer');
+    expect(material.name).toBe('material');
 });

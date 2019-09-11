@@ -1,26 +1,28 @@
 import pkg from './package.json';
 import {
     makeBanner,
+    wqDeps,
     babelNPM,
     babelAMD,
     outputAMD
 } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2019);
 
-const external = [
-    'react',
-    'react-dom',
-    'react-redux',
-    'redux-first-router-link',
-    '@material-ui/core',
-    '@material-ui/styles'
-];
+const external = ['react', 'prop-types'];
+
+const material = {
+    resolveId(id) {
+        if (id.match(/@material-ui/)) {
+            return { id, external: true };
+        }
+    }
+};
 
 export default [
     // ESM
     {
         input: 'packages/material/index.js',
-        plugins: [babelNPM({ jsx: true })],
+        plugins: [wqDeps('@wq'), material, babelNPM({ jsx: true })],
         external,
         output: [
             {
@@ -33,7 +35,7 @@ export default [
     // CJS
     {
         input: 'packages/material/index.js',
-        plugins: [babelNPM({ jsx: true })],
+        plugins: [wqDeps('@wq'), material, babelNPM({ jsx: true })],
         external,
         output: [
             {
@@ -46,7 +48,7 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/material/index.js',
-        plugins: [babelAMD({ jsx: true })],
+        plugins: [wqDeps(), material, babelAMD({ jsx: true })],
         external,
         output: outputAMD('material', banner)
     }

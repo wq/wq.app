@@ -1,7 +1,7 @@
 import React from 'react';
 import Modal from '@material-ui/core/Modal';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { useSpinner } from '../hooks';
+import { useSpinner } from '@wq/react';
 
 export default function Spinner() {
     const { active } = useSpinner();

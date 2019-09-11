@@ -39,7 +39,7 @@ export function useRouteInfo() {
                 pending: true
             };
         } else {
-            return routeInfo;
+            return ctxRouteInfo;
         }
     } else {
         return { pending: true };
@@ -97,20 +97,85 @@ export function useIndexRoute() {
     return 'index';
 }
 
+export function useBreadcrumbs() {
+    const title = useTitle(),
+        { name, page, item_id, mode, full_path } = useRouteInfo(),
+        reverse = useReverse(),
+        index = useIndexRoute();
+
+    if (name === index) {
+        return null;
+    }
+
+    const links = [],
+        addLink = (url, label) => links.push({ url, label }),
+        addCurrentPage = label => addLink(full_path, label);
+
+    addLink(reverse(index), 'Home');
+
+    if (item_id) {
+        addLink(reverse(`${page}_list`), `${page} list`);
+        if (mode !== 'detail') {
+            addLink(reverse(`${page}_detail`, item_id), title);
+            addCurrentPage(mode);
+        } else {
+            addCurrentPage(title);
+        }
+    } else {
+        addCurrentPage(title);
+    }
+
+    return links;
+}
+
 export function useSpinner() {
     const spinner = useSelector(state => state.spinner);
     return spinner;
 }
 
-export const ComponentConfig = React.createContext({
+export const AppContext = React.createContext({
     components: {},
-    views: {}
+    views: {},
+    app: {
+        plugins: {}
+    }
 });
 
 export function useComponents() {
-    return useContext(ComponentConfig).components;
+    return useContext(AppContext).components;
 }
 
 export function useViews() {
-    return useContext(ComponentConfig).views;
+    return useContext(AppContext).views;
+}
+
+export function usePlugin(name) {
+    return useContext(AppContext).app.plugins[name];
+}
+
+export function usePluginContent() {
+    const { app } = useContext(AppContext),
+        components = useComponents(),
+        routeInfo = useRouteInfo();
+
+    const content = app
+        .callPlugins('runComponent', [routeInfo])
+        .map(name => (name ? components[name] : null))
+        .filter(component => !!component);
+
+    if (!content.length) {
+        return null;
+    } else if (content.length === 1) {
+        return content[0];
+    } else {
+        return function PluginContent() {
+            return (
+                <>
+                    {content.map((Component, i) => (
+                        <Component key={i} />
+                    ))}
+                </>
+            );
+        };
+    }
 }

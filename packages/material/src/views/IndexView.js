@@ -1,11 +1,11 @@
 import React from 'react';
 import List from '@material-ui/core/List';
-import { useRenderContext, useComponents, useReverse } from '../hooks';
+import { useRenderContext, useComponents, useReverse } from '@wq/react';
 
 export default function Index() {
-    const { pages } = useRenderContext(),
-        { ListItemLink } = useComponents(),
-        reverse = useReverse();
+    const reverse = useReverse(),
+        { pages } = useRenderContext(),
+        { ListItemLink } = useComponents();
 
     return (
         <List>
