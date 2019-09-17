@@ -149,8 +149,13 @@ export function useViews() {
     return useContext(AppContext).views;
 }
 
+export function useApp() {
+    return useContext(AppContext).app;
+}
+
 export function usePlugin(name) {
-    return useContext(AppContext).app.plugins[name];
+    const { plugins } = useApp();
+    return plugins[name];
 }
 
 export function usePluginContent() {

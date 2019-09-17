@@ -84,22 +84,67 @@ export default {
             }
             Object.assign(this.config, config);
         }
-        this.root = document.body.appendChild(document.createElement('div'));
-        this.root.id = 'wq-app-root';
+        if (!this.root) {
+            this.root = document.body.appendChild(
+                document.createElement('div')
+            );
+            this.root.id = 'wq-app-root';
+        }
     },
 
-    start() {
+    getRootComponent() {
         const { components, views } = this.config,
             { App } = components;
-        ReactDOM.render(
+        const AppRoot = () => (
             <StoreProvider store={this.app.store._store}>
                 <AppContext.Provider
                     value={{ app: this.app, components, views }}
                 >
                     <App />
                 </AppContext.Provider>
-            </StoreProvider>,
-            this.root
+            </StoreProvider>
         );
+        AppRoot.displayName = 'AppRoot';
+        return AppRoot;
+    },
+
+    start() {
+        const RootComponent = this.getRootComponent();
+        ReactDOM.render(<RootComponent />, this.root);
+    },
+
+    createInstance(component, root, app) {
+        if (!app) {
+            app = this.app;
+        }
+        const tempPlugin = {
+            app,
+            config: {
+                views: {},
+                components: {}
+            },
+            getRootComponent: () => this.getRootComponent.call(tempPlugin),
+            root
+        };
+        this.init.call(tempPlugin);
+        tempPlugin.config.components.App = component;
+
+        return {
+            start: () => this.start.call(tempPlugin),
+            getRootComponent: () => tempPlugin.getRootComponent(),
+            stop: () => ReactDOM.unmountComponentAtNode(root)
+        };
+    },
+
+    attach(component, root, app) {
+        const instance = this.createInstance(component, root, app);
+        instance.start();
+        return () => instance.stop();
+    },
+
+    wrap(component, app) {
+        const emptyRoot = {},
+            instance = this.createInstance(component, emptyRoot, app);
+        return instance.getRootComponent();
     }
 };

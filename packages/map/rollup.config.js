@@ -31,7 +31,7 @@ export default [
     // ESM
     {
         input: 'packages/map/index.js',
-        plugins: [wqDeps('@wq'), babelNPM()],
+        plugins: [wqDeps('@wq'), babelNPM({ jsx: true })],
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
         output: [
             {
@@ -44,7 +44,7 @@ export default [
     // CJS
     {
         input: 'packages/map/index.js',
-        plugins: [wqDeps('@wq'), babelNPM()],
+        plugins: [wqDeps('@wq'), babelNPM({ jsx: true })],
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
         output: [
             {
@@ -58,20 +58,20 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/map/src/map.js',
-        plugins: [wqDeps('.'), babelAMD()],
+        plugins: [wqDeps('.'), babelAMD({ jsx: true })],
         external: ['leaflet'],
         output: outputAMD('map', banners.map)
     },
     {
         input: 'packages/map/src/locate.js',
         external: ['leaflet'],
-        plugins: [babelAMD()],
+        plugins: [babelAMD({ jsx: true })],
         output: outputAMD('locate', banners.locate, 'map')
     },
     {
         input: 'packages/map/src/mapserv.js',
         external: ['leaflet', 'esri-leaflet', 'leaflet.wms', './map'],
-        plugins: [babelAMD()],
+        plugins: [babelAMD({ jsx: true })],
         output: outputAMD('mapserv', banners.mapserv, 'map')
     }
 ];

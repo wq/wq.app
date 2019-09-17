@@ -12,6 +12,7 @@ import {
     useSpinner,
     useComponents,
     useViews,
+    useApp,
     usePlugin,
     usePluginContent
 } from './src/hooks';
@@ -31,6 +32,7 @@ export {
     useSpinner,
     useComponents,
     useViews,
+    useApp,
     usePlugin,
     usePluginContent
 };

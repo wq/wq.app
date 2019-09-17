@@ -306,7 +306,7 @@ const jqmRenderer = {
             return;
         }
         evt.preventDefault();
-        this.app.nav(url.pathname + url.search);
+        this.app.router.push(url.pathname + url.search);
     },
 
     // Remember which submit button was clicked (and its value)

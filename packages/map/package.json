@@ -5,7 +5,7 @@
     "main": "dist/index.js",
     "module": "dist/index.es.js",
     "scripts": {
-        "test": "cd ../../ && npm run jest packages/map",
+        "test": "cd ../../ && npm run jest packages/map -- --moduleDirectories node_modules node_modules/@wq/react/node_modules",
         "build": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js",
         "prettier": "cd ../../ && npm run prettier -- --write packages/map/{,src/,src/__tests__/}*.js{,on}",
         "lint": "cd ../../ && npm run eslint packages/map/{,src/,src/__tests__/}*.js"
@@ -27,11 +27,14 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
+        "@wq/react": "^1.3.0-dev",
         "@wq/template": "^1.2.0",
         "esri-leaflet": "^2.3.0",
         "leaflet": "^1.5.1",
         "leaflet-draw": "^1.0.4",
         "leaflet.markercluster": "^1.4.1",
-        "leaflet.wms": "^0.2.0"
+        "leaflet.wms": "^0.2.0",
+        "param-case": "^2.1.1",
+        "react-leaflet": "^2.5.0"
     }
 }

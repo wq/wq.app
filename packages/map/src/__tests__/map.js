@@ -1,9 +1,21 @@
 import map from '../map';
+import { routeMapConf } from '../hooks';
+import renderTest, { nextTick } from '@wq/react/test';
 import tmpl from '@wq/template';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
 
 /* global L */
+
+const mockReduxStore = {
+    getState: () => state,
+    subscribe: () => {},
+    dispatch: () => {}
+};
+const state = {
+    routeInfo: {},
+    context: {}
+};
 
 const mockApp = {
     config: routeConfig,
@@ -12,18 +24,12 @@ const mockApp = {
         stop: () => {}
     },
     store: {
+        _store: mockReduxStore,
         ajax: () => {
             return Promise.resolve(geojson);
         }
-    }
-};
-
-const $mockPage = {
-    find: () => $mockPage,
-    parents: () => $mockPage,
-    on: () => {},
-    attr: () => {},
-    is: () => {}
+    },
+    plugins: { map }
 };
 
 beforeAll(() => {
@@ -46,9 +52,26 @@ beforeEach(() => {
     document.body.innerHTML = '';
 });
 
+function getLayerConfs(routeInfo) {
+    return routeMapConf(map.config, routeWithPath(routeInfo)).layers;
+}
+
+function routeWithPath(routeInfo) {
+    const { page, mode, item_id } = routeInfo;
+    let path = routeConfig.pages[page].url;
+    if (mode === 'list') {
+        path = `${path}/`;
+    } else if (mode === 'detail') {
+        path = `${path}/${item_id}`;
+    } else if (mode) {
+        path = `${path}/${item_id}/${mode}`;
+    }
+    return { page, mode, item_id, path };
+}
+
 test('auto map config for list pages', () => {
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'item',
             mode: 'list'
         })
@@ -62,7 +85,7 @@ test('auto map config for list pages', () => {
         }
     ]);
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'item',
             mode: 'detail',
             item_id: 'one'
@@ -76,7 +99,7 @@ test('auto map config for list pages', () => {
         }
     ]);
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'item',
             mode: 'edit',
             item_id: 'one'
@@ -108,42 +131,44 @@ const expectedLayers = [
 
 test('manual map config for list pages', () => {
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'listmap1',
             mode: 'list'
         })
     ).toEqual(expectedLayers);
 
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'listmap2',
             mode: 'list'
         })
     ).toEqual(expectedLayers);
 
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'listmap3',
             mode: 'list'
         })
     ).toEqual(expectedLayers);
 
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'listmap3',
             mode: 'detail'
         })
     ).toEqual(expectedLayers);
 
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'listmap4',
             mode: 'list'
         })
     ).toEqual(expectedLayers);
 
+    // FIXME: Restore multiple map support
+    /*
     expect(
-        map.getLayerConfs(
+        getLayerConfs(
             {
                 page: 'listmap4',
                 mode: 'list'
@@ -157,57 +182,102 @@ test('manual map config for list pages', () => {
             url: 'test2.geojson'
         }
     ]);
+    */
 });
 
 test('manual map config for other pages', () => {
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'othermap1'
         })
     ).toEqual(expectedLayers);
 
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'othermap2'
         })
     ).toEqual(expectedLayers);
 
     expect(
-        map.getLayerConfs({
+        getLayerConfs({
             page: 'othermap3'
         })
     ).toEqual(expectedLayers);
 });
 
 test('list map', async () => {
-    const routeInfo = {
+    const { AutoMap } = map.components,
+        { Geojson } = map.config.overlays;
+
+    state.routeInfo = routeWithPath({
         page: 'item',
-        mode: 'list',
-        page_config: map.app.config.pages.item
-    };
-    var div = document.createElement('div');
-    div.id = 'item-map';
-    document.body.appendChild(div);
-    map.run($mockPage, routeInfo);
-    var layers = map.getLayers(routeInfo);
-    await layers['item'].ready;
-    expect(layers['item'].getBounds().toBBoxString()).toEqual(
+        mode: 'list'
+    });
+
+    const result = renderTest(AutoMap, mockApp),
+        overlay = result.root.findByType(Geojson);
+
+    expect(overlay.props).toEqual({
+        name: 'item',
+        popup: 'item',
+        url: 'items.geojson',
+        cluster: true
+    });
+
+    await nextTick();
+
+    const leafletOverlay =
+        overlay.children[0].children[0].instance.leafletElement;
+
+    expect(leafletOverlay.getBounds().toBBoxString()).toEqual(
         '-93.28611373901367,44.968927335931234,-93.24045181274414,44.99612540094354'
     );
 });
 
 test('edit map (leaflet.draw)', async () => {
-    const routeInfo = {
+    const { AutoMap } = map.components,
+        { Geojson } = map.config.overlays,
+        point = {
+            type: 'Point',
+            coordinates: [45, -95]
+        };
+
+    state.routeInfo = routeWithPath({
         page: 'item',
         mode: 'edit',
-        page_config: map.app.config.pages.item
+        item_id: 123
+    });
+    state.routeInfo.outbox_id = 1;
+    state.context = {
+        geometry: JSON.stringify(point)
     };
-    var div = document.createElement('div');
-    div.id = 'item-map';
-    document.body.appendChild(div);
-    map.run($mockPage, routeInfo);
-    var layers = map.getLayers(routeInfo);
-    await layers['item'].ready;
+
+    const result = renderTest(AutoMap, mockApp),
+        overlay = result.root.findByType(Geojson);
+
+    expect(overlay.props).toEqual({
+        name: 'item',
+        url: 'items/123/edit.geojson',
+        draw: {
+            circle: false,
+            marker: {},
+            polygon: {},
+            polyline: {},
+            rectangle: {}
+        },
+        initData: point,
+        flatten: true
+    });
+
+    await nextTick();
+
+    const leafletOverlay =
+        overlay.children[0].children[0].instance.leafletElement;
+
+    expect(leafletOverlay.getBounds().toBBoxString()).toEqual('45,-95,45,-95');
+
+    /* FIXME: Restore and test leaflet.draw support
     var draw = div.getElementsByClassName('leaflet-draw');
     expect(draw.length).toEqual(1);
+    */
 });
