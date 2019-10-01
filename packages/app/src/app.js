@@ -40,6 +40,8 @@ app.init = function(config) {
     app.jQuery = $ = config.jQuery || window.jQuery || jQM();
     jqm = $.mobile || jQM().mobile;
     app.use(spinner);
+    app.use(syncRefresh);
+    app.use(showOutboxErrors);
     router.addContext(() => spinner.start() && {});
     router.addContext(_getRouteInfo);
     router.addContext(app.userInfo);
@@ -138,6 +140,7 @@ app.init = function(config) {
 
     app.store = ds;
     app.outbox = outbox;
+    outbox.app = app;
     app.router = router;
 
     // Initialize wq/template.js
@@ -153,19 +156,32 @@ app.init = function(config) {
         }
     }
 
-    // Option to override various hooks
-    [
-        'postsave',
-        'saveerror',
-        'showOutboxErrors',
-        '_addOutboxItemsToContext',
-        'presync',
-        'postsync'
-    ].forEach(function(hook) {
+    // Deprecated hooks
+    const deprecated = {
+        postsave: 'a postsaveurl() plugin hook or a postsave page config',
+        saveerror: 'an onsync() plugin hook',
+        showOutboxErrors: 'an onsync() and/or run() hook',
+        _addOutboxItemsToContext: "@wq/outbox's IMMEDIATE mode",
+        presync: 'the template context',
+        postsync: 'the template context or an onsync() plugin hook'
+    };
+    Object.entries(deprecated).forEach(([hook, alternative]) => {
+        // TODO: Make this an error in 2.0
         if (config[hook]) {
-            app[hook] = config[hook];
+            console.warn(
+                new Error(
+                    `config.${hook} has no effect.  Use ${alternative} instead.  See wq.app 1.2 release notes for more info.`
+                )
+            );
         }
     });
+    if (app.hasPlugin('onsave')) {
+        console.warn(
+            new Error(
+                'An onsave() plugin hook has no effect.  Use an onsync() hook instead.  See wq.app 1.2 release notes for more info.'
+            )
+        );
+    }
 
     // Configure jQuery Mobile transitions
     if (config.transitions) {
@@ -186,7 +202,7 @@ app.init = function(config) {
         app.config.pages[page].name = page;
     });
 
-    _callPlugins('init', app.config);
+    app.callPlugins('init');
 
     // Register routes with wq/router.js
     var root = false;
@@ -397,10 +413,10 @@ app.runPlugins = function(arg) {
         };
         if (window.MSApp && window.MSApp.execUnsafeLocalFunction) {
             window.MSApp.execUnsafeLocalFunction(function() {
-                _callPlugins('run', undefined, [jqm.activePage, routeInfo]);
+                app.callPlugins('run', [jqm.activePage, routeInfo]);
             });
         } else {
-            _callPlugins('run', undefined, [jqm.activePage, routeInfo]);
+            app.callPlugins('run', [jqm.activePage, routeInfo]);
         }
     });
 };
@@ -419,10 +435,7 @@ app.retryAll = function() {
         if (!unsynced) {
             return;
         }
-        app.presync();
-        app.outbox.retryAll().then(items => {
-            app.postsync(items);
-        });
+        app.outbox.retryAll();
     });
 };
 
@@ -442,9 +455,7 @@ app.emptyOutbox = function(confirmFirst) {
             }
         }
     }
-    return outbox.empty().then(function() {
-        app.syncRefresh([null]);
-    });
+    return outbox.empty();
 };
 
 app.confirmSubmit = function(form, message) {
@@ -469,8 +480,20 @@ app.confirmSubmit = function(form, message) {
     return false;
 };
 
-// Hook for handling navigation after form submission
-app.postsave = function(item, backgroundSync) {
+// Handle navigation after form submission
+app.postSaveNav = function(item, alreadySynced) {
+    var url;
+
+    const pluginUrl = app
+        .callPlugins('postsaveurl', [item, alreadySynced])
+        .filter(item => !!item);
+
+    if (pluginUrl.length) {
+        url = pluginUrl[0];
+    } else {
+        url = app.postsaveurl(item, alreadySynced);
+    }
+
     // FIXME
     /*
     var options = {
@@ -479,6 +502,15 @@ app.postsave = function(item, backgroundSync) {
         allowSamePageTransition: true
     };
     */
+
+    // Navigate to computed URL
+    if (app.config.debug) {
+        console.log('Successfully saved; continuing to ' + url);
+    }
+    router.push(url);
+};
+
+app.postsaveurl = function(item, alreadySynced) {
     var postsave, pconf, match, mode, url, itemid, modelConf;
 
     // conf.postsave can be set redirect to another page
@@ -490,7 +522,7 @@ app.postsave = function(item, backgroundSync) {
     }
     if (!postsave) {
         // Otherwise, default is to return the page for the item just saved
-        if (backgroundSync || item.deletedId) {
+        if (!alreadySynced || item.deletedId) {
             // If backgroundSync, return to list view while syncing
             postsave = modelConf.name + '_list';
         } else {
@@ -563,12 +595,7 @@ app.postsave = function(item, backgroundSync) {
             }
         }
     }
-
-    // Navigate to computed URL
-    if (app.config.debug) {
-        console.log('Successfully saved; continuing to ' + url);
-    }
-    router.push(url);
+    return url;
 };
 
 // Hook for handling navigation / alerts after a submission error
@@ -580,58 +607,18 @@ app.saveerror = function(item, reason, $form) {
         console.warn('Could not save: ' + reason);
     }
     if (reason == app.OFFLINE) {
-        app.postsave(item, false);
+        app.postSaveNav(item, false);
     } else {
         app.showOutboxErrors(item, $form);
     }
 };
 
-// Hook for handling alerts before a background sync event
-// (only used when backgroundSync is set)
-// FIXME: Update for new outbox
-app.presync = function() {
-    if (app.config.debug) {
-        console.log('Syncing...');
-    }
-};
-
-// Hook for handling alerts after a background sync event
-// FIXME: Update for new outbox
-app.postsync = function(items) {
-    // Called after every sync with result from outbox.sendAll().
-    // (override to customize behavior, e.g. update a status icon)
-    var msg;
-    if (app.config.debug && items.length) {
-        var result = true;
-        items.forEach(function(item) {
-            if (!item) {
-                result = null;
-            }
-            if (!item.synced && result) {
-                result = false;
-            }
-        });
-        if (result) {
-            console.log('Successfully synced.');
-        } else {
-            if (result === false) {
-                msg = 'Sync error!';
-            } else {
-                msg = 'Sync failed!';
-            }
-            outbox.unsynced().then(function(unsynced) {
-                console.warn(msg + ' ' + unsynced + ' items remain unsynced');
-            });
+const syncRefresh = {
+    onsync() {
+        if (jqm.activePage.data('wq-sync-refresh')) {
+            router.reload();
         }
     }
-    app.syncRefresh(items);
-};
-
-app.syncRefresh = function(items) {
-    if (!items.length || !jqm.activePage.data('wq-sync-refresh')) {
-        return;
-    }
-    app.refresh();
 };
 
 // Return a list of all foreign key fields
@@ -672,9 +659,20 @@ app.refresh = function() {
     router.refresh();
 };
 
-// Internal variables and functions
+app.hasPlugin = function(method) {
+    var plugin,
+        fn,
+        hasPlugin = false;
+    for (plugin in app.plugins) {
+        fn = app.plugins[plugin][method];
+        if (fn) {
+            hasPlugin = true;
+        }
+    }
+    return hasPlugin;
+};
 
-function _callPlugins(method, lookup, args) {
+app.callPlugins = function(method, args) {
     var plugin,
         fn,
         fnArgs,
@@ -683,16 +681,17 @@ function _callPlugins(method, lookup, args) {
         fn = app.plugins[plugin][method];
         if (args) {
             fnArgs = args;
-        } else if (lookup) {
-            fnArgs = [lookup[plugin]];
+        } else {
+            fnArgs = [app.config[plugin]];
         }
         if (fn) {
             queue.push(fn.apply(app.plugins[plugin], fnArgs));
         }
     }
     return queue;
-}
+};
 
+// Internal variables and functions
 function _splitRoute(routeName) {
     const match = routeName.match(/^(.+)_([^_]+)$/);
     let page, mode, variant;
@@ -1118,13 +1117,6 @@ async function _renderOutboxItem(ctx) {
         context.id = id;
     }
     return _addLookups(page, context, false);
-
-    // FIXME:
-    /*
-    if (mode == 'edit' && item.error) {
-        app.showOutboxErrors(item, $page);
-    }
-    */
 }
 
 // Handle form submit from [url]_edit views
@@ -1288,7 +1280,7 @@ async function _handleForm(evt) {
     var item = await outbox.save(vals, options);
     if (backgroundSync) {
         // Send user to next screen while app syncs in background
-        app.postsave(item, true);
+        app.postSaveNav(item, false);
         return;
     }
 
@@ -1303,13 +1295,14 @@ async function _handleForm(evt) {
     }
     if (item.synced) {
         // Item was synced
-        app.postsave(item, false);
+        app.postSaveNav(item, true);
         return;
     }
     // Something went wrong
     var error;
     if (!item.error) {
         // Save failed without server error: probably offline
+        // FIXME: waitForItem() probably doesn't resolve until back online.
         error = app.OFFLINE;
     } else if (typeof item.error === 'string') {
         // Save failed and error information is not in JSON format
@@ -1322,6 +1315,18 @@ async function _handleForm(evt) {
     }
     app.saveerror(item, error, $form);
 }
+
+const showOutboxErrors = {
+    async run($page, routeInfo) {
+        const { name, outbox_id } = routeInfo;
+        if (name === 'outbox_edit') {
+            const item = await outbox.loadItem(routeInfo.outbox_id);
+            if (item.error) {
+                app.showOutboxErrors(item, $page);
+            }
+        }
+    }
+};
 
 app.showOutboxErrors = function(item, $page) {
     if ($page.is('form') && item.options.method == 'DELETE') {
@@ -1395,12 +1400,6 @@ function _submitClick() {
         $form.data('wq-submit-button-value', value);
     }
 }
-
-/* FIXME:
-    return Promise.all(
-        _callPlugins('onsave', undefined, [item, result])
-    );
-*/
 
 app.getAuthState = function() {
     return this.store.getState().auth || {};

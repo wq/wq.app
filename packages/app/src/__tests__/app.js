@@ -33,6 +33,11 @@ beforeAll(async () => {
         },
         backgroundSync: -1,
         loadMissingAsJson: true,
+
+        // Test warning messages
+        postsave: function() {},
+        showOutboxErrors: function() {},
+
         ...routeConfig
     };
 
@@ -108,6 +113,145 @@ test('item edit page', async () => {
     formdata = encode($page.find('form')[0]);
     expect($page.find('form').data('wq-outbox-id')).toBe(1);
     expect(formdata.values).toHaveLength(2);
+});
+
+test('postsave - default', async () => {
+    let $page;
+
+    $page = await changePage('items/new');
+    $page.find('input[name=label]').val('TEST');
+    $page = await submitForm($page);
+    expect($page.data('url')).toBe('/tests/items/');
+});
+
+test('postsave - wq page configuration', async () => {
+    let $page;
+
+    app.config.pages.item.postsave = 'items/?parent_id={{parent_id}}';
+
+    $page = await changePage('items/new');
+    $page.find('input[name=label]').val('TEST 2');
+    $page.find('select[name=parent_id]').val('one');
+    $page = await submitForm($page);
+    expect($page.data('url')).toBe('/tests/items/?parent_id=one');
+
+    delete app.config.pages.item.postsave;
+});
+
+test('postsave - postsaveurl plugin hook', async () => {
+    let $page;
+
+    app.use({
+        name: 'postsavetest',
+        postsaveurl: function(item) {
+            const { data } = item,
+                { type_id } = data;
+            if (type_id) {
+                return `/tests/itemtypes/${type_id}/items`;
+            }
+        }
+    });
+
+    $page = await changePage('items/new');
+    $page.find('input[name=label]').val('TEST 3');
+    $page.find('select[name=type_id]').val(1);
+    $page = await submitForm($page);
+    expect($page.data('url')).toBe(`/tests/itemtypes/1/items`);
+
+    $page = await changePage('items/new');
+    $page.find('input[name=label]').val('TEST 4');
+    $page = await submitForm($page);
+    expect($page.data('url')).toBe(`/tests/items/`);
+
+    delete app.plugins.postsavetest;
+});
+
+test('sync refresh', async () => {
+    let $page;
+
+    // Submit form
+    await app.emptyOutbox();
+    await app.outbox.pause();
+    $page = await changePage('items/new');
+    $page.find('input[name=label]').val('TEST');
+    $page = await submitForm($page);
+
+    // Unsynced item should show in list view
+    expect($page.data('url')).toBe('/tests/items/');
+    expect($page.find("a[href='/tests/outbox/1']")).toHaveLength(1);
+
+    // Sync
+    await app.outbox.resume();
+    const item = await app.outbox.waitForItem(1);
+    expect(item.synced).toBeTruthy();
+
+    await nextTick();
+
+    // Item should be gone from list view
+    $page = jqm.activePage;
+    expect($page.find("a[href='/tests/outbox/1']")).toHaveLength(0);
+});
+
+test('show outbox errors - background sync', async () => {
+    let $page, $link;
+
+    // Submit form
+    await app.emptyOutbox();
+    await app.outbox.pause();
+    $page = await changePage('items/new');
+    $page.find('form').attr('action', '/tests/items/error');
+    $page.find('input[name=label]').val('Invalid');
+    $page = await submitForm($page);
+
+    // Unsynced item should show in list view
+    expect($page.data('url')).toBe('/tests/items/');
+    $link = $page.find("a[href='/tests/outbox/1']");
+    expect($link.parents('li').data('icon')).toBeUndefined();
+
+    // Attempt sync
+    await app.outbox.resume();
+    const item = await app.outbox.waitForItem(1);
+    expect(item.synced).toBeFalsy();
+
+    await nextTick();
+
+    // Item should have an error flag
+    $page = jqm.activePage;
+    $link = $page.find("a[href='/tests/outbox/1']");
+    expect($link.parents('li').data('icon')).toBe('alert');
+
+    // Error should show up in form
+    $page = await changePage('outbox/1/edit');
+    await nextTick();
+    expect($page.find('.error.item-label-errors').text()).toBe(
+        'Not a valid label'
+    );
+});
+
+test('show outbox errors - foreground sync', async () => {
+    let $page;
+
+    // Submit form in foreground
+    await app.emptyOutbox();
+    await app.outbox.pause();
+    $page = await changePage('items/new');
+    $page
+        .find('form')
+        .attr('action', '/tests/items/error')
+        .data('wq-background-sync', false);
+    $page.find('input[name=label]').val('Invalid');
+    $page.find('form').submit();
+    await nextTick();
+    expect($page.find('form').attr('data-wq-outbox-id')).toBe('1');
+
+    // Attempt sync
+    await app.outbox.resume();
+    await app.outbox.waitForItem(1);
+
+    // Error should show up in form
+    expect($page.find('.error.item-label-errors').text()).toBe(
+        'Not a valid label'
+    );
 });
 
 test('async context - other', async () => {
@@ -218,6 +362,11 @@ function testEAV(name, filter, params, expected) {
         expect(ids).toEqual(expected);
         app.wq_config.pages.item.form[3].initial.filter = {};
     });
+}
+
+// Skip a tick to wait for some other callback to complete
+async function nextTick() {
+    await new Promise(res => setTimeout(res, 1));
 }
 
 test('patterns plugin', async () => {

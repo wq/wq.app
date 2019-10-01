@@ -12,6 +12,16 @@ const outbox = outboxMod.getOutbox(ds);
 
 promiseFinally.shim();
 
+const mockApp = {
+    plugins: {},
+    hasPlugin: () => true,
+    callPlugins(method, args) {
+        Object.values(this.plugins).forEach(plugin =>
+            plugin[method].apply(plugin, args)
+        );
+    }
+};
+
 const models = {},
     modelConf = {};
 
@@ -36,6 +46,7 @@ ds.init({
 beforeAll(async () => {
     await ds.ready;
     outbox.init({});
+    outbox.app = mockApp;
 });
 
 beforeEach(async () => {
@@ -165,7 +176,7 @@ test('handle 400 error', async () => {
         synced: false,
         // retryCount: 1,
         error: {
-            label: 'Test'
+            label: ['Not a valid label']
         },
         ...simple
     });
@@ -192,6 +203,33 @@ test('handle 500 error', async () => {
         error: 'SERVER ERROR',
         ...simple
     });
+});
+
+test('onsync hook', async done => {
+    const simple = {
+        data: {
+            label: 'Test'
+        },
+        options: {
+            url: 'status/200'
+        }
+    };
+    outbox.app.plugins.testplugin = { onsync };
+    await outbox.save(simple.data, simple.options);
+
+    function onsync(item) {
+        expect(item).toEqual({
+            id: 1,
+            synced: true,
+            result: {
+                id: item.result.id,
+                ...simple.data
+            },
+            ...simple
+        });
+        delete outbox.app.plugins.testplugin;
+        done();
+    }
 });
 
 test('sync dependent records in order - with ON_SUCCESS', async () => {

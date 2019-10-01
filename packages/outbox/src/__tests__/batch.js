@@ -13,6 +13,16 @@ const outbox = outboxMod.getOutbox(ds);
 
 promiseFinally.shim();
 
+const mockApp = {
+    plugins: {},
+    hasPlugin: () => true,
+    callPlugins(method, args) {
+        Object.values(this.plugins).forEach(plugin =>
+            plugin[method].apply(plugin, args)
+        );
+    }
+};
+
 const models = {},
     modelConf = {};
 
@@ -49,10 +59,12 @@ beforeAll(async () => {
         batchService: 'batch',
         batchSizeMin: 0
     });
+    outbox.app = mockApp;
     router.jqmInit();
 });
 
 beforeEach(async () => {
+    await ds.ajax('http://localhost:8080/reset-batch-number', null, 'POST');
     await outbox.empty();
 });
 
@@ -156,4 +168,32 @@ test('sync dependent records in order - with batchService', async () => {
         color: 'green',
         batch: 2
     });
+});
+
+test('onsync hook', async done => {
+    const simple = {
+        data: {
+            label: 'Test'
+        },
+        options: {
+            url: 'status/200'
+        }
+    };
+    outbox.app.plugins.testplugin = { onsync };
+    await outbox.save(simple.data, simple.options);
+
+    function onsync(item) {
+        expect(item).toEqual({
+            id: 1,
+            synced: true,
+            result: {
+                id: item.result.id,
+                batch: 1,
+                ...simple.data
+            },
+            ...simple
+        });
+        delete outbox.app.plugins.testplugin;
+        done();
+    }
 });

@@ -36,7 +36,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
     def do_POST(self):
-        if 'status/400' in self.path:
+        if '/error' in self.path or 'status/400' in self.path:
             self.status_400()
         elif 'status/500' in self.path:
             self.status_500()
@@ -57,7 +57,12 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.echo(id=self.generate_id())
 
     def status_400(self):
-        self.echo(status=400)
+        self.send_response(400)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({
+            "label": ["Not a valid label"]
+        }).encode('utf-8'))
 
     def status_500(self):
         self.send_response(500)

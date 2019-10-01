@@ -279,18 +279,23 @@ name | provided by | purpose
 `context(ctx, routeInfo)` | [@wq/router] | Add information to the context before rendering.
 `run($page, routeInfo)` | [@wq/router] | Customize UI (with jQuery) after the page is rendered and shown
 `ajax(url, data, method, headers)` | [@wq/store] | Override how requests are submitted and/or responses are parsed
+`onsync(item)` | [@wq/outbox] | Process outbox item just after it is synced to server
+`postsaveurl(item, alreadySynced) | @wq/app | Generate a custom URL to navigate to after form submission.  Note that in many cases, the [postsave page configuration option][config] can be used instead.
 `actions` | [@wq/store] | Define Redux action creators
 `thunks` | [@wq/router] | Define asynchronous tasks in response to Redux actions
 `reducer(pluginState, action)` | [@wq/store] | Update plugin state based on Redux actions
 `render(state)` | [@wq/router] | Render global state changes (outside of the page rendering pipeline)
-`onsave(item, result)` | FIXME | Callback to call after an item is synced from the [outbox][@wq/outbox] and before continuing to another screen. `item` and `result` are the same as the arguments passed to `outbox.updateModels()`
-`onlogin()` | FIXME |
-`onlogout()` | FIXME |
-`postsave()` | FIXME |
-`saveerror()` | FIXME |
-`showOutboxErrors()` | FIXME |
-`presync()` | FIXME |
-`postsync()` | FIXME |
+
+> **Note:** The following hooks and events were removed in wq.app 1.2:
+
+name | type | suggested migration path
+-----|------|-------------------------
+`onsave(item, result)` | Plugin Hook | Use an `onsync()` hook instead.  The server result will be available as `item.result`.
+`saveerror(item, reason, $form)` | Config Hook | Use an `onsync()` hook instead.  The error will be available as `item.error`.
+`showOutboxErrors()` | Config Hook | Use an `onsync()` and/or `run()` plugin hook instead.
+`postsave()` | Config Hook | Use a `postsaveurl()` plugin hook instead.
+`presync()` / `postsync()` | Config Hook | Use the template context as needed for UI customizations.  Pages displaying outbox contents are automatically re-rendered after each sync.
+`"login"`, `"logout"` | jQuery events | Use the template context as needed for UI customizations.  As of wq.app 1.2, all pages (including server-rendered pages) are automatically re-rendered on the client if the login state changes.
 
 ### Available Plugins
 

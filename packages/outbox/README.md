@@ -85,6 +85,7 @@ name | purpose
 `data` | The form key-value pairs as passed to `outbox.save()`
 `options` | Additional parameters that configure how the data should be sent to the server, and potentially how the response should be interpreted. (see `outbox.save()`)
 `synced` | Whether the outbox item has been successfully saved to the server.
+`result` | If applicable, the successful response JSON returned from the server.
 `error` | If applicable, the error returned from the server or from the AJAX call when attempting to save the item.  Will be either a string or a JSON object.
 `newid` | FIXME: The server-generated identifier for the newly synced item, if applicable.  (This property is technically defined by [@wq/app], not @wq/outbox.)
 
@@ -110,6 +111,18 @@ name | purpose
 `parseBatchResult(result)` | **Removed in wq.app 1.2**.  This option was used to parse the result of a batch upload.  In wq.app 1.2 the result is assumed to match the output structure of [Django Batch Requests].  If not, you can use an [ajax() plugin hook](@wq/store) to specify a custom parsing function.
 `applyResult()` | **Removed in wq.app 1.2**.  This option was used to customize whether a form submission is successful.  In wq.app 1.2 this can be done with an [ajax() plugin hook][@wq/store] that throws an error on failure.
 `updateModels()` | **Removed in wq.app 1.2**. This was used to configure how local models are updated based on the server response.  In wq.app 1.2, this is done by dispatching the appropriate Redux actions to update the local state.
+
+### Plugin Hooks
+
+@wq/outbox provides support for the following [@wq/app plugin hooks][@wq/app].
+
+#### `onsync(item)`
+
+**New in wq.app 1.2.**
+
+Called after an outbox item is succesfully synced (or has an error).  See Outbox Item above for the description of the available attributes.
+
+Note that this function will be called each time an item is synced, regardless of how the item was created.  If you have custom code that calls `outbox.save()` directly, you can use `outbox.waitForItem(id)` instead of this hook.
 
 ### Outbox Methods
 

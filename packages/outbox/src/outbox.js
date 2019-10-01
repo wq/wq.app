@@ -751,6 +751,7 @@ class Outbox {
     }
 
     #_waiting = {};
+    #_lastOutbox = [];
 
     waitForAll() {
         return this.waitForItem('ALL');
@@ -767,16 +768,32 @@ class Outbox {
     }
 
     async _onUpdate() {
-        if (!Object.keys(this.#_waiting).length) {
+        const state = this.store.getState(),
+            { offline } = state,
+            { outbox } = offline;
+
+        if (outbox === this.#_lastOutbox) {
             return;
         }
-        const pending = await this.pendingItems();
-        if (!pending.length) {
+
+        const lastIds = {};
+        this.#_lastOutbox.forEach(action => {
+            lastIds[action.meta.offline.effect.options.id] = true;
+        });
+        this.#_lastOutbox = outbox;
+
+        const pending = await this._allPendingItems();
+        if (!pending.length && this.#_waiting['ALL']) {
             this._resolveWaiting('ALL');
         }
+
         const pendingById = {};
         pending.forEach(item => (pendingById[item.id] = true));
-        Object.keys(this.#_waiting).forEach(id => {
+
+        const checkIds = Object.keys(lastIds).concat(
+            Object.keys(this.#_waiting)
+        );
+        checkIds.forEach(id => {
             if (!pendingById[id] && id != 'ALL') {
                 this._resolveWaiting(id);
             }
@@ -785,12 +802,17 @@ class Outbox {
 
     async _resolveWaiting(id) {
         const waiting = this.#_waiting[id];
-        if (!waiting) {
+        if (!waiting && !(this.app && this.app.hasPlugin('onsync'))) {
             return;
         }
         const item = id === 'ALL' ? null : await this.loadItem(+id);
-        waiting.forEach(fn => fn(item));
-        delete this.#_waiting[id];
+        if (this.app && id != 'ALL') {
+            this.app.callPlugins('onsync', [item]);
+        }
+        if (waiting) {
+            waiting.forEach(fn => fn(item));
+            delete this.#_waiting[id];
+        }
     }
 
     // Process service send() results
@@ -923,6 +945,22 @@ class Outbox {
         return unsynced.filter(item => {
             return !item.hasOwnProperty('error');
         });
+    }
+
+    async _pendingTempItems() {
+        return (await this.loadItems()).list.filter(item => {
+            return (
+                item.options.storage === 'temporary' &&
+                !item.synced &&
+                !item.error
+            );
+        });
+    }
+
+    async _allPendingItems() {
+        const pendingStore = await this.pendingItems(),
+            pendingTemp = await this._pendingTempItems();
+        return pendingStore.concat(pendingTemp);
     }
 
     async loadItem(itemId) {
