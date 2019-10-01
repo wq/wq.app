@@ -30,8 +30,7 @@ const SERVER = '@@SERVER',
 app.models = {};
 app.plugins = {};
 
-var _saveTransition = 'none',
-    _register = {},
+var _register = {},
     _onShow = {};
 
 var $, jqm;
@@ -191,9 +190,6 @@ app.init = function(config) {
         }
         if (config.transitions.dialog) {
             jqm.defaultDialogTransition = config.transitions.dialog;
-        }
-        if (config.transitions.save) {
-            _saveTransition = config.transitions.save;
         }
         jqm.maxTransitionWidth = config.transitions.maxwidth || 800;
     }
@@ -372,13 +368,6 @@ async function _getSyncInfo() {
 
 app.go = function() {
     throw new Error('app.go() has been removed.  Use app.nav() instead');
-
-    // FIXME
-    /*
-    if (ui && ui.options && ui.options.data) {
-        return; // Ignore form actions
-    }
-    */
 };
 
 // Run any/all plugins on the specified page
@@ -394,7 +383,6 @@ app.runPlugins = function(arg) {
     var getItem;
 
     if (context.outbox_id) {
-        // FIXME: page_config
         getItem = Promise.resolve(context);
     } else if (routeInfo.item_id) {
         if (context.local) {
@@ -493,15 +481,6 @@ app.postSaveNav = function(item, alreadySynced) {
     } else {
         url = app.postsaveurl(item, alreadySynced);
     }
-
-    // FIXME
-    /*
-    var options = {
-        reverse: true,
-        transition: _saveTransition,
-        allowSamePageTransition: true
-    };
-    */
 
     // Navigate to computed URL
     if (app.config.debug) {
@@ -634,25 +613,13 @@ app.getParents = function(page) {
 };
 
 // Shortcuts for $.mobile.changePage
-app.nav = function(url, options) {
+app.nav = function(url) {
     url = app.base_url + '/' + url;
-    router.push(url); // FIXME: options
+    router.push(url);
 };
 
 app.replaceState = function(url) {
-    // FIXME
-    /*
-    app.nav(url, {
-        transition: 'none',
-        changeHash: false
-    });
-    setTimeout(function() {
-        window.history.replaceState(null, '', app.base_url + '/' + url);
-        var hist = jqm.navigate.history;
-        hist.stack = [hist.stack[hist.stack.length - 1]];
-        hist.activeIndex = 0;
-    }, 300);
-    */
+    throw new Error('app.replaceState() no longer supported.');
 };
 
 app.refresh = function() {
@@ -1044,8 +1011,6 @@ async function _displayItem(ctx) {
             }
         } else {
             return _addLookups(page, item, false);
-            // FIXME:
-            //     once = conf.once ? true : false;
         }
     } else {
         if (model.opts.server && app.config.loadMissingAsHtml) {

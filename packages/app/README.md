@@ -152,8 +152,8 @@ Configuration for jQuery Mobile's built in [page transitions].  Where applicable
 ------|-------
 `default` | A shortcut for `$.mobile.defaultPageTransition`.  Often set to `slide`.
 `dialog` | A shortcut for `$.mobile.defaultDialogTransition`.
-`save` | Sets the default transition to use when moving from an edit view back to a detail view after a save.  This is often set to `flip`.
 `maxwidth` | A shortcut for `$.mobile.maxTransitionWidth`.  Defaults to 800 (note that vanilla jQuery Mobile defaults to false)
+`save` | **Removed in wq.app 1.2**
 
 #### Creating a Configuration Module
 
@@ -235,6 +235,14 @@ Register a plugin to customize @wq/app functionality.  See Plugins below.
 #### `app.go()`
 
 > **As of wq.app 1.2** `app.go()` has been removed.  Use `app.nav()` instead.
+
+#### `app.nav(path)`
+
+Trigger a route change to the specified path, which should not include the application base URL.
+
+```javascript
+app.nav('items/1');
+```
 
 #### `app.sync()`
 
