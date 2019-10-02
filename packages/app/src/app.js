@@ -593,8 +593,17 @@ app.saveerror = function(item, reason, $form) {
 };
 
 const syncRefresh = {
-    onsync() {
-        if (jqm.activePage.data('wq-sync-refresh')) {
+    onsync(obitem) {
+        const { context } = this.app.store.getState(),
+            { router_info: routeInfo } = context,
+            { full_path, item_id, parent_id } = routeInfo,
+            { id: outboxId, result } = obitem || {},
+            { id: resultId } = result || {},
+            outboxSlug = `outbox-${outboxId}`;
+
+        if (resultId && (item_id === outboxSlug || parent_id === outboxSlug)) {
+            router.push(full_path.replace(outboxSlug, resultId));
+        } else if (jqm.activePage.data('wq-sync-refresh')) {
             router.reload();
         }
     }

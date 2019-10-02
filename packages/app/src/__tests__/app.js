@@ -192,6 +192,44 @@ test('sync refresh', async () => {
     expect($page.find("a[href='/tests/outbox/1']")).toHaveLength(0);
 });
 
+test('sync refresh - update URL', async () => {
+    let $page;
+
+    app.models.item.opts.server = false;
+
+    // Submit form 1 (parent)
+    await app.emptyOutbox();
+    await app.outbox.pause();
+    $page = await changePage('itemtypes/new');
+    $page.find('input[name=label]').val('TEST');
+    await submitForm($page);
+
+    // Submit form 2 (child)
+    $page = await changePage('items/new');
+    $page.find('input[name=label]').val('TEST');
+    $page.find('select[name=type_id]').val('outbox-1');
+    await submitForm($page);
+
+    // Navigate to child list filtered by unsynced parent
+    $page = await changePage('itemtypes/outbox-1/items');
+    expect($page.find('li a')[0].href).toBe('http://localhost/tests/outbox/2');
+
+    // Trigger sync
+    await app.outbox.resume();
+    const item1 = await app.outbox.waitForItem(1);
+    const item2 = await app.outbox.waitForItem(2);
+
+    // List URL should update to reflect new parent id
+    await nextTick();
+    $page = jqm.activePage;
+    expect($page.data('url')).toBe(`/tests/itemtypes/${item1.result.id}/items`);
+    expect($page.find('li a')[0].href).toBe(
+        `http://localhost/tests/items/${item2.result.id}`
+    );
+
+    app.models.item.opts.server = true;
+});
+
 test('show outbox errors - background sync', async () => {
     let $page, $link;
 
