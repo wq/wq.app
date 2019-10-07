@@ -66,18 +66,18 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/app/src/app.js',
-        plugins: [wqDeps('.'), babelAMD()],
+        plugins: [wqDeps(), babelAMD()],
         external: ['./spinner'],
         output: outputAMD('app', banners.app)
     },
     {
         input: 'packages/app/src/patterns.js',
-        plugins: [wqDeps('.'), babelAMD()],
+        plugins: [wqDeps(), babelAMD()],
         output: outputAMD('patterns', banners.patterns, 'app')
     },
     {
         input: 'packages/app/src/photos.js',
-        plugins: [wqDeps('.'), babelAMD()],
+        plugins: [wqDeps(), babelAMD()],
         external: ['localforage'],
         output: outputAMD('photos', banners.photos, 'app')
     },

@@ -2,7 +2,7 @@ import babelPlugin from 'rollup-plugin-babel';
 import { CodeGenerator } from '@babel/generator';
 import { execSync } from 'child_process';
 
-export function wqDeps(path = '..') {
+export function wqDeps(path = '.') {
     return {
         resolveId: source => {
             if (path != '@wq' && source == '@wq/jquery-mobile') {
