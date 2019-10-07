@@ -546,8 +546,43 @@ class Model {
         }
     }
 
+    filterFields() {
+        let fields = [this.idCol];
+        fields = fields.concat(
+            (this.config.form || []).map(field =>
+                field['wq:ForeignKey'] ? `${field.name}_id` : field.name
+            )
+        );
+        fields = fields.concat(Object.keys(this.functions));
+        fields = fields.concat(this.config.filter_fields || []);
+        if (this.config.filter_ignore) {
+            fields = fields.filter(
+                field => !this.config.filter_ignore.includes(field)
+            );
+        }
+        return fields;
+    }
+
     // Filter an array of objects by one or more attributes
     async filterPage(filter, any, localOnly) {
+        // Ignore fields that are not explicitly registered
+        // (e.g. for use with list views that have custom URL params)
+        const filterFields = this.filterFields();
+        Object.keys(filter).forEach(field => {
+            if (!filterFields.includes(field)) {
+                if (!(this.config.filter_ignore || []).includes(field)) {
+                    console.warn(
+                        `Ignoring unrecognized field "${field}"` +
+                            ` while filtering ${this.name} list.` +
+                            ' Add to form or filter_fields to enable filtering,' +
+                            ' or to filter_ignore to remove this warning.'
+                    );
+                }
+                filter = { ...filter };
+                delete filter[field];
+            }
+        });
+
         // If partial list, we can never be 100% sure all filter matches are
         // stored locally. In that case, run query on server.
         if (!localOnly && this.opts.server && this.config.url) {

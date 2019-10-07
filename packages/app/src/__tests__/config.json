@@ -6,7 +6,13 @@
         },
         "attribute": {
             "cache": "all",
-            "form": [],
+            "form": [
+                {
+                    "name": "campaign",
+                    "wq:ForeignKey": "campaign"
+                }
+            ],
+            "filter_fields": ["is_active", "category"],
             "label": "Attribute",
             "list": true,
             "url": "attributes"

@@ -67,10 +67,13 @@ name | purpose
 -----|---------
 `name` | **Required in wq.app 1.2.** Unique name for the model.  @wq/app already provides this for configured models, but if you are using @wq/model directly you will need to specify it.
 `url` | URL path for the REST API endpoint corresponding to this model (relative to the [@wq/store] service URL).
-`functions` | A collection of computable attributes that can be applied to items in the model.
 `store` | The [@wq/store] instance to use for the model.  This defaults to the main instance if not set.
 `cache` | Caching strategy (per the [wq configuration object]).
 `idCol` | **New in wq.app 1.2.** Attribute to use as primary identifier for items in collection.  (Defaults to `"id"`).  Note that when working with a [wq.db-based REST API][wq.db], the JSON objects will always have an `id` attribute that maps to the actual identifier column.  (So, it is usually not necessary to set `idCol` on the client).
+`form` | List of editable fields (other than id) as described in the [wq configuration object].
+`functions` | A collection of functions defining computable attributes that can be applied to items in the model.
+`filter_fields` | **New in wq.app 1.2.** List of read-only server-defined fields that should be filterable.  Fields defined in `form` and `functions` do not need to be listed here.
+`filter_ignore` | **New in wq.app 1.2.** List of fields or URL parameters to ignore when filtering.  This can be useful when e.g. defining custom list views that change based on URL parameters.
 `query` | **Deprecated in wq.app 1.2.** The [@wq/store] query to use when retrieving data for the model.  This is almost always `{"url": url}` and so it is usually better to just use the `url` option instead.
 
 

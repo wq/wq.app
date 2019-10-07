@@ -19,6 +19,23 @@ var items = model({
             'wq:ForeignKey': 'itemtype'
         },
         {
+            name: 'color',
+            choices: [
+                {
+                    label: 'Red',
+                    name: '#f00'
+                },
+                {
+                    label: 'Green',
+                    name: '#0f0'
+                },
+                {
+                    label: 'Blue',
+                    name: '#00f'
+                }
+            ]
+        },
+        {
             name: 'values',
             type: 'repeat',
             children: [
@@ -28,14 +45,16 @@ var items = model({
                 }
             ]
         }
-    ]
+    ],
+    filter_ignore: ['ignore_this']
 });
 
 var itemtypes = model({
     name: 'itemtype',
     url: 'itemtypes',
     store: ds,
-    cache: 'all'
+    cache: 'all',
+    filter_fields: ['is_active']
 });
 
 model({
@@ -122,6 +141,16 @@ test('filter by computed value', async () => {
     const fitems = await items.filter({ is_red: true });
     expect(fitems).toHaveLength(1);
     expect(fitems[0].id).toEqual('one');
+});
+
+test("don't filter by unknown field", async () => {
+    // Explicitly ignored field
+    const fitems1 = await items.filter({ ignore_this: 'foo' });
+    expect(fitems1).toHaveLength(3);
+
+    // Undeclared field (ignore anyway but warn)
+    const fitems2 = await items.filter({ ignore_this_too: 'bar' });
+    expect(fitems2).toHaveLength(3);
 });
 
 test('filter by boolean (true)', async () => {
