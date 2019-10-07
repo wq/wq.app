@@ -288,7 +288,7 @@ name | provided by | purpose
 `run($page, routeInfo)` | [@wq/router] | Customize UI (with jQuery) after the page is rendered and shown
 `ajax(url, data, method, headers)` | [@wq/store] | Override how requests are submitted and/or responses are parsed
 `onsync(item)` | [@wq/outbox] | Process outbox item just after it is synced to server
-`postsaveurl(item, alreadySynced) | @wq/app | Generate a custom URL to navigate to after form submission.  Note that in many cases, the [postsave page configuration option][config] can be used instead.
+`postsaveurl(item, alreadySynced)` | @wq/app | Generate a custom URL to navigate to after form submission.  Note that in many cases, the [postsave page configuration option][config] can be used instead.
 `actions` | [@wq/store] | Define Redux action creators
 `thunks` | [@wq/router] | Define asynchronous tasks in response to Redux actions
 `reducer(pluginState, action)` | [@wq/store] | Update plugin state based on Redux actions
