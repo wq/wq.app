@@ -1,33 +1,33 @@
 {
-  "name": "@wq/router",
-  "version": "1.2.0-alpha.1",
-  "description": "Respond to URL changes with locally generated pages and custom events",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "scripts": {
-    "test": "cd ../../ && npm run jest packages/router",
-    "build": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wq/wq.app.git"
-  },
-  "keywords": [
-    "wq",
-    "router",
-    "jquery-mobile"
-  ],
-  "author": "S. Andrew Sheppard",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wq/wq.app/issues"
-  },
-  "homepage": "https://wq.io/wq.app",
-  "dependencies": {
-    "@wq/store": "^1.2.0-alpha.1",
-    "@wq/jquery-mobile": "^1.2.0-alpha.1",
-    "@wq/template": "^1.2.0-alpha.1",
-    "query-string": "^6.5.0",
-    "redux-first-router": "^2.1.1"
-  }
+    "name": "@wq/router",
+    "version": "1.2.0-alpha.1",
+    "description": "Respond to URL changes with locally generated pages and custom events",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "scripts": {
+        "test": "cd ../../ && npm run jest packages/router",
+        "build": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git"
+    },
+    "keywords": [
+        "wq",
+        "router",
+        "jquery-mobile"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/wq.app",
+    "dependencies": {
+        "@wq/store": "^1.2.0-alpha.1",
+        "@wq/jquery-mobile": "^1.2.0-alpha.1",
+        "@wq/template": "^1.2.0-alpha.1",
+        "query-string": "^6.5.0",
+        "redux-first-router": "^2.1.1"
+    }
 }

@@ -1,27 +1,27 @@
 {
-  "name": "@wq/jest-env-jsdom-idb",
-  "version": "0.1.1",
-  "description": "Fake-IndexedDB environment for Jest",
-  "main": "index.js",
-  "scripts": {
-    "test": "cd ../../ && npm run jest packages/jest-env-jsdom-idb"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wq/wq.app.git"
-  },
-  "keywords": [
-    "wq",
-    "jest",
-    "indexeddb"
-  ],
-  "author": "S. Andrew Sheppard",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wq/wq.app/issues"
-  },
-  "homepage": "https://wq.io/wq.app",
-  "dependencies": {
-    "fake-indexeddb": "2.0.3"
-  }
+    "name": "@wq/jest-env-jsdom-idb",
+    "version": "0.1.1",
+    "description": "Fake-IndexedDB environment for Jest",
+    "main": "index.js",
+    "scripts": {
+        "test": "cd ../../ && npm run jest packages/jest-env-jsdom-idb"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git"
+    },
+    "keywords": [
+        "wq",
+        "jest",
+        "indexeddb"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/wq.app",
+    "dependencies": {
+        "fake-indexeddb": "2.0.3"
+    }
 }

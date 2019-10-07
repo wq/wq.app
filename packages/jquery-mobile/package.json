@@ -1,32 +1,32 @@
 {
-  "name": "@wq/jquery-mobile",
-  "version": "1.2.0-alpha.1",
-  "description": "Modified jQuery Mobile for use with @wq/app",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "scripts": {
-    "test": "cd ../../ && npm run jest packages/jquery-mobile",
-    "build": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wq/wq.app.git"
-  },
-  "keywords": [
-    "wq",
-    "jquery",
-    "jquery-mobile"
-  ],
-  "author": "S. Andrew Sheppard",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wq/wq.app/issues"
-  },
-  "homepage": "https://wq.io/wq.app",
-  "dependencies": {
-    "jquery": "^1.12.4"
-  },
-  "devDependencies": {
-    "@wq/jest-env-jsdom-idb": "^0.1.1"
-  }
+    "name": "@wq/jquery-mobile",
+    "version": "1.2.0-alpha.1",
+    "description": "Modified jQuery Mobile for use with @wq/app",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "scripts": {
+        "test": "cd ../../ && npm run jest packages/jquery-mobile",
+        "build": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git"
+    },
+    "keywords": [
+        "wq",
+        "jquery",
+        "jquery-mobile"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/wq.app",
+    "dependencies": {
+        "jquery": "^1.12.4"
+    },
+    "devDependencies": {
+        "@wq/jest-env-jsdom-idb": "^0.1.1"
+    }
 }

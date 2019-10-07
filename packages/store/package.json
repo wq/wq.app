@@ -1,36 +1,36 @@
 {
-  "name": "@wq/store",
-  "version": "1.2.0-alpha.1",
-  "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "scripts": {
-    "test": "cd ../../ && npm run jest packages/store",
-    "build": "cd ../../ && npm run rollup -- -c packages/store/rollup.config.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wq/wq.app.git"
-  },
-  "keywords": [
-    "wq",
-    "store",
-    "offline"
-  ],
-  "author": "S. Andrew Sheppard",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wq/wq.app/issues"
-  },
-  "homepage": "https://wq.io/wq.app",
-  "dependencies": {
-    "localforage": "^1.7.2",
-    "redux": "^4.0.1",
-    "redux-logger": "^3.0.6",
-    "redux-persist": "^5.10.0",
-    "whatwg-fetch": "^2.0.4"
-  },
-  "devDependencies": {
-    "@wq/jest-env-jsdom-idb": "^0.1.1"
-  }
+    "name": "@wq/store",
+    "version": "1.2.0-alpha.1",
+    "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "scripts": {
+        "test": "cd ../../ && npm run jest packages/store",
+        "build": "cd ../../ && npm run rollup -- -c packages/store/rollup.config.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git"
+    },
+    "keywords": [
+        "wq",
+        "store",
+        "offline"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/wq.app",
+    "dependencies": {
+        "localforage": "^1.7.2",
+        "redux": "^4.0.1",
+        "redux-logger": "^3.0.6",
+        "redux-persist": "^5.10.0",
+        "whatwg-fetch": "^2.0.4"
+    },
+    "devDependencies": {
+        "@wq/jest-env-jsdom-idb": "^0.1.1"
+    }
 }

@@ -1,38 +1,38 @@
 {
-  "name": "@wq/outbox",
-  "version": "1.2.0-alpha.1",
-  "description": "A simple model API for working with stored lists",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "scripts": {
-    "test": "cd ../../ && npm run jest packages/outbox",
-    "build": "cd ../../ && npm run rollup -- -c packages/outbox/rollup.config.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wq/wq.app.git"
-  },
-  "keywords": [
-    "wq",
-    "outbox",
-    "offline",
-    "form"
-  ],
-  "author": "S. Andrew Sheppard",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wq/wq.app/issues"
-  },
-  "homepage": "https://wq.io/wq.app",
-  "dependencies": {
-    "@redux-offline/redux-offline": "^2.5.1",
-    "@wq/model": "^1.2.0-alpha.1",
-    "@wq/store": "^1.2.0-alpha.1",
-    "redux": "^4.0.1"
-  },
-  "devDependencies": {
-    "@wq/jest-env-jsdom-idb": "^0.1.1",
-    "@wq/router": "^1.2.0-alpha.1",
-    "promise.prototype.finally": "^3.1.0"
-  }
+    "name": "@wq/outbox",
+    "version": "1.2.0-alpha.1",
+    "description": "A simple model API for working with stored lists",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "scripts": {
+        "test": "cd ../../ && npm run jest packages/outbox",
+        "build": "cd ../../ && npm run rollup -- -c packages/outbox/rollup.config.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git"
+    },
+    "keywords": [
+        "wq",
+        "outbox",
+        "offline",
+        "form"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/wq.app",
+    "dependencies": {
+        "@redux-offline/redux-offline": "^2.5.1",
+        "@wq/model": "^1.2.0-alpha.1",
+        "@wq/store": "^1.2.0-alpha.1",
+        "redux": "^4.0.1"
+    },
+    "devDependencies": {
+        "@wq/jest-env-jsdom-idb": "^0.1.1",
+        "@wq/router": "^1.2.0-alpha.1",
+        "promise.prototype.finally": "^3.1.0"
+    }
 }

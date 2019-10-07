@@ -1,35 +1,35 @@
 {
-  "name": "@wq/model",
-  "version": "1.2.0-alpha.1",
-  "description": "A simple model API for working with stored lists",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "scripts": {
-    "test": "cd ../../ && npm run jest packages/model",
-    "build": "cd ../../ && npm run rollup -- -c packages/model/rollup.config.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wq/wq.app.git"
-  },
-  "keywords": [
-    "wq",
-    "model",
-    "collection",
-    "query"
-  ],
-  "author": "S. Andrew Sheppard",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wq/wq.app/issues"
-  },
-  "homepage": "https://wq.io/wq.app",
-  "dependencies": {
-    "@wq/store": "^1.2.0-alpha.1",
-    "deepcopy": "^1.0.0",
-    "redux-orm": "^0.13.3"
-  },
-  "devDependencies": {
-    "@wq/jest-env-jsdom-idb": "^0.1.1"
-  }
+    "name": "@wq/model",
+    "version": "1.2.0-alpha.1",
+    "description": "A simple model API for working with stored lists",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "scripts": {
+        "test": "cd ../../ && npm run jest packages/model",
+        "build": "cd ../../ && npm run rollup -- -c packages/model/rollup.config.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git"
+    },
+    "keywords": [
+        "wq",
+        "model",
+        "collection",
+        "query"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/wq.app",
+    "dependencies": {
+        "@wq/store": "^1.2.0-alpha.1",
+        "deepcopy": "^1.0.0",
+        "redux-orm": "^0.13.3"
+    },
+    "devDependencies": {
+        "@wq/jest-env-jsdom-idb": "^0.1.1"
+    }
 }
