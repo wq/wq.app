@@ -21,6 +21,9 @@
         "url": "https://github.com/wq/wq.app/issues"
     },
     "homepage": "https://wq.io/wq.app",
+    "comments": [
+        "Need realistic-structured-clone 1.0 for blob support."
+    ],
     "dependencies": {
         "fake-indexeddb": "2.0.3"
     }

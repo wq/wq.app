@@ -24,7 +24,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "highlight.js": "^9.15.6",
-        "marked": "^0.6.2"
+        "highlight.js": "^9.15.10",
+        "marked": "^0.7.0"
     }
 }

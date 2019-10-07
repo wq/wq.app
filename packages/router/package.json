@@ -24,10 +24,10 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@wq/store": "^1.2.0-alpha.1",
         "@wq/jquery-mobile": "^1.2.0-alpha.1",
+        "@wq/store": "^1.2.0-alpha.1",
         "@wq/template": "^1.2.0-alpha.1",
-        "query-string": "^6.5.0",
-        "redux-first-router": "^2.1.1"
+        "query-string": "^6.8.3",
+        "redux-first-router": "^2.1.5"
     }
 }

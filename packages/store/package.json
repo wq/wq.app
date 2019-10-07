@@ -24,11 +24,11 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "localforage": "^1.7.2",
-        "redux": "^4.0.1",
+        "localforage": "^1.7.3",
+        "redux": "^4.0.4",
         "redux-logger": "^3.0.6",
-        "redux-persist": "^5.10.0",
-        "whatwg-fetch": "^2.0.4"
+        "redux-persist": "^6.0.0",
+        "whatwg-fetch": "^3.0.0"
     },
     "devDependencies": {
         "@wq/jest-env-jsdom-idb": "^0.1.1"

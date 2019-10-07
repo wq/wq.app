@@ -25,11 +25,11 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "esri-leaflet": "^2.2.4",
-        "leaflet": "^1.4.0",
+        "@wq/template": "^1.2.0-alpha.1",
+        "esri-leaflet": "^2.3.0",
+        "leaflet": "^1.5.1",
         "leaflet-draw": "^1.0.4",
         "leaflet.markercluster": "^1.4.1",
-        "leaflet.wms": "^0.2.0",
-        "@wq/template": "^1.2.0-alpha.1"
+        "leaflet.wms": "^0.2.0"
     }
 }

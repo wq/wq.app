@@ -25,14 +25,14 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@redux-offline/redux-offline": "^2.5.1",
+        "@redux-offline/redux-offline": "^2.5.2",
         "@wq/model": "^1.2.0-alpha.1",
         "@wq/store": "^1.2.0-alpha.1",
-        "redux": "^4.0.1"
+        "redux": "^4.0.4"
     },
     "devDependencies": {
         "@wq/jest-env-jsdom-idb": "^0.1.1",
         "@wq/router": "^1.2.0-alpha.1",
-        "promise.prototype.finally": "^3.1.0"
+        "promise.prototype.finally": "^3.1.1"
     }
 }

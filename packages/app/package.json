@@ -36,6 +36,6 @@
         "localforage": "^1.7.3"
     },
     "devDependencies": {
-        "promise.prototype.finally": "^3.1.0"
+        "promise.prototype.finally": "^3.1.1"
     }
 }
