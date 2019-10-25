@@ -37,12 +37,12 @@ npm install @wq/app
 
 ### Project Layout
 
-When working with wq.app for PyPI, use [wq.start] to initialize your project.  In particular, wq.start will automatically configure your RequireJS settings and link wq.app's bundled JavaScript assets into your folder.  When using @wq/app for npm, use [create-react-app] as a starting point and then install the @wq/app package.
+Whether using wq.app for Python or @wq/app for npm, we highly recommend using [wq.start] to initialize your project.  In particular, wq.start will automatically configure your JavaScript build settings and link the proper imports for @wq/app.  If you are not using wq.start, you can create a similar layout using the examples below.
 
 #### wq.app for PyPI
 
 ```javascript
-// wq.start will set up a project similar to this:
+// "wq start --without-npm" creates a layout similar to this:
 
 // js/myapp.js
 requirejs.config({
@@ -68,7 +68,9 @@ define(['wq/app', './config'], function() {
 #### @wq/app for npm
 
 ```javascript
-// Replace the contents of src/index.js with something like this:
+// "wq start --with-npm" is similar to create-react-app, but
+// replaces the contents of src/index.js with something like this:
+
 import app from '@wq/app';
 import config from './config';
 
@@ -76,7 +78,8 @@ app.init(config).then(function() {
     app.jqmInit();
 });
 
-// FIXME: Update public/index.html with a reference to wq.app's CSS
+// public/index.html
+// <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/css/myapp.css" />
 ```
 
 ## API
