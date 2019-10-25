@@ -6,7 +6,12 @@ install:
 script:
  - python3 -m tests.server &
  - ./runtests.sh
+addons:
+  apt:
+    packages:
+      - python3-setuptools
 before_deploy:
+ - ./set_dev_version.sh
  - cd packages/$PACKAGE
  - "curl -u $BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/npm/wq/npm/auth/scope/wq > .npmrc"
 deploy:
