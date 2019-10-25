@@ -15,21 +15,23 @@ export default function Index() {
 
     return (
         <>
-            <List>
-                {pages.map(page => (
-                    <ListItemLink
-                        key={page.name}
-                        to={
-                            page.list
-                                ? reverse(`${page.name}_list`)
-                                : reverse(page.name)
-                        }
-                    >
-                        {page.name}
-                        {page.list && ' list'}
-                    </ListItemLink>
-                ))}
-            </List>
+            {pages && (
+                <List>
+                    {pages.map(page => (
+                        <ListItemLink
+                            key={page.name}
+                            to={
+                                page.list
+                                    ? reverse(`${page.name}_list`)
+                                    : reverse(page.name)
+                            }
+                        >
+                            {page.name}
+                            {page.list && ' list'}
+                        </ListItemLink>
+                    ))}
+                </List>
+            )}
             {PluginContent && <PluginContent />}
         </>
     );
