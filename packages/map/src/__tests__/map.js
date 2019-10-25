@@ -79,7 +79,7 @@ test('auto map config for list pages', () => {
         {
             type: 'geojson',
             name: 'item',
-            url: 'items.geojson',
+            url: '/items.geojson',
             popup: 'item',
             cluster: true
         }
@@ -95,7 +95,7 @@ test('auto map config for list pages', () => {
             type: 'geojson',
             name: 'item',
             popup: 'item',
-            url: 'items/one.geojson'
+            url: '/items/one.geojson'
         }
     ]);
     expect(
@@ -108,7 +108,7 @@ test('auto map config for list pages', () => {
         {
             type: 'geojson',
             name: 'item',
-            url: 'items/one/edit.geojson',
+            url: '/items/one/edit.geojson',
             flatten: true,
             draw: {
                 polygon: {},
@@ -220,7 +220,7 @@ test('list map', async () => {
     expect(overlay.props).toEqual({
         name: 'item',
         popup: 'item',
-        url: 'items.geojson',
+        url: '/items.geojson',
         cluster: true
     });
 
@@ -257,7 +257,7 @@ test('edit map (leaflet.draw)', async () => {
 
     expect(overlay.props).toEqual({
         name: 'item',
-        url: 'items/123/edit.geojson',
+        url: '/items/123/edit.geojson',
         draw: {
             circle: false,
             marker: {},
@@ -265,7 +265,7 @@ test('edit map (leaflet.draw)', async () => {
             polyline: {},
             rectangle: {}
         },
-        initData: point,
+        data: point,
         flatten: true
     });
 

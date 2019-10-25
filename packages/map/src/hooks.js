@@ -44,6 +44,9 @@ export function routeMapConf(config, routeInfo, context = {}) {
         basemaps: config.maps.basemaps,
         bounds: config.bounds
     };
+    if (config.mapProps) {
+        mapconf.mapProps = config.mapProps;
+    }
     // Combine (rather than overwrite) defaults + mode-specific layers
     if (
         mode &&
@@ -70,14 +73,14 @@ export function routeMapConf(config, routeInfo, context = {}) {
         };
         if (!mode || mode === 'list') {
             Object.assign(defaultLayer, {
-                url: '{{{url}}}.geojson',
+                url: '{{rt}}/{{{url}}}.geojson',
                 popup: page,
                 cluster: true
             });
         } else if (mode === 'edit') {
             Object.assign(defaultLayer, {
                 type: 'geojson',
-                url: mapconf.url + '/{{{id}}}/edit.geojson',
+                url: '{{rt}}/' + mapconf.url + '/{{{id}}}/edit.geojson',
                 flatten: true,
                 draw: {
                     polygon: {},
@@ -89,13 +92,14 @@ export function routeMapConf(config, routeInfo, context = {}) {
             });
         } else {
             Object.assign(defaultLayer, {
-                url: mapconf.url + '/{{{id}}}.geojson',
+                url: '{{rt}}/' + mapconf.url + '/{{{id}}}.geojson',
                 popup: page
             });
         }
         mapconf.layers.push(defaultLayer);
     }
     mapconf.layers = mapconf.layers.map(layerconf => {
+        // FIXME: recalculate
         const baseurl = path.replace(/\/$/, '');
         layerconf = { ...layerconf };
         if (layerconf.url && layerconf.url.indexOf('{{') > -1) {
@@ -117,9 +121,9 @@ export function routeMapConf(config, routeInfo, context = {}) {
             const geomname = layerconf.geometryField || 'geometry',
                 geom = context[geomname];
             if (geom) {
-                layerconf.initData = JSON.parse(geom);
+                layerconf.data = JSON.parse(geom);
             } else {
-                layerconf.initData = {
+                layerconf.data = {
                     type: 'FeatureCollection',
                     features: []
                 };
@@ -133,15 +137,18 @@ export function routeMapConf(config, routeInfo, context = {}) {
 
 const _cache = {};
 
-export function useGeoJSON(url, initData, asFeatureCollection) {
+export function useGeoJSON(url, data, asFeatureCollection) {
     const app = useApp(),
         [geojson, setGeojson] = useState();
 
-    url = app.service + '/' + url;
+    if (!(url.indexOf('/') === 0 || url.indexOf('http') === 0)) {
+        console.warn(new Error(`Use "{{rt}}/${url}" instead of relative URL`));
+        url = app.service + '/' + url;
+    }
 
     useEffect(() => {
-        if (initData) {
-            setGeojson(parseGeojson(initData, asFeatureCollection));
+        if (data) {
+            setGeojson(parseGeojson(data, asFeatureCollection));
             return;
         }
         if (_cache[url]) {
@@ -166,7 +173,7 @@ export function useGeoJSON(url, initData, asFeatureCollection) {
                 setGeojson(null);
             }
         );
-    }, [url, initData, asFeatureCollection, app]);
+    }, [url, data, asFeatureCollection, app]);
 
     return geojson;
 }

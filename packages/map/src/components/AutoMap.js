@@ -16,9 +16,9 @@ export default function AutoMap() {
     if (!mapconf) {
         return null;
     }
-    const { basemaps, layers, bounds } = mapconf;
+    const { basemaps, layers, bounds, mapProps } = mapconf;
     return (
-        <Map bounds={bounds}>
+        <Map bounds={bounds} {...mapProps}>
             <Legend>
                 {basemaps.map((conf, i) => (
                     <BasemapToggle key={i} name={conf.name} active={i === 0}>
