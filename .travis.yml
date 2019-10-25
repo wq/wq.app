@@ -6,6 +6,13 @@ install:
 script:
  - python3 -m tests.server &
  - ./runtests.sh
+before_deploy:
+ - cd packages/$PACKAGE
+ - "curl -u $BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/npm/wq/npm/auth/scope/wq > .npmrc"
+deploy:
+  provider: script
+  script: npm publish
+  skip_cleanup: true
 git:
   depth: false
 matrix:
@@ -62,8 +69,12 @@ matrix:
     - name: "JavaScript Lint"
       install: npm install
       script: npm run lint
+      before_deploy:
+      deploy:
     - name: "Python Lint"
       language: python
       python: 3.7
       install: pip install flake8
       script: flake8 build/*.py tests/*.py
+      before_deploy:
+      deploy:
