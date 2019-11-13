@@ -19,12 +19,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Breadcrumbs() {
-    const links = useBreadcrumbs(),
+    var links = useBreadcrumbs(),
         classes = useStyles(),
         { ButtonLink } = useComponents();
 
     if (!links) {
-        return null;
+        links = [{ url: '/', label: 'Home', active: true }];
     }
     links[0].label = <HomeIcon className={classes.icon} />;
 
