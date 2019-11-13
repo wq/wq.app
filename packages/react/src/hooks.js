@@ -164,15 +164,16 @@ export function usePluginContent() {
         routeInfo = useRouteInfo();
 
     const content = useMemo(
-        () => app
-            .callPlugins('runComponent', [routeInfo])
-            .map(name => (name ? components[name] : null))
-            .filter(component => !!component),
+        () =>
+            app
+                .callPlugins('runComponent', [routeInfo])
+                .map(name => (name ? components[name] : null))
+                .filter(component => !!component),
         [routeInfo]
     );
 
     return useCallback(
-        function PluginContent(){
+        function PluginContent() {
             if (!content.length) {
                 return null;
             } else {
@@ -184,7 +185,7 @@ export function usePluginContent() {
                     </>
                 );
             }
-        }
+        },
         [content]
     );
 }
