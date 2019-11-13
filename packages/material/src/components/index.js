@@ -1,3 +1,4 @@
+import Container from './Container';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -10,6 +11,7 @@ import Breadcrumbs from './Breadcrumbs';
 import Pagination from './Pagination';
 
 export {
+    Container,
     Header,
     Main,
     Footer,

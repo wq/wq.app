@@ -5,6 +5,7 @@ import { AppContext } from './hooks';
 
 import App from './App';
 import {
+    Container,
     Header,
     Footer,
     Main,
@@ -31,6 +32,7 @@ export default {
     config: {
         components: {
             App,
+            Container,
             Header,
             Footer,
             Main,

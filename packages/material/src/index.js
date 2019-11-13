@@ -1,5 +1,6 @@
 import App from './App';
 import {
+    Container,
     Header,
     Footer,
     Main,
@@ -30,6 +31,7 @@ export default {
 
     components: {
         App,
+        Container,
         Header,
         Footer,
         Main,

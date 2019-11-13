@@ -12,7 +12,7 @@ export default function App() {
     const context = useRenderContext(),
         routeInfo = useRouteInfo(),
         views = useViews(),
-        { Header, Footer, Main, Spinner } = useComponents();
+        { Container, Header, Footer, Main, Spinner } = useComponents();
 
     let name;
     if (routeInfo.pending) {
@@ -34,26 +34,26 @@ export default function App() {
 
     const View = views[name];
     if (!View) {
-        return <>{`Missing ${name} view!`}</>;
+        return <Container>{`Missing ${name} view!`}</Container>;
     }
 
     if (View.fullscreen) {
         return (
-            <>
+            <Container>
                 <View />
                 <Spinner />
-            </>
+            </Container>
         );
     } else {
         return (
-            <>
+            <Container>
                 <Header />
                 <Main>
                     <View />
                 </Main>
                 <Footer />
                 <Spinner />
-            </>
+            </Container>
         );
     }
 }
