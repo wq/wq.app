@@ -321,7 +321,16 @@ function _removeBase(pathname) {
     return pathname.replace(router.base_url + '/', '');
 }
 
+var _lastRouteInfo = null;
 function _routeInfo(location) {
+    const info = _computeRouteInfo(location);
+    if (JSON.stringify(info) !== JSON.stringify(_lastRouteInfo)) {
+        _lastRouteInfo = info;
+    }
+    return _lastRouteInfo;
+}
+
+function _computeRouteInfo(location) {
     if (location.current && location.prev) {
         location = {
             ...location.current,

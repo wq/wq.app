@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     pathToAction,
@@ -163,24 +163,28 @@ export function usePluginContent() {
         components = useComponents(),
         routeInfo = useRouteInfo();
 
-    const content = app
-        .callPlugins('runComponent', [routeInfo])
-        .map(name => (name ? components[name] : null))
-        .filter(component => !!component);
+    const content = useMemo(
+        () => app
+            .callPlugins('runComponent', [routeInfo])
+            .map(name => (name ? components[name] : null))
+            .filter(component => !!component),
+        [routeInfo]
+    );
 
-    if (!content.length) {
-        return null;
-    } else if (content.length === 1) {
-        return content[0];
-    } else {
-        return function PluginContent() {
-            return (
-                <>
-                    {content.map((Component, i) => (
-                        <Component key={i} />
-                    ))}
-                </>
-            );
-        };
-    }
+    return useCallback(
+        function PluginContent(){
+            if (!content.length) {
+                return null;
+            } else {
+                return (
+                    <>
+                        {content.map((Component, i) => (
+                            <Component key={i} />
+                        ))}
+                    </>
+                );
+            }
+        }
+        [content]
+    );
 }
