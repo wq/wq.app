@@ -158,6 +158,17 @@ export function usePlugin(name) {
     return plugins[name];
 }
 
+export function usePluginState(name) {
+    const plugin = usePlugin(name),
+        pluginState = useSelector(state => state[name]);
+
+    if (plugin) {
+        return pluginState;
+    } else {
+        return null;
+    }
+}
+
 export function usePluginContent() {
     const { app } = useContext(AppContext),
         components = useComponents(),

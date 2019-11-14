@@ -3,7 +3,8 @@ import {
     useRenderContext,
     useRouteInfo,
     useViews,
-    useComponents
+    useComponents,
+    usePluginContent
 } from './hooks';
 
 const HTML = '@@HTML'; // @wq/router
@@ -12,6 +13,7 @@ export default function App() {
     const context = useRenderContext(),
         routeInfo = useRouteInfo(),
         views = useViews(),
+        PluginContent = usePluginContent(),
         { Container, Header, Footer, Main, Spinner } = useComponents();
 
     let name;
@@ -50,6 +52,7 @@ export default function App() {
                 <Header />
                 <Main>
                     <View />
+                    {!routeInfo.pending && <PluginContent />}
                 </Main>
                 <Footer />
                 <Spinner />

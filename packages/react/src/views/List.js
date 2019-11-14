@@ -3,13 +3,11 @@ import {
     useRenderContext,
     useRouteInfo,
     useComponents,
-    useReverse,
-    usePluginContent
+    useReverse
 } from '../hooks';
 
 export default function List() {
     const reverse = useReverse(),
-        PluginContent = usePluginContent(),
         { list } = useRenderContext(),
         { page } = useRouteInfo(),
         { Link } = useComponents();
@@ -29,7 +27,6 @@ export default function List() {
                     </li>
                 ))}
             </ul>
-            {PluginContent && <PluginContent />}
         </>
     );
 }

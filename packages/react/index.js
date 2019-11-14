@@ -14,6 +14,7 @@ import {
     useViews,
     useApp,
     usePlugin,
+    usePluginState,
     usePluginContent
 } from './src/hooks';
 
@@ -34,5 +35,6 @@ export {
     useViews,
     useApp,
     usePlugin,
+    usePluginState,
     usePluginContent
 };

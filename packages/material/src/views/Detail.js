@@ -4,13 +4,11 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
-import Grid from '@material-ui/core/Grid';
 import {
     useRenderContext,
     useRouteInfo,
     useComponents,
-    useReverse,
-    usePluginContent
+    useReverse
 } from '@wq/react';
 
 const Value = ({ context, field }) => {
@@ -57,23 +55,12 @@ function PropertyTable() {
 
 export default function Detail() {
     const reverse = useReverse(),
-        PluginContent = usePluginContent(),
         { page, item_id } = useRouteInfo(),
         { Link } = useComponents();
-    return PluginContent ? (
-        <Grid container>
-            <Grid item xs={6}>
-                <Link to={reverse(`${page}_edit`, item_id)}>Edit</Link>
-                <PropertyTable />
-            </Grid>
-            <Grid item xs={6}>
-                <PluginContent />
-            </Grid>
-        </Grid>
-    ) : (
-        <>
+    return (
+        <div>
             <Link to={reverse(`${page}_edit`, item_id)}>Edit</Link>
             <PropertyTable />
-        </>
+        </div>
     );
 }

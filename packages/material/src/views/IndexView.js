@@ -1,20 +1,14 @@
 import React from 'react';
 import List from '@material-ui/core/List';
-import {
-    useRenderContext,
-    useComponents,
-    useReverse,
-    usePluginContent
-} from '@wq/react';
+import { useRenderContext, useComponents, useReverse } from '@wq/react';
 
 export default function Index() {
     const reverse = useReverse(),
-        PluginContent = usePluginContent(),
         { pages } = useRenderContext(),
         { ListItemLink } = useComponents();
 
     return (
-        <>
+        <div>
             {pages && (
                 <List>
                     {pages.map(page => (
@@ -32,7 +26,6 @@ export default function Index() {
                     ))}
                 </List>
             )}
-            {PluginContent && <PluginContent />}
-        </>
+        </div>
     );
 }
