@@ -62,7 +62,7 @@ export default [
         ],
         output: [
             {
-                banner: banners.map,
+                banner: banners.leaflet,
                 file: 'packages/leaflet/dist/index.js',
                 format: 'cjs',
                 exports: 'named'
@@ -74,7 +74,7 @@ export default [
         input: 'packages/leaflet/src/index.js',
         plugins: [wqDeps('.'), babelAMD({ jsx: true })],
         external: ['react', 'leaflet'],
-        output: outputAMD('leaflet', banners.map)
+        output: outputAMD('leaflet', banners.leaflet)
     },
     {
         input: 'packages/leaflet/src/locate.js',

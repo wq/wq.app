@@ -32,6 +32,8 @@ matrix:
       env: PACKAGE=leaflet
     - name: "@wq/map"
       env: PACKAGE=map
+    - name: "@wq/mapbox"
+      env: PACKAGE=mapbox
     - name: "@wq/material"
       env: PACKAGE=material
     - name: "@wq/model"
