@@ -1,10 +1,11 @@
 import locate from '../locate';
-import map from '../map';
+import map from '@wq/map';
+import leaflet from '../index';
 import routeConfig from './config.json';
 
 const mockApp = {
     config: routeConfig,
-    plugins: { map: map }
+    plugins: { map, leaflet }
 };
 
 const $mockPage = {

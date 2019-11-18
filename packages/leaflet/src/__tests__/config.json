@@ -1,0 +1,157 @@
+{
+    "pages": {
+        "item": {
+            "form": [],
+            "list": true,
+            "map": true,
+            "url": "items"
+        },
+        "itemtype": {
+            "form": [],
+            "list": true,
+            "url": "itemtypes"
+        },
+        "listmap1": {
+            "form": [],
+            "list": true,
+            "map": {
+                "layers": [
+                    {
+                        "name": "Map Test",
+                        "type": "geojson",
+                        "url": "test.geojson"
+                    }
+                ],
+                "mode": "list"
+            },
+            "url": "listmap1"
+        },
+        "listmap2": {
+            "form": [],
+            "list": true,
+            "map": [
+                {
+                    "layers": [
+                        {
+                            "name": "Map Test",
+                            "type": "geojson",
+                            "url": "test.geojson"
+                        }
+                    ],
+                    "mode": "list"
+                }
+            ],
+            "url": "listmap2"
+        },
+        "listmap3": {
+            "form": [],
+            "list": true,
+            "map": [
+                {
+                    "layers": [
+                        {
+                            "name": "Map Test",
+                            "type": "geojson",
+                            "url": "test.geojson"
+                        }
+                    ],
+                    "mode": "all"
+                },
+                {
+                    "layers": [],
+                    "mode": "list"
+                },
+                {
+                    "layers": [],
+                    "mode": "detail"
+                }
+            ],
+            "url": "listmap3"
+        },
+        "listmap4": {
+            "form": [],
+            "list": true,
+            "map": [
+                {
+                    "layers": [
+                        {
+                            "name": "Map Test2",
+                            "type": "geojson",
+                            "url": "test2.geojson"
+                        }
+                    ],
+                    "map": "second",
+                    "mode": "list"
+                },
+                {
+                    "layers": [
+                        {
+                            "name": "Map Test",
+                            "type": "geojson",
+                            "url": "test.geojson"
+                        }
+                    ],
+                    "map": "main",
+                    "mode": "list"
+                }
+            ],
+            "url": "listmap4"
+        },
+        "othermap1": {
+            "map": {
+                "layers": [
+                    {
+                        "name": "Map Test",
+                        "type": "geojson",
+                        "url": "test.geojson"
+                    }
+                ]
+            },
+            "url": "othermap1"
+        },
+        "othermap2": {
+            "map": [
+                {
+                    "layers": [
+                        {
+                            "name": "Map Test",
+                            "type": "geojson",
+                            "url": "test.geojson"
+                        }
+                    ],
+                    "mode": "all"
+                }
+            ],
+            "url": "othermap2"
+        },
+        "othermap3": {
+            "map": [
+                {
+                    "layers": [
+                        {
+                            "name": "Map Test",
+                            "type": "geojson",
+                            "url": "test.geojson"
+                        }
+                    ],
+                    "map": "main",
+                    "mode": "all"
+                }
+            ],
+            "url": "othermap3"
+        },
+        "point": {
+            "form": [],
+            "label": "Points",
+            "list": true,
+            "locate": true,
+            "map": [
+                {
+                    "layers": [],
+                    "mode": "edit"
+                }
+            ],
+            "url": "points"
+        }
+    }
+}

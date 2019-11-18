@@ -15,9 +15,10 @@ js_build: init
 js_wq: js_build
 	cp -p packages/app/dist/app.js* js/wq/
 	cp -p packages/jquery-mobile/dist/jquery-mobile.js* js/wq/
-	cp -p packages/map/dist/locate.js* js/wq/
+	cp -p packages/leaflet/dist/leaflet.js* js/wq/
+	cp -p packages/leaflet/dist/locate.js* js/wq/
+	cp -p packages/leaflet/dist/mapserv.js* js/wq/
 	cp -p packages/map/dist/map.js* js/wq/
-	cp -p packages/map/dist/mapserv.js* js/wq/
 	cp -p packages/material/dist/material.js* js/wq/
 	cp -p packages/model/dist/model.js* js/wq/
 	cp -p packages/outbox/dist/outbox.js* js/wq/
@@ -30,7 +31,7 @@ js_wq: js_build
 
 js_leaflet_draw:
 	echo "define(['leaflet'], function(L) {" > js/leaflet.draw.js
-	cat packages/map/node_modules/leaflet-draw/dist/leaflet.draw-src.js >> js/leaflet.draw.js
+	cat packages/leaflet/node_modules/leaflet-draw/dist/leaflet.draw-src.js >> js/leaflet.draw.js
 	echo "\n});" >> js/leaflet.draw.js
 
 js_regenerator_runtime:
@@ -39,7 +40,7 @@ js_regenerator_runtime:
 	echo "\nreturn regeneratorRuntime;\n});" >> js/regenerator-runtime.js
 
 js_lib: js_build js_leaflet_draw js_regenerator_runtime
-	cp -p packages/map/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
+	cp -p packages/leaflet/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
 	cp -p packages/jquery-mobile/dist/jquery.mobile.vendor.js js/jquery.mobile.js
 	cp -p packages/store/node_modules/redux/dist/redux.js js/redux.js
@@ -49,10 +50,10 @@ js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	cp -p packages/model/dist/redux-orm.js js/redux-orm.js
 	cp -p packages/outbox/dist/redux-offline.js js/redux-offline.js
 	cp -p packages/outbox/dist/json-forms.js js/json-forms.js
-	cp -p packages/map/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
-	cp -p packages/map/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
+	cp -p packages/leaflet/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
+	cp -p packages/leaflet/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
 	sed -i "s/'exports'/'exports', 'leaflet'/" js/leaflet.markercluster.js
-	cp -p packages/map/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
+	cp -p packages/leaflet/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
 	cp -p packages/store/node_modules/localforage/dist/localforage.js js/localforage.js
 	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
 	cp -p node_modules/requirejs/require.js js/require.js
@@ -60,11 +61,11 @@ js_lib: js_build js_leaflet_draw js_regenerator_runtime
 css: init
 	cp -a packages/jquery-mobile/css/* css/
 	cp -p packages/app/css/app.css css/wq/app.css
-	cp -a packages/map/node_modules/leaflet-draw/dist/leaflet.draw.css css/leaflet.draw.css
-	cp -a packages/map/node_modules/leaflet-draw/dist/images/* css/images/
-	cp -a packages/map/node_modules/leaflet/dist/leaflet.css css/leaflet.css
-	cp -a packages/map/node_modules/leaflet/dist/images/* css/images/
-	cat packages/map/node_modules/leaflet.markercluster/dist/*.css > css/leaflet.markercluster.css
+	cp -a packages/leaflet/node_modules/leaflet-draw/dist/leaflet.draw.css css/leaflet.draw.css
+	cp -a packages/leaflet/node_modules/leaflet-draw/dist/images/* css/images/
+	cp -a packages/leaflet/node_modules/leaflet/dist/leaflet.css css/leaflet.css
+	cp -a packages/leaflet/node_modules/leaflet/dist/images/* css/images/
+	cat packages/leaflet/node_modules/leaflet.markercluster/dist/*.css > css/leaflet.markercluster.css
 
 scss: init
 	cp -a packages/jquery-mobile/scss/* scss/wq/

@@ -6,36 +6,17 @@ import {
     babelAMD,
     outputAMD
 } from '../../rollup-utils.js';
-const banners = {
-    map: makeBanner(pkg, 2013),
-    locate: makeBanner(
-        {
-            name: pkg.name + '/locate',
-            description: "Geolocation utilities via Leaflet's Map.locate",
-            version: pkg.version
-        },
-        2013
-    ),
-    mapserv: makeBanner(
-        {
-            name: pkg.name + '/mapserv',
-            description:
-                'Extension to wq/map.js with support for WMS and ESRI services',
-            version: pkg.version
-        },
-        2016
-    )
-};
+const banner = makeBanner(pkg, 2013);
 
 export default [
     // ESM
     {
         input: 'packages/map/index.js',
         plugins: [wqDeps('@wq'), babelNPM({ jsx: true })],
-        external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
+        external: ['react', 'prop-types', 'param-case'],
         output: [
             {
-                banner: banners.map,
+                banner: banner,
                 file: 'packages/map/dist/index.es.js',
                 format: 'esm'
             }
@@ -45,10 +26,10 @@ export default [
     {
         input: 'packages/map/index.js',
         plugins: [wqDeps('@wq'), babelNPM({ jsx: true })],
-        external: ['leaflet', 'esri-leaflet', 'leaflet.wms'],
+        external: ['react', 'prop-types', 'param-case'],
         output: [
             {
-                banner: banners.map,
+                banner: banner,
                 file: 'packages/map/dist/index.js',
                 format: 'cjs',
                 exports: 'named'
@@ -59,19 +40,7 @@ export default [
     {
         input: 'packages/map/src/map.js',
         plugins: [wqDeps('.'), babelAMD({ jsx: true })],
-        external: ['leaflet'],
-        output: outputAMD('map', banners.map)
-    },
-    {
-        input: 'packages/map/src/locate.js',
-        external: ['leaflet'],
-        plugins: [babelAMD({ jsx: true })],
-        output: outputAMD('locate', banners.locate, 'map')
-    },
-    {
-        input: 'packages/map/src/mapserv.js',
-        external: ['leaflet', 'esri-leaflet', 'leaflet.wms', './map'],
-        plugins: [babelAMD({ jsx: true })],
-        output: outputAMD('mapserv', banners.mapserv, 'map')
+        external: ['react', 'prop-types', 'param-case'],
+        output: outputAMD('map', banner)
     }
 ];

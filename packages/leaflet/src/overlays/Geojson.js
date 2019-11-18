@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useGeoJSON } from '../hooks';
+import { useGeoJSON } from '@wq/map';
 import { GeoJSON as LGeoJSON } from 'react-leaflet';
 
 export default function Geojson(props) {

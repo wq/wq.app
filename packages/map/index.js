@@ -1,7 +1,10 @@
 import map from './src/map.js';
-import locate from './src/locate.js';
-import mapserv from './src/mapserv.js';
+import {
+    useBasemapComponents,
+    useOverlayComponents,
+    useMapConfig,
+    useGeoJSON
+} from './src/hooks';
 
 export default map;
-
-export { locate, mapserv };
+export { useBasemapComponents, useOverlayComponents, useMapConfig, useGeoJSON };

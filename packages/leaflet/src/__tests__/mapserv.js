@@ -1,10 +1,10 @@
 import React from 'react';
 import testRender from '@wq/react/test';
-import map from '../map';
+import leaflet from '../index';
 import mapserv from '../mapserv';
 
 test('ESRI Basemap', () => {
-    const { Map } = map.components,
+    const { Map } = leaflet.components,
         { EsriBasemap } = mapserv.basemaps;
 
     const result = testRender(() => (
@@ -24,7 +24,7 @@ test('ESRI Basemap', () => {
 });
 
 test('WMS Overlay', () => {
-    const { Map } = map.components,
+    const { Map } = leaflet.components,
         { Wms } = mapserv.overlays,
         url =
             'http://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';

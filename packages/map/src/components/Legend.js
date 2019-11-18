@@ -1,32 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LayersControl } from 'react-leaflet';
-const { BaseLayer, Overlay } = LayersControl;
 
-export default function Legend({ position, collapsed, children }) {
-    if (!position) {
-        position = 'topright';
-    }
-    if (collapsed === undefined) {
-        collapsed = true;
-    }
+export default function Legend({ children }) {
     return (
-        <LayersControl position={position} collapsed={collapsed}>
-            {children}
-        </LayersControl>
+        <table>
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>Name</th>
+                    <th>Active</th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+            <tbody>{children}</tbody>
+        </table>
     );
 }
 Legend.propTypes = {
-    position: PropTypes.object,
-    collapsed: PropTypes.bool,
     children: PropTypes.node
 };
 
-export function BasemapToggle({ name, active, children, ...rest }) {
+export function BasemapToggle({ name, active, children }) {
     return (
-        <BaseLayer name={name} checked={active} {...rest}>
-            {children}
-        </BaseLayer>
+        <tr>
+            <td>Basemap</td>
+            <td>{name}</td>
+            <td>{active ? 'Y' : 'N'}</td>
+            <td>{children}</td>
+        </tr>
     );
 }
 BasemapToggle.propTypes = {
@@ -35,13 +36,17 @@ BasemapToggle.propTypes = {
     children: PropTypes.node
 };
 
-export function OverlayToggle({ name, active, children, ...rest }) {
+export function OverlayToggle({ name, active, children }) {
     return (
-        <Overlay name={name} checked={active} {...rest}>
-            {children}
-        </Overlay>
+        <tr>
+            <td>Overlay</td>
+            <td>{name}</td>
+            <td>{active ? 'Y' : 'N'}</td>
+            <td>{children}</td>
+        </tr>
     );
 }
+
 OverlayToggle.propTypes = {
     name: PropTypes.string,
     active: PropTypes.bool,

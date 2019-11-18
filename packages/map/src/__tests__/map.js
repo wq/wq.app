@@ -1,11 +1,8 @@
 import map from '../map';
 import { routeMapConf } from '../hooks';
-import renderTest, { nextTick } from '@wq/react/test';
-import tmpl from '@wq/template';
+import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
-
-/* global L */
 
 const mockReduxStore = {
     getState: () => state,
@@ -38,18 +35,6 @@ beforeAll(() => {
     );
     map.app = mockApp;
     map.init({});
-    tmpl.init({
-        templates: {},
-        jQuery: { mobile: {} }
-    });
-    // L.Browser.svg not set correctly in jsdom
-    L.Map.prototype._createRenderer = function(opts) {
-        return new L.SVG(opts);
-    };
-});
-
-beforeEach(() => {
-    document.body.innerHTML = '';
 });
 
 function getLayerConfs(routeInfo) {
@@ -223,18 +208,9 @@ test('list map', async () => {
         url: '/items.geojson',
         cluster: true
     });
-
-    await nextTick();
-
-    const leafletOverlay =
-        overlay.children[0].children[0].instance.leafletElement;
-
-    expect(leafletOverlay.getBounds().toBBoxString()).toEqual(
-        '-93.28611373901367,44.968927335931234,-93.24045181274414,44.99612540094354'
-    );
 });
 
-test('edit map (leaflet.draw)', async () => {
+test('edit map', async () => {
     const { AutoMap } = map.components,
         { Geojson } = map.config.overlays,
         point = {
@@ -268,16 +244,4 @@ test('edit map (leaflet.draw)', async () => {
         data: point,
         flatten: true
     });
-
-    await nextTick();
-
-    const leafletOverlay =
-        overlay.children[0].children[0].instance.leafletElement;
-
-    expect(leafletOverlay.getBounds().toBBoxString()).toEqual('45,-95,45,-95');
-
-    /* FIXME: Restore and test leaflet.draw support
-    var draw = div.getElementsByClassName('leaflet-draw');
-    expect(draw.length).toEqual(1);
-    */
 });

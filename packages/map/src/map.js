@@ -7,11 +7,7 @@ import {
     BasemapToggle,
     OverlayToggle
 } from './components/index';
-import { Tile } from './basemaps/index';
-import { Geojson } from './overlays/index';
 import reactRenderer from '@wq/react';
-
-// import 'leaflet/dist/leaflet.css';
 
 // module variable
 const map = {
@@ -46,11 +42,15 @@ const map = {
         },
 
         basemaps: {
-            Tile
+            Tile({ url }) {
+                return `Tile at ${url}`;
+            }
         },
 
         overlays: {
-            Geojson
+            Geojson({ url }) {
+                return `GeoJSON at ${url}`;
+            }
         },
 
         maps: {

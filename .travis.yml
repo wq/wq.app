@@ -28,6 +28,8 @@ matrix:
       env: PACKAGE=app
     - name: "@wq/jquery-mobile"
       env: PACKAGE=jquery-mobile
+    - name: "@wq/leaflet"
+      env: PACKAGE=leaflet
     - name: "@wq/map"
       env: PACKAGE=map
     - name: "@wq/material"
