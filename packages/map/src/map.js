@@ -10,7 +10,9 @@ import {
 import reducer, {
     MAP_SHOW_OVERLAY,
     MAP_HIDE_OVERLAY,
-    MAP_SET_BASEMAP
+    MAP_SET_BASEMAP,
+    MAP_SET_HIGHLIGHT,
+    MAP_CLEAR_HIGHLIGHT
 } from './reducer';
 import reactRenderer from '@wq/react';
 
@@ -37,6 +39,17 @@ const map = {
             return {
                 type: MAP_HIDE_OVERLAY,
                 payload: name
+            };
+        },
+        setHighlight(geojson) {
+            return {
+                type: MAP_SET_HIGHLIGHT,
+                payload: geojson
+            };
+        },
+        clearHighlight() {
+            return {
+                type: MAP_CLEAR_HIGHLIGHT
             };
         }
     },
@@ -78,6 +91,9 @@ const map = {
         overlays: {
             Geojson({ url }) {
                 return `GeoJSON at ${url}`;
+            },
+            Highlight({ data }) {
+                return `Highlight ${data.type}`;
             }
         },
 

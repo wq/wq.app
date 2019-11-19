@@ -1,6 +1,6 @@
 import React from 'react';
 import { useComponents } from '@wq/react';
-import { useMapState } from '../hooks';
+import { useMapState, useOverlayComponents } from '../hooks';
 
 export default function AutoMap() {
     const state = useMapState(),
@@ -11,12 +11,13 @@ export default function AutoMap() {
             Legend,
             BasemapToggle,
             OverlayToggle
-        } = useComponents();
+        } = useComponents(),
+        { Highlight } = useOverlayComponents();
 
     if (!state) {
         return null;
     }
-    const { basemaps, overlays, bounds, mapProps } = state;
+    const { basemaps, overlays, bounds, mapProps, highlight } = state;
     return (
         <Map bounds={bounds} {...mapProps}>
             <Legend>
@@ -39,6 +40,7 @@ export default function AutoMap() {
                     </OverlayToggle>
                 ))}
             </Legend>
+            {highlight && <Highlight data={highlight} />}
         </Map>
     );
 }

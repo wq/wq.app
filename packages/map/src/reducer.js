@@ -3,7 +3,9 @@ import { routeMapConf } from './hooks';
 const RENDER = 'RENDER';
 export const MAP_SHOW_OVERLAY = 'MAP_SHOW_OVERLAY',
     MAP_HIDE_OVERLAY = 'MAP_HIDE_OVERLAY',
-    MAP_SET_BASEMAP = 'MAP_SET_BASEMAP';
+    MAP_SET_BASEMAP = 'MAP_SET_BASEMAP',
+    MAP_SET_HIGHLIGHT = 'MAP_SET_HIGHLIGHT',
+    MAP_CLEAR_HIGHLIGHT = 'MAP_CLEAR_HIGHLIGHT';
 
 var _lastRouteInfo = null;
 
@@ -66,6 +68,16 @@ export default function reducer(state = {}, action, config) {
                             return basemap;
                         }
                     })
+            };
+        case MAP_SET_HIGHLIGHT:
+            return {
+                ...state,
+                highlight: action.payload
+            };
+        case MAP_CLEAR_HIGHLIGHT:
+            return {
+                ...state,
+                highlight: undefined
             };
         default:
             return state;

@@ -1,6 +1,6 @@
 import { Map, Legend, BasemapToggle, OverlayToggle } from './components/index';
 import { Tile } from './basemaps/index';
-import { Geojson } from './overlays/index';
+import { Geojson, Highlight } from './overlays/index';
 
 // import 'leaflet/dist/leaflet.css';
 
@@ -16,6 +16,7 @@ export default {
         Tile
     },
     overlays: {
-        Geojson
+        Geojson,
+        Highlight
     }
 };

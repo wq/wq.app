@@ -363,3 +363,34 @@ test('toggle layers', async () => {
         }
     ]);
 });
+
+test('highlight layer', async () => {
+    const { AutoMap } = map.components,
+        { Highlight } = map.config.overlays;
+
+    setRouteInfo({
+        page: 'multilayer'
+    });
+
+    const geojson = {
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [45, -95]
+                }
+            }
+        ]
+    };
+
+    map.setHighlight(geojson);
+
+    const result = renderTest(AutoMap, mockApp),
+        overlay = result.root.findByType(Highlight);
+
+    expect(overlay.props.data).toEqual(geojson);
+
+    result.unmount();
+});
