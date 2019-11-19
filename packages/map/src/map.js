@@ -7,11 +7,39 @@ import {
     BasemapToggle,
     OverlayToggle
 } from './components/index';
+import reducer, {
+    MAP_SHOW_OVERLAY,
+    MAP_HIDE_OVERLAY,
+    MAP_SET_BASEMAP
+} from './reducer';
 import reactRenderer from '@wq/react';
 
 // module variable
 const map = {
     name: 'map',
+    reducer(state, action) {
+        return reducer(state, action, this.config);
+    },
+    actions: {
+        setBasemap(name) {
+            return {
+                type: MAP_SET_BASEMAP,
+                payload: name
+            };
+        },
+        showOverlay(name) {
+            return {
+                type: MAP_SHOW_OVERLAY,
+                payload: name
+            };
+        },
+        hideOverlay(name) {
+            return {
+                type: MAP_HIDE_OVERLAY,
+                payload: name
+            };
+        }
+    },
     components: {
         AutoMap,
         AutoBasemap,

@@ -2,9 +2,9 @@ import map from './src/map.js';
 import {
     useBasemapComponents,
     useOverlayComponents,
-    useMapConfig,
+    useMapState,
     useGeoJSON
 } from './src/hooks';
 
 export default map;
-export { useBasemapComponents, useOverlayComponents, useMapConfig, useGeoJSON };
+export { useBasemapComponents, useOverlayComponents, useMapState, useGeoJSON };

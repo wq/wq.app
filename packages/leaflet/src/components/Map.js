@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Map as LMap } from 'react-leaflet';
 
-/* eslint-disable no-unused-vars */
-export default function Map({ bounds, conf, children, ...props }) {
+export default function Map({ bounds, children, ...props }) {
     return (
         <LMap
             bounds={bounds}

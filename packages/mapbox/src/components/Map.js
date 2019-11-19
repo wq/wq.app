@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactMapboxGl from 'react-mapbox-gl';
+import { useMapState } from '@wq/map';
 
 const Root = ReactMapboxGl({});
 
-export default function Map({ bounds, conf, children, ...props }) {
+export default function Map({ bounds, children, ...props }) {
     const [[ymin, xmin], [ymax, xmax]] = bounds,
-        basemap = conf.basemaps && conf.basemaps[0];
+        state = useMapState(),
+        basemap = state && state.basemaps.filter(basemap => basemap.active)[0];
     let style;
     if (basemap && basemap.type === 'vector-tile') {
         style = basemap.url;

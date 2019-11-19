@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useRouteInfo, usePlugin, useRenderContext, useApp } from '@wq/react';
+import {
+    useRouteInfo,
+    usePlugin,
+    usePluginState,
+    useRenderContext,
+    useApp
+} from '@wq/react';
 import tmpl from '@wq/template';
 import paramCase from 'param-case';
 
@@ -25,6 +31,15 @@ export function useMapConfig() {
         context = useRenderContext();
 
     return routeMapConf(config, routeInfo, context);
+}
+
+export function useMapState() {
+    const state = usePluginState('map');
+    if (state && state.basemaps && state.overlays) {
+        return state;
+    } else {
+        return null;
+    }
 }
 
 export function routeMapConf(config, routeInfo, context = {}) {

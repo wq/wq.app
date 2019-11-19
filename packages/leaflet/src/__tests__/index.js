@@ -6,15 +6,30 @@ import geojson from './geojson.json';
 
 /* global L */
 
-const mockReduxStore = {
-    getState: () => state,
-    subscribe: () => {},
-    dispatch: () => {}
-};
-const state = {
-    routeInfo: {},
-    context: {}
-};
+import { createStore, combineReducers, bindActionCreators } from 'redux';
+
+const store = createStore(
+    combineReducers({
+        map(state, action) {
+            return map.reducer(state, action);
+        },
+        routeInfo(state = {}, action) {
+            if (action.type === 'RENDER') {
+                return action.payload.router_info;
+            } else {
+                return state;
+            }
+        },
+        context(state = {}, action) {
+            if (action.type === 'RENDER') {
+                return action.payload;
+            } else {
+                return state;
+            }
+        }
+    })
+);
+Object.assign(map, bindActionCreators(map.actions, store.dispatch.bind(store)));
 
 const mockApp = {
     config: routeConfig,
@@ -23,7 +38,7 @@ const mockApp = {
         stop: () => {}
     },
     store: {
-        _store: mockReduxStore,
+        _store: store,
         ajax: () => {
             return Promise.resolve(geojson);
         }
@@ -48,7 +63,7 @@ beforeEach(() => {
 });
 
 function routeWithPath(routeInfo) {
-    const { page, mode, item_id } = routeInfo;
+    const { page, mode, item_id, outbox_id } = routeInfo;
     let path = routeConfig.pages[page].url;
     if (mode === 'list') {
         path = `${path}/`;
@@ -57,14 +72,24 @@ function routeWithPath(routeInfo) {
     } else if (mode) {
         path = `${path}/${item_id}/${mode}`;
     }
-    return { page, mode, item_id, path };
+    return { page, mode, item_id, outbox_id, path };
+}
+
+function setRouteInfo(routeInfo, context = {}) {
+    store.dispatch({
+        type: 'RENDER',
+        payload: {
+            ...context,
+            router_info: routeWithPath(routeInfo)
+        }
+    });
 }
 
 test('list map', async () => {
     const { AutoMap } = map.components,
         { Geojson } = map.config.overlays;
 
-    state.routeInfo = routeWithPath({
+    setRouteInfo({
         page: 'item',
         mode: 'list'
     });
@@ -76,7 +101,8 @@ test('list map', async () => {
         name: 'item',
         popup: 'item',
         url: '/items.geojson',
-        cluster: true
+        cluster: true,
+        active: true
     });
 
     await nextTick();
@@ -87,6 +113,8 @@ test('list map', async () => {
     expect(leafletOverlay.getBounds().toBBoxString()).toEqual(
         '-93.28611373901367,44.968927335931234,-93.24045181274414,44.99612540094354'
     );
+
+    result.unmount();
 });
 
 test('edit map (leaflet.draw)', async () => {
@@ -97,15 +125,17 @@ test('edit map (leaflet.draw)', async () => {
             coordinates: [45, -95]
         };
 
-    state.routeInfo = routeWithPath({
-        page: 'item',
-        mode: 'edit',
-        item_id: 123
-    });
-    state.routeInfo.outbox_id = 1;
-    state.context = {
-        geometry: JSON.stringify(point)
-    };
+    setRouteInfo(
+        {
+            page: 'item',
+            mode: 'edit',
+            item_id: 123,
+            outbox_id: 1
+        },
+        {
+            geometry: JSON.stringify(point)
+        }
+    );
 
     const result = renderTest(AutoMap, mockApp),
         overlay = result.root.findByType(Geojson);
@@ -121,7 +151,8 @@ test('edit map (leaflet.draw)', async () => {
             rectangle: {}
         },
         data: point,
-        flatten: true
+        flatten: true,
+        active: true
     });
 
     await nextTick();
@@ -135,4 +166,6 @@ test('edit map (leaflet.draw)', async () => {
     var draw = div.getElementsByClassName('leaflet-draw');
     expect(draw.length).toEqual(1);
     */
+
+    result.unmount();
 });

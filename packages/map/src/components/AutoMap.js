@@ -1,9 +1,9 @@
 import React from 'react';
 import { useComponents } from '@wq/react';
-import { useMapConfig } from '../hooks';
+import { useMapState } from '../hooks';
 
 export default function AutoMap() {
-    const mapconf = useMapConfig(),
+    const state = useMapState(),
         {
             Map,
             AutoBasemap,
@@ -13,23 +13,27 @@ export default function AutoMap() {
             OverlayToggle
         } = useComponents();
 
-    if (!mapconf) {
+    if (!state) {
         return null;
     }
-    const { basemaps, layers, bounds, mapProps } = mapconf;
+    const { basemaps, overlays, bounds, mapProps } = state;
     return (
-        <Map bounds={bounds} conf={mapconf} {...mapProps}>
+        <Map bounds={bounds} {...mapProps}>
             <Legend>
                 {basemaps.map((conf, i) => (
-                    <BasemapToggle key={i} name={conf.name} active={i === 0}>
+                    <BasemapToggle
+                        key={i}
+                        name={conf.name}
+                        active={conf.active}
+                    >
                         <AutoBasemap {...conf} />
                     </BasemapToggle>
                 ))}
-                {layers.map((conf, i) => (
+                {overlays.map((conf, i) => (
                     <OverlayToggle
                         key={i}
                         name={conf.name}
-                        active={!conf.noAutoAdd}
+                        active={conf.active}
                     >
                         <AutoOverlay {...conf} />
                     </OverlayToggle>

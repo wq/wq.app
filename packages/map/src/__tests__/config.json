@@ -152,6 +152,47 @@
                 }
             ],
             "url": "points"
+        },
+        "multilayer": {
+            "url": "multilayer",
+            "map": [
+                {
+                    "layers": [
+                        {
+                            "name": "Layer 1",
+                            "type": "geojson",
+                            "url": "layer1.geojson"
+                        },
+                        {
+                            "name": "Layer 2",
+                            "type": "geojson",
+                            "url": "layer2.geojson"
+                        },
+                        {
+                            "name": "Layer 3",
+                            "type": "geojson",
+                            "url": "layer3.geojson",
+                            "noAutoAdd": true
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "map": {
+        "maps": {
+            "basemaps": [
+                {
+                    "name": "Basemap 1",
+                    "type": "tile",
+                    "url": "http://example.org/street/{z}/{x}/{y}.png"
+                },
+                {
+                    "name": "Basemap 2",
+                    "type": "tile",
+                    "url": "http://example.org/aerial/{z}/{x}/{y}.png"
+                }
+            ]
         }
     }
 }

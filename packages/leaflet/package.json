@@ -34,5 +34,8 @@
         "leaflet.markercluster": "^1.4.1",
         "leaflet.wms": "^0.2.0",
         "react-leaflet": "^2.5.0"
+    },
+    "devDependencies": {
+        "redux": "^4.0.4"
     }
 }

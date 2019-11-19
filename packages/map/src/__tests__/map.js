@@ -3,16 +3,30 @@ import { routeMapConf } from '../hooks';
 import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
+import { createStore, combineReducers, bindActionCreators } from 'redux';
 
-const mockReduxStore = {
-    getState: () => state,
-    subscribe: () => {},
-    dispatch: () => {}
-};
-const state = {
-    routeInfo: {},
-    context: {}
-};
+const store = createStore(
+    combineReducers({
+        map(state, action) {
+            return map.reducer(state, action);
+        },
+        routeInfo(state = {}, action) {
+            if (action.type === 'RENDER') {
+                return action.payload.router_info;
+            } else {
+                return state;
+            }
+        },
+        context(state = {}, action) {
+            if (action.type === 'RENDER') {
+                return action.payload;
+            } else {
+                return state;
+            }
+        }
+    })
+);
+Object.assign(map, bindActionCreators(map.actions, store.dispatch.bind(store)));
 
 const mockApp = {
     config: routeConfig,
@@ -21,7 +35,7 @@ const mockApp = {
         stop: () => {}
     },
     store: {
-        _store: mockReduxStore,
+        _store: store,
         ajax: () => {
             return Promise.resolve(geojson);
         }
@@ -34,7 +48,7 @@ beforeAll(() => {
         key => (mockApp.config.pages[key].name = key)
     );
     map.app = mockApp;
-    map.init({});
+    map.init(routeConfig.map);
 });
 
 function getLayerConfs(routeInfo) {
@@ -42,7 +56,7 @@ function getLayerConfs(routeInfo) {
 }
 
 function routeWithPath(routeInfo) {
-    const { page, mode, item_id } = routeInfo;
+    const { page, mode, item_id, outbox_id } = routeInfo;
     let path = routeConfig.pages[page].url;
     if (mode === 'list') {
         path = `${path}/`;
@@ -51,7 +65,17 @@ function routeWithPath(routeInfo) {
     } else if (mode) {
         path = `${path}/${item_id}/${mode}`;
     }
-    return { page, mode, item_id, path };
+    return { page, mode, item_id, outbox_id, path };
+}
+
+function setRouteInfo(routeInfo, context = {}) {
+    store.dispatch({
+        type: 'RENDER',
+        payload: {
+            ...context,
+            router_info: routeWithPath(routeInfo)
+        }
+    });
 }
 
 test('auto map config for list pages', () => {
@@ -194,7 +218,7 @@ test('list map', async () => {
     const { AutoMap } = map.components,
         { Geojson } = map.config.overlays;
 
-    state.routeInfo = routeWithPath({
+    setRouteInfo({
         page: 'item',
         mode: 'list'
     });
@@ -206,8 +230,11 @@ test('list map', async () => {
         name: 'item',
         popup: 'item',
         url: '/items.geojson',
-        cluster: true
+        cluster: true,
+        active: true
     });
+
+    result.unmount();
 });
 
 test('edit map', async () => {
@@ -218,15 +245,17 @@ test('edit map', async () => {
             coordinates: [45, -95]
         };
 
-    state.routeInfo = routeWithPath({
-        page: 'item',
-        mode: 'edit',
-        item_id: 123
-    });
-    state.routeInfo.outbox_id = 1;
-    state.context = {
-        geometry: JSON.stringify(point)
-    };
+    setRouteInfo(
+        {
+            page: 'item',
+            mode: 'edit',
+            item_id: 123,
+            outbox_id: 1
+        },
+        {
+            geometry: JSON.stringify(point)
+        }
+    );
 
     const result = renderTest(AutoMap, mockApp),
         overlay = result.root.findByType(Geojson);
@@ -242,6 +271,95 @@ test('edit map', async () => {
             rectangle: {}
         },
         data: point,
-        flatten: true
+        flatten: true,
+        active: true
     });
+
+    result.unmount();
+});
+
+test('toggle layers', async () => {
+    setRouteInfo({
+        page: 'multilayer'
+    });
+    expect(store.getState().map).toEqual({
+        basemaps: [
+            {
+                name: 'Basemap 1',
+                type: 'tile',
+                url: 'http://example.org/street/{z}/{x}/{y}.png',
+                active: true
+            },
+            {
+                name: 'Basemap 2',
+                url: 'http://example.org/aerial/{z}/{x}/{y}.png',
+                type: 'tile',
+                active: false
+            }
+        ],
+        overlays: [
+            {
+                name: 'Layer 1',
+                type: 'geojson',
+                url: 'layer1.geojson',
+                active: true
+            },
+            {
+                name: 'Layer 2',
+                type: 'geojson',
+                url: 'layer2.geojson',
+                active: true
+            },
+            {
+                name: 'Layer 3',
+                type: 'geojson',
+                url: 'layer3.geojson',
+                noAutoAdd: true,
+                active: false
+            }
+        ],
+        bounds: [[-4, -4], [4, 4]],
+        mapProps: undefined
+    });
+
+    map.setBasemap('Basemap 2');
+    expect(store.getState().map.basemaps).toEqual([
+        {
+            name: 'Basemap 1',
+            type: 'tile',
+            url: 'http://example.org/street/{z}/{x}/{y}.png',
+            active: false
+        },
+        {
+            name: 'Basemap 2',
+            url: 'http://example.org/aerial/{z}/{x}/{y}.png',
+            type: 'tile',
+            active: true
+        }
+    ]);
+
+    map.hideOverlay('Layer 2');
+    map.showOverlay('Layer 3');
+
+    expect(store.getState().map.overlays).toEqual([
+        {
+            name: 'Layer 1',
+            type: 'geojson',
+            url: 'layer1.geojson',
+            active: true
+        },
+        {
+            name: 'Layer 2',
+            type: 'geojson',
+            url: 'layer2.geojson',
+            active: false
+        },
+        {
+            name: 'Layer 3',
+            type: 'geojson',
+            url: 'layer3.geojson',
+            noAutoAdd: true,
+            active: true
+        }
+    ]);
 });
