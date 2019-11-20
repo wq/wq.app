@@ -11,6 +11,23 @@ export default function Highlight({ data }) {
                 'line-color': '#0ff',
                 'line-opacity': 1
             }}
+            circlePaint={{
+                'circle-color': '#0ff',
+                'circle-radius': [
+                    'match',
+                    ['geometry-type'],
+                    ['Point', 'MultiPoint'],
+                    9,
+                    0
+                ],
+                'circle-opacity': [
+                    'match',
+                    ['geometry-type'],
+                    ['Point', 'MultiPoint'],
+                    0.7,
+                    0
+                ]
+            }}
         />
     );
 }
