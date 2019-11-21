@@ -1,7 +1,8 @@
 import { routeMapConf } from './hooks';
 
 const RENDER = 'RENDER';
-export const MAP_SHOW_OVERLAY = 'MAP_SHOW_OVERLAY',
+export const MAP_READY = 'MAP_READY',
+    MAP_SHOW_OVERLAY = 'MAP_SHOW_OVERLAY',
     MAP_HIDE_OVERLAY = 'MAP_HIDE_OVERLAY',
     MAP_SET_BASEMAP = 'MAP_SET_BASEMAP',
     MAP_SET_HIGHLIGHT = 'MAP_SET_HIGHLIGHT',
@@ -17,17 +18,25 @@ export default function reducer(state = {}, action, config) {
                 conf = routeMapConf(config, routeInfo, context);
             if (routeInfo === _lastRouteInfo) {
                 return state;
-            } else if (!conf) {
-                return {};
             } else {
-                return {
-                    basemaps: reduceBasemaps(state.basemaps, conf.basemaps),
-                    overlays: reduceOverlays(state.overlays, conf.layers),
-                    bounds: conf.bounds,
-                    mapProps: conf.mapProps
-                };
+                _lastRouteInfo = routeInfo;
+                if (!conf) {
+                    return {};
+                } else {
+                    return {
+                        basemaps: reduceBasemaps(state.basemaps, conf.basemaps),
+                        overlays: reduceOverlays(state.overlays, conf.layers),
+                        bounds: conf.bounds,
+                        mapProps: conf.mapProps
+                    };
+                }
             }
         }
+        case MAP_READY:
+            return {
+                ...state,
+                instance: action.payload
+            };
         case MAP_SHOW_OVERLAY:
             return {
                 ...state,

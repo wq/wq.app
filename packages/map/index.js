@@ -3,8 +3,15 @@ import {
     useBasemapComponents,
     useOverlayComponents,
     useMapState,
+    useMapInstance,
     useGeoJSON
 } from './src/hooks';
 
 export default map;
-export { useBasemapComponents, useOverlayComponents, useMapState, useGeoJSON };
+export {
+    useBasemapComponents,
+    useOverlayComponents,
+    useMapState,
+    useMapInstance,
+    useGeoJSON
+};

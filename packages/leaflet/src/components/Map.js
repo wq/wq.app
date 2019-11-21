@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { usePlugin } from '@wq/react';
 import PropTypes from 'prop-types';
-import { Map as LMap } from 'react-leaflet';
+import { Map as LMap, useLeaflet } from 'react-leaflet';
 
-export default function Map({ bounds, children, ...props }) {
+function Ready() {
+    const { ready } = usePlugin('map') || {},
+        { map } = useLeaflet();
+    useEffect(() => {
+        ready && map && ready(map);
+    }, [ready, map]);
+    return null;
+}
+
+export default function Map({ bounds, children, mapProps }) {
     return (
         <LMap
             bounds={bounds}
             style={{ flexGrow: 1, minHeight: 200 }}
-            {...props}
+            {...mapProps}
         >
+            <Ready />
             {children}
         </LMap>
     );
@@ -16,6 +27,6 @@ export default function Map({ bounds, children, ...props }) {
 
 Map.propTypes = {
     bounds: PropTypes.array,
-    conf: PropTypes.object,
-    children: PropTypes.node
+    children: PropTypes.node,
+    mapProps: PropTypes.object
 };

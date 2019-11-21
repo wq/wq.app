@@ -8,6 +8,7 @@ import {
     OverlayToggle
 } from './components/index';
 import reducer, {
+    MAP_READY,
     MAP_SHOW_OVERLAY,
     MAP_HIDE_OVERLAY,
     MAP_SET_BASEMAP,
@@ -23,6 +24,12 @@ const map = {
         return reducer(state, action, this.config);
     },
     actions: {
+        ready(instance) {
+            return {
+                type: MAP_READY,
+                payload: instance
+            };
+        },
         setBasemap(name) {
             return {
                 type: MAP_SET_BASEMAP,
@@ -58,6 +65,7 @@ const map = {
         AutoBasemap,
         AutoOverlay,
         Map,
+        MapInteraction: () => null,
         Legend,
         BasemapToggle,
         OverlayToggle

@@ -1,4 +1,5 @@
 import Map from './components/Map';
+import MapInteraction from './components/MapInteraction';
 import Legend from './components/Legend';
 import BasemapToggle from './components/BasemapToggle';
 import OverlayToggle from './components/OverlayToggle';
@@ -10,6 +11,7 @@ import Highlight from './overlays/Highlight';
 export default {
     components: {
         Map,
+        MapInteraction,
         Legend,
         BasemapToggle,
         OverlayToggle

@@ -6,6 +6,7 @@ export default function AutoMap() {
     const state = useMapState(),
         {
             Map,
+            MapInteraction,
             AutoBasemap,
             AutoOverlay,
             Legend,
@@ -19,7 +20,8 @@ export default function AutoMap() {
     }
     const { basemaps, overlays, bounds, mapProps, highlight } = state;
     return (
-        <Map bounds={bounds} {...mapProps}>
+        <Map bounds={bounds} mapProps={mapProps}>
+            <MapInteraction />
             <Legend>
                 {basemaps.map((conf, i) => (
                     <BasemapToggle

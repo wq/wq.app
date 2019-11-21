@@ -6,7 +6,8 @@ export default function Geojson({ name, url, data, icon }) {
     let circlePaint, symbolLayout;
     if (icon) {
         symbolLayout = {
-            'icon-image': icon
+            'icon-image': icon,
+            'icon-allow-overlap': true
         };
     } else {
         circlePaint = {

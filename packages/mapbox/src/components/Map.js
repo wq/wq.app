@@ -1,26 +1,32 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { usePlugin } from '@wq/react';
 import PropTypes from 'prop-types';
 import ReactMapboxGl from 'react-mapbox-gl';
 import { useMapState } from '@wq/map';
 
-const Root = ReactMapboxGl({});
-
-export default function Map({ bounds, children, ...props }) {
-    const [[ymin, xmin], [ymax, xmax]] = bounds,
+export default function Map({ bounds, children, mapProps }) {
+    const { ready } = usePlugin('map'),
+        Root = useMemo(() => ReactMapboxGl(mapProps || {}), [mapProps]),
+        fitBounds = useMemo(() => {
+            const [[ymin, xmin], [ymax, xmax]] = bounds;
+            return [[xmin, ymin], [xmax, ymax]];
+        }, [bounds]),
         state = useMapState(),
         basemap = state && state.basemaps.filter(basemap => basemap.active)[0];
+
     let style;
     if (basemap && basemap.type === 'vector-tile') {
         style = basemap.url;
     } else {
         style = null;
     }
+
     return (
         <Root
             style={style}
-            fitBounds={[[xmin, ymin], [xmax, ymax]]}
+            fitBounds={fitBounds}
+            onStyleLoad={ready}
             containerStyle={{ flexGrow: 1, minHeight: 200 }}
-            {...props}
         >
             {children}
         </Root>
@@ -29,6 +35,6 @@ export default function Map({ bounds, children, ...props }) {
 
 Map.propTypes = {
     bounds: PropTypes.array,
-    conf: PropTypes.object,
-    children: PropTypes.node
+    children: PropTypes.node,
+    mapProps: PropTypes.object
 };

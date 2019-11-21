@@ -42,6 +42,15 @@ export function useMapState() {
     }
 }
 
+export function useMapInstance() {
+    const mapState = useMapState();
+    if (mapState) {
+        return mapState.instance;
+    } else {
+        return null;
+    }
+}
+
 export function routeMapConf(config, routeInfo, context = {}) {
     const { page, mode, path, params, item_id, item, outbox_id } = routeInfo,
         conf = config.maps[page];
