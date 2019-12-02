@@ -16,7 +16,7 @@ export default function Map({ bounds, children, mapProps }) {
     return (
         <LMap
             bounds={bounds}
-            style={{ flexGrow: 1, minHeight: 200 }}
+            style={{ flex: '1', minHeight: 200 }}
             {...mapProps}
         >
             <Ready />

@@ -26,7 +26,7 @@ export default function Map({ bounds, children, mapProps }) {
             style={style}
             fitBounds={fitBounds}
             onStyleLoad={ready}
-            containerStyle={{ flexGrow: 1, minHeight: 200 }}
+            containerStyle={{ flex: '1', minHeight: 200 }}
         >
             {children}
         </Root>

@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(() => ({
     main: {
-        flexGrow: 1,
+        flex: '1',
         overflowX: 'hidden',
         overflowY: 'auto',
         display: 'flex'
