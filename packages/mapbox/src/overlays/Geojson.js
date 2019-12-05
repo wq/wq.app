@@ -2,19 +2,45 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-export default function Geojson({ name, url, data, icon }) {
-    let circlePaint, symbolLayout;
-    if (icon) {
+export default function Geojson({ name, url, data, icon, symbol, color }) {
+    let circlePaint, linePaint, symbolLayout;
+    if (symbol) {
+        symbolLayout = symbol;
+    } else if (icon) {
         symbolLayout = {
             'icon-image': icon,
             'icon-allow-overlap': true
         };
     } else {
+        linePaint = {
+            'line-width': 3,
+            'line-color': color || '#3388ff',
+            'line-opacity': 1
+        };
         circlePaint = {
             'circle-color': 'white',
-            'circle-radius': 3,
-            'circle-stroke-color': '#3086cc',
-            'circle-stroke-width': 3
+            'circle-radius': [
+                'match',
+                ['geometry-type'],
+                ['Point', 'MultiPoint'],
+                3,
+                0
+            ],
+            'circle-stroke-color': color || '#3086cc',
+            'circle-stroke-width': [
+                'match',
+                ['geometry-type'],
+                ['Point', 'MultiPoint'],
+                3,
+                0
+            ],
+            'circle-opacity': [
+                'match',
+                ['geometry-type'],
+                ['Point', 'MultiPoint'],
+                1,
+                0
+            ]
         };
     }
     return (
@@ -22,6 +48,7 @@ export default function Geojson({ name, url, data, icon }) {
             id={name}
             data={data || url}
             circlePaint={circlePaint}
+            linePaint={linePaint}
             symbolLayout={symbolLayout}
         />
     );
@@ -32,5 +59,7 @@ Geojson.propTypes = {
     url: PropTypes.string,
     data: PropTypes.object,
     icon: PropTypes.string,
+    symbol: PropTypes.object,
+    color: PropTypes.string,
     draw: PropTypes.object
 };
