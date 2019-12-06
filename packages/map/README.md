@@ -31,9 +31,30 @@ A default map configuration can be assigned by setting `map: true` in the page c
 
 The default GeoJSON layers should work as long as your webserver is running [wq.db] or a service with a compatible [URL Structure].
 
-## Configuration
+## Installation
+
+### wq.app for PyPI
+
+```bash
+python3 -m venv venv      # create virtual env (if needed)
+. venv/bin/activate       # activate virtual env
+python3 -m pip install wq # install wq framework (wq.app, wq.db, etc.)
+# pip install wq.app      # install wq.app only
+```
+
+### @wq/app for npm
+
+```bash
+npm install @wq/map
+```
+
+## API
+
+### Initialization
 
 The map plugin requires both a global configuration and a per-page configuration for pages that need maps.
+
+### wq.app for PyPI
 
 ```javascript
 // myapp/main.js
@@ -51,6 +72,26 @@ app.init(config).then(function() {
     app.prefetchAll();
 });
 
+});
+```
+
+### @wq/app for npm
+
+```javascript
+// src/index.js
+import app from '@wq/app';
+import map from '@wq/map';
+import config from './config';
+
+// In src/config.js or in wq.db.rest registration:
+// config.map = { ... }
+// config.pages[page].map = { ... }
+
+app.use(map);
+
+app.init(config).then(function() {
+    app.jqmInit();
+    app.prefetchAll();
 });
 ```
 
@@ -112,9 +153,9 @@ config.map = {
 };
 ```
 
-If you want to keep your API token out of your version control, you can put it in a separate unversioned AMD module and/or include it in your `local_settings.py` and register it with your router (as in the [code for this website]).
+If you want to keep your API token out of your version control, you can put it in a separate unversioned JavaScript module and/or include it in your `local_settings.py` and register it with your router (as in the [code for this website]).
 
-If you have an ArcGIS license, you can integrate ESRI basemaps by loading `@wq/map/mapserv` rather than `@wq/map`.  `@wq/map/mapserv` is a variant of `@wq/map` with additional basemap types corresponding to [Esri Leaflet] layer creation functions.  For example, to register the ESRI Topograpic, Streets, and Imagery layers, you could do something like the following:
+If you have an ArcGIS license, you can integrate ESRI basemaps by loading `@wq/map:mapserv` rather than `@wq/map`.  `@wq/map:mapserv` is a variant of `@wq/map` with additional basemap types corresponding to [Esri Leaflet] layer creation functions.  For example, to register the ESRI Topograpic, Streets, and Imagery layers, you could do something like the following:
 
 ```javascript
 config.map = {
@@ -143,8 +184,10 @@ Additional basemap types (e.g. from other Leaflet plugins) can be incorporated w
 
 #### Full Example
 
+### wq.app for PyPI
+
 ```javascript
-// config.js
+// myapp/config.js
 define(['data/config'], function(config) {
 
 // (set template defaults, transitions, store)
@@ -163,10 +206,8 @@ config.map = {
 
 return config;
 });
-```
 
-```javascript
-// myapp.js
+// myapp/main.js
 
 define(['wq/app', 'wq/map', './config'],
 // to enable ESRI layers:
@@ -176,6 +217,40 @@ function(app, map, config) {
     app.use(map);
     app.init(config);
 });
+```
+
+### @wq/app for npm
+
+```javascript
+// src/config.js
+import config from './data/config';
+
+// (set template defaults, transitions, store)
+// ...
+
+// set map config defaults
+config.map = {
+    'bounds': [
+        [44.78, -93.1],
+        [45.18, -93.5]
+    ],
+    'basemaps': [
+        // custom basemap definition
+    ]
+});
+
+export default config;
+
+// src/index.js
+
+import app from '@wq/app';
+import map from '@wq/map';
+// to enable ESRI layers:
+// import {mapserv as map} from '@wq/map';
+import config from './config';
+
+app.use(map);
+app.init(config);
 ```
 
 ### Individual Map Configuration
@@ -315,12 +390,12 @@ config.pages[pagename].map = [
 ## Map Editing
 @wq/map supports editing layers via the [Leaflet.draw] plugin.  This functionality can be enabled by setting a `draw` attribute on the map's `edit` mode configuration.  The `draw` configuration will be passed on to the Leaflet draw control to enable different drawing types.
 
-The draw functionality is meant to work in close integration with [wq.db.rest] - particularly to edit [LocatedModel]s and other models with `geometry` fields.  The basic workflow is like this:
+The draw functionality is meant to work in close integration with [wq.db.rest] - particularly to edit models with `geometry` fields.  The basic workflow is like this:
 
  1. User navigates to /mymodel/1234/edit
  2. @wq/map loads /mymodel/1234/edit.geojson and displays it on a Leaflet.draw-enabled map
- 3. User makes edits, which are serialized as a `FeatureCollection` to a hidden `geometry` or `locations` field in the form (this can be customized with the `geometryField` layer configuration option).
- 4. User posts form to server, which parses and stores the geometry field, potentially splitting the geometries into multiple `Location` instances.
+ 3. User makes edits, which are serialized as a `FeatureCollection` to a hidden `geometry` field in the form (this can be customized with the `geometryField` layer configuration option).
+ 4. User posts form to server, which parses and stores the geometry field.
 
 Note that there is an asymmetry between how the geographic data is initially loaded (edit.geojson) and how it is saved (form field).  This is primarily to avoid needing to store the entire geographic dataset in offline storage.  However, there are workarounds available if offline geographic data storage is needed.
 
@@ -338,7 +413,7 @@ map.addBasemapType('tile', function(layerConf) {
 });
 ```
 
-The [@wq/map/mapserv] module provides additional examples of custom basemap types.
+The [@wq/map:mapserv] module provides additional examples of custom basemap types.
 
 ### `map.addOverlayType(name, function)`
 
@@ -353,7 +428,7 @@ map.addOverlayType('wms', function(layerConf) {
 });
 ```
 
-The [@wq/map/mapserv] module provides additional examples of custom overlay types.
+The [@wq/map:mapserv] module provides additional examples of custom overlay types.
 
 ### `map.createIcon(name, options)`
 
@@ -412,7 +487,6 @@ map.createIcon("green", {'iconUrl': "/images/green.png"});
 [wq.db]: https://wq.io/wq.db
 [REST API]: https://wq.io/docs/about-rest
 [@wq/app]: https://wq.io/docs/app-js
-[AMD]: https://wq.io/docs/amd
 [router.addRoute()]: https://wq.io/docs/router-js
 [@wq/app config object]: https://wq.io/docs/app-js
 [URL Structure]: https://wq.io/docs/url-structure
@@ -428,23 +502,25 @@ map.createIcon("green", {'iconUrl': "/images/green.png"});
 [wq.db.rest]: https://wq.io/docs/about-rest
 [leaflet.wms]: https://github.com/heigeo/leaflet.wms
 [Leaflet.draw]: https://github.com/leaflet/leaflet.draw
-[LocatedModel]: https://wq.io/docs/locate
 [Stamen Terrain]: http://maps.stamen.com/terrain/
 [MapBox]: https://mapbox.com/
 [code for this website]: https://github.com/powered-by-wq/wq.io/blob/ad35bffe1514644e0bd978b5e79275ac2c312ea1/db/content/rest.py#L63
 [Esri Leaflet]: https://esri.github.io/esri-leaflet/
-[@wq/map/mapserv]: https://github.com/wq/wq.app/blob/master/packages/map/src/mapserv.js
+[@wq/map:mapserv]: https://github.com/wq/wq.app/blob/master/packages/map/src/mapserv.js
 
-@wq/map/locate
+@wq/map:locate
 =========
 
-[@wq/map/locate]
+[@wq/map:locate]
 
-**@wq/map/locate** is a [@wq/app plugin] providing utilities for requesting the user's latitude and longitude, a common use case in many VGI, citizen science, and crowdsourcing applications.  @wq/map/locate is designed to be used together with [@wq/map].
+**@wq/map:locate** is a [@wq/app plugin] providing utilities for requesting the user's latitude and longitude, a common use case in many VGI, citizen science, and crowdsourcing applications.  @wq/map/locate is designed to be used together with [@wq/map].
 
 ## API
 
 Once registered, the locate plugin populates form `<input>`s from a Leaflet map to facilitate multiple ways of providing location information (e.g. GPS or a map click).
+
+
+### wq.app for PyPI
 
 ```javascript
 // myapp/main.js
@@ -464,6 +540,28 @@ app.init(config).then(function() {
     app.prefetchAll();
 });
 
+});
+```
+
+### @wq/app for npm
+
+```javascript
+// src/index.js
+import app from '@wq/app';
+import map, { locate } from '@wq/map';
+import config from './config';
+
+// In src/config.js or in wq.db.rest registration:
+// config.locate = { ... };
+// config.pages[page].map = { ... };
+// config.pages[page].locate = true;
+
+app.use(map);
+app.use(locate); // Should be registered after map
+
+app.init(config).then(function() {
+    app.jqmInit();
+    app.prefetchAll();
 });
 ```
 
@@ -545,6 +643,8 @@ config.locate = {
 
 #### JS
 
+### wq.app for PyPI
+
 ```javascript
 // myapp/main.js
 define(['wq/app', 'wq/map', 'wq/locate', './config'],
@@ -571,6 +671,36 @@ app.init(config).then(function() {
     app.prefetchAll();
 });
 
+});
+```
+
+### @wq/app for npm
+
+```javascript
+// src/index.js
+import app from '@wq/app';
+import map, { locate } from '@wq/map';
+import config from './config';
+
+app.use(map);
+app.use(locate);
+
+config.locate = {
+    // Custom handler for location updates
+    'onUpdate': function(loc, accuracy) {
+        if (accuracy > 1000) {
+            $('#message').html(
+                "Note: your location accuracy appears to be off by more than 1km."
+            );
+        } else {
+            $('#message').html("");
+        }
+    }
+}
+
+app.init(config).then(function() {
+    app.jqmInit();
+    app.prefetchAll();
 });
 ```
 
@@ -606,9 +736,8 @@ app.init(config).then(function() {
 >
 > When requesting the user's location in a web app, it's generally better to use `Geolocation.watchPosition()` than `Geolocation.getCurrentPosition()`, even when you only need a single point and not a GPS trace.  The reason for this is that the first result returned by the GPS may be inaccurate, and the longer the GPS is on, the more time it has to lock on to the satellites.  For this reason, @wq/map/locate continues requesting the GPS location until the user saves the form and/or navigates to another page.  This is accomplished by setting `watch: true` in the underlying call to [L.Map.locate()].
 
-[@wq/map/locate]: https://github.com/wq/wq.app/blob/master/packages/map/src/locate.js
-[@wq/app plugin]: https://wq.io/docs/app-plugins
+[@wq/map:locate]: https://github.com/wq/wq.app/blob/master/packages/map/src/locate.js
+[@wq/app plugin]: https://wq.io/docs/app-js
 [@wq/map]: https://wq.io/docs/map-js
-[AMD]: https://wq.io/docs/amd
 [L.Map.locate()]: http://leafletjs.com/reference.html#map-locate-options
 [cordova-plugin-bluetooth-geolocation]: https://github.com/heigeo/cordova-plugin-bluetooth-geolocation

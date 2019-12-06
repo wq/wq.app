@@ -1,6 +1,6 @@
 @wq/jquery-mobile
 ======================
 
-jQuery Mobile, with minor adjustments for compatibility with Webpack and Jest.
+[jQuery Mobile](https://jquerymobile.com) 1.4.5, with minor adjustments for compatibility with Webpack and Jest.
 
-(WIP)
+Intended for use with [@wq/app](https://wq.io/wq.app).

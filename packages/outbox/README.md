@@ -87,7 +87,7 @@ name | purpose
 `synced` | Whether the outbox item has been successfully saved to the server.
 `result` | If applicable, the successful response JSON returned from the server.
 `error` | If applicable, the error returned from the server or from the AJAX call when attempting to save the item.  Will be either a string or a JSON object.
-`newid` | FIXME: The server-generated identifier for the newly synced item, if applicable.  (This property is technically defined by [@wq/app], not @wq/outbox.)
+`newid` | **Removed in wq.app 1.2**.  This can be retrieved from `result.id` instead.
 
 > **Changed in wq.app 1.2:**  @wq/outbox no longer uses an internal @wq/model instance for managing unsynced records.  Instead, the underlying [Redux Offline] `outbox` state is wrapped with a model-like API.  If you have code relying on `outbox.model.load()`, change it to use `outbox.loadItems()` instead which provides an equivalent structure.
 
