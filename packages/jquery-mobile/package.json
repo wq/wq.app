@@ -24,7 +24,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "jquery": "^1.12.4"
+        "jquery": "^3.4.0"
     },
     "devDependencies": {
         "@wq/jest-env-jsdom-idb": "^0.1.1"
