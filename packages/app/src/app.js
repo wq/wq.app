@@ -125,8 +125,9 @@ app.init = function(config) {
 
     // After a form submission, sync in the background, or wait before
     // continuing?  Default is to sync in the background.
-    config.backgroundSync = config.backgroundSync || !config.noBackgroundSync;
-    config.noBackgroundSync = !config.backgroundSync;
+    if (config.backgroundSync === undefined) {
+        config.backgroundSync = true;
+    }
 
     app.config = config;
 
@@ -146,17 +147,17 @@ app.init = function(config) {
     tmpl.init(config.template);
 
     // Option to submit forms in the background rather than wait for each post
-    var seconds;
     if (config.backgroundSync) {
         if (config.backgroundSync === -1) {
             outbox.pause();
-        } else if (seconds > 1) {
+        } else if (config.backgroundSync > 1) {
             console.warn('Sync interval is now controlled by redux-offline');
         }
     }
 
     // Deprecated hooks
     const deprecated = {
+        noBackgroundSync: 'backgroundSync: false',
         postsave: 'a postsaveurl() plugin hook or a postsave page config',
         saveerror: 'an onsync() plugin hook',
         showOutboxErrors: 'an onsync() and/or run() hook',
@@ -505,7 +506,7 @@ app.postsaveurl = function(item, alreadySynced) {
             // If backgroundSync, return to list view while syncing
             postsave = modelConf.name + '_list';
         } else {
-            // If noBackgroundSync, return to the newly synced item
+            // If !backgroundSync, return to the newly synced item
             postsave = modelConf.name + '_detail';
         }
     }
@@ -578,7 +579,7 @@ app.postsaveurl = function(item, alreadySynced) {
 };
 
 // Hook for handling navigation / alerts after a submission error
-// (only used when noBackgroundSync is set)
+// (only used when !backgroundSync)
 app.saveerror = function(item, reason, $form) {
     // Save failed for some reason, perhaps due to being offline
     // (override to customize behavior, e.g. display an outbox)

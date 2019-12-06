@@ -132,7 +132,9 @@ The `debug` option enables console logging in @wq/app and the other core modules
 
 The `jqmInit` option tells `app.init()` to immediately trigger `app.jqmInit()` on startup.  The default is false, to give you a chance to register additional custom routes before initializing jQuery Mobile.
 
-The `backgroundSync` option tells @wq/app not to make the user wait for forms to be submitted to the server, and instead to handle all @wq/store syncing in the background.  If specified as a number, `backgroundSync` will set the number of seconds between sync attempts.  Setting `backgroundSync` to `true` (the default) will trigger 30 seconds between sync attempts.  It can be disabled by setting `noBackgroundSync` to `true`.  `backgroundSync` can also be enabled or disabled on a per-form basis by setting the `data-wq-background-sync` attribute.  For example, the [login.html] provided by the wq Django template sets `data-wq-background-sync` to false since it makes more sense to wait for a successful login before continuing.
+The boolean `backgroundSync` flag controls the default behavior for @wq/outbox form submissions.  When `true` (the default), form submissions are synced in the background while the user is navigated to the next screen.  When `false`, forms remain on screen until the server responds.  `backgroundSync` can also be enabled or disabled on a per-form basis by setting the `data-wq-background-sync` attribute.  For example, the [login.html] provided by the wq Django template sets `data-wq-background-sync` to false since it makes more sense to wait for a successful login before continuing.
+
+> **As of wq.app 1.2**, the `noBackgroundSync` flag is no longer supported - instead, set `backgroundSync: false`.  Also, setting `backgroundSync` to a numeric sync interval is no longer supported, as all retry logic is handled internally by Redux Offline.  See [@wq/outbox] for more information.
 
 The `loadMissingAsHtml` and  `loadMissingAsJson` options tell @wq/app what to do if the user navigates to a model instance that is not stored locally.  There are three possible outcomes in this case:
   * If the associated model page is configured with `partial: false`, @wq/app will assume the entire model collection is stored locally, assume the page does not exist, and call the `router.notFound()` 404 page.
@@ -256,7 +258,7 @@ app.nav('items/1');
 If the application supports authentication and the user is logged in, `app.user` will be set with information about the current user provided by the server.  This information will also be available in the [template context][templates], e.g. `{{#is_authenticated}}{{user.username}}{{/is_authenticated}}`.
 
 #### `app.config`, `app.wq_config`
-A copy of the @wq/app configuration object (see above) and the [wq configuration object][config], respectively.  Initially `app.config.pages` and `app.wq_config.pages` are the same, but after logging in, `app.wq_config` is overwritten with an updated wq configuration object with permissions information specific to the logged-in user.  `app.config` is made available in the [template contexts][template] as `{{app_config}}`, while `app.wq_config` is provided as `{{wq_config}}`.
+A copy of the @wq/app configuration object (see above) and the [wq configuration object][config], respectively.  Initially `app.config.pages` and `app.wq_config.pages` are the same, but after logging in, `app.wq_config` is overwritten with an updated wq configuration object with permissions information specific to the logged-in user.  `app.config` is made available in the [template contexts][templates] as `{{app_config}}`, while `app.wq_config` is provided as `{{wq_config}}`.
 
 #### `app.models`
 
@@ -281,9 +283,20 @@ Whether the application is running under [PhoneGap] / [Cordova] or as a web app 
 
 A plugin is defined as a simple object with one or more of the hooks below.  Plugins should always be registered via `app.use(plugin)` before calling `app.init()`.
 
+For example, if you wanted to provide a `{{date}}` variable for use in HTML templates, you could define the following plugin:
+
+```javascript
+var datePlugin = {
+   context: function() {
+       return {'date': new Date().toDateString()}
+   }
+}
+app.use(datePlugin);
+```
+
 ### Plugin Hooks
 
-name | provided by | purpose
+name | processed by | purpose
 -----|-------------|---------
 `name` | | Uniquely identify the plugin.  The `init` and `reducer` hooks require a name to function properly; it is optional otherwise.
 `init(config)` | @wq/app | Initialize the plugin during @wq/app initialization.  If the plugin is named `"example"`, `app.config.example` will be passed to this function.
@@ -414,13 +427,20 @@ app.use(patterns);
 app.init(config).then(...);
 ```
 
-FIXME: WIP
+This plugin provides logic for adding and removing copies of a nested form.  To use it, the edit template should contain one or more `<button>`s with `data-wq-action` and `data-wq-section` attributes.  The `data-wq-section` should match the name of the nested form and corresponding array template block (`{{#section}}{{/section}}`).
+
+data-wq-action | description
+-------|-------------
+`addattachment` | Add another nested form, by rendering a copy of the section template block.
+`removeattachment` | Remove the current nested form.
+
+An `addattachment` button is provided in the default edit templates for nested forms.
 
 ## `photos` plugin
 
 [@wq/app:photos]
 
-**@wq/app:photos** is a [@wq/app plugin] that integrates with the [PhoneGap Camera API][camera] and shows previews for user-selected photos.  Together with the file processing functions in [@wq/app] and [@wq/outbox], @wq/app:photos provides a complete solution for allowing volunteers to capture and upload photos via your offline-capable web or mobile app.  Captured photos are saved in an outbox ([@wq/outbox]) until they can be synchronized to the server.
+**@wq/app:photos** is a @wq/app plugin that integrates with the [PhoneGap Camera API][camera] and shows previews for user-selected photos.  Together with the file processing functions in [@wq/app] and [@wq/outbox], @wq/app:photos provides a complete solution for allowing volunteers to capture and upload photos via your offline-capable web or mobile app.  Captured photos are saved in an outbox ([@wq/outbox]) until they can be synchronized to the server.
 
 <div data-interactive id='photo-example'>
   <ul data-role="listview">
@@ -465,7 +485,7 @@ element | attribute | purpose
 `<button>` | `data-wq-input` | The name of a hidden input to populate with the name of the captured photo.  (The photo itself will be saved in offline storage).
 `<input type=hidden>` | `data-wq-type` | Notifies @wq/app that the hidden element is intended to be interpreted as the name of a photo captured via @wq/app:photos.  The element should typically have the `data-wq-preview` attribute set as well.
 
-The `take` and `pick` actions are wrappers for PhoneGap/Cordova's camera.getPicture() API, meant to be used in hybrid apps where <input type=file> doesn't work (e.g. on older devices or broken Android implementations).
+The `take` and `pick` actions are wrappers for PhoneGap/Cordova's camera.getPicture() API, meant to be used in hybrid apps where `<input type=file>` doesn't work (e.g. on older devices or broken Android implementations).
 
 Below is an example template with the appropriate attributes set:
 
@@ -489,14 +509,6 @@ Below is an example template with the appropriate attributes set:
 ```
 
 Note the use of the `{{#native}}` context flag which is set automatically by [@wq/app].  See the [Species Tracker template](https://github.com/powered-by-wq/species.wq.io/blob/master/templates/partials/new_photo.html) for a working example.
-
-### Browser Compatibility Notes
-@wq/app/photos, and the related file processing functions in [@wq/app] and [@wq/outbox], rely heavily on two browser features:
- - Offline storage (see Browser Compatibility Notes for [@wq/store])
- - Binary [Blob] support, including the ability to upload `Blob`s via AJAX.
-
-All modern browsers, including Internet Explorer 10, Android 4.4, and later versions, have at least [minimal blob support](https://github.com/nolanlawson/state-of-binary-data-in-the-browser).  For IE 9 and older desktop browsers, the preview functionality in @wq/app:photos will not work, but users should still be able to upload files.  @wq/app will detect the lack of `Blob` support on these browsers and fall back to a normal form post when a `<form>` containing an `<input type=file>` is encountered.  (wq.db's [ModelViewSet] includes built-in support for responding to forms posted in this way).
-
 
 [@wq/app]: https://github.com/wq/wq.app/blob/master/packages/app
 [@wq/app:spinner]: https://github.com/wq/wq.app/blob/master/packages/app/src/spinner.js
@@ -535,11 +547,8 @@ All modern browsers, including Internet Explorer 10, Android 4.4, and later vers
 [collectjson]: https://wq.io/docs/collectjson
 [build]: https://wq.io/docs/build
 
-[Blob]: https://developer.mozilla.org/en-US/docs/Web/API/Blob
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 
 [camera]: https://www.npmjs.com/package/cordova-plugin-camera
 
 [create-react-app]: https://facebook.github.io/create-react-app/
-
-[ModelViewSet]: https://wq.io/docs/views
