@@ -177,6 +177,28 @@
                     ]
                 }
             ]
+        },
+        "special": {
+            "url": "special",
+            "map": {
+                "layers": [
+                    { "name": "Empty 1", "type": "empty" },
+                    {
+                        "name": "Group 1",
+                        "type": "group",
+                        "layers": [
+                            {
+                                "type": "geojson",
+                                "url": "layer1.geojson"
+                            },
+                            {
+                                "type": "geojson",
+                                "url": "layer2.geojson"
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     },
     "map": {

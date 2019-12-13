@@ -51,6 +51,25 @@ export function useMapInstance() {
     }
 }
 
+function checkGroupLayers(layerconf) {
+    const { type, layers = [] } = layerconf;
+    if (type !== 'group') {
+        return layerconf;
+    }
+    return {
+        ...layerconf,
+        layers: layers.map((layer, i) => {
+            if (layer.name) {
+                return layer;
+            }
+            return {
+                ...layer,
+                name: `${layerconf.name}-${i}`
+            };
+        })
+    };
+}
+
 export function routeMapConf(config, routeInfo, context = {}) {
     const { page, mode, path, params, item_id, item, outbox_id } = routeInfo,
         conf = config.maps[page];
@@ -65,9 +84,10 @@ export function routeMapConf(config, routeInfo, context = {}) {
     var mapconf = {
         ...(conf.defaults.maps[mapname] || {}),
         ...((conf[mode] || { maps: {} }).maps[mapname] || {}),
-        basemaps: config.maps.basemaps,
+        basemaps: config.maps.basemaps.map(checkGroupLayers),
         bounds: config.bounds
     };
+
     if (config.mapProps) {
         mapconf.mapProps = config.mapProps;
     }
@@ -122,7 +142,7 @@ export function routeMapConf(config, routeInfo, context = {}) {
         }
         mapconf.layers.push(defaultLayer);
     }
-    mapconf.layers = mapconf.layers.map(layerconf => {
+    mapconf.layers = mapconf.layers.map(checkGroupLayers).map(layerconf => {
         // FIXME: recalculate
         const baseurl = path.replace(/\/$/, '');
         layerconf = { ...layerconf };

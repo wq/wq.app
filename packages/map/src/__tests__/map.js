@@ -278,6 +278,32 @@ test('edit map', async () => {
     result.unmount();
 });
 
+test('special layer types', async () => {
+    const { AutoMap } = map.components,
+        { Geojson } = map.config.overlays;
+
+    setRouteInfo({
+        page: 'special'
+    });
+
+    const result = renderTest(AutoMap, mockApp),
+        overlays = result.root
+            .findAllByType(Geojson)
+            .map(overlay => overlay.props);
+
+    expect(overlays).toHaveLength(2);
+    expect(overlays[0]).toEqual({
+        name: 'Group 1-0',
+        url: 'layer1.geojson'
+    });
+    expect(overlays[1]).toEqual({
+        name: 'Group 1-1',
+        url: 'layer2.geojson'
+    });
+
+    result.unmount();
+});
+
 test('toggle layers', async () => {
     setRouteInfo({
         page: 'multilayer'

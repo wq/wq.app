@@ -2,7 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-export default function Geojson({ name, url, data, icon, symbol, color }) {
+export default function Geojson({
+    name,
+    url,
+    data,
+    icon,
+    symbol,
+    color,
+    line,
+    circle
+}) {
     let circlePaint, linePaint, symbolLayout;
     if (symbol) {
         symbolLayout = symbol;
@@ -11,6 +20,10 @@ export default function Geojson({ name, url, data, icon, symbol, color }) {
             'icon-image': icon,
             'icon-allow-overlap': true
         };
+    } else if (line) {
+        linePaint = line;
+    } else if (circle) {
+        circlePaint = circle;
     } else {
         linePaint = {
             'line-width': 3,
@@ -61,5 +74,7 @@ Geojson.propTypes = {
     icon: PropTypes.string,
     symbol: PropTypes.object,
     color: PropTypes.string,
+    line: PropTypes.object,
+    circle: PropTypes.object,
     draw: PropTypes.object
 };
