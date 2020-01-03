@@ -9,22 +9,35 @@ export default function Geojson({
     icon,
     symbol,
     color,
+    fill,
     line,
     circle
 }) {
-    let circlePaint, linePaint, symbolLayout;
+    let symbolLayout, symbolPaint, fillPaint, linePaint, circlePaint;
     if (symbol) {
-        symbolLayout = symbol;
+        const { paint, ...layout } = symbol;
+        symbolLayout = layout;
+        symbolPaint = paint;
     } else if (icon) {
         symbolLayout = {
             'icon-image': icon,
             'icon-allow-overlap': true
         };
-    } else if (line) {
+    } else if (fill || line || circle) {
+        fillPaint = fill;
         linePaint = line;
-    } else if (circle) {
         circlePaint = circle;
     } else {
+        fillPaint = {
+            'fill-color': color || '#3388ff',
+            'fill-opacity': [
+                'match',
+                ['geometry-type'],
+                ['Polygon', 'MultiPolygon'],
+                0.2,
+                0
+            ]
+        };
         linePaint = {
             'line-width': 3,
             'line-color': color || '#3388ff',
@@ -60,9 +73,11 @@ export default function Geojson({
         <GeoJSONLayer
             id={name}
             data={data || url}
-            circlePaint={circlePaint}
-            linePaint={linePaint}
             symbolLayout={symbolLayout}
+            symbolPaint={symbolPaint}
+            fillPaint={fillPaint}
+            linePaint={linePaint}
+            circlePaint={circlePaint}
         />
     );
 }
@@ -74,6 +89,7 @@ Geojson.propTypes = {
     icon: PropTypes.string,
     symbol: PropTypes.object,
     color: PropTypes.string,
+    fill: PropTypes.object,
     line: PropTypes.object,
     circle: PropTypes.object,
     draw: PropTypes.object
