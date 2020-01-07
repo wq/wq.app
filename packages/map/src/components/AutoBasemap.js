@@ -7,13 +7,17 @@ export default function AutoBasemap({ type, ...conf }) {
         Basemap = basemaps[type];
 
     if (type === 'empty') {
-        return Basemap ? <Basemap /> : null;
+        return Basemap ? <Basemap active={conf.active} /> : null;
     } else if (type === 'group') {
         const Group = Basemap || React.Fragment;
         return (
             <Group>
                 {conf.layers.map(layer => (
-                    <AutoBasemap key={layer.name} {...layer} />
+                    <AutoBasemap
+                        key={layer.name}
+                        active={conf.active}
+                        {...layer}
+                    />
                 ))}
             </Group>
         );

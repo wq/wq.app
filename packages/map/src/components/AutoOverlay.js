@@ -7,13 +7,17 @@ export default function AutoOverlay({ type, ...conf }) {
         Overlay = overlays[type];
 
     if (type === 'empty') {
-        return Overlay ? <Overlay /> : null;
+        return Overlay ? <Overlay active={conf.active} /> : null;
     } else if (type === 'group') {
         const Group = Overlay || React.Fragment;
         return (
             <Group>
                 {conf.layers.map(layer => (
-                    <AutoOverlay key={layer.name} {...layer} />
+                    <AutoOverlay
+                        key={layer.name}
+                        active={conf.active}
+                        {...layer}
+                    />
                 ))}
             </Group>
         );

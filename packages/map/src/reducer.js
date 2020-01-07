@@ -84,10 +84,14 @@ export default function reducer(state = {}, action, config) {
                 highlight: action.payload
             };
         case MAP_CLEAR_HIGHLIGHT:
-            return {
-                ...state,
-                highlight: undefined
-            };
+            if (state.highlight === undefined) {
+                return state;
+            } else {
+                return {
+                    ...state,
+                    highlight: undefined
+                };
+            }
         default:
             return state;
     }

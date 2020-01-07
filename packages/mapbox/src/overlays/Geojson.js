@@ -4,6 +4,8 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 
 export default function Geojson({
     name,
+    active,
+    before,
     url,
     data,
     icon,
@@ -69,17 +71,52 @@ export default function Geojson({
             ]
         };
     }
-    return (
-        <GeoJSONLayer
-            id={name}
-            data={data || url}
-            symbolLayout={symbolLayout}
-            symbolPaint={symbolPaint}
-            fillPaint={fillPaint}
-            linePaint={linePaint}
-            circlePaint={circlePaint}
-        />
-    );
+
+    if (active !== false) {
+        // Render layer (default if active is undefined)
+        return (
+            <GeoJSONLayer
+                id={name}
+                before={before}
+                data={data || url}
+                symbolLayout={symbolLayout}
+                symbolPaint={symbolPaint}
+                fillPaint={fillPaint}
+                linePaint={linePaint}
+                circlePaint={circlePaint}
+            />
+        );
+    } else {
+        // Unstyled placeholder to preserve layer order
+        return (
+            <GeoJSONLayer
+                id={name}
+                before={before}
+                data={null}
+                symbolLayout={symbolLayout && {}}
+                symbolPaint={symbolPaint && {}}
+                fillPaint={
+                    fillPaint && {
+                        'fill-opacity': 0,
+                        'fill-color': 'white'
+                    }
+                }
+                linePaint={
+                    linePaint && {
+                        'line-opacity': 0,
+                        'line-color': 'white'
+                    }
+                }
+                circlePaint={
+                    circlePaint && {
+                        'circle-opacity': 0,
+                        'circle-color': 'white',
+                        'circle-radius': 0
+                    }
+                }
+            />
+        );
+    }
 }
 
 Geojson.propTypes = {

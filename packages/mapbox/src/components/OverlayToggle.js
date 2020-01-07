@@ -1,14 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function OverlayToggle({ active, children }) {
-    if (!active) {
-        return null;
-    }
+export default function OverlayToggle({ children }) {
     return <>{children}</>;
 }
 
 OverlayToggle.propTypes = {
-    active: PropTypes.bool,
     children: PropTypes.node
 };

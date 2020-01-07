@@ -294,10 +294,12 @@ test('special layer types', async () => {
     expect(overlays).toHaveLength(2);
     expect(overlays[0]).toEqual({
         name: 'Group 1-0',
+        active: true,
         url: 'layer1.geojson'
     });
     expect(overlays[1]).toEqual({
         name: 'Group 1-1',
+        active: true,
         url: 'layer2.geojson'
     });
 
