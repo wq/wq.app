@@ -6,6 +6,8 @@ import OverlayToggle from './components/OverlayToggle';
 
 import VectorTile from './basemaps/VectorTile';
 import Geojson from './overlays/Geojson';
+import VectorTileOverlay from './overlays/VectorTile';
+import Tile from './overlays/Tile';
 import Highlight from './overlays/Highlight';
 
 export default {
@@ -21,6 +23,8 @@ export default {
     },
     overlays: {
         Geojson,
-        Highlight
+        Highlight,
+        VectorTile: VectorTileOverlay,
+        Tile
     }
 };

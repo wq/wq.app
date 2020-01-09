@@ -15,7 +15,14 @@ export default function Geojson({
     line,
     circle
 }) {
-    let symbolLayout, symbolPaint, fillPaint, linePaint, circlePaint;
+    let symbolLayout,
+        symbolPaint,
+        fillLayout,
+        fillPaint,
+        lineLayout,
+        linePaint,
+        circleLayout,
+        circlePaint;
     if (symbol) {
         const { paint, ...layout } = symbol;
         symbolLayout = layout;
@@ -72,55 +79,39 @@ export default function Geojson({
         };
     }
 
-    if (active !== false) {
-        // Render layer (default if active is undefined)
-        return (
-            <GeoJSONLayer
-                id={name}
-                before={before}
-                data={data || url}
-                symbolLayout={symbolLayout}
-                symbolPaint={symbolPaint}
-                fillPaint={fillPaint}
-                linePaint={linePaint}
-                circlePaint={circlePaint}
-            />
-        );
+    const hidden = { visibility: 'none' };
+    if (active) {
+        fillLayout = fillPaint ? {} : hidden;
+        lineLayout = linePaint ? {} : hidden;
+        circleLayout = circlePaint ? {} : hidden;
     } else {
-        // Unstyled placeholder to preserve layer order
-        return (
-            <GeoJSONLayer
-                id={name}
-                before={before}
-                data={null}
-                symbolLayout={symbolLayout && {}}
-                symbolPaint={symbolPaint && {}}
-                fillPaint={
-                    fillPaint && {
-                        'fill-opacity': 0,
-                        'fill-color': 'white'
-                    }
-                }
-                linePaint={
-                    linePaint && {
-                        'line-opacity': 0,
-                        'line-color': 'white'
-                    }
-                }
-                circlePaint={
-                    circlePaint && {
-                        'circle-opacity': 0,
-                        'circle-color': 'white',
-                        'circle-radius': 0
-                    }
-                }
-            />
-        );
+        if (symbolLayout) {
+            symbolLayout = { ...symbolLayout, ...hidden };
+        }
+        fillLayout = lineLayout = circleLayout = hidden;
     }
+
+    return (
+        <GeoJSONLayer
+            id={name}
+            before={before}
+            data={data || url}
+            symbolLayout={symbolLayout}
+            symbolPaint={symbolPaint}
+            fillLayout={fillLayout}
+            fillPaint={fillPaint}
+            lineLayout={lineLayout}
+            linePaint={linePaint}
+            circleLayout={circleLayout}
+            circlePaint={circlePaint}
+        />
+    );
 }
 
 Geojson.propTypes = {
     name: PropTypes.string,
+    active: PropTypes.bool,
+    before: PropTypes.string,
     url: PropTypes.string,
     data: PropTypes.object,
     icon: PropTypes.string,
