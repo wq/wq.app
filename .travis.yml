@@ -26,8 +26,6 @@ matrix:
   include:
     - name: "@wq/app"
       env: PACKAGE=app
-    - name: "@wq/chart"
-      env: PACKAGE=chart
     - name: "@wq/jquery-mobile"
       env: PACKAGE=jquery-mobile
     - name: "@wq/map"

@@ -33,14 +33,14 @@ See [the documentation] for more information.
 
 ## Features
 
-wq.app's [JavaScript modules] are built on [a number of libraries] including [jQuery Mobile], [Leaflet], [d3], and [Mustache.js].  wq.app extends these libraries with:
+wq.app's [JavaScript modules] are built on [a number of libraries] including [jQuery Mobile], [Leaflet], and [Mustache.js].  wq.app extends these libraries with:
 
  * [@wq/app], a high-level application controller and configuration-driven CRUD client (optimized for use with [wq.db.rest])
  * [@wq/model], a lightweight implementation of models / collections
  * [@wq/outbox], an offline queue of `<form>` submissions for later synchronization
  * and a number of other useful utilities
 
-@wq/app can be extended with a number of plugins such as the Leaflet-powered [@wq/map] and the d3.js-powered [@wq/chart].  wq.app comes bundled with all of the required third-party JavaScript libraries.  To facilitate compact deployment, wq.app provides a Python-based [build process] for compiling wq apps: inlining templates, optimizing code (via [r.js]), and generating a native application package (via [PhoneGap Build]).
+@wq/app can be extended with a number of plugins such as the Leaflet-powered [@wq/map].  wq.app comes bundled with all of the required third-party JavaScript libraries.  To facilitate compact deployment, wq.app provides a Python-based [build process] for compiling wq apps: inlining templates, optimizing code (via [r.js]), and generating a native application package (via [PhoneGap Build]).
 
 See the notes in [Getting Started] for more information about setting up a project layout that utilizes wq.app and its bundled JavaScript libraries.
 
@@ -54,12 +54,10 @@ See the notes in [Getting Started] for more information about setting up a proje
  [r.js]: https://github.com/jrburke/r.js
  [jQuery Mobile]: http://jquerymobile.com
  [Leaflet]: http://leafletjs.com
- [d3]: http://d3js.org
  [Mustache.js]: https://mustache.github.com/
  [PhoneGap Build]: https://build.phonegap.com/
  
  [@wq/app]: https://wq.io/docs/app-js
- [@wq/chart]: https://wq.io/docs/chart-js
  [@wq/map]: https://wq.io/docs/map-js
  [@wq/model]: https://wq.io/docs/model-js
  [@wq/outbox]: https://wq.io/docs/outbox-js 
