@@ -14,6 +14,7 @@
         "@babel/plugin-proposal-class-properties": "^7.5.5",
         "@babel/plugin-transform-runtime": "^7.6.2",
         "@babel/preset-env": "^7.6.2",
+        "@wq/jest-env-jsdom-idb": "^0.1.2",
         "babel-eslint": "^10.0.3",
         "eslint": "^6.5.1",
         "eslint-plugin-jest": "^22.17.0",

@@ -28,8 +28,6 @@ matrix:
       env: PACKAGE=app
     - name: "@wq/chart"
       env: PACKAGE=chart
-    - name: "@wq/jest-env-jsdom-idb"
-      env: PACKAGE=jest-env-jsdom-idb
     - name: "@wq/jquery-mobile"
       env: PACKAGE=jquery-mobile
     - name: "@wq/map"

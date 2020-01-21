@@ -28,8 +28,5 @@
         "@wq/store": "^1.2.0-beta.1",
         "deepcopy": "^2.0.0",
         "redux-orm": "^0.13.3"
-    },
-    "devDependencies": {
-        "@wq/jest-env-jsdom-idb": "^0.1.1"
     }
 }
