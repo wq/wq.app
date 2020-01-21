@@ -406,7 +406,7 @@ app.init(config).then(function() {
 
 #### wq.app for PyPI
 
-```
+```javascript
 define(['wq/app', 'wq/patterns', './config'],
 function(app, patterns, config) {
 
@@ -418,7 +418,7 @@ app.init(config).then(...);
 
 #### @wq/app for npm
 
-```
+```javascript
 import app, { patterns } from '@wq/app';
 
 app.use(patterns);
@@ -457,7 +457,7 @@ The [Species Tracker](http://species.wq.io) application provides a complete demo
 
 #### wq.app for PyPI
 
-```
+```javascript
 define(['wq/app', 'wq/photos', './config'],
 function(app, photos, config) {
 
@@ -467,7 +467,7 @@ app.init(config).then(...);
 
 #### @wq/app for npm
 
-```
+```javascript
 import app, { photos } from '@wq/app';
 
 app.use(photos);
