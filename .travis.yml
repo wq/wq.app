@@ -30,8 +30,6 @@ matrix:
       env: PACKAGE=jquery-mobile
     - name: "@wq/map"
       env: PACKAGE=map
-    - name: "@wq/markdown"
-      env: PACKAGE=markdown
     - name: "@wq/model"
       env: PACKAGE=model
     - name: "@wq/outbox"

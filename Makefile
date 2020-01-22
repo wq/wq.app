@@ -17,7 +17,6 @@ js_wq: js_build
 	cp -p packages/map/dist/locate.js* js/wq/
 	cp -p packages/map/dist/map.js* js/wq/
 	cp -p packages/map/dist/mapserv.js* js/wq/
-	cp -p packages/markdown/dist/markdown.js* js/wq/
 	cp -p packages/model/dist/model.js* js/wq/
 	cp -p packages/outbox/dist/outbox.js* js/wq/
 	cp -p packages/app/dist/patterns.js* js/wq/
@@ -39,7 +38,6 @@ js_regenerator_runtime:
 
 js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	cp -p packages/map/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
-	cp -p packages/markdown/dist/highlight.js js/highlight.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
 	cp -p packages/jquery-mobile/dist/jquery.mobile.js js/jquery.mobile.js
 	cp -p packages/store/node_modules/redux/dist/redux.js js/redux.js
@@ -54,7 +52,6 @@ js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	sed -i "s/'exports'/'exports', 'leaflet'/" js/leaflet.markercluster.js
 	cp -p packages/map/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
 	cp -p packages/store/node_modules/localforage/dist/localforage.js js/localforage.js
-	cp -p packages/markdown/node_modules/marked/lib/marked.js js/marked.js
 	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
 	cp -p node_modules/requirejs/require.js js/require.js
 
@@ -66,7 +63,6 @@ css: init
 	cp -a packages/map/node_modules/leaflet/dist/leaflet.css css/leaflet.css
 	cp -a packages/map/node_modules/leaflet/dist/images/* css/images/
 	cat packages/map/node_modules/leaflet.markercluster/dist/*.css > css/leaflet.markercluster.css
-	cp -p packages/markdown/node_modules/highlight.js/styles/github.css css/highlight.css
 
 scss: init
 	cp -a packages/jquery-mobile/scss/* scss/wq/

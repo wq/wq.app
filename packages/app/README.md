@@ -331,7 +331,6 @@ wq.app comes with a number of predefined plugins for common use cases.  The most
 | @wq/app:photos | Helpers for requesting and displaying user photos on a mobile device |
 | [@wq/map] | Leaflet integration for displaying and editing geographic information via GeoJSON |
 | [@wq/map:locate] | Utilities for requesting the user's location |
-| [@wq/markdown] | Markdown (marked.js) and code syntax highlighting (highlight.js) integration |
 
 ### Defining a Custom Plugin
 
@@ -525,7 +524,6 @@ Note the use of the `{{#native}}` context flag which is set automatically by [@w
 
 [@wq/map]: https://wq.io/docs/map-js
 [@wq/map:locate]: https://wq.io/docs/map-js
-[@wq/markdown]: https://wq.io/docs/markdown-js
 
 [URL structure]: https://wq.io/docs/url-structure
 [auth]: https://wq.io/docs/auth
