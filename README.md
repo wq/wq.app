@@ -33,7 +33,7 @@ See [the documentation] for more information.
 
 ## Features
 
-wq.app's [JavaScript modules] are built on [a number of libraries] including [jQuery Mobile], [Leaflet], and [Mustache.js].  wq.app extends these libraries with:
+wq.app's [JavaScript modules] are built on a number of libraries including [jQuery Mobile], [Leaflet], and [Mustache.js].  wq.app extends these libraries with:
 
  * [@wq/app], a high-level application controller and configuration-driven CRUD client (optimized for use with [wq.db.rest])
  * [@wq/model], a lightweight implementation of models / collections
@@ -46,7 +46,6 @@ See the notes in [Getting Started] for more information about setting up a proje
 
  [wq framework]: https://wq.io
  [recommended project layout]: https://github.com/wq/django-wq-template
- [a number of libraries]: https://wq.io/docs/third-party
 
  [the documentation]: https://wq.io/docs/setup
  [JavaScript modules]: https://wq.io/docs/?chapter_id=app
@@ -69,5 +68,4 @@ See the notes in [Getting Started] for more information about setting up a proje
  [wq.db.rest]: https://wq.io/docs/about-rest
  [on the server or on the client]: https://wq.io/docs/templates
 
- [third-party]: https://wq.io/docs/third-party
  [Getting Started]: https://wq.io/docs/setup
