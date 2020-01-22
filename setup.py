@@ -12,14 +12,6 @@ Offline-capable HTML5 web and hybrid apps for citizen science field data collect
 class BuildJS(build_py):
     def run(self):
         subprocess.check_call(['make'])
-
-        package_data = []
-        for folder in ['js', 'css', 'scss']:
-            package_data.extend(list_package_data(folder))
-        self.package_data = {
-            'wq.app': package_data
-        }
-
         super().run()
 
 
@@ -69,6 +61,18 @@ setup(
         'wq.app': '.',
         'wq.app.build': './build',
     },
+    package_data={
+        'wq.app': [
+            'js/*',
+            'js/*/*',
+            'css/*',
+            'css/*/*',
+            'css/*/*/*',
+            'scss/*',
+            'scss/*/*',
+        ],
+    },
+    include_package_data=True,
     install_requires=[
         'wq.core',
         'pyScss>=1.3',
@@ -96,6 +100,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Text Processing :: Markup :: HTML',
         'Topic :: Scientific/Engineering :: GIS',
