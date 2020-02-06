@@ -80,7 +80,7 @@ export default function Geojson({
     }
 
     const hidden = { visibility: 'none' };
-    if (active) {
+    if (active !== false) {
         fillLayout = fillPaint ? {} : hidden;
         lineLayout = linePaint ? {} : hidden;
         circleLayout = circlePaint ? {} : hidden;

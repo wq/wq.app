@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
-export default function Tile({ name, active, url }) {
+export default function Tile({ name, active, url, layout, paint }) {
     const source = useMemo(() => {
         return {
             type: 'raster',
@@ -10,12 +10,20 @@ export default function Tile({ name, active, url }) {
         };
     }, [url]);
 
-    const layout = active ? {} : { visibility: 'none' };
+    if (active === false) {
+        layout = { ...(layout || {}), visibility: 'none' };
+    }
 
     return (
         <>
             <Source id={name} tileJsonSource={source} />
-            <Layer id={name} type="raster" sourceId={name} layout={layout} />
+            <Layer
+                id={name}
+                type="raster"
+                sourceId={name}
+                layout={layout}
+                paint={paint}
+            />
         </>
     );
 }
@@ -23,5 +31,7 @@ export default function Tile({ name, active, url }) {
 Tile.propTypes = {
     name: PropTypes.string,
     active: PropTypes.bool,
-    url: PropTypes.string
+    url: PropTypes.string,
+    layout: PropTypes.object,
+    paint: PropTypes.object
 };

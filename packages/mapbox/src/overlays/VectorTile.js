@@ -32,12 +32,18 @@ function AutoLayer({
     maxzoom: maxZoom,
     filter
 }) {
+    if (active === false) {
+        layout = {
+            ...(layout || {}),
+            visibility: 'none'
+        };
+    }
     return (
         <Layer
             before={before}
             id={id}
             type={type}
-            layout={active ? layout : { visibility: 'none', ...layout }}
+            layout={layout}
             paint={paint}
             metadata={metadata}
             sourceId={sourceId}
