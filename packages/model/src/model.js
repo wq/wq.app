@@ -16,7 +16,9 @@ const CREATE = 'CREATE',
 
 class ORMWithReducer extends ORM {
     constructor(store) {
-        super();
+        super({
+            stateSelector: state => state.orm
+        });
         this.store = store;
     }
 

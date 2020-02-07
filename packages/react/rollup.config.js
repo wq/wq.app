@@ -13,6 +13,7 @@ const external = [
     'react-redux',
     'redux-first-router',
     'redux-first-router-link',
+    'redux-orm',
     'prop-types'
 ];
 

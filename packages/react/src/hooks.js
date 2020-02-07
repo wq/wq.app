@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { createSelector } from 'redux-orm';
 import {
     pathToAction,
     getOptions,
@@ -151,6 +152,30 @@ export function useViews() {
 
 export function useApp() {
     return useContext(AppContext).app;
+}
+
+export function useModel(name, filter) {
+    const app = useApp(),
+        model = app.models[name];
+
+    if (!model) {
+        throw new Error(`Unknown model name ${name}`);
+    }
+
+    let selector;
+    if (
+        typeof filter === 'function' ||
+        (typeof filter === 'object' && !Array.isArray(filter))
+    ) {
+        selector = createSelector(
+            model.orm,
+            session => session[name].filter(filter).toRefArray()
+        );
+    } else {
+        selector = state => createSelector(model.orm[name])(state, filter);
+    }
+
+    return useSelector(selector);
 }
 
 export function usePlugin(name) {

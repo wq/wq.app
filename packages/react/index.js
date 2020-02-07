@@ -13,6 +13,7 @@ import {
     useComponents,
     useViews,
     useApp,
+    useModel,
     usePlugin,
     usePluginState,
     usePluginContent
@@ -34,6 +35,7 @@ export {
     useComponents,
     useViews,
     useApp,
+    useModel,
     usePlugin,
     usePluginState,
     usePluginContent
