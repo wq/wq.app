@@ -536,7 +536,7 @@ app.postsaveurl = function(item, alreadySynced) {
     } else if (!pconf.list) {
         url = app.base_url + '/' + pconf.url;
     } else {
-        if (pconf.modes.indexOf(mode) == -1) {
+        if (pconf.modes.concat(pconf.server_modes || []).indexOf(mode) == -1) {
             throw 'Unknown template mode!';
         }
 
