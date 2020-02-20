@@ -1,6 +1,5 @@
 import babelPlugin from 'rollup-plugin-babel';
 import { CodeGenerator } from '@babel/generator';
-import { execSync } from 'child_process';
 
 export function wqDeps(path = '.') {
     return {
@@ -33,20 +32,10 @@ export function vendorLib(path) {
     };
 }
 
-function getGitVersion() {
-    try {
-        const version = execSync('git describe --tags', { encoding: 'utf-8' });
-        return version.trim();
-    } catch (e) {
-        return 'UNKNOWN';
-    }
-}
-
 export function makeBanner(pkg, startYear) {
-    const currentYear = new Date().getFullYear(),
-        appVersion = getGitVersion();
+    const currentYear = new Date().getFullYear();
     return `/*
- * wq.app ${appVersion} - ${pkg.name} ${pkg.version}
+ * ${pkg.name} ${pkg.version}
  * ${pkg.description}
  * (c) ${startYear}-${currentYear}, S. Andrew Sheppard
  * https://wq.io/license
