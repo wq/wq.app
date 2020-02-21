@@ -136,6 +136,7 @@ export function useSpinner() {
 
 export const AppContext = React.createContext({
     components: {},
+    inputs: {},
     views: {},
     app: {
         plugins: {}
@@ -144,6 +145,10 @@ export const AppContext = React.createContext({
 
 export function useComponents() {
     return useContext(AppContext).components;
+}
+
+export function useInputs() {
+    return useContext(AppContext).inputs;
 }
 
 export function useViews() {

@@ -14,6 +14,7 @@ const external = [
     'redux-first-router',
     'redux-first-router-link',
     'redux-orm',
+    'formik',
     'prop-types'
 ];
 

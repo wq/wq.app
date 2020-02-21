@@ -23,6 +23,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
+        "formik": "^2.1.4",
         "react": "^16.12.0",
         "react-dom": "^16.12.0",
         "react-redux": "^7.1.3",

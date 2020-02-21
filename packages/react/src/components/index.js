@@ -5,6 +5,10 @@ import Footer from './Footer';
 import Spinner from './Spinner';
 
 import Link from './Link';
+import AutoForm from './AutoForm';
+import Form from './Form';
+import Button from './Button';
+import SubmitButton from './SubmitButton';
 import Breadcrumbs from './Breadcrumbs';
 import DebugContext from './DebugContext';
 
@@ -15,6 +19,10 @@ export {
     Footer,
     Spinner,
     Link,
+    AutoForm,
+    Form,
+    Button,
+    SubmitButton,
     Breadcrumbs,
     DebugContext
 };

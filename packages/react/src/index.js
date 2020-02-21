@@ -11,13 +11,22 @@ import {
     Main,
     Spinner,
     Link,
+    AutoForm,
+    Form,
+    Button,
+    SubmitButton,
     Breadcrumbs,
     DebugContext
 } from './components/index';
 
+import { Input } from './inputs/index';
+
 import {
     Index,
+    Login,
     List,
+    Detail,
+    Edit,
     Placeholder,
     Loading,
     Other,
@@ -38,20 +47,27 @@ export default {
             Main,
             Spinner,
             Link,
+            AutoForm,
+            Form,
+            Button,
+            SubmitButton,
             Breadcrumbs,
             DebugContext
+        },
+        inputs: {
+            default: Input
         },
         views: {
             // Common pages
             index: Index,
-            login: Placeholder,
+            login: Login,
             logout: Placeholder,
             outbox: Placeholder,
 
             // Generic @wq/app routes
             '*_list': List,
-            '*_detail': Placeholder,
-            '*_edit': Placeholder,
+            '*_detail': Detail,
+            '*_edit': Edit,
             '*_*': Placeholder,
             other: Other,
 
@@ -67,6 +83,9 @@ export default {
             if (plugin.views) {
                 Object.assign(this.config.views, plugin.views);
             }
+            if (plugin.inputs) {
+                Object.assign(this.config.inputs, plugin.inputs);
+            }
             if (plugin.components) {
                 Object.assign(this.config.components, plugin.components);
             }
@@ -76,6 +95,12 @@ export default {
                 config.views = {
                     ...this.config.views,
                     ...config.views
+                };
+            }
+            if (config.inputs) {
+                config.inputs = {
+                    ...this.config.inputs,
+                    ...config.inputs
                 };
             }
             if (config.components) {
@@ -95,12 +120,12 @@ export default {
     },
 
     getRootComponent() {
-        const { components, views } = this.config,
+        const { components, inputs, views } = this.config,
             { App } = components;
         const AppRoot = () => (
             <StoreProvider store={this.app.store._store}>
                 <AppContext.Provider
-                    value={{ app: this.app, components, views }}
+                    value={{ app: this.app, components, inputs, views }}
                 >
                     <App />
                 </AppContext.Provider>
@@ -123,6 +148,7 @@ export default {
             app,
             config: {
                 views: {},
+                inputs: {},
                 components: {}
             },
             getRootComponent: () => this.getRootComponent.call(tempPlugin),

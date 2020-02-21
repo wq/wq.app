@@ -1037,10 +1037,11 @@ app.submitForm = async function(kwargs) {
         options.method = 'POST';
     }
 
-    options.modelConf = conf;
-
-    if (conf.label_template) {
-        options.label = tmpl.render(conf.label_template, vals);
+    if (conf) {
+        options.modelConf = conf;
+        if (conf.label_template) {
+            options.label = tmpl.render(conf.label_template, vals);
+        }
     }
 
     options.csrftoken = app.csrftoken;
