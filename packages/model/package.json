@@ -6,7 +6,9 @@
     "module": "dist/index.es.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/model",
-        "build": "cd ../../ && npm run rollup -- -c packages/model/rollup.config.js"
+        "build": "cd ../../ && npm run rollup -- -c packages/model/rollup.config.js",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/model/{,src/,src/__tests__/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/model/{,src/,src/__tests__/}*.js"
     },
     "repository": {
         "type": "git",

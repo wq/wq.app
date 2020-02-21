@@ -8,6 +8,7 @@
         "precise-commits": "precise-commits",
         "prettier": "prettier",
         "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/__tests__/}*.js{,on}",
+        "eslint": "eslint",
         "lint": "eslint *.js packages/*/{,src/,src/__tests__/}*.js"
     },
     "devDependencies": {

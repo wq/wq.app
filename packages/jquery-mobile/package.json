@@ -6,7 +6,9 @@
     "module": "dist/index.es.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/jquery-mobile",
-        "build": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js"
+        "build": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/jquery-mobile/{,src/,src/__tests__/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/jquery-mobile/{,src/,src/__tests__/}*.js"
     },
     "repository": {
         "type": "git",
