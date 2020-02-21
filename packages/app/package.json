@@ -1,6 +1,6 @@
 {
     "name": "@wq/app",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Utilizes @wq/store and @wq/router to dynamically load and render content from a wq.db-compatible REST service",
     "main": "dist/index.js",
     "module": "dist/index.es.js",
