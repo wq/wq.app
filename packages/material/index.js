@@ -9,9 +9,15 @@ import {
     Link,
     ButtonLink,
     ListItemLink,
+    FormRoot,
+    FormActions,
+    FormError,
+    Button,
+    SubmitButton,
     Breadcrumbs,
     Pagination
 } from './src/components/index.js';
+import { Input, Select, Radio, Toggle } from './src/inputs/index.js';
 
 export default material;
 export {
@@ -24,6 +30,15 @@ export {
     Link,
     ButtonLink,
     ListItemLink,
+    FormRoot,
+    FormActions,
+    FormError,
+    Button,
+    SubmitButton,
     Breadcrumbs,
-    Pagination
+    Pagination,
+    Input,
+    Select,
+    Radio,
+    Toggle
 };

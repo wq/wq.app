@@ -6,6 +6,7 @@ import {
     getOptions,
     selectLocationState
 } from 'redux-first-router';
+import { paramCase } from 'param-case';
 
 const isAction = path => path && path.type;
 
@@ -57,7 +58,13 @@ export function useTitle() {
     }
 
     if (!title && routeInfo) {
-        title = routeInfo.name && routeInfo.name.replace('_', ' ');
+        if (routeInfo.mode === 'list') {
+            title = routeInfo.page_config.url;
+        } else if (routeInfo.variant === 'new') {
+            title = `New ${routeInfo.page}`;
+        } else {
+            title = routeInfo.page;
+        }
     }
 
     if (!title) {
@@ -100,7 +107,7 @@ export function useIndexRoute() {
 
 export function useBreadcrumbs() {
     const title = useTitle(),
-        { name, page, item_id, mode, full_path } = useRouteInfo(),
+        { name, page, page_config, item_id, mode, full_path } = useRouteInfo(),
         reverse = useReverse(),
         index = useIndexRoute();
 
@@ -115,7 +122,7 @@ export function useBreadcrumbs() {
     addLink(reverse(index), 'Home');
 
     if (item_id) {
-        addLink(reverse(`${page}_list`), `${page} list`);
+        addLink(reverse(`${page}_list`), page_config.url);
         if (mode !== 'detail') {
             addLink(reverse(`${page}_detail`, item_id), title);
             addCurrentPage(mode);
@@ -135,24 +142,22 @@ export function useSpinner() {
 }
 
 export const AppContext = React.createContext({
-    components: {},
-    inputs: {},
-    views: {},
     app: {
-        plugins: {}
+        plugins: {},
+        models: {}
     }
 });
 
 export function useComponents() {
-    return useContext(AppContext).components;
+    return usePluginComponentMap('react', 'components');
 }
 
-export function useInputs() {
-    return useContext(AppContext).inputs;
+export function useInputComponents() {
+    return usePluginComponentMap('react', 'inputs');
 }
 
-export function useViews() {
-    return useContext(AppContext).views;
+export function useViewComponents() {
+    return usePluginComponentMap('react', 'views', false);
 }
 
 export function useApp() {
@@ -188,6 +193,18 @@ export function usePlugin(name) {
     return plugins[name];
 }
 
+export function usePluginComponentMap(pluginName, mapName, updateCase = true) {
+    const componentMap = {
+        ...usePlugin(pluginName).config[mapName]
+    };
+    if (updateCase) {
+        Object.entries(componentMap).forEach(([key, val]) => {
+            componentMap[paramCase(key)] = val;
+        });
+    }
+    return componentMap;
+}
+
 export function usePluginState(name) {
     const plugin = usePlugin(name),
         pluginState = useSelector(state => state[name]);
@@ -200,7 +217,7 @@ export function usePluginState(name) {
 }
 
 export function usePluginContent() {
-    const { app } = useContext(AppContext),
+    const app = useApp(),
         components = useComponents(),
         routeInfo = useRouteInfo();
 

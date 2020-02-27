@@ -1,10 +1,16 @@
 import React from 'react';
-import { useComponents, useInputs, useReverse } from '../hooks';
+import { useComponents, useInputComponents, useReverse } from '../hooks';
 
 export default function Login() {
     const reverse = useReverse(),
-        { Form, SubmitButton, Link } = useComponents(),
-        { default: Input } = useInputs();
+        {
+            Form,
+            FormError,
+            FormActions,
+            ButtonLink,
+            SubmitButton
+        } = useComponents(),
+        { Input } = useInputComponents();
 
     return (
         <>
@@ -16,10 +22,11 @@ export default function Login() {
             >
                 <Input name="username" label="Username" />
                 <Input name="password" type="password" label="Password" />
-                <div style={{ display: 'flex' }}>
-                    <Link to={reverse('index')}>Cancel</Link>
-                    <SubmitButton>Log In</SubmitButton>
-                </div>
+                <FormError />
+                <FormActions>
+                    <ButtonLink to={reverse('index')}>Cancel</ButtonLink>
+                    <SubmitButton>Submit</SubmitButton>
+                </FormActions>
             </Form>
         </>
     );

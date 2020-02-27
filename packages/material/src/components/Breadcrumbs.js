@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Paper from '@material-ui/core/Paper';
-import UIBreadcrumbs from '@material-ui/core/Breadcrumbs';
+import MuiBreadcrumbs from '@material-ui/core/Breadcrumbs';
 import HomeIcon from '@material-ui/icons/Home';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
@@ -33,7 +33,7 @@ export default function Breadcrumbs() {
 
     return (
         <Paper elevation={0} className={classes.breadcrumbs} square>
-            <UIBreadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+            <MuiBreadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
                 {links.map(({ url, label, active }, i) => (
                     <ButtonLink
                         key={i}
@@ -43,7 +43,7 @@ export default function Breadcrumbs() {
                         {label}
                     </ButtonLink>
                 ))}
-            </UIBreadcrumbs>
+            </MuiBreadcrumbs>
         </Paper>
     );
 }

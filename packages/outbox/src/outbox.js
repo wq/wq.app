@@ -859,6 +859,7 @@ class Outbox {
                 const { data, options } = action.meta.offline.effect;
                 var item = {
                     id: options.id,
+                    label: options.label || `Unsynced Item #${options.id}`,
                     data: data,
                     options: { ...options },
                     synced: !!action.meta.success

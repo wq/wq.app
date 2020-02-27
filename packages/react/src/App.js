@@ -2,8 +2,8 @@ import React from 'react';
 import {
     useRenderContext,
     useRouteInfo,
-    useViews,
     useComponents,
+    useViewComponents,
     usePluginContent
 } from './hooks';
 
@@ -12,7 +12,7 @@ const HTML = '@@HTML'; // @wq/router
 export default function App() {
     const context = useRenderContext(),
         routeInfo = useRouteInfo(),
-        views = useViews(),
+        views = useViewComponents(),
         PluginContent = usePluginContent(),
         { Container, Header, Footer, Main, Spinner } = useComponents();
 

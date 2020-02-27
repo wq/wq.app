@@ -11,7 +11,7 @@ export default function Edit() {
         context = useRenderContext(),
         { page, variant, page_config } = useRouteInfo(),
         { form } = page_config,
-        { AutoForm, SubmitButton, Link } = useComponents();
+        { AutoForm } = useComponents();
 
     let backUrl, submitUrl, method;
 
@@ -26,11 +26,12 @@ export default function Edit() {
     }
 
     return (
-        <AutoForm action={submitUrl} method={method} data={context} form={form}>
-            <div style={{ display: 'flex' }}>
-                <Link to={backUrl}>Cancel</Link>
-                <SubmitButton>Submit</SubmitButton>
-            </div>
-        </AutoForm>
+        <AutoForm
+            action={submitUrl}
+            cancel={backUrl}
+            method={method}
+            data={context}
+            form={form}
+        />
     );
 }

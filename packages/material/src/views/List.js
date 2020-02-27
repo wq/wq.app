@@ -1,5 +1,5 @@
 import React from 'react';
-import UIList from '@material-ui/core/List';
+import MuiList from '@material-ui/core/List';
 import {
     useRenderContext,
     useRouteInfo,
@@ -15,7 +15,7 @@ export default function List() {
 
     return (
         <div>
-            <UIList>
+            <MuiList>
                 {list.map(row => (
                     <ListItemLink
                         key={row.id}
@@ -24,7 +24,7 @@ export default function List() {
                         {row.label}
                     </ListItemLink>
                 ))}
-            </UIList>
+            </MuiList>
             <Pagination />
         </div>
     );

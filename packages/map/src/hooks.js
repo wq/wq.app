@@ -4,24 +4,17 @@ import {
     usePlugin,
     usePluginState,
     useRenderContext,
-    useApp
+    useApp,
+    usePluginComponentMap
 } from '@wq/react';
 import tmpl from '@wq/template';
-import paramCase from 'param-case';
 
 export function useBasemapComponents() {
-    return paramCaseMap(usePlugin('map').config.basemaps);
+    return usePluginComponentMap('map', 'basemaps');
 }
 
 export function useOverlayComponents() {
-    return paramCaseMap(usePlugin('map').config.overlays);
-}
-
-function paramCaseMap(obj) {
-    Object.entries(obj).forEach(([key, val]) => {
-        obj[paramCase(key)] = val;
-    });
-    return obj;
+    return usePluginComponentMap('map', 'overlays');
 }
 
 // Load map configuration for the given page

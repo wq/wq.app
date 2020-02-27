@@ -1,20 +1,10 @@
 import React from 'react';
-import { useComponents, useInputs } from '../hooks';
+import { useComponents } from '../hooks';
 import PropTypes from 'prop-types';
-
-function AutoField(props) {
-    const { type } = props,
-        inputs = useInputs(),
-        Input = inputs[type] || inputs.default;
-    return <Input {...props} />;
-}
-
-AutoField.propTypes = {
-    type: PropTypes.string
-};
 
 export default function AutoForm({
     action,
+    cancel,
     method,
     storage,
     backgroundSync,
@@ -22,11 +12,21 @@ export default function AutoForm({
     data,
     children
 }) {
-    const { Form } = useComponents();
+    const {
+        AutoInput,
+        Form,
+        FormError,
+        FormActions,
+        SubmitButton,
+        ButtonLink
+    } = useComponents();
 
     const formData = {};
 
-    form.forEach(field => (formData[field.name] = data[field.name] || ''));
+    form.forEach(
+        field =>
+            (formData[field.name] = data[field.name] || defaultValue(field))
+    );
 
     return (
         <Form
@@ -37,8 +37,13 @@ export default function AutoForm({
             backgroundSync={backgroundSync}
         >
             {(form || []).map(field => (
-                <AutoField key={field.name} {...field} />
+                <AutoInput key={field.name} {...field} />
             ))}
+            <FormError />
+            <FormActions>
+                {cancel && <ButtonLink to={cancel}>Cancel</ButtonLink>}
+                <SubmitButton>Submit</SubmitButton>
+            </FormActions>
             {children}
         </Form>
     );
@@ -46,6 +51,7 @@ export default function AutoForm({
 
 AutoForm.propTypes = {
     action: PropTypes.string,
+    cancel: PropTypes.object,
     method: PropTypes.string,
     storage: PropTypes.string,
     backgroundSync: PropTypes.bool,
@@ -53,3 +59,11 @@ AutoForm.propTypes = {
     data: PropTypes.object,
     children: PropTypes.node
 };
+
+function defaultValue(field) {
+    if (field.type === 'select') {
+        return [];
+    } else {
+        return '';
+    }
+}

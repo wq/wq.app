@@ -11,15 +11,20 @@ import {
     Main,
     Spinner,
     Link,
+    ButtonLink,
     AutoForm,
+    AutoInput,
     Form,
+    FormRoot,
+    FormActions,
+    FormError,
     Button,
     SubmitButton,
     Breadcrumbs,
     DebugContext
 } from './components/index';
 
-import { Input } from './inputs/index';
+import { Input, Select, Radio, Toggle } from './inputs/index';
 
 import {
     Index,
@@ -47,15 +52,23 @@ export default {
             Main,
             Spinner,
             Link,
+            ButtonLink,
             AutoForm,
+            AutoInput,
             Form,
+            FormRoot,
+            FormActions,
+            FormError,
             Button,
             SubmitButton,
             Breadcrumbs,
             DebugContext
         },
         inputs: {
-            default: Input
+            Input,
+            Select,
+            Radio,
+            Toggle
         },
         views: {
             // Common pages
@@ -120,13 +133,12 @@ export default {
     },
 
     getRootComponent() {
-        const { components, inputs, views } = this.config,
+        const { app, config } = this,
+            { components } = config,
             { App } = components;
         const AppRoot = () => (
             <StoreProvider store={this.app.store._store}>
-                <AppContext.Provider
-                    value={{ app: this.app, components, inputs, views }}
-                >
+                <AppContext.Provider value={{ app }}>
                     <App />
                 </AppContext.Provider>
             </StoreProvider>

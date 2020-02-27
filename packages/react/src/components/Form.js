@@ -1,6 +1,6 @@
 import React from 'react';
-import { useApp } from '../hooks';
-import { Formik, Form as FormikForm } from 'formik';
+import { useApp, useComponents } from '../hooks';
+import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 
 export default function Form({
@@ -13,9 +13,17 @@ export default function Form({
     data = {},
     children
 }) {
-    const app = useApp();
+    const app = useApp(),
+        { FormRoot } = useComponents();
 
-    async function handleSubmit(values, { setSubmitting, setErrors }) {
+    if (backgroundSync === undefined) {
+        backgroundSync = app.config.backgroundSync;
+    }
+
+    async function handleSubmit(
+        values,
+        { setSubmitting, setTouched, setErrors }
+    ) {
         const has_files = false; // FIXME
 
         const [item, error] = await app.submitForm({
@@ -35,7 +43,7 @@ export default function Form({
             const errors = {};
             Object.entries(item.error).map(([key, error]) => {
                 if (!(key in values)) {
-                    key = Object.keys(values).reverse()[0];
+                    key = '__other__';
                 }
                 if (!Array.isArray(error)) {
                     error = [error];
@@ -46,6 +54,7 @@ export default function Form({
                 errors[key] = error.join('; ');
             });
             setErrors(errors);
+            setTouched(errors, false);
         }
 
         setSubmitting(false);
@@ -53,7 +62,7 @@ export default function Form({
 
     return (
         <Formik initialValues={data} onSubmit={handleSubmit}>
-            <FormikForm>{children}</FormikForm>
+            <FormRoot>{children}</FormRoot>
         </Formik>
     );
 }
