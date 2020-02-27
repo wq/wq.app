@@ -157,21 +157,26 @@ export default {
             app = this.app;
         }
         const tempPlugin = {
-            app,
+            app: {
+                ...app,
+                plugins: {...app.plugins}
+            },
             config: {
                 views: {},
                 inputs: {},
                 components: {}
             },
-            getRootComponent: () => this.getRootComponent.call(tempPlugin),
             root
         };
+
         this.init.call(tempPlugin);
+
+        tempPlugin.app.plugins.react = tempPlugin;
         tempPlugin.config.components.App = component;
 
         return {
             start: () => this.start.call(tempPlugin),
-            getRootComponent: () => tempPlugin.getRootComponent(),
+            getRootComponent: () => this.getRootComponent.call(tempPlugin),
             stop: () => ReactDOM.unmountComponentAtNode(root)
         };
     },

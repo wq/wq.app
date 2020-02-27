@@ -111,6 +111,7 @@ test('sync dependent records in order - with batchService', async () => {
         list: [
             {
                 id: 3,
+                label: 'Unsynced Item #3',
                 data: item2.data,
                 options: item2.options,
                 synced: false,
@@ -118,6 +119,7 @@ test('sync dependent records in order - with batchService', async () => {
             },
             {
                 id: 2,
+                label: 'Unsynced Item #2',
                 data: item1.data,
                 options: item1.options,
                 synced: false,
@@ -125,6 +127,7 @@ test('sync dependent records in order - with batchService', async () => {
             },
             {
                 id: 1,
+                label: 'Unsynced Item #1',
                 data: itemtype.data,
                 options: itemtype.options,
                 synced: false
@@ -185,6 +188,7 @@ test('onsync hook', async done => {
     function onsync(item) {
         expect(item).toEqual({
             id: 1,
+            label: 'Unsynced Item #1',
             synced: true,
             result: {
                 id: item.result.id,

@@ -59,6 +59,7 @@ test('form with no explicit storage', async () => {
         options: {},
         expectItem: {
             id: 1,
+            label: 'Unsynced Item #1',
             synced: false,
             data: { test: 123 },
             options: {}
@@ -82,6 +83,7 @@ test('form with storage=store', async () => {
         },
         expectItem: {
             id: 1,
+            label: 'Unsynced Item #1',
             synced: false,
             options: {
                 storage: 'store'
@@ -105,6 +107,7 @@ test('form with storage=temporary', async () => {
         },
         expectItem: {
             id: 1,
+            label: 'Unsynced Item #1',
             synced: false,
             options: {
                 storage: 'temporary',
@@ -149,6 +152,7 @@ test('handle 200 success', async () => {
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
+        label: 'Unsynced Item #1',
         synced: true,
         result: {
             id: item.result.id,
@@ -173,6 +177,7 @@ test('handle 400 error', async () => {
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
+        label: 'Unsynced Item #1',
         synced: false,
         // retryCount: 1,
         error: {
@@ -198,6 +203,7 @@ test('handle 500 error', async () => {
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
+        label: 'Unsynced Item #1',
         synced: false,
         // retryCount: 1,
         error: 'SERVER ERROR',
@@ -220,6 +226,7 @@ test('onsync hook', async done => {
     function onsync(item) {
         expect(item).toEqual({
             id: 1,
+            label: 'Unsynced Item #1',
             synced: true,
             result: {
                 id: item.result.id,
@@ -275,6 +282,7 @@ test('sync dependent records in order - with ON_SUCCESS', async () => {
         list: [
             {
                 id: 3,
+                label: 'Unsynced Item #3',
                 data: item.data,
                 options: item.options,
                 synced: false,
@@ -282,12 +290,14 @@ test('sync dependent records in order - with ON_SUCCESS', async () => {
             },
             {
                 id: 2,
+                label: 'Unsynced Item #2',
                 data: attribute.data,
                 options: attribute.options,
                 synced: false
             },
             {
                 id: 1,
+                label: 'Unsynced Item #1',
                 data: itemtype.data,
                 options: itemtype.options,
                 synced: false
@@ -434,6 +444,7 @@ test('sync dependent records in order - with IMMEDIATE', async () => {
         list: [
             {
                 id: 3,
+                label: 'Unsynced Item #3',
                 data: item.data,
                 options: item.options,
                 synced: false,
@@ -441,12 +452,14 @@ test('sync dependent records in order - with IMMEDIATE', async () => {
             },
             {
                 id: 2,
+                label: 'Unsynced Item #2',
                 data: attribute.data,
                 options: attribute.options,
                 synced: false
             },
             {
                 id: 1,
+                label: 'Unsynced Item #1',
                 data: itemtype.data,
                 options: itemtype.options,
                 synced: false

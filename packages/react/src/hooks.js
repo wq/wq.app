@@ -194,9 +194,9 @@ export function usePlugin(name) {
 }
 
 export function usePluginComponentMap(pluginName, mapName, updateCase = true) {
-    const componentMap = {
-        ...usePlugin(pluginName).config[mapName]
-    };
+    const plugin = usePlugin(pluginName) || {},
+        { config = {} } = plugin,
+        { [mapName]: componentMap = {} } = config;
     if (updateCase) {
         Object.entries(componentMap).forEach(([key, val]) => {
             componentMap[paramCase(key)] = val;
