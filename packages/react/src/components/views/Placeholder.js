@@ -1,5 +1,5 @@
 import React from 'react';
-import { useComponents } from '../hooks';
+import { useComponents } from '../../hooks';
 
 export default function Placeholder() {
     const { DebugContext } = useComponents();

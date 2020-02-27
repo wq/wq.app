@@ -24,7 +24,7 @@ import {
     DebugContext
 } from './components/index';
 
-import { Input, Select, Radio, Toggle } from './inputs/index';
+import { Input, Select, Radio, Toggle } from './components/inputs/index';
 
 import {
     Index,
@@ -37,7 +37,7 @@ import {
     Other,
     NotFound,
     Server
-} from './views/index';
+} from './components/views/index';
 
 export default {
     name: 'react',

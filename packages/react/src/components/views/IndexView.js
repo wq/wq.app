@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRenderContext, useReverse, useComponents } from '../hooks';
+import { useRenderContext, useReverse, useComponents } from '../../hooks';
 
 export default function Index() {
     const reverse = useReverse(),

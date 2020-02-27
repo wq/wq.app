@@ -1,5 +1,5 @@
 import React from 'react';
-import { useComponents, useInputComponents, useReverse } from '../hooks';
+import { useComponents, useInputComponents, useReverse } from '../../hooks';
 
 export default function Login() {
     const reverse = useReverse(),

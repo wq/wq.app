@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouteInfo, useComponents } from '../hooks';
+import { useRouteInfo, useComponents } from '../../hooks';
 
 export default function Other() {
     const { name } = useRouteInfo(),

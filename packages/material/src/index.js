@@ -16,8 +16,15 @@ import {
     Breadcrumbs,
     Pagination
 } from './components/index';
-import { Input, Select, Radio, Toggle } from './inputs/index';
-import { List, Detail, Loading, Index, Logout, Outbox } from './views/index';
+import { Input, Select, Radio, Toggle } from './components/inputs/index';
+import {
+    List,
+    Detail,
+    Loading,
+    Index,
+    Logout,
+    Outbox
+} from './components/views/index';
 
 export default {
     name: 'material',

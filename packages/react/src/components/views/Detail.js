@@ -1,5 +1,5 @@
 import React from 'react';
-import { useComponents, useRouteInfo, useReverse } from '../hooks';
+import { useComponents, useRouteInfo, useReverse } from '../../hooks';
 
 export default function Detail() {
     const reverse = useReverse(),

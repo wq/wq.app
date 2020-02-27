@@ -4,7 +4,7 @@ import {
     useRouteInfo,
     useComponents,
     useReverse
-} from '../hooks';
+} from '../../hooks';
 
 export default function List() {
     const reverse = useReverse(),

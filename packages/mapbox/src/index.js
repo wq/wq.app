@@ -1,14 +1,19 @@
-import Map from './components/Map';
-import MapInteraction from './components/MapInteraction';
-import Legend from './components/Legend';
-import BasemapToggle from './components/BasemapToggle';
-import OverlayToggle from './components/OverlayToggle';
+import {
+    Map,
+    MapInteraction,
+    Legend,
+    BasemapToggle,
+    OverlayToggle
+} from './components/index';
 
-import VectorTile from './basemaps/VectorTile';
-import Geojson from './overlays/Geojson';
-import VectorTileOverlay from './overlays/VectorTile';
-import Tile from './overlays/Tile';
-import Highlight from './overlays/Highlight';
+import { VectorTile } from './components/basemaps/index';
+
+import {
+    Geojson,
+    Highlight,
+    VectorTile as VectorTileOverlay,
+    Tile
+} from './components/overlays/index';
 
 export default {
     components: {
