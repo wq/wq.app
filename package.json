@@ -1,15 +1,16 @@
 {
     "scripts": {
         "bootstrap": "lerna bootstrap",
+        "lerna": "lerna",
         "test": "lerna run test",
         "build": "lerna run build",
         "jest": "jest --verbose",
         "rollup": "rollup",
         "precise-commits": "precise-commits",
         "prettier": "prettier",
-        "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/*/}*.js{,on}",
+        "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/*/,src/*/*/}*.js{,on}",
         "eslint": "eslint",
-        "lint": "eslint *.js packages/*/{,src/,src/*/}*.js"
+        "lint": "eslint *.js packages/*/{,src/,src/*/,src/*/*/}*.js"
     },
     "devDependencies": {
         "@babel/plugin-proposal-class-properties": "^7.5.5",

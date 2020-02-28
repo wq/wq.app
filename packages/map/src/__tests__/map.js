@@ -88,6 +88,7 @@ test('auto map config for list pages', () => {
         {
             type: 'geojson',
             name: 'item',
+            active: true,
             url: '/items.geojson',
             popup: 'item',
             cluster: true
@@ -103,6 +104,7 @@ test('auto map config for list pages', () => {
         {
             type: 'geojson',
             name: 'item',
+            active: true,
             popup: 'item',
             url: '/items/one.geojson'
         }
@@ -117,6 +119,7 @@ test('auto map config for list pages', () => {
         {
             type: 'geojson',
             name: 'item',
+            active: true,
             url: '/items/one/edit.geojson',
             flatten: true,
             draw: {
@@ -134,6 +137,7 @@ const expectedLayers = [
     {
         type: 'geojson',
         name: 'Map Test',
+        active: true,
         url: 'test.geojson'
     }
 ];
@@ -342,12 +346,14 @@ test('toggle layers', async () => {
                 name: 'Layer 3',
                 type: 'geojson',
                 url: 'layer3.geojson',
-                noAutoAdd: true,
                 active: false
             }
         ],
         bounds: [[-4, -4], [4, 4]],
-        mapProps: undefined
+        mapProps: undefined,
+        mapId: undefined,
+        highlight: null,
+        instance: null
     });
 
     map.setBasemap('Basemap 2');
@@ -386,7 +392,6 @@ test('toggle layers', async () => {
             name: 'Layer 3',
             type: 'geojson',
             url: 'layer3.geojson',
-            noAutoAdd: true,
             active: true
         }
     ]);

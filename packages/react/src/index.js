@@ -159,7 +159,7 @@ export default {
         const tempPlugin = {
             app: {
                 ...app,
-                plugins: {...app.plugins}
+                plugins: { ...app.plugins }
             },
             config: {
                 views: {},

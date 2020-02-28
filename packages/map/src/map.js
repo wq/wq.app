@@ -161,9 +161,12 @@ map.init = function(config) {
             mconf = [mconf];
         }
 
+        const { mapId } = mconf[0] || {};
+
         var mapconf = {
             name: pconf.name,
             url: pconf.url,
+            mapId,
             defaults: {
                 maps: {
                     main: {
@@ -243,7 +246,7 @@ map.run = function($page, routeInfo) {
 
 map.runComponent = function(routeInfo) {
     var mapconf = map.config.maps[routeInfo.page];
-    if (mapconf) {
+    if (mapconf && !mapconf.mapId) {
         return 'AutoMap';
     } else {
         return null;

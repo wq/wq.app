@@ -1,8 +1,9 @@
 import React from 'react';
 import { useComponents } from '@wq/react';
 import { useMapState, useOverlayComponents } from '../hooks';
+import PropTypes from 'prop-types';
 
-export default function AutoMap() {
+export default function AutoMap({ containerStyle }) {
     const state = useMapState(),
         {
             Map,
@@ -18,9 +19,15 @@ export default function AutoMap() {
     if (!state) {
         return null;
     }
+
     const { basemaps, overlays, bounds, mapProps, highlight } = state;
+
     return (
-        <Map bounds={bounds} mapProps={mapProps}>
+        <Map
+            bounds={bounds}
+            mapProps={mapProps}
+            containerStyle={containerStyle}
+        >
             <MapInteraction />
             <Legend>
                 {basemaps.map((conf, i) => (
@@ -46,6 +53,10 @@ export default function AutoMap() {
         </Map>
     );
 }
+
+AutoMap.propTypes = {
+    containerStyle: PropTypes.object
+};
 
 /*
 FIXME:

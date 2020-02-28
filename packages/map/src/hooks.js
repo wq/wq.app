@@ -138,7 +138,19 @@ export function routeMapConf(config, routeInfo, context = {}) {
     mapconf.layers = mapconf.layers.map(checkGroupLayers).map(layerconf => {
         // FIXME: recalculate
         const baseurl = path.replace(/\/$/, '');
-        layerconf = { ...layerconf };
+        layerconf = {
+            active: true,
+            ...layerconf
+        };
+
+        if (layerconf.noAutoAdd) {
+            // FIXME: Remove in 2.0
+            console.warn(
+                new Error('set active: false instead of noAutoAdd: true')
+            );
+            layerconf.active = false;
+            delete layerconf.noAutoAdd;
+        }
         if (layerconf.url && layerconf.url.indexOf('{{') > -1) {
             layerconf.url = tmpl.render(layerconf.url, {
                 id: item_id,

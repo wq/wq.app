@@ -1,3 +1,4 @@
+import map from '@wq/map';
 import { Map, Legend, BasemapToggle, OverlayToggle } from './components/index';
 import { Tile } from './components/basemaps/index';
 import { Geojson, Highlight } from './components/overlays/index';
@@ -7,6 +8,7 @@ import { LayerGroup as Group } from 'react-leaflet';
 
 export default {
     name: 'leaflet',
+    dependencies: [map],
     components: {
         Map,
         Legend,

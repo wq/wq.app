@@ -270,6 +270,19 @@ app.init = function(config) {
 
 var pcount = 0;
 app.use = function(plugin) {
+    if (Array.isArray(plugin)) {
+        plugin.forEach(p => app.use(p));
+    }
+    if (plugin.dependencies) {
+        app.use(plugin.dependencies);
+    }
+    if (app.plugins[plugin.name]) {
+        if (app.plugins[plugin.name] === plugin) {
+            return;
+        } else {
+            throw new Error(`App already has a plugin named ${plugin.name}!`);
+        }
+    }
     pcount++;
     if (!plugin.name) {
         plugin.name = 'plugin' + pcount;

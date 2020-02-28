@@ -1,3 +1,5 @@
+import map from '@wq/map';
+
 import {
     Map,
     MapInteraction,
@@ -16,6 +18,7 @@ import {
 } from './components/overlays/index';
 
 export default {
+    dependencies: [map],
     components: {
         Map,
         MapInteraction,

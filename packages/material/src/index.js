@@ -1,3 +1,4 @@
+import react from '@wq/react';
 import App from './App';
 import {
     Container,
@@ -28,6 +29,7 @@ import {
 
 export default {
     name: 'material',
+    dependencies: [react],
 
     config: {
         theme: {}

@@ -172,7 +172,7 @@
                             "name": "Layer 3",
                             "type": "geojson",
                             "url": "layer3.geojson",
-                            "noAutoAdd": true
+                            "active": false
                         }
                     ]
                 }

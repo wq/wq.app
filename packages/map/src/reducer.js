@@ -23,11 +23,16 @@ export default function reducer(state = {}, action, config) {
                 if (!conf) {
                     return {};
                 } else {
+                    const mapId = state.mapId,
+                        sameMap = mapId && mapId === conf.mapId;
                     return {
                         basemaps: reduceBasemaps(state.basemaps, conf.basemaps),
                         overlays: reduceOverlays(state.overlays, conf.layers),
                         bounds: conf.bounds,
-                        mapProps: conf.mapProps
+                        mapProps: conf.mapProps,
+                        highlight: sameMap ? state.highlight : null,
+                        instance: sameMap ? state.instance : null,
+                        mapId: conf.mapId
                     };
                 }
             }
@@ -137,10 +142,9 @@ function reduceOverlays(lastOverlays, nextOverlays) {
                 ...overlay,
                 active: true
             };
-        } else if (!overlay.noAutoAdd) {
+        } else if (overlay.active) {
             return {
-                ...overlay,
-                active: true
+                ...overlay
             };
         } else {
             return {

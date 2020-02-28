@@ -12,13 +12,14 @@ function Ready() {
     return null;
 }
 
-export default function Map({ bounds, children, mapProps }) {
+export default function Map({ bounds, children, mapProps, containerStyle }) {
+    const style = {
+        flex: '1',
+        minHeight: 200,
+        ...containerStyle
+    };
     return (
-        <LMap
-            bounds={bounds}
-            style={{ flex: '1', minHeight: 200 }}
-            {...mapProps}
-        >
+        <LMap bounds={bounds} style={style} {...mapProps}>
             <Ready />
             {children}
         </LMap>
@@ -28,5 +29,6 @@ export default function Map({ bounds, children, mapProps }) {
 Map.propTypes = {
     bounds: PropTypes.array,
     children: PropTypes.node,
-    mapProps: PropTypes.object
+    mapProps: PropTypes.object,
+    containerStyle: PropTypes.object
 };
