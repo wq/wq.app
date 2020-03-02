@@ -11,17 +11,20 @@ import {
     Main,
     Spinner,
     Link,
+    Button,
     ButtonLink,
+    Breadcrumbs,
+    DebugContext,
     AutoForm,
     AutoInput,
+    AutoSubform,
+    AutoSubformArray,
     Form,
     FormRoot,
     FormActions,
     FormError,
-    Button,
-    SubmitButton,
-    Breadcrumbs,
-    DebugContext
+    Fieldset,
+    SubmitButton
 } from './components/index';
 
 import { Input, Select, Radio, Toggle } from './components/inputs/index';
@@ -52,17 +55,21 @@ export default {
             Main,
             Spinner,
             Link,
+            Button,
             ButtonLink,
+            Breadcrumbs,
+            DebugContext,
+
             AutoForm,
             AutoInput,
+            AutoSubform,
+            AutoSubformArray,
             Form,
             FormRoot,
             FormActions,
             FormError,
-            Button,
-            SubmitButton,
-            Breadcrumbs,
-            DebugContext
+            Fieldset,
+            SubmitButton
         },
         inputs: {
             Input,

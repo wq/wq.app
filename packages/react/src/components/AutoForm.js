@@ -36,8 +36,8 @@ export default function AutoForm({
             storage={storage}
             backgroundSync={backgroundSync}
         >
-            {(form || []).map(field => (
-                <AutoInput key={field.name} {...field} />
+            {(form || []).map(({ name, children: subform, ...rest }) => (
+                <AutoInput key={name} name={name} subform={subform} {...rest} />
             ))}
             <FormError />
             <FormActions>

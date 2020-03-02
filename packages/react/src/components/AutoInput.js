@@ -1,15 +1,20 @@
 import React from 'react';
-import { useInputComponents, useRenderContext } from '../hooks';
+import { useComponents, useInputComponents, useRenderContext } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function AutoInput(props) {
     const inputs = useInputComponents(),
+        { AutoSubform, AutoSubformArray } = useComponents(),
         context = useRenderContext();
 
     let { name, choices } = props,
         type = props['wq:ForeignKey'] ? 'wq:ForeignKey' : props.type;
 
-    if (type === 'wq:ForeignKey') {
+    if (type === 'group') {
+        return <AutoSubform {...props} />;
+    } else if (type === 'repeat') {
+        return <AutoSubformArray {...props} />;
+    } else if (type === 'wq:ForeignKey') {
         let choicesFn = context[`${name}_list`];
         choices = choicesFn ? choicesFn.call(context) : [];
         choices = choices.map(({ id, label, outbox }) => ({

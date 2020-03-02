@@ -3,19 +3,22 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import Spinner from './Spinner';
-
 import Link from './Link';
+import Button from './Button';
 import ButtonLink from './ButtonLink';
+import Breadcrumbs from './Breadcrumbs';
+import DebugContext from './DebugContext';
+
 import AutoForm from './AutoForm';
 import AutoInput from './AutoInput';
+import AutoSubform from './AutoSubform';
+import AutoSubformArray from './AutoSubformArray';
 import Form from './Form';
 import FormRoot from './FormRoot';
 import FormActions from './FormActions';
 import FormError from './FormError';
-import Button from './Button';
+import Fieldset from './Fieldset';
 import SubmitButton from './SubmitButton';
-import Breadcrumbs from './Breadcrumbs';
-import DebugContext from './DebugContext';
 
 export {
     Container,
@@ -24,15 +27,18 @@ export {
     Footer,
     Spinner,
     Link,
+    Button,
     ButtonLink,
+    Breadcrumbs,
+    DebugContext,
     AutoForm,
     AutoInput,
+    AutoSubform,
+    AutoSubformArray,
     Form,
     FormRoot,
     FormActions,
     FormError,
-    Button,
-    SubmitButton,
-    Breadcrumbs,
-    DebugContext
+    Fieldset,
+    SubmitButton
 };

@@ -3,17 +3,18 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import Spinner from './Spinner';
-
 import Link from './Link';
+import Button from './Button';
 import ButtonLink from './ButtonLink';
+import Breadcrumbs from './Breadcrumbs';
+import Pagination from './Pagination';
+
 import ListItemLink from './ListItemLink';
 import FormRoot from './FormRoot';
 import FormActions from './FormActions';
 import FormError from './FormError';
-import Button from './Button';
+import Fieldset from './Fieldset';
 import SubmitButton from './SubmitButton';
-import Breadcrumbs from './Breadcrumbs';
-import Pagination from './Pagination';
 
 export {
     Container,
@@ -22,13 +23,14 @@ export {
     Footer,
     Spinner,
     Link,
+    Button,
     ButtonLink,
     ListItemLink,
+    Breadcrumbs,
+    Pagination,
     FormRoot,
     FormActions,
     FormError,
-    Button,
-    SubmitButton,
-    Breadcrumbs,
-    Pagination
+    Fieldset,
+    SubmitButton
 };

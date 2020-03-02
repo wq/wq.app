@@ -7,15 +7,16 @@ import {
     Main,
     Spinner,
     Link,
+    Button,
     ButtonLink,
     ListItemLink,
+    Breadcrumbs,
+    Pagination,
     FormRoot,
     FormActions,
     FormError,
-    Button,
-    SubmitButton,
-    Breadcrumbs,
-    Pagination
+    Fieldset,
+    SubmitButton
 } from './components/index';
 import { Input, Select, Radio, Toggle } from './components/inputs/index';
 import {
@@ -43,15 +44,17 @@ export default {
         Main,
         Spinner,
         Link,
+        Button,
         ButtonLink,
         ListItemLink,
+        Breadcrumbs,
+        Pagination,
+
         FormRoot,
         FormActions,
         FormError,
-        Button,
-        SubmitButton,
-        Breadcrumbs,
-        Pagination
+        Fieldset,
+        SubmitButton
     },
     inputs: {
         Input,
