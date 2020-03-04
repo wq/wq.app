@@ -15,8 +15,35 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
         basemap = state && state.basemaps.filter(basemap => basemap.active)[0];
 
     let style;
-    if (basemap && basemap.type === 'vector-tile') {
-        style = basemap.url;
+    if (basemap) {
+        if (basemap.type === 'vector-tile') {
+            style = basemap.url;
+        } else if (basemap.type === 'tile') {
+            const urls = [];
+            if (basemap.url.match('{s}')) {
+                (basemap.subdomains || ['a', 'b', 'c']).forEach(s =>
+                    urls.push(basemap.url.replace('{s}', s))
+                );
+            } else {
+                urls.push(basemap.url);
+            }
+            style = {
+                version: 8,
+                sources: {
+                    [basemap.name]: {
+                        type: 'raster',
+                        tiles: urls
+                    }
+                },
+                layers: [
+                    {
+                        id: basemap.name,
+                        type: 'raster',
+                        source: basemap.name
+                    }
+                ]
+            };
+        }
     } else {
         style = null;
     }

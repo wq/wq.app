@@ -7,6 +7,7 @@ import {
     BasemapToggle,
     OverlayToggle
 } from './components/index';
+import { Geo, EmbeddedGeo } from './components/inputs/index';
 import reducer, {
     MAP_READY,
     MAP_SHOW_OVERLAY,
@@ -70,6 +71,12 @@ const map = {
         BasemapToggle,
         OverlayToggle
     },
+    inputs: {
+        Geo,
+        geopoint: Geo,
+        geotrace: Geo,
+        geoshape: Geo
+    },
     config: {
         bounds: [[-4, -4], [4, 4]],
         autoZoom: {
@@ -97,11 +104,18 @@ const map = {
         },
 
         overlays: {
-            Geojson({ url }) {
-                return `GeoJSON at ${url}`;
+            Geojson({ url, data }) {
+                if (data) {
+                    return `GeoJSON ${data.type}`;
+                } else {
+                    return `GeoJSON at ${url}`;
+                }
             },
             Highlight({ data }) {
                 return `Highlight ${data.type}`;
+            },
+            Draw({ type, data }) {
+                return `Draw ${data ? data.type : type}`;
             }
         },
 
@@ -227,6 +241,7 @@ map.init = function(config) {
 map.run = function($page, routeInfo) {
     var mapconf = map.config.maps[routeInfo.page],
         mode = routeInfo.mode,
+        form = routeInfo.form,
         maps = [];
     if (!mapconf) {
         return;
@@ -239,14 +254,28 @@ map.run = function($page, routeInfo) {
     maps.forEach(mapname => {
         var divid = map.getMapId(routeInfo, mapname) + '-map',
             $div = $page.find('#' + divid);
-        const detach = reactRenderer.attach(AutoMap, $div[0], this.app);
+
+        let Component;
+        if (mode === 'edit') {
+            const fieldName = mapname === 'main' ? 'geometry' : mapname,
+                { type } = form.find(field => field.name === fieldName) || {},
+                $field = $page.find(`[name=${fieldName}]`),
+                value = routeInfo.context[fieldName],
+                setValue = data => $field.val(JSON.stringify(data));
+
+            Component = EmbeddedGeo.makeComponent({ type, value, setValue });
+        } else {
+            Component = AutoMap;
+        }
+
+        const detach = reactRenderer.attach(Component, $div[0], this.app);
         $page.on('pagehide', detach);
     });
 };
 
-map.runComponent = function(routeInfo) {
-    var mapconf = map.config.maps[routeInfo.page];
-    if (mapconf && !mapconf.mapId) {
+map.runComponent = function({ page, mode }) {
+    var mapconf = map.config.maps[page];
+    if (mapconf && mode !== 'edit' && !mapconf.mapId) {
         return 'AutoMap';
     } else {
         return null;
@@ -268,7 +297,7 @@ map.onEachFeature = function(name, callback) {
 
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
-    var cdn = '//stamen-tiles-{s}.a.ssl.fastly.net/{layer}/{z}/{x}/{y}.jpg';
+    var cdn = '//stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg';
     var attr =
         'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.';
     if (!document.location.protocol.match('http')) {
@@ -280,7 +309,6 @@ function _defaultBasemaps() {
             name: 'Stamen Terrain',
             type: 'tile',
             url: cdn,
-            layer: 'terrain',
             attribution: attr
         }
     ];

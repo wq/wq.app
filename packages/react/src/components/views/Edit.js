@@ -9,7 +9,7 @@ import {
 export default function Edit() {
     const reverse = useReverse(),
         context = useRenderContext(),
-        { page, variant, page_config } = useRouteInfo(),
+        { page, variant, page_config, outbox_id } = useRouteInfo(),
         { form } = page_config,
         { AutoForm } = useComponents();
 
@@ -30,6 +30,7 @@ export default function Edit() {
             action={submitUrl}
             cancel={backUrl}
             method={method}
+            outboxId={outbox_id}
             data={context}
             form={form}
         />

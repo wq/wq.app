@@ -157,7 +157,7 @@ export function useInputComponents() {
 }
 
 export function useViewComponents() {
-    return usePluginComponentMap('react', 'views', false);
+    return usePluginComponentMap('react', 'views');
 }
 
 export function useApp() {
@@ -193,15 +193,13 @@ export function usePlugin(name) {
     return plugins[name];
 }
 
-export function usePluginComponentMap(pluginName, mapName, updateCase = true) {
+export function usePluginComponentMap(pluginName, mapName) {
     const plugin = usePlugin(pluginName) || {},
         { config = {} } = plugin,
         { [mapName]: componentMap = {} } = config;
-    if (updateCase) {
-        Object.entries(componentMap).forEach(([key, val]) => {
-            componentMap[paramCase(key)] = val;
-        });
-    }
+    Object.entries(componentMap).forEach(([key, val]) => {
+        componentMap[paramCase(key)] = val;
+    });
     return componentMap;
 }
 

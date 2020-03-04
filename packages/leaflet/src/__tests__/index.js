@@ -1,4 +1,4 @@
-import map from '@wq/map';
+import map, { EmbeddedGeo } from '@wq/map';
 import leaflet from '../index';
 import renderTest, { nextTick } from '@wq/react/test';
 import routeConfig from './config.json';
@@ -118,8 +118,8 @@ test('list map', async () => {
 });
 
 test('edit map (leaflet.draw)', async () => {
-    const { AutoMap } = map.components,
-        { Geojson } = map.config.overlays,
+    const { Map } = leaflet.components,
+        { Draw } = map.config.overlays,
         point = {
             type: 'Point',
             coordinates: [45, -95]
@@ -133,26 +133,23 @@ test('edit map (leaflet.draw)', async () => {
             outbox_id: 1
         },
         {
-            geometry: JSON.stringify(point)
+            geometry: point
         }
     );
 
-    const result = renderTest(AutoMap, mockApp),
-        overlay = result.root.findByType(Geojson);
+    const Component = EmbeddedGeo.makeComponent({
+        type: 'geopoint',
+        value: point
+    });
 
-    expect(overlay.props).toEqual({
-        name: 'item',
-        url: '/items/123/edit.geojson',
-        draw: {
-            circle: false,
-            marker: {},
-            polygon: {},
-            polyline: {},
-            rectangle: {}
-        },
-        data: point,
-        flatten: true,
-        active: true
+    const result = renderTest(Component, mockApp),
+        overlay = result.root.findByType(Draw);
+
+    const { type, data } = overlay.props;
+    expect(type).toEqual('point');
+    expect(data).toEqual({
+        type: 'FeatureCollection',
+        features: [{ type: 'Feature', properties: {}, geometry: point }]
     });
 
     await nextTick();
@@ -162,10 +159,11 @@ test('edit map (leaflet.draw)', async () => {
 
     expect(leafletOverlay.getBounds().toBBoxString()).toEqual('45,-95,45,-95');
 
-    /* FIXME: Restore and test leaflet.draw support
-    var draw = div.getElementsByClassName('leaflet-draw');
+    const mapInst = result.root.findByType(Map),
+        container = mapInst.children[0].instance.container,
+        draw = container.getElementsByClassName('leaflet-draw');
+
     expect(draw.length).toEqual(1);
-    */
 
     result.unmount();
 });

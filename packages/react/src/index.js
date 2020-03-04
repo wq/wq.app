@@ -32,6 +32,8 @@ import { Input, Select, Radio, Toggle } from './components/inputs/index';
 import {
     Index,
     Login,
+    Logout,
+    OutboxList,
     List,
     Detail,
     Edit,
@@ -79,22 +81,22 @@ export default {
         },
         views: {
             // Common pages
-            index: Index,
-            login: Login,
-            logout: Placeholder,
-            outbox: Placeholder,
+            Index,
+            Login,
+            Logout,
+            OutboxList,
 
             // Generic @wq/app routes
             '*_list': List,
             '*_detail': Detail,
             '*_edit': Edit,
             '*_*': Placeholder,
-            other: Other,
+            Other,
 
             // Fallback views
             '404': NotFound,
-            server: Server,
-            loading: Loading
+            Server,
+            Loading
         }
     },
 

@@ -41,18 +41,22 @@ export default function Form({
 
         if (error) {
             const errors = {};
-            Object.entries(item.error).map(([key, error]) => {
-                if (!(key in values)) {
-                    key = '__other__';
-                }
-                if (!Array.isArray(error)) {
-                    error = [error];
-                }
-                if (errors[key]) {
-                    error = [error[key], ...error];
-                }
-                errors[key] = error.join('; ');
-            });
+            if (typeof item.error === 'string') {
+                errors['__other__'] = item.error;
+            } else {
+                Object.entries(item.error).map(([key, error]) => {
+                    if (!(key in values)) {
+                        key = '__other__';
+                    }
+                    if (!Array.isArray(error)) {
+                        error = [error];
+                    }
+                    if (errors[key]) {
+                        error = [error[key], ...error];
+                    }
+                    errors[key] = error.join('; ');
+                });
+            }
             setErrors(errors);
             setTouched(errors, false);
         }

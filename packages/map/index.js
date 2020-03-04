@@ -6,6 +6,7 @@ import {
     useMapInstance,
     useGeoJSON
 } from './src/hooks';
+import { EmbeddedGeo } from './src/components/inputs/index.js';
 
 export default map;
 export {
@@ -13,5 +14,6 @@ export {
     useOverlayComponents,
     useMapState,
     useMapInstance,
-    useGeoJSON
+    useGeoJSON,
+    EmbeddedGeo
 };

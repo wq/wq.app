@@ -1,6 +1,8 @@
 import Placeholder from './Placeholder';
 import Index from './IndexView';
 import Login from './Login';
+import Logout from './Logout';
+import OutboxList from './OutboxList';
 import List from './List';
 import Detail from './Detail';
 import Edit from './Edit';
@@ -13,6 +15,8 @@ export {
     Placeholder,
     Index,
     Login,
+    Logout,
+    OutboxList,
     List,
     Detail,
     Edit,

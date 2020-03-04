@@ -7,7 +7,7 @@ import {
     useApp,
     usePluginComponentMap
 } from '@wq/react';
-import tmpl from '@wq/template';
+import Mustache from 'mustache';
 
 export function useBasemapComponents() {
     return usePluginComponentMap('map', 'basemaps');
@@ -64,8 +64,8 @@ function checkGroupLayers(layerconf) {
 }
 
 export function routeMapConf(config, routeInfo, context = {}) {
-    const { page, mode, path, params, item_id, item, outbox_id } = routeInfo,
-        conf = config.maps[page];
+    const { page, mode, path, params, item_id, page_config } = routeInfo,
+        conf = config.maps[page === 'outbox' ? page_config.name : page];
 
     if (!conf) {
         return null;
@@ -103,7 +103,7 @@ export function routeMapConf(config, routeInfo, context = {}) {
     }
 
     // Compute default layer configuration for wq REST API
-    if (mapconf.autoLayers) {
+    if (mapconf.autoLayers && mode !== 'edit') {
         const defaultLayer = {
             name: mapconf.name,
             type: 'geojson'
@@ -113,19 +113,6 @@ export function routeMapConf(config, routeInfo, context = {}) {
                 url: '{{rt}}/{{{url}}}.geojson',
                 popup: page,
                 cluster: true
-            });
-        } else if (mode === 'edit') {
-            Object.assign(defaultLayer, {
-                type: 'geojson',
-                url: '{{rt}}/' + mapconf.url + '/{{{id}}}/edit.geojson',
-                flatten: true,
-                draw: {
-                    polygon: {},
-                    polyline: {},
-                    marker: {},
-                    rectangle: {},
-                    circle: false
-                }
             });
         } else {
             Object.assign(defaultLayer, {
@@ -152,10 +139,10 @@ export function routeMapConf(config, routeInfo, context = {}) {
             delete layerconf.noAutoAdd;
         }
         if (layerconf.url && layerconf.url.indexOf('{{') > -1) {
-            layerconf.url = tmpl.render(layerconf.url, {
+            layerconf.url = Mustache.render(layerconf.url, {
+                ...context,
                 id: item_id,
-                url: baseurl,
-                ...item
+                url: baseurl
             });
             if (params) {
                 const pstr = new URLSearchParams(params).toString();
@@ -166,18 +153,6 @@ export function routeMapConf(config, routeInfo, context = {}) {
                 }
             }
         }
-        if (outbox_id && layerconf.draw) {
-            const geomname = layerconf.geometryField || 'geometry',
-                geom = context[geomname];
-            if (geom) {
-                layerconf.data = JSON.parse(geom);
-            } else {
-                layerconf.data = {
-                    type: 'FeatureCollection',
-                    features: []
-                };
-            }
-        }
         return layerconf;
     });
 
@@ -186,7 +161,7 @@ export function routeMapConf(config, routeInfo, context = {}) {
 
 const _cache = {};
 
-export function useGeoJSON(url, data, asFeatureCollection) {
+export function useGeoJSON(url, data) {
     const app = useApp(),
         [geojson, setGeojson] = useState();
 
@@ -197,11 +172,11 @@ export function useGeoJSON(url, data, asFeatureCollection) {
 
     useEffect(() => {
         if (data) {
-            setGeojson(parseGeojson(data, asFeatureCollection));
+            setGeojson(data);
             return;
         }
         if (_cache[url]) {
-            setGeojson(parseGeojson(_cache[url], asFeatureCollection));
+            setGeojson(_cache[url]);
             return;
         }
         if (url.match(/\/(new)?(\/edit)?\.geojson$/)) {
@@ -215,41 +190,14 @@ export function useGeoJSON(url, data, asFeatureCollection) {
             function(data) {
                 app.spin.stop();
                 _cache[url] = data;
-                setGeojson(parseGeojson(data, asFeatureCollection));
+                setGeojson(data);
             },
             function() {
                 app.spin.stop();
                 setGeojson(null);
             }
         );
-    }, [url, data, asFeatureCollection, app]);
+    }, [url, data, app]);
 
     return geojson;
-}
-
-function parseGeojson(data, asFeatureCollection) {
-    if (!data || !data.type) {
-        return data;
-    }
-
-    if (data.type === 'GeometryCollection') {
-        data = { type: 'Feature', geometry: data };
-    }
-    if (
-        asFeatureCollection &&
-        data.type === 'Feature' &&
-        data.geometry.type === 'GeometryCollection'
-    ) {
-        // Leaflet.draw doesn't support GeometryCollection
-        data = {
-            type: 'FeatureCollection',
-            features: data.geometry.geometries.map(function(geom) {
-                return {
-                    type: 'Feature',
-                    geometry: geom
-                };
-            })
-        };
-    }
-    return data;
 }

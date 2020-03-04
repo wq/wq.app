@@ -4,7 +4,7 @@ import { useGeoJSON } from '@wq/map';
 import { GeoJSON as LGeoJSON } from 'react-leaflet';
 
 export default function Geojson(props) {
-    const { url, data, draw } = props;
+    const { url, data } = props;
     /* FIXME
     const { style } = props;
     var overlay;
@@ -20,7 +20,7 @@ export default function Geojson(props) {
     */
 
     // Load layer content as JSON
-    const geojson = useGeoJSON(url, data, !!draw);
+    const geojson = useGeoJSON(url, data);
 
     /*var options = {},
             popup,
@@ -72,6 +72,5 @@ export default function Geojson(props) {
 
 Geojson.propTypes = {
     url: PropTypes.string,
-    data: PropTypes.object,
-    draw: PropTypes.object
+    data: PropTypes.object
 };

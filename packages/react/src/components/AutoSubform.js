@@ -1,5 +1,5 @@
 import React from 'react';
-import { useComponents } from '@wq/react';
+import { useComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function AutoSubform({ name, label, subform }) {

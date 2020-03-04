@@ -1,5 +1,6 @@
 import map from '../map';
 import { routeMapConf } from '../hooks';
+import { EmbeddedGeo } from '../components/inputs';
 import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
@@ -115,22 +116,7 @@ test('auto map config for list pages', () => {
             mode: 'edit',
             item_id: 'one'
         })
-    ).toEqual([
-        {
-            type: 'geojson',
-            name: 'item',
-            active: true,
-            url: '/items/one/edit.geojson',
-            flatten: true,
-            draw: {
-                polygon: {},
-                polyline: {},
-                marker: {},
-                rectangle: {},
-                circle: false
-            }
-        }
-    ]);
+    ).toEqual([]);
 });
 
 const expectedLayers = [
@@ -242,8 +228,7 @@ test('list map', async () => {
 });
 
 test('edit map', async () => {
-    const { AutoMap } = map.components,
-        { Geojson } = map.config.overlays,
+    const { Draw } = map.config.overlays,
         point = {
             type: 'Point',
             coordinates: [45, -95]
@@ -257,26 +242,29 @@ test('edit map', async () => {
             outbox_id: 1
         },
         {
-            geometry: JSON.stringify(point)
+            geometry: point
         }
     );
 
-    const result = renderTest(AutoMap, mockApp),
-        overlay = result.root.findByType(Geojson);
+    const Component = EmbeddedGeo.makeComponent({
+        type: 'geopoint',
+        value: point
+    });
 
-    expect(overlay.props).toEqual({
-        name: 'item',
-        url: '/items/123/edit.geojson',
-        draw: {
-            circle: false,
-            marker: {},
-            polygon: {},
-            polyline: {},
-            rectangle: {}
-        },
-        data: point,
-        flatten: true,
-        active: true
+    const result = renderTest(Component, mockApp),
+        overlay = result.root.findByType(Draw);
+
+    const { type, data } = overlay.props;
+    expect(type).toEqual('point');
+    expect(data).toEqual({
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                properties: {},
+                geometry: point
+            }
+        ]
     });
 
     result.unmount();

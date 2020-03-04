@@ -1,14 +1,20 @@
 import React from 'react';
-import { useComponents } from '@wq/react';
+import { useComponents } from '../hooks';
 import { FieldArray } from 'formik';
 import PropTypes from 'prop-types';
+import { initData } from './AutoForm';
 
 export default function AutoSubformArray({ name, label, subform }) {
     const { Button, AutoSubform } = useComponents();
 
-    function SubformArray({ form: formikContext, push: addRow }) {
+    function SubformArray({ form: formikContext, push }) {
         const { values } = formikContext,
             list = values[name] || [];
+
+        function addRow() {
+            const row = initData(subform, {});
+            push(row);
+        }
 
         return (
             <div>
@@ -26,7 +32,7 @@ export default function AutoSubformArray({ name, label, subform }) {
     }
     SubformArray.propTypes = {
         form: PropTypes.object,
-        push: PropTypes.function
+        push: PropTypes.func
     };
 
     return (

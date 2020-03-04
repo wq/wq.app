@@ -130,7 +130,7 @@ function reduceBasemaps(lastBasemaps, nextBasemaps) {
 
 function reduceOverlays(lastOverlays, nextOverlays) {
     if (!nextOverlays || nextOverlays.length === 0) {
-        return;
+        return [];
     }
     const lastActive = {};
     (lastOverlays || []).forEach(overlay => {

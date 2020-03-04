@@ -3,7 +3,7 @@ import { useComponents } from '@wq/react';
 import { useMapState, useOverlayComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
-export default function AutoMap({ containerStyle }) {
+export default function AutoMap({ containerStyle, children }) {
     const state = useMapState(),
         {
             Map,
@@ -50,12 +50,14 @@ export default function AutoMap({ containerStyle }) {
                 ))}
             </Legend>
             {highlight && <Highlight data={highlight} />}
+            {children}
         </Map>
     );
 }
 
 AutoMap.propTypes = {
-    containerStyle: PropTypes.object
+    containerStyle: PropTypes.object,
+    children: PropTypes.node
 };
 
 /*

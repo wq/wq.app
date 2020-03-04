@@ -8,13 +8,14 @@ import {
     OverlayToggle
 } from './components/index';
 
-import { VectorTile } from './components/basemaps/index';
+import { VectorTile, Tile } from './components/basemaps/index';
 
 import {
     Geojson,
     Highlight,
+    Draw,
     VectorTile as VectorTileOverlay,
-    Tile
+    Tile as TileOverlay
 } from './components/overlays/index';
 
 export default {
@@ -27,12 +28,14 @@ export default {
         OverlayToggle
     },
     basemaps: {
-        VectorTile
+        VectorTile,
+        Tile
     },
     overlays: {
         Geojson,
         Highlight,
+        Draw,
         VectorTile: VectorTileOverlay,
-        Tile
+        Tile: TileOverlay
     }
 };

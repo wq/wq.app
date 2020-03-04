@@ -23,13 +23,14 @@ export default function App() {
         name = 'server';
     } else if (views[routeInfo.template]) {
         name = routeInfo.template;
+    } else if (views[routeInfo.template.replace('_', '-')]) {
+        name = routeInfo.template.replace('_', '-');
     } else if (views[routeInfo.name]) {
         name = routeInfo.name;
     } else if (routeInfo.mode) {
-        name = '*_' + routeInfo.mode;
-        if (!views[name]) {
-            name = '*_*';
-        }
+        const { page, mode } = routeInfo,
+            names = [`${page}_${mode}`, `${page}-${mode}`, `*_${mode}`, '*_*'];
+        name = names.find(name => views[name]);
     } else {
         name = 'other';
     }

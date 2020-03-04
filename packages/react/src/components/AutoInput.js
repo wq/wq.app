@@ -2,19 +2,19 @@ import React from 'react';
 import { useComponents, useInputComponents, useRenderContext } from '../hooks';
 import PropTypes from 'prop-types';
 
-export default function AutoInput(props) {
+export default function AutoInput({ name, choices, type, ...rest }) {
     const inputs = useInputComponents(),
         { AutoSubform, AutoSubformArray } = useComponents(),
         context = useRenderContext();
 
-    let { name, choices } = props,
-        type = props['wq:ForeignKey'] ? 'wq:ForeignKey' : props.type;
-
     if (type === 'group') {
-        return <AutoSubform {...props} />;
+        return <AutoSubform name={name} {...rest} />;
     } else if (type === 'repeat') {
-        return <AutoSubformArray {...props} />;
-    } else if (type === 'wq:ForeignKey') {
+        return <AutoSubformArray name={name} {...rest} />;
+    }
+
+    let inputType;
+    if (rest['wq:ForeignKey']) {
         let choicesFn = context[`${name}_list`];
         choices = choicesFn ? choicesFn.call(context) : [];
         choices = choices.map(({ id, label, outbox }) => ({
@@ -23,25 +23,27 @@ export default function AutoInput(props) {
         }));
 
         name = `${name}_id`;
-        type = 'select';
+        inputType = 'select';
     } else if (type === 'select1' || type === 'select one') {
         if (!choices) {
             choices = [];
         }
         if (choices.length < 5) {
-            type = 'toggle';
+            inputType = 'toggle';
         } else if (choices.length < 10) {
-            type = 'radio';
+            inputType = 'radio';
         } else {
-            type = 'select';
+            inputType = 'select';
         }
-    } else if (!inputs[type]) {
-        type = 'input';
+    } else if (inputs[type]) {
+        inputType = type;
+    } else {
+        inputType = 'input';
     }
 
-    const Input = inputs[type];
+    const Input = inputs[inputType];
 
-    return <Input choices={choices} {...props} />;
+    return <Input name={name} choices={choices} type={type} {...rest} />;
 }
 
 AutoInput.propTypes = {

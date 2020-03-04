@@ -207,7 +207,7 @@ app.init = function(config) {
     });
 
     // Register outbox
-    router.register('outbox', 'outbox', () => outbox.loadItems());
+    router.register('outbox', 'outbox_list', () => outbox.loadItems());
     router.register('outbox/<slug>', 'outbox_detail', _renderOutboxItem);
     router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
 
@@ -556,7 +556,7 @@ const syncRefresh = {
 
         if (resultId && (item_id === outboxSlug || parent_id === outboxSlug)) {
             router.push(full_path.replace(outboxSlug, resultId));
-        } else if (routeInfo.name === 'outbox' || routeInfo.mode === 'list') {
+        } else if (routeInfo.page === 'outbox' || routeInfo.mode === 'list') {
             router.reload();
         }
     }
@@ -667,6 +667,14 @@ function _extendRouteInfo(routeInfo) {
                 (itemid ? '_' + itemid : '') +
                 '-page';
         }
+    } else if (page === 'outbox') {
+        conf = {
+            name: 'outbox',
+            url: 'outbox',
+            page: 'outbox',
+            form: [],
+            modes: ['list', 'detail', 'edit']
+        };
     } else {
         page = routeName;
         mode = null;
@@ -968,7 +976,7 @@ function _registerOther(page) {
 async function _renderOutboxItem(ctx) {
     // Display outbox item using model-specific detail/edit view
     const { router_info: routeInfo } = ctx,
-        mode = routeInfo.page.replace(/^outbox_/, ''),
+        mode = routeInfo.mode,
         item = await outbox.loadItem(+routeInfo.slugs.slug);
 
     if (!item || !item.options || !item.options.modelConf) {
@@ -993,6 +1001,7 @@ async function _renderOutboxItem(ctx) {
         error: item.error,
         router_info: {
             ...routeInfo,
+            page_config: item.options.modelConf,
             template: template,
             outbox_id: item.id
         },
@@ -1001,7 +1010,7 @@ async function _renderOutboxItem(ctx) {
     if (id != 'new') {
         context.id = id;
     }
-    return _addLookups(page, context, false);
+    return _addLookups(page, context, mode === 'edit');
 }
 
 app.isRegistered = function(url) {

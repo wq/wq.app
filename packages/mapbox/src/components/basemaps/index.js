@@ -1,3 +1,4 @@
 import VectorTile from './VectorTile';
+import Tile from './VectorTile';
 
-export { VectorTile };
+export { VectorTile, Tile };
