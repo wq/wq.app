@@ -46,8 +46,6 @@ matrix:
       env: PACKAGE=router
     - name: "@wq/store"
       env: PACKAGE=store
-    - name: "@wq/template"
-      env: PACKAGE=template
     - name: "wq.app PyPI Package"
       language: python
       python: 3.7

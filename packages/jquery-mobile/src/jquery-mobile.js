@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
+import Mustache from 'mustache';
 import jqmInit from '../vendor/jquery-mobile';
-import tmpl from '@wq/template';
 
 const HTML = '@@HTML', // @wq/router
     RENDER = 'RENDER', // @wq/router
@@ -12,6 +12,8 @@ const jqmRenderer = {
     type: 'renderer',
 
     config: {
+        templates: {},
+        partials: {},
         injectOnce: false,
         debug: false,
         noScroll: false,
@@ -29,6 +31,9 @@ const jqmRenderer = {
                     ...this.config.transitions,
                     ...config.transitions
                 };
+            }
+            if (config.templates && config.templates.partials) {
+                config.partials = config.templates.partials;
             }
             Object.assign(this.config, config);
         }
@@ -64,6 +69,14 @@ const jqmRenderer = {
 
         // Ready to go!
         jqm.initializePage();
+    },
+
+    context(ctx, routeInfo) {
+        if (routeInfo.mode === 'edit' && routeInfo.variant === 'new') {
+            return {
+                new_attachment: true
+            };
+        }
     },
 
     thunks: {
@@ -147,7 +160,9 @@ const jqmRenderer = {
     inject(template, context, url, pageid) {
         const { $, jqm } = this;
 
-        var html = tmpl.render(template, context);
+        template = this.config.templates[template] || template;
+        var html = Mustache.render(template, context, this.config.partials);
+
         if (!html.match(/<div/)) {
             throw "No content found in template '" + template + "'!";
         }
@@ -569,7 +584,12 @@ const jqmRenderer = {
         ]);
     },
 
-    async run($page, routeInfo) {
+    run($page, routeInfo) {
+        this.runOutbox($page, routeInfo);
+        this.runPatterns($page, routeInfo);
+    },
+
+    async runOutbox($page, routeInfo) {
         const { name, outbox_id } = routeInfo,
             { outbox } = this.app;
         if (name === 'outbox_edit') {
@@ -578,6 +598,51 @@ const jqmRenderer = {
                 this._showOutboxErrors(item, $page);
             }
         }
+    },
+
+    runPatterns($page, { page, mode, context: pageContext }) {
+        const $ = this.$;
+
+        $page.find('button[data-wq-action=addattachment]').click(evt => {
+            var $button = $(evt.target),
+                section = $button.data('wq-section'),
+                count = $page.find('.section-' + section).length,
+                template = this.config.templates[
+                    page + '_' + (mode ? mode : 'edit')
+                ],
+                pattern = '{{#' + section + '}}([\\s\\S]+){{/' + section + '}}',
+                match = template && template.match(pattern),
+                context = {
+                    '@index': count,
+                    new_attachment: true
+                };
+
+            if (!match) {
+                return;
+            }
+
+            for (var key in pageContext) {
+                context[key.replace(section + '.', '')] = pageContext[key];
+            }
+            const $attachment = $(
+                Mustache.render(match[1], context, this.config.partials)
+            );
+
+            if ($attachment.is('tr')) {
+                $button.parents('tr').before($attachment);
+                $attachment.enhanceWithin();
+            } else {
+                $button.parents('li').before($attachment);
+                $attachment.enhanceWithin();
+                $button.parents('ul').listview('refresh');
+            }
+        });
+        $page.on('click', 'button[data-wq-action=removeattachment]', evt => {
+            const $button = $(evt.target),
+                section = $button.data('wq-section'),
+                $row = $button.parents('.section-' + section);
+            $row.remove();
+        });
     }
 };
 export default jqmRenderer;

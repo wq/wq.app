@@ -1,9 +1,9 @@
 import ds from '@wq/store';
 import modelModule from '@wq/model';
 import outbox from '@wq/outbox';
-import tmpl from '@wq/template';
 import router from '@wq/router';
 import spinner from './spinner';
+import Mustache from 'mustache';
 
 var app = {
     OFFLINE: 'offline',
@@ -138,9 +138,6 @@ app.init = function(config) {
     app.outbox = outbox;
     outbox.app = app;
     app.router = router;
-
-    // Initialize wq/template.js
-    tmpl.init(config.template);
 
     // Option to submit forms in the background rather than wait for each post
     if (config.backgroundSync) {
@@ -499,7 +496,7 @@ app.postsaveurl = function(item, alreadySynced) {
         } else {
             urlContext = { ...item.data, ...item.result };
         }
-        url = app.base_url + '/' + tmpl.render(postsave, urlContext);
+        url = app.base_url + '/' + Mustache.render(postsave, urlContext);
     } else if (!pconf.list) {
         url = app.base_url + '/' + pconf.url;
     } else {
@@ -1062,7 +1059,7 @@ app.submitForm = async function(kwargs) {
     if (conf) {
         options.modelConf = conf;
         if (conf.label_template) {
-            options.label = tmpl.render(conf.label_template, vals);
+            options.label = Mustache.render(conf.label_template, vals);
         }
     }
 
@@ -1499,7 +1496,7 @@ function _computeFilter(filter, context) {
         }
         values = values.map(function(value) {
             if (value && value.indexOf && value.indexOf('{{') > -1) {
-                value = tmpl.render(value, context);
+                value = Mustache.render(value, context);
                 if (value === '') {
                     return null;
                 } else if (value.match(/^\+\d+$/)) {

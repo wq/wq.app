@@ -23,12 +23,8 @@ js_wq: js_build
 	cp -p packages/material/dist/material.js* js/wq/
 	cp -p packages/model/dist/model.js* js/wq/
 	cp -p packages/outbox/dist/outbox.js* js/wq/
-	cp -p packages/app/dist/patterns.js* js/wq/
-	cp -p packages/app/dist/photos.js* js/wq/
 	cp -p packages/router/dist/router.js* js/wq/
-	cp -p packages/app/dist/spinner.js* js/wq/
 	cp -p packages/store/dist/store.js* js/wq/
-	cp -p packages/template/dist/template.js* js/wq/
 
 js_leaflet_draw:
 	echo "define(['leaflet'], function(L) {" > js/leaflet.draw.js
@@ -56,7 +52,7 @@ js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	sed -i "s/'exports'/'exports', 'leaflet'/" js/leaflet.markercluster.js
 	cp -p packages/leaflet/node_modules/leaflet.wms/dist/leaflet.wms.js js/leaflet.wms.js
 	cp -p packages/store/node_modules/localforage/dist/localforage.js js/localforage.js
-	cp -p packages/template/node_modules/mustache/mustache.js js/mustache.js
+	cp -p packages/jquery-mobile/node_modules/mustache/mustache.js js/mustache.js
 	cp -p node_modules/requirejs/require.js js/require.js
 
 css: init

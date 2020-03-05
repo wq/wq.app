@@ -3,12 +3,10 @@
  */
 
 import app from '../app';
-import patterns from '../patterns';
-import photos from '../photos';
 import router from '@wq/router';
 import routeConfig from './config.json';
 import templates from './templates.json';
-import jqmrenderer from '@wq/jquery-mobile';
+import jqmrenderer, { photos } from '@wq/jquery-mobile';
 import { encode } from '@wq/outbox/vendor/json-forms';
 import promiseFinally from 'promise.prototype.finally';
 
@@ -21,14 +19,12 @@ beforeAll(async () => {
         router: {
             base_url: '/tests'
         },
-        template: {
-            templates
-        },
         store: {
             service: 'http://localhost:8080/tests',
             defaults: { format: 'json' }
         },
         jqmrenderer: {
+            templates,
             noScroll: true
         },
         backgroundSync: -1,
@@ -42,7 +38,6 @@ beforeAll(async () => {
     };
 
     app.use(jqmrenderer);
-    app.use(patterns);
     app.use(photos);
     app.use({
         context(context, routeInfo) {

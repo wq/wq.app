@@ -26,7 +26,8 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@wq/template": "^1.2.0",
-        "jquery": "^1.12.4"
+        "jquery": "^1.12.4",
+        "localforage": "^1.7.3",
+        "mustache": "^4.0.0"
     }
 }

@@ -33,8 +33,7 @@
         "@wq/outbox": "^1.2.0",
         "@wq/router": "^1.2.0",
         "@wq/store": "^1.2.0",
-        "@wq/template": "^1.2.0",
-        "localforage": "^1.7.3"
+        "mustache": "^4.0.0"
     },
     "devDependencies": {
         "@wq/jquery-mobile": "^1.2.0",

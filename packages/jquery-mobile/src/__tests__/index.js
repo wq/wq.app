@@ -1,8 +1,7 @@
-import tmpl from '@wq/template';
 import jqmRenderer from '../jquery-mobile';
 
 beforeAll(() => {
-    tmpl.init({
+    jqmRenderer.init({
         templates: {
             test: '<html>{{>head}}<h1>{{title}}</h1></html>',
             page:
@@ -13,9 +12,7 @@ beforeAll(() => {
         },
         partials: {
             head: '<link>'
-        }
-    });
-    jqmRenderer.init({
+        },
         noScroll: true
     });
     global.jQuery = jqmRenderer.$;
