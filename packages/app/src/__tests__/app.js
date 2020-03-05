@@ -276,9 +276,9 @@ test('show outbox errors - foreground sync', async () => {
     let $page;
 
     // Submit form in foreground
+    $page = await changePage('items/new');
     await app.emptyOutbox();
     await app.outbox.pause();
-    $page = await changePage('items/new');
     $page
         .find('form')
         .attr('action', '/tests/items/error')
