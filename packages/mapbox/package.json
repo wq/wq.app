@@ -6,7 +6,9 @@
     "module": "dist/index.es.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/mapbox -- --moduleDirectories node_modules node_modules/@wq/react/node_modules",
-        "build": "cd ../../ && npm run rollup -- -c packages/mapbox/rollup.config.js"
+        "build": "cd ../../ && npm run rollup -- -c packages/mapbox/rollup.config.js",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/mapbox/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/mapbox/{,src/,src/*/,src/*/*/}*.js"
     },
     "repository": {
         "type": "git",

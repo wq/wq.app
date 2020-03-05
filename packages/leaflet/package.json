@@ -6,7 +6,9 @@
     "module": "dist/index.es.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/leaflet -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
-        "build": "cd ../../ && npm run rollup -- -c packages/leaflet/rollup.config.js"
+        "build": "cd ../../ && npm run rollup -- -c packages/leaflet/rollup.config.js",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/leaflet/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/leaflet/{,src/,src/*/,src/*/*/}*.js"
     },
     "repository": {
         "type": "git",

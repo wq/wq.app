@@ -7,8 +7,8 @@
     "scripts": {
         "test": "cd ../../ && npm run jest packages/outbox",
         "build": "cd ../../ && npm run rollup -- -c packages/outbox/rollup.config.js",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/outbox/{,src/,src/__tests__/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/outbox/{,src/,src/__tests__/}*.js"
+        "prettier": "cd ../../ && npm run prettier -- --write packages/outbox/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/outbox/{,src/,src/*/,src/*/*/}*.js"
     },
     "repository": {
         "type": "git",

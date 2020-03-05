@@ -7,8 +7,8 @@
     "scripts": {
         "test": "cd ../../ && npm run jest packages/map/ -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
         "build": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/map/{,src/,src/__tests__/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/map/{,src/,src/__tests__/}*.js"
+        "prettier": "cd ../../ && npm run prettier -- --write packages/map/{,src/,src/*,src/*/*/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/map/{,src/,src/*/,src/*/*/}*.js"
     },
     "repository": {
         "type": "git",
