@@ -69,6 +69,7 @@ config.jqmrenderer = {
 	maxwidth: 800
     }
 };
+```
 
 > Note: Rather than writing out the template object by hand, you can use the [wq collectjson] command to load HTML files from a folder.
 
