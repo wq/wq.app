@@ -13,7 +13,7 @@ import {
 
 const Value = ({ context, field }) => {
     if (field['wq:ForeignKey']) {
-        if (typeof context[field.name] === 'object') {
+        if (context[field.name] && typeof context[field.name] === 'object') {
             return context[field.name].label;
         } else {
             return (

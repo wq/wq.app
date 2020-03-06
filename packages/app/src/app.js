@@ -729,20 +729,22 @@ _register.list = function(page) {
         } else {
             parentUrl = null;
         }
-        var info = {
+        var parentInfo = {
             parent_id,
             parent_url: parentUrl,
             parent_label: pitem && pitem.label,
             parent_page: ppage,
+            parent_conf: pconf
+        };
+        parentInfo['parent_is_' + ppage] = true;
+
+        return _displayList(ctx, {
+            ...parentInfo,
             router_info: {
                 ...routeInfo,
-                parent_id,
-                parent_page: ppage,
-                parent_url: parentUrl
+                ...parentInfo
             }
-        };
-        info['parent_is_' + ppage] = true;
-        return _displayList(ctx, info);
+        });
     }
 };
 

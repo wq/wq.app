@@ -107,7 +107,17 @@ export function useIndexRoute() {
 
 export function useBreadcrumbs() {
     const title = useTitle(),
-        { name, page, page_config, item_id, mode, full_path } = useRouteInfo(),
+        {
+            name,
+            page,
+            page_config,
+            item_id,
+            mode,
+            full_path,
+            parent_id,
+            parent_label,
+            parent_conf
+        } = useRouteInfo(),
         reverse = useReverse(),
         index = useIndexRoute();
 
@@ -120,6 +130,11 @@ export function useBreadcrumbs() {
         addCurrentPage = label => addLink(full_path, label);
 
     addLink(reverse(index), 'Home');
+
+    if (parent_id && parent_conf) {
+        addLink(reverse(`${parent_conf.page}_list`), parent_conf.url);
+        addLink(reverse(`${parent_conf.page}_detail`, parent_id), parent_label);
+    }
 
     if (item_id) {
         addLink(reverse(`${page}_list`), page_config.url);
