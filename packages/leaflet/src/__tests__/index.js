@@ -108,7 +108,7 @@ test('list map', async () => {
     await nextTick();
 
     const leafletOverlay =
-        overlay.children[0].children[0].instance.leafletElement;
+        overlay.children[0].children[0].children[0].instance.leafletElement;
 
     expect(leafletOverlay.getBounds().toBBoxString()).toEqual(
         '-93.28611373901367,44.968927335931234,-93.24045181274414,44.99612540094354'

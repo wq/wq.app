@@ -88,15 +88,6 @@ const map = {
             animate: true
         },
 
-        // Defaults to simplify creation of new icons of the same dimensions
-        // as L.Icon.Default
-        icon: {
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-        },
-
         basemaps: {
             Tile({ url }) {
                 return `Tile at ${url}`;
@@ -124,19 +115,6 @@ const map = {
         }
     }
 };
-
-// References to generated map objects
-// FIXME
-/*
-map.maps = {};
-map.layers = {};
-map.basemaps = {};
-
-// References to generated icons
-map.icons = {
-    default: new L.Icon.Default()
-};
-*/
 
 // This will be called by app.init()
 map.init = function(config) {
@@ -238,6 +216,16 @@ map.init = function(config) {
 };
 
 // Plugin API
+map.runComponent = function({ page, mode }) {
+    var mapconf = map.config.maps[page];
+    if (mapconf && mode !== 'edit' && !mapconf.mapId) {
+        return 'AutoMap';
+    } else {
+        return null;
+    }
+};
+
+// FIXME: Drop this function in 2.0
 map.run = function($page, routeInfo) {
     var mapconf = map.config.maps[routeInfo.page],
         mode = routeInfo.mode,
@@ -273,28 +261,6 @@ map.run = function($page, routeInfo) {
     });
 };
 
-map.runComponent = function({ page, mode }) {
-    var mapconf = map.config.maps[page];
-    if (mapconf && mode !== 'edit' && !mapconf.mapId) {
-        return 'AutoMap';
-    } else {
-        return null;
-    }
-};
-
-// Define an icon for use by list items displayed as points
-/* FIXME:
-map.createIcon = function(name, options) {
-    options = L.extend({}, map.config.defaults.icon, options);
-    map.icons[name] = L.icon(options);
-    return map.icons[name];
-};
-
-map.onEachFeature = function(name, callback) {
-    map.onEachFeature[name] = callback;
-};
-*/
-
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
     var cdn = '//stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg';
@@ -314,6 +280,7 @@ function _defaultBasemaps() {
     ];
 }
 
+// FIXME: Drop this function in 2.0
 map.getMapId = function(routeInfo, mapname) {
     var rt = routeInfo,
         parts = [];
@@ -333,23 +300,5 @@ map.getMapId = function(routeInfo, mapname) {
     }
     return parts.join('-');
 };
-
-/*
-   FIXME
-map.getMap = function(routeInfo, mapname) {
-    var mapid = map.getMapId(routeInfo, mapname);
-    return map.maps[mapid] || null;
-};
-
-map.getLayers = function(routeInfo, mapname) {
-    var mapid = map.getMapId(routeInfo, mapname);
-    return map.layers[mapid] || null;
-};
-
-map.getBasemaps = function(routeInfo, mapname) {
-    var mapid = map.getMapId(routeInfo, mapname);
-    return map.basemaps[mapid] || null;
-};
-*/
 
 export default map;

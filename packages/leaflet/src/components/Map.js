@@ -18,8 +18,9 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
         minHeight: 200,
         ...containerStyle
     };
+    const maxZoom = (mapProps && mapProps.maxZoom) || 18;
     return (
-        <LMap bounds={bounds} style={style} {...mapProps}>
+        <LMap bounds={bounds} style={style} maxZoom={maxZoom} {...mapProps}>
             <Ready />
             {children}
         </LMap>

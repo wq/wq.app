@@ -36,6 +36,7 @@
         "leaflet.wms": "^0.2.0",
         "mustache": "^4.0.0",
         "react-leaflet": "^2.5.0",
-        "react-leaflet-draw": "^0.19.0"
+        "react-leaflet-draw": "^0.19.0",
+        "react-leaflet-markercluster": "^2.0.0-rc3"
     }
 }

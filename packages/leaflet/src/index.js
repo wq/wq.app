@@ -3,12 +3,40 @@ import { Map, Legend, BasemapToggle, OverlayToggle } from './components/index';
 import { Tile } from './components/basemaps/index';
 import { Geojson, Highlight, Draw } from './components/overlays/index';
 import { LayerGroup as Group } from 'react-leaflet';
+import L from 'leaflet';
 
 // import 'leaflet/dist/leaflet.css';
 
 export default {
     name: 'leaflet',
     dependencies: [map],
+    config: {
+        popups: {},
+        defaults: {
+            // Defaults to simplify creation of new icons of the same dimensions
+            // as L.Icon.Default
+            icon: {
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            }
+        }
+    },
+    init(config) {
+        if (config) {
+            this.config = { ...this.config, ...config };
+        }
+    },
+    icons: {
+        default: new L.Icon.Default()
+    },
+    createIcon(name, options) {
+        return (this.icons[name] = L.icon({
+            ...this.config.defaults.icon,
+            ...options
+        }));
+    },
     components: {
         Map,
         Legend,
