@@ -126,10 +126,3 @@ function MarkerCluster({ clusterIcon, ...rest }) {
 MarkerCluster.propTypes = {
     clusterIcon: PropTypes.oneOfType([PropTypes.string, PropTypes.func])
 };
-
-function LMarkerCluster({ children }) {
-    return <>{children}</>;
-}
-LMarkerCluster.propTypes = {
-    children: PropTypes.node
-};

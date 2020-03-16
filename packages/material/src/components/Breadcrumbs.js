@@ -38,7 +38,7 @@ export default function Breadcrumbs() {
                     <ButtonLink
                         key={i}
                         to={url}
-                        color={active ? 'textPrimary' : 'inherit'}
+                        color={active ? 'inherit' : 'primary'}
                     >
                         {label}
                     </ButtonLink>
