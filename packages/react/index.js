@@ -3,9 +3,11 @@ import App from './src/App';
 import Link from './src/components/Link';
 import FormError from './src/components/FormError';
 import {
+    useRoutesMap,
     useNav,
     useRenderContext,
     useRouteInfo,
+    getTitle,
     useTitle,
     useReverse,
     useIndexRoute,
@@ -28,9 +30,11 @@ export {
     App,
     Link,
     FormError,
+    useRoutesMap,
     useNav,
     useRenderContext,
     useRouteInfo,
+    getTitle,
     useTitle,
     useReverse,
     useIndexRoute,

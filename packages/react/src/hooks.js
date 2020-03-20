@@ -10,9 +10,13 @@ import { paramCase } from 'param-case';
 
 const isAction = path => path && path.type;
 
+export function useRoutesMap() {
+    return useSelector(state => selectLocationState(state).routesMap);
+}
+
 export function useNav() {
     const dispatch = useDispatch(),
-        routesMap = useSelector(state => selectLocationState(state).routesMap),
+        routesMap = useRoutesMap(),
         { querySerializer } = getOptions();
     return useCallback(
         path => {
@@ -25,14 +29,25 @@ export function useNav() {
     );
 }
 
+export const RouteContext = React.createContext({
+    name: '@@CURRENT'
+});
+
+function useCurrentRoute() {
+    return useContext(RouteContext).name;
+}
+
 export function useRenderContext() {
-    const context = useSelector(state => state.context);
-    return context;
+    const context = useSelector(state => state.context),
+        currentRoute = useCurrentRoute();
+    return (context && context[currentRoute]) || {};
 }
 
 export function useRouteInfo() {
-    const routeInfo = useSelector(state => state.routeInfo),
-        context = useSelector(state => state.context),
+    const currentRoute = useCurrentRoute(),
+        routeInfos = useSelector(state => state.routeInfo),
+        routeInfo = routeInfos && routeInfos[currentRoute],
+        context = useRenderContext(),
         { router_info: ctxRouteInfo } = context;
     if (routeInfo) {
         if (!ctxRouteInfo || ctxRouteInfo.full_path !== routeInfo.full_path) {
@@ -259,4 +274,8 @@ export function usePluginContent() {
         },
         [content]
     );
+}
+
+export function getTitle(routeName) {
+    return routeName.toLowerCase().replace('_', ' ');
 }

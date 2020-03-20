@@ -7,6 +7,7 @@ const HTML = '@@HTML',
     FIRST = '@@FIRST',
     DEFAULT = '@@DEFAULT',
     LAST = '@@LAST',
+    CURRENT = '@@CURRENT',
     validOrder = {
         [FIRST]: true,
         [DEFAULT]: true,
@@ -90,11 +91,12 @@ function contextReducer(context = {}, action) {
     if (action.type != RENDER && action.type != NOT_FOUND) {
         return context;
     }
+    let current;
     if (action.type === RENDER) {
-        return action.payload;
+        current = action.payload;
     } else if (action.type === NOT_FOUND) {
         const routeInfo = _routeInfo(action.meta.location);
-        return {
+        current = {
             router_info: {
                 ...routeInfo,
                 template: router.config.tmpl404
@@ -103,11 +105,21 @@ function contextReducer(context = {}, action) {
             url: routeInfo.full_path
         };
     }
+    return {
+        ...context,
+        [current.router_info.name]: current,
+        [CURRENT]: current
+    };
 }
 
 function routeInfoReducer(routeInfo = {}, action) {
     if (action.meta && action.meta.location) {
-        return _routeInfo(action.meta.location);
+        const current = _routeInfo(action.meta.location);
+        return {
+            ...routeInfo,
+            [current.name]: current,
+            [CURRENT]: current
+        };
     } else {
         return routeInfo;
     }

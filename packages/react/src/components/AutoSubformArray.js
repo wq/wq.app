@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { initData } from './AutoForm';
 
 export default function AutoSubformArray({ name, label, subform }) {
-    const { Button, AutoSubform } = useComponents();
+    const { View, Button, AutoSubform } = useComponents();
 
     function SubformArray({ form: formikContext, push }) {
         const { values } = formikContext,
@@ -17,7 +17,7 @@ export default function AutoSubformArray({ name, label, subform }) {
         }
 
         return (
-            <div>
+            <View>
                 {list.map((row, i) => (
                     <AutoSubform
                         key={i}
@@ -27,7 +27,7 @@ export default function AutoSubformArray({ name, label, subform }) {
                     />
                 ))}
                 <Button onClick={addRow}>{`Add ${name}`}</Button>
-            </div>
+            </View>
         );
     }
     SubformArray.propTypes = {

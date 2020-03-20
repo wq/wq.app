@@ -1,5 +1,7 @@
 import babelPlugin from 'rollup-plugin-babel';
 import { CodeGenerator } from '@babel/generator';
+import fs from 'fs';
+import path from 'path';
 
 export function wqDeps(path = '.') {
     return {
@@ -27,6 +29,23 @@ export function vendorLib(path) {
         resolveId: source => {
             if (source === path) {
                 return { id: module, external: true };
+            }
+        }
+    };
+}
+
+export function resolveNative() {
+    return {
+        resolveId(source, importer) {
+            const filename = path.resolve(
+                path.dirname(importer || '.'),
+                `${source.replace('.js', '')}.native.js`
+            );
+
+            if (fs.existsSync(filename)) {
+                return filename;
+            } else {
+                return null;
             }
         }
     };

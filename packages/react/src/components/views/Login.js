@@ -6,7 +6,7 @@ export default function Login() {
         {
             Form,
             FormError,
-            FormActions,
+            HorizontalView,
             ButtonLink,
             SubmitButton
         } = useComponents(),
@@ -23,10 +23,10 @@ export default function Login() {
                 <Input name="username" label="Username" />
                 <Input name="password" type="password" label="Password" />
                 <FormError />
-                <FormActions>
+                <HorizontalView>
                     <ButtonLink to={reverse('index')}>Cancel</ButtonLink>
                     <SubmitButton>Submit</SubmitButton>
-                </FormActions>
+                </HorizontalView>
             </Form>
         </>
     );

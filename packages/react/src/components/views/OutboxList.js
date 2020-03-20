@@ -8,32 +8,23 @@ const SUCCESS = '\u2713',
 export default function OutboxList() {
     const reverse = useReverse(),
         { list } = useRenderContext(),
-        { Link } = useComponents();
+        { List, ListItem, ListItemLink } = useComponents();
 
-    if (!list || !list.length) {
-        return (
-            <div>
-                <p>No items in outbox.</p>
-            </div>
-        );
-    }
+    const empty = !list || !list.length;
+
     return (
-        <div>
-            <ul>
-                {list.map(item => (
-                    <li key={item.id}>
-                        <Link to={reverse('outbox_detail', item.id)}>
-                            {item.synced
-                                ? SUCCESS
-                                : item.error
-                                ? ERROR
-                                : PENDING}
-                            {item.modelConf && `${item.modelConf.name}: `}
-                            {item.label}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <List>
+            {empty && <ListItem>No items in outbox.</ListItem>}
+            {(list || []).map(item => (
+                <ListItemLink
+                    key={item.id}
+                    to={reverse('outbox_detail', item.id)}
+                >
+                    {item.synced ? SUCCESS : item.error ? ERROR : PENDING}
+                    {item.modelConf && `${item.modelConf.name}: `}
+                    {item.label}
+                </ListItemLink>
+            ))}
+        </List>
     );
 }

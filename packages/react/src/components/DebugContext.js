@@ -1,6 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { useRenderContext, useRouteInfo } from '../hooks';
+import { useRenderContext, useRouteInfo, useComponents } from '../hooks';
 
 const SKIP = [
     'app_config',
@@ -17,18 +16,10 @@ const SKIP = [
     '_refreshCount'
 ];
 
-const Format = ({ json }) => (
-    <pre>
-        <code>{JSON.stringify(json, null, 4)}</code>
-    </pre>
-);
-Format.propTypes = {
-    json: PropTypes.object
-};
-
 export default function DebugContext() {
     const context = useRenderContext(),
-        routeInfo = useRouteInfo();
+        routeInfo = useRouteInfo(),
+        { List, ListSubheader, FormatJson } = useComponents();
     const main = { ...context },
         other = {};
     SKIP.forEach(skip => {
@@ -36,13 +27,13 @@ export default function DebugContext() {
         delete main[skip];
     });
     return (
-        <>
-            <h3>Context</h3>
-            <Format json={main} />
-            <h3>Route Info</h3>
-            <Format json={routeInfo} />
-            <h3>Additonal Context</h3>
-            <Format json={other} />
-        </>
+        <List>
+            <ListSubheader>Context</ListSubheader>
+            <FormatJson json={main} />
+            <ListSubheader>Route Info</ListSubheader>
+            <FormatJson json={routeInfo} />
+            <ListSubheader>Additional Context</ListSubheader>
+            <FormatJson json={other} />
+        </List>
     );
 }

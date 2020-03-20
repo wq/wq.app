@@ -1,15 +1,32 @@
 import React from 'react';
 import {
+    RouteContext,
     useRenderContext,
     useRouteInfo,
     useComponents,
     useViewComponents,
     usePluginContent
 } from './hooks';
+import PropTypes from 'prop-types';
 
-const HTML = '@@HTML'; // @wq/router
+const HTML = '@@HTML', // @wq/router
+    CURRENT = '@@CURRENT'; // @wq/router
 
-export default function App() {
+export default function App({ route }) {
+    if (!route) {
+        route = CURRENT;
+    }
+    return (
+        <RouteContext.Provider value={{ name: route }}>
+            <AppLayout showHeader={route === CURRENT} />
+        </RouteContext.Provider>
+    );
+}
+App.propTypes = {
+    route: PropTypes.string
+};
+
+function AppLayout({ showHeader }) {
     const context = useRenderContext(),
         routeInfo = useRouteInfo(),
         views = useViewComponents(),
@@ -29,7 +46,12 @@ export default function App() {
         name = routeInfo.name;
     } else if (routeInfo.mode) {
         const { page, mode } = routeInfo,
-            names = [`${page}_${mode}`, `${page}-${mode}`, `*_${mode}`, '*_*'];
+            names = [
+                `${page}_${mode}`,
+                `${page}-${mode}`,
+                `default-${mode}`,
+                'placeholder'
+            ];
         name = names.find(name => views[name]);
     } else {
         name = 'other';
@@ -50,7 +72,7 @@ export default function App() {
     } else {
         return (
             <Container>
-                <Header />
+                {showHeader && <Header />}
                 <Main>
                     <View />
                     {!routeInfo.pending && <PluginContent />}
@@ -61,3 +83,6 @@ export default function App() {
         );
     }
 }
+AppLayout.propTypes = {
+    showHeader: PropTypes.bool
+};

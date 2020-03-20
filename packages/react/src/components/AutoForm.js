@@ -17,7 +17,7 @@ export default function AutoForm({
         AutoInput,
         Form,
         FormError,
-        FormActions,
+        HorizontalView,
         SubmitButton,
         ButtonLink
     } = useComponents();
@@ -37,10 +37,10 @@ export default function AutoForm({
                 <AutoInput key={name} name={name} subform={subform} {...rest} />
             ))}
             <FormError />
-            <FormActions>
+            <HorizontalView>
                 {cancel && <ButtonLink to={cancel}>Cancel</ButtonLink>}
                 <SubmitButton>Submit</SubmitButton>
-            </FormActions>
+            </HorizontalView>
             {children}
         </Form>
     );

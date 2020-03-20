@@ -862,6 +862,7 @@ async function _displayList(ctx, parentInfo) {
         previous: prev ? '/' + prev : null,
         next: next ? '/' + next : null,
         multiple: prev || next ? true : false,
+        page: pnum,
         previous_is_local: prevIsLocal,
         current_is_local: currentIsLocal
     };

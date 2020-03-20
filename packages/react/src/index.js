@@ -4,45 +4,10 @@ import { Provider as StoreProvider } from 'react-redux';
 import { AppContext } from './hooks';
 
 import App from './App';
-import {
-    Container,
-    Header,
-    Footer,
-    Main,
-    Spinner,
-    Link,
-    Button,
-    ButtonLink,
-    Breadcrumbs,
-    DebugContext,
-    AutoForm,
-    AutoInput,
-    AutoSubform,
-    AutoSubformArray,
-    Form,
-    FormRoot,
-    FormActions,
-    FormError,
-    Fieldset,
-    SubmitButton
-} from './components/index';
 
-import { Input, Select, Radio, Toggle } from './components/inputs/index';
-
-import {
-    Index,
-    Login,
-    Logout,
-    OutboxList,
-    List,
-    Detail,
-    Edit,
-    Placeholder,
-    Loading,
-    Other,
-    NotFound,
-    Server
-} from './components/views/index';
+import * as components from './components/index';
+import * as inputs from './components/inputs/index';
+import * as views from './components/views/index';
 
 export default {
     name: 'react',
@@ -51,53 +16,10 @@ export default {
     config: {
         components: {
             App,
-            Container,
-            Header,
-            Footer,
-            Main,
-            Spinner,
-            Link,
-            Button,
-            ButtonLink,
-            Breadcrumbs,
-            DebugContext,
-
-            AutoForm,
-            AutoInput,
-            AutoSubform,
-            AutoSubformArray,
-            Form,
-            FormRoot,
-            FormActions,
-            FormError,
-            Fieldset,
-            SubmitButton
+            ...components
         },
-        inputs: {
-            Input,
-            Select,
-            Radio,
-            Toggle
-        },
-        views: {
-            // Common pages
-            Index,
-            Login,
-            Logout,
-            OutboxList,
-
-            // Generic @wq/app routes
-            '*_list': List,
-            '*_detail': Detail,
-            '*_edit': Edit,
-            '*_*': Placeholder,
-            Other,
-
-            // Fallback views
-            '404': NotFound,
-            Server,
-            Loading
-        }
+        inputs: { ...inputs },
+        views: { ...views }
     },
 
     init(config) {

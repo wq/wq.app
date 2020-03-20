@@ -8,8 +8,8 @@ import {
 import logger from 'redux-logger';
 import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+import { createStorage, storeAsString } from './storage';
 
-import localForage from 'localforage';
 import 'whatwg-fetch';
 
 const REMOVE = '@@KVP_REMOVE';
@@ -101,13 +101,13 @@ class Store {
             applyMiddleware(...this.#middleware)
         );
 
-        this.lf = localForage.createInstance({ name: this.name });
+        this.lf = createStorage(this.name);
 
         const persistConfig = {
             key: 'root',
             storage: this.lf,
             stateReconciler: autoMergeLevel2,
-            serialize: false,
+            serialize: storeAsString,
             transforms: this.#transforms,
             whitelist: this.#persistKeys,
             writeFailHandler: error => this.storageFail(error)
