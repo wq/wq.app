@@ -80,8 +80,8 @@ const jqmRenderer = {
     },
 
     thunks: {
-        [RENDER](dispatch, getState) {
-            this.renderPage(getState());
+        [RENDER]() {
+            this.renderPage(this.app.router.getContext());
         },
         [SPIN_START](dispatch, getState) {
             this.updateSpinner(getState());
@@ -91,11 +91,10 @@ const jqmRenderer = {
         }
     },
 
-    renderPage(state) {
-        this.state = state;
+    renderPage(context) {
+        this._lastContext = context;
 
-        const { context } = state,
-            { router_info } = context || {},
+        const { router_info } = context,
             { full_path: url, dom_id: pageid, name: routeName, template } =
                 router_info || {},
             once = null, // FIXME
@@ -556,7 +555,7 @@ const jqmRenderer = {
         if (!this.app) {
             return;
         }
-        const { context } = this.state,
+        const context = this._lastContext,
             { router_info: routeInfo } = context;
 
         var item;

@@ -40,14 +40,12 @@ test('inject jQuery Mobile page', () => {
 test('render context and inject page', done => {
     jqmRenderer.handleShow = testOnShow;
     jqmRenderer.renderPage({
-        context: {
-            router_info: {
-                name: 'another_page',
-                template: 'another_page',
-                full_path: '/anotherpage'
-            },
-            title: 'TEST 1234'
-        }
+        router_info: {
+            name: 'another_page',
+            template: 'another_page',
+            full_path: '/anotherpage'
+        },
+        title: 'TEST 1234'
     });
 
     function testOnShow() {
@@ -65,12 +63,10 @@ test('submit form', done => {
     };
     jqmRenderer.handleShow = completeForm;
     jqmRenderer.renderPage({
-        context: {
-            router_info: {
-                name: 'edit_page',
-                template: 'edit_page',
-                full_path: '/edit'
-            }
+        router_info: {
+            name: 'edit_page',
+            template: 'edit_page',
+            full_path: '/edit'
         }
     });
     function completeForm($page) {

@@ -344,10 +344,9 @@ app.userInfo = function() {
 
 async function _refreshUserInfo(dispatch, getState) {
     await _refreshCSRFToken();
-    var context = getState().context || {};
     router.render(
         {
-            ...context,
+            ...router.getContext(),
             ...app.userInfo()
         },
         true
@@ -492,7 +491,7 @@ app.postsaveurl = function(item, alreadySynced) {
         // simple page or a URL
         var urlContext;
         if (item.deletedId) {
-            urlContext = { deleted: true, ...router.store.getState().context };
+            urlContext = { deleted: true, ...router.getContext() };
         } else {
             urlContext = { ...item.data, ...item.result };
         }
@@ -544,7 +543,7 @@ app.postsaveurl = function(item, alreadySynced) {
 
 const syncRefresh = {
     onsync(obitem) {
-        const { context } = this.app.store.getState(),
+        const context = router.getContext(),
             { router_info: routeInfo } = context,
             { full_path, item_id, parent_id } = routeInfo,
             { id: outboxId, result } = obitem || {},

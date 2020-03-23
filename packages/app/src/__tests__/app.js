@@ -394,7 +394,7 @@ function testEAV(name, filter, params, expected) {
             url += '?' + params;
         }
         await changePage('items/', url);
-        var context = router.store.getState().context;
+        var context = router.getContext();
         var ids = (context.values || []).map(function(value) {
             return value.attribute_id;
         });

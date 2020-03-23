@@ -270,15 +270,20 @@ router.render = function(context, refresh) {
     });
 };
 
+router.getContext = function() {
+    const { context = {} } = router.store.getState();
+    return context[CURRENT];
+};
+
 // Re-render existing context
 router.refresh = function() {
-    var context = router.store.getState().context;
+    const context = router.getContext();
     router.render(context, true);
 };
 
 // Regenerate context, then re-render page
 router.reload = function() {
-    const context = router.store.getState().context,
+    const context = router.getContext(),
         refresh = (context._refreshCount || 0) + 1;
     return _generateContext(
         action => router.store.dispatch(action),
