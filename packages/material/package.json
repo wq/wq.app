@@ -2,8 +2,8 @@
     "name": "@wq/material",
     "version": "1.3.0-dev",
     "description": "React + Material UI renderer for use with @wq/app",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "main": "platform.js",
+    "module": "platform.es.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/material -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
         "build": "cd ../../ && npm run rollup -- -c packages/material/rollup.config.js",

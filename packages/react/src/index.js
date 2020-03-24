@@ -55,12 +55,6 @@ export default {
             }
             Object.assign(this.config, config);
         }
-        if (!this.root) {
-            this.root = document.body.appendChild(
-                document.createElement('div')
-            );
-            this.root.id = 'wq-app-root';
-        }
     },
 
     getRootComponent() {
@@ -79,6 +73,12 @@ export default {
     },
 
     start() {
+        if (!this.root) {
+            this.root = document.body.appendChild(
+                document.createElement('div')
+            );
+            this.root.id = 'wq-app-root';
+        }
         const RootComponent = this.getRootComponent();
         ReactDOM.render(<RootComponent />, this.root);
     },
