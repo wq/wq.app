@@ -11,7 +11,7 @@ export default function DefaultList() {
         { list, unsyncedItems } = useRenderContext(),
         { page } = useRouteInfo(),
         {
-            View,
+            ScrollView,
             List,
             ListSubheader,
             ListItem,
@@ -24,34 +24,36 @@ export default function DefaultList() {
         unsynced = (unsyncedItems && unsyncedItems.length) || false;
 
     return (
-        <View>
-            <List>
-                {unsynced && (
-                    <>
-                        <ListSubheader>Unsynced Items</ListSubheader>
-                        {unsyncedItems.map(row => (
-                            <ListItemLink
-                                key={row.id}
-                                to={reverse('outbox_edit', row.id)}
-                            >
-                                {row.label}
-                            </ListItemLink>
-                        ))}
-                        <ListSubheader>Synced Items</ListSubheader>
-                    </>
-                )}
-                {empty && <ListItem>Empty list.</ListItem>}
-                {(list || []).map(row => (
-                    <ListItemLink
-                        key={row.id}
-                        to={reverse(`${page}_detail`, row.id)}
-                    >
-                        {row.label}
-                    </ListItemLink>
-                ))}
-            </List>
-            <Pagination />
+        <>
+            <ScrollView>
+                <List>
+                    {unsynced && (
+                        <>
+                            <ListSubheader>Unsynced Items</ListSubheader>
+                            {unsyncedItems.map(row => (
+                                <ListItemLink
+                                    key={row.id}
+                                    to={reverse('outbox_edit', row.id)}
+                                >
+                                    {row.label}
+                                </ListItemLink>
+                            ))}
+                            <ListSubheader>Synced Items</ListSubheader>
+                        </>
+                    )}
+                    {empty && <ListItem>Empty list.</ListItem>}
+                    {(list || []).map(row => (
+                        <ListItemLink
+                            key={row.id}
+                            to={reverse(`${page}_detail`, row.id)}
+                        >
+                            {row.label}
+                        </ListItemLink>
+                    ))}
+                </List>
+                <Pagination />
+            </ScrollView>
             <Fab type="add" to={reverse(`${page}_edit:new`)} />
-        </View>
+        </>
     );
 }

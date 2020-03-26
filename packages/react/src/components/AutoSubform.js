@@ -2,8 +2,9 @@ import React from 'react';
 import { useComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
-export default function AutoSubform({ name, label, subform }) {
-    const { Fieldset, AutoInput } = useComponents();
+export default function AutoSubform({ name, label, subform, component }) {
+    const { Fieldset: DefaultFieldset, AutoInput } = useComponents(),
+        Fieldset = component || DefaultFieldset;
 
     return (
         <Fieldset label={label}>
@@ -21,5 +22,6 @@ export default function AutoSubform({ name, label, subform }) {
 AutoSubform.propTypes = {
     name: PropTypes.string,
     label: PropTypes.string,
-    subform: PropTypes.arrayOf(PropTypes.object)
+    subform: PropTypes.arrayOf(PropTypes.object),
+    component: PropTypes.elementType
 };

@@ -7,7 +7,7 @@ import registerRootComponent from 'expo/build/launch/registerRootComponent';
 
 export const navRef = createRef();
 
-export function init() {
+export function init(config) {
     const {
         router,
         store,
@@ -15,7 +15,9 @@ export function init() {
     } = this.app;
     react.start = () => null;
     router.push = to => nav(to, router.routesMap, navRef.current, store);
-    // router._initialDispatch = () => {};
+    if (config) {
+        Object.assign(this.config, config);
+    }
 }
 
 export function start() {

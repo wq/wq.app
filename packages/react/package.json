@@ -25,6 +25,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
+        "capital-case": "^1.0.3",
         "formik": "^2.1.4",
         "param-case": "^3.0.3",
         "react": "^16.12.0",

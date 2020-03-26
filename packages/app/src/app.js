@@ -617,7 +617,7 @@ app.callPlugins = function(method, args) {
 };
 
 // Internal variables and functions
-function _splitRoute(routeName) {
+app.splitRoute = function(routeName) {
     const match = routeName.match(/^(.+)_([^_]+)$/);
     let page, mode, variant;
     if (match) {
@@ -634,7 +634,7 @@ function _splitRoute(routeName) {
         variant = null;
     }
     return [page, mode, variant];
-}
+};
 
 function _joinRoute(page, mode, variant) {
     if (variant) {
@@ -649,7 +649,7 @@ function _joinRoute(page, mode, variant) {
 function _extendRouteInfo(routeInfo) {
     const routeName = routeInfo.name,
         itemid = routeInfo.slugs.slug || null;
-    var [page, mode, variant] = _splitRoute(routeName),
+    var [page, mode, variant] = app.splitRoute(routeName),
         conf = _getConf(page, true, true),
         pageid = null;
 

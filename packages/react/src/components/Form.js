@@ -76,7 +76,7 @@ Form.propTypes = {
     method: PropTypes.string,
     storage: PropTypes.string,
     backgroundSync: PropTypes.bool,
-    outboxId: PropTypes.string,
+    outboxId: PropTypes.number,
     preserve: PropTypes.arrayOf(PropTypes.string),
     data: PropTypes.object,
     children: PropTypes.node

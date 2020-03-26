@@ -7,6 +7,7 @@ import {
     selectLocationState
 } from 'redux-first-router';
 import { paramCase } from 'param-case';
+import { capitalCase } from 'capital-case';
 
 const isAction = path => path && path.type;
 
@@ -63,7 +64,7 @@ export function useRouteInfo() {
     }
 }
 
-export function useTitle() {
+export function useContextTitle() {
     const context = useRenderContext(),
         routeInfo = useRouteInfo();
 
@@ -73,13 +74,7 @@ export function useTitle() {
     }
 
     if (!title && routeInfo) {
-        if (routeInfo.mode === 'list') {
-            title = routeInfo.page_config.url;
-        } else if (routeInfo.variant === 'new') {
-            title = `New ${routeInfo.page}`;
-        } else {
-            title = routeInfo.page;
-        }
+        title = getRouteTitle(routeInfo);
     }
 
     if (!title) {
@@ -87,6 +82,54 @@ export function useTitle() {
     }
 
     return title;
+}
+
+export function useRouteTitle(routeName) {
+    const app = useApp();
+
+    function routeTitle(routeName) {
+        const [name, mode, variant] = app.splitRoute(routeName);
+        const page_config = app.config.pages[name] || {
+            name
+        };
+        return getRouteTitle({
+            page_config,
+            mode,
+            variant
+        });
+    }
+
+    if (routeName) {
+        return routeTitle(routeName);
+    } else {
+        return routeTitle;
+    }
+}
+
+function getRouteTitle(routeInfo) {
+    const { page_config, mode, variant } = routeInfo,
+        verbose_name = page_config.verbose_name || page_config.name,
+        verbose_name_plural =
+            page_config.verbose_name_plural ||
+            page_config.url ||
+            `${verbose_name}s`;
+
+    let title;
+    if (mode === 'list') {
+        title = verbose_name_plural;
+    } else if (mode === 'edit') {
+        if (variant === 'new') {
+            title = `New ${verbose_name}`;
+        } else {
+            title = `Edit ${verbose_name}`;
+        }
+    } else if (mode && mode !== 'detail') {
+        title = `${verbose_name} - ${mode}`;
+    } else {
+        title = verbose_name;
+    }
+
+    return capitalCase(title);
 }
 
 export function useReverse() {
@@ -121,7 +164,7 @@ export function useIndexRoute() {
 }
 
 export function useBreadcrumbs() {
-    const title = useTitle(),
+    const title = useContextTitle(),
         {
             name,
             page,
@@ -147,12 +190,24 @@ export function useBreadcrumbs() {
     addLink(reverse(index), 'Home');
 
     if (parent_id && parent_conf) {
-        addLink(reverse(`${parent_conf.page}_list`), parent_conf.url);
+        addLink(
+            reverse(`${parent_conf.page}_list`),
+            getRouteTitle({
+                page_config: parent_conf,
+                mode: 'list'
+            })
+        );
         addLink(reverse(`${parent_conf.page}_detail`, parent_id), parent_label);
     }
 
     if (item_id) {
-        addLink(reverse(`${page}_list`), page_config.url);
+        addLink(
+            reverse(`${page}_list`),
+            getRouteTitle({
+                page_config,
+                mode: 'list'
+            })
+        );
         if (mode !== 'detail') {
             addLink(reverse(`${page}_detail`, item_id), title);
             addCurrentPage(mode);
@@ -274,8 +329,4 @@ export function usePluginContent() {
         },
         [content]
     );
-}
-
-export function getTitle(routeName) {
-    return routeName.toLowerCase().replace('_', ' ');
 }

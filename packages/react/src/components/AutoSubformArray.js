@@ -4,35 +4,45 @@ import { FieldArray } from 'formik';
 import PropTypes from 'prop-types';
 import { initData } from './AutoForm';
 
-export default function AutoSubformArray({ name, label, subform }) {
-    const { View, Button, AutoSubform } = useComponents();
+export default function AutoSubformArray({ name, label, subform, ...rest }) {
+    const { FieldsetArray, AutoSubform } = useComponents();
 
-    function SubformArray({ form: formikContext, push }) {
+    function SubformArray({ form: formikContext, push, pop }) {
         const { values } = formikContext,
             list = values[name] || [];
 
-        function addRow() {
-            const row = initData(subform, {});
+        function addRow(vals) {
+            const row = initData(subform, vals || {});
             push(row);
         }
 
+        const removeLastRow = pop;
+
         return (
-            <View>
+            <FieldsetArray
+                name={name}
+                label={label}
+                subform={subform}
+                addRow={addRow}
+                removeLastRow={removeLastRow}
+                {...rest}
+            >
                 {list.map((row, i) => (
                     <AutoSubform
                         key={i}
                         label={`${label} ${i + 1}`}
                         name={`${name}[${i}]`}
                         subform={subform}
+                        component={FieldsetArray.Fieldset}
                     />
                 ))}
-                <Button onClick={addRow}>{`Add ${name}`}</Button>
-            </View>
+            </FieldsetArray>
         );
     }
     SubformArray.propTypes = {
         form: PropTypes.object,
-        push: PropTypes.func
+        push: PropTypes.func,
+        pop: PropTypes.func
     };
 
     return (

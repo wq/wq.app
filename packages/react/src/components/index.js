@@ -3,6 +3,7 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import View from './View';
+import ScrollView from './ScrollView';
 import HorizontalView from './HorizontalView';
 import Text from './Text';
 import FormatJson from './FormatJson';
@@ -32,6 +33,7 @@ import Form from './Form';
 import FormRoot from './FormRoot';
 import FormError from './FormError';
 import Fieldset from './Fieldset';
+import FieldsetArray from './FieldsetArray';
 import SubmitButton from './SubmitButton';
 
 import Spinner from './Spinner';
@@ -45,6 +47,7 @@ export {
     Main,
     Footer,
     View,
+    ScrollView,
     HorizontalView,
     Text,
     FormatJson
@@ -65,6 +68,7 @@ export {
     FormRoot,
     FormError,
     Fieldset,
+    FieldsetArray,
     SubmitButton
 };
 

@@ -15,7 +15,7 @@ export default function AutoInput({ name, choices, type, ...rest }) {
 
     let inputType;
     if (rest['wq:ForeignKey']) {
-        let choicesFn = context[`${name}_list`];
+        let choicesFn = context[name.replace(/\[\d+\]/, '') + '_list'];
         choices = choicesFn ? choicesFn.call(context) : [];
         choices = choices.map(({ id, label, outbox }) => ({
             name: id,

@@ -9,7 +9,10 @@ export default {
     dependencies: [react],
 
     config: {
-        theme: {}
+        theme: {
+            primary: '#550099',
+            secondary: '#0dccb1'
+        }
     },
 
     components: { App, ...components },

@@ -52,7 +52,7 @@ AutoForm.propTypes = {
     method: PropTypes.string,
     storage: PropTypes.string,
     backgroundSync: PropTypes.bool,
-    outboxId: PropTypes.string,
+    outboxId: PropTypes.number,
     form: PropTypes.arrayOf(PropTypes.object),
     data: PropTypes.object,
     children: PropTypes.node

@@ -48,11 +48,13 @@ function PropertyTable() {
 export default function DefaultDetail() {
     const reverse = useReverse(),
         { page, item_id } = useRouteInfo(),
-        { Fab } = useComponents(),
+        { ScrollView, Fab } = useComponents(),
         editUrl = reverse(`${page}_edit`, item_id);
     return (
         <>
-            <PropertyTable />
+            <ScrollView>
+                <PropertyTable />
+            </ScrollView>
             <Fab type="edit" to={editUrl} />
         </>
     );

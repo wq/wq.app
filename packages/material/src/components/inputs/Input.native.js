@@ -1,21 +1,28 @@
 import React from 'react';
 import { TextInput } from 'react-native-paper';
-import { useFormikContext } from 'formik';
+import { useField } from 'formik';
 import PropTypes from 'prop-types';
 
-export default function Input({ name, label }) {
-    const { handleChange, handleBlur, values } = useFormikContext();
+export default function Input({ name, type, label }) {
+    const [, meta, helpers] = useField(name),
+        { value } = meta,
+        { setValue, setTouched } = helpers;
     return (
         <TextInput
             label={label}
-            onChangeText={handleChange(name)}
-            onBlur={handleBlur(name)}
-            value={values[name]}
+            multiline={type === 'text'}
+            keyboardType={
+                type === 'decimal' || type == 'int' ? 'numeric' : 'default'
+            }
+            onChangeText={setValue}
+            onBlur={() => setTouched(true)}
+            value={value}
         />
     );
 }
 
 Input.propTypes = {
     name: PropTypes.string,
+    type: PropTypes.string,
     label: PropTypes.string
 };

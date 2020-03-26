@@ -1,6 +1,3 @@
-import React from 'react';
-import { ScrollView } from 'react-native';
+import { Fragment } from 'react';
 
-export default function List(props) {
-    return <ScrollView style={{ flex: 1 }} {...props} />;
-}
+export default Fragment;

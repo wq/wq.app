@@ -11,7 +11,7 @@ export default function DefaultEdit() {
         context = useRenderContext(),
         { page, variant, page_config, outbox_id } = useRouteInfo(),
         { form } = page_config,
-        { AutoForm } = useComponents();
+        { ScrollView, AutoForm } = useComponents();
 
     let backUrl, submitUrl, method;
 
@@ -26,13 +26,15 @@ export default function DefaultEdit() {
     }
 
     return (
-        <AutoForm
-            action={submitUrl}
-            cancel={backUrl}
-            method={method}
-            outboxId={outbox_id}
-            data={context}
-            form={form}
-        />
+        <ScrollView>
+            <AutoForm
+                action={submitUrl}
+                cancel={backUrl}
+                method={method}
+                outboxId={outbox_id}
+                data={context}
+                form={form}
+            />
+        </ScrollView>
     );
 }
