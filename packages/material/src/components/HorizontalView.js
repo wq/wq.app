@@ -5,10 +5,9 @@ import PropTypes from 'prop-types';
 const useStyles = makeStyles(theme => ({
     root: {
         display: 'flex',
-        justifyContent: 'flex-end',
-        '& > *': {
-            margin: theme.spacing(1)
-        }
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: theme.spacing(1)
     }
 }));
 

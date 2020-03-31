@@ -50,11 +50,11 @@ function AppLayout({ showHeader }) {
                 `${page}_${mode}`,
                 `${page}-${mode}`,
                 `default-${mode}`,
-                'placeholder'
+                'default'
             ];
         name = names.find(name => views[name]);
     } else {
-        name = 'other';
+        name = 'default';
     }
 
     const View = views[name];

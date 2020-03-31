@@ -41,6 +41,10 @@ export default function AutoInput({ name, choices, type, ...rest }) {
         inputType = 'input';
     }
 
+    if (rest.control && rest.control.appearance) {
+        inputType = rest.control.appearance;
+    }
+
     const Input = inputs[inputType];
 
     return <Input name={name} choices={choices} type={type} {...rest} />;

@@ -1,22 +1,40 @@
 import React from 'react';
 import { TextInput } from 'react-native-paper';
 import { useField } from 'formik';
+import { useHtmlInput } from '@wq/react';
 import PropTypes from 'prop-types';
 
-export default function Input({ name, type, label }) {
-    const [, meta, helpers] = useField(name),
+const keyboards = {
+    int: 'number-pad',
+    decimal: 'decimal-pad',
+    tel: 'phone-pad',
+    email: 'email-address'
+};
+
+export default function Input(props) {
+    const { name, type, label } = props,
+        { maxlength } = useHtmlInput(props),
+        [, meta, helpers] = useField(name),
         { value } = meta,
         { setValue, setTouched } = helpers;
+
+    function handleChange(value) {
+        if (type === 'int' || type === 'decimal') {
+            setValue(+value);
+        } else {
+            setValue(value);
+        }
+    }
+
     return (
         <TextInput
             label={label}
             multiline={type === 'text'}
-            keyboardType={
-                type === 'decimal' || type == 'int' ? 'numeric' : 'default'
-            }
-            onChangeText={setValue}
+            keyboardType={keyboards[type] || 'default'}
+            maxLength={maxlength}
+            onChangeText={handleChange}
             onBlur={() => setTouched(true)}
-            value={value}
+            value={typeof value === 'number' ? '' + value : value}
         />
     );
 }

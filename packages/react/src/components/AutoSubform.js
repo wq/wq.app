@@ -7,7 +7,7 @@ export default function AutoSubform({ name, label, subform, component }) {
         Fieldset = component || DefaultFieldset;
 
     return (
-        <Fieldset label={label}>
+        <Fieldset name={name} label={label}>
             {subform.map(({ name: fieldName, ...rest }) => (
                 <AutoInput
                     key={fieldName}

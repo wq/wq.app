@@ -8,6 +8,7 @@ import {
 } from 'redux-first-router';
 import { paramCase } from 'param-case';
 import { capitalCase } from 'capital-case';
+import { useHtmlInput } from './components/inputs/Input';
 
 const isAction = path => path && path.type;
 
@@ -240,6 +241,8 @@ export function useComponents() {
 export function useInputComponents() {
     return usePluginComponentMap('react', 'inputs');
 }
+
+export { useHtmlInput };
 
 export function useViewComponents() {
     return usePluginComponentMap('react', 'views');

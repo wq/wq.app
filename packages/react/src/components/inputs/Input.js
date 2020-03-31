@@ -26,15 +26,23 @@ const HTML5_INPUT_TYPES = {
     note: false
 };
 
-export default function Input({ type, name, label }) {
-    const htmlType = HTML5_INPUT_TYPES[type] || 'text';
+export function useHtmlInput({ name, type, ['wq:length']: maxlength }) {
+    return {
+        name,
+        type: HTML5_INPUT_TYPES[type] || 'text',
+        maxlength: maxlength && +maxlength
+    };
+}
+
+export default function Input({ label, ...rest }) {
+    const inputProps = useHtmlInput(rest);
     return (
         <div style={{ marginBottom: '0.5em' }}>
             <div style={{ display: 'flex' }}>
                 <label htmlFor={name} style={{ width: '25%' }}>
                     {label}
                 </label>
-                <Field style={{ flex: 1 }} name={name} type={htmlType} />
+                <Field style={{ flex: 1 }} {...inputProps} />
             </div>
             <ErrorMessage name={name} />
         </div>
