@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { TextInput } from 'react-native-paper';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Text } from 'react-native';
+import { TouchableRipple, TextInput } from 'react-native-paper';
 import { useField } from 'formik';
 import PropTypes from 'prop-types';
 
 export default function DateTime({ name, type, label }) {
     const [, meta, helpers] = useField(name),
         { value } = meta,
-        { setValue, setTouched } = helpers;
+        { setValue } = helpers;
 
     const [show, setShow] = useState(false);
 
     function showPicker() {
-        if (show) {
-            return;
-        }
         setShow(true);
     }
-    function onChange(evt, val) {
-        setValue(val);
+    function hidePicker() {
         setShow(false);
     }
-    function onBlur() {
-        setTouched(true);
+    function onConfirm(val) {
+        hidePicker();
+        setValue(val);
     }
 
     return (
@@ -30,16 +28,19 @@ export default function DateTime({ name, type, label }) {
             <TextInput
                 label={label}
                 value={format(value, type)}
-                onFocus={showPicker}
-                onBlur={onBlur}
+                render={({ style, value }) => (
+                    <TouchableRipple onPress={showPicker}>
+                        <Text style={style}>{value}</Text>
+                    </TouchableRipple>
+                )}
             />
-            {show && (
-                <DateTimePicker
-                    mode={type}
-                    value={value || new Date()}
-                    onChange={onChange}
-                />
-            )}
+            <DateTimePickerModal
+                isVisible={show}
+                mode={type}
+                value={value || new Date()}
+                onConfirm={onConfirm}
+                onCancel={hidePicker}
+            />
         </>
     );
 }

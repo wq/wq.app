@@ -1,5 +1,6 @@
 import React from 'react';
-import { Picker } from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
+import { Platform } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -10,22 +11,40 @@ export default function Select({ name, choices, label }) {
         { value } = meta,
         { setValue } = helpers;
 
+    const styles = {
+        viewContainer:
+            Platform.OS === 'ios'
+                ? {
+                      top: 32,
+                      left: 12
+                  }
+                : {
+                      top: 16,
+                      left: 4
+                  },
+        inputIOS: {
+            color: theme.colors.text,
+            fontSize: 16
+        },
+        inputAndroid: {
+            color: theme.colors.text
+        }
+    };
+
     return (
         <TextInput
             label={label}
             value={'-'}
             render={() => (
-                <Picker
-                    prompt={label}
-                    style={{ color: theme.colors.text, top: 16, left: 4 }}
-                    selectedValue={value}
+                <RNPickerSelect
+                    value={value}
                     onValueChange={setValue}
-                >
-                    <Picker.Item label="" value="" />
-                    {choices.map(({ name, label }) => (
-                        <Picker.Item key={name} label={label} value={name} />
-                    ))}
-                </Picker>
+                    items={choices.map(({ name, label }) => ({
+                        value: name,
+                        label
+                    }))}
+                    style={styles}
+                />
             )}
         />
     );
