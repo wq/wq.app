@@ -33,6 +33,7 @@
         "@wq/outbox": "^1.2.0",
         "@wq/router": "^1.2.0",
         "@wq/store": "^1.2.0",
+        "deepcopy": "^2.0.0",
         "mustache": "^4.0.0"
     },
     "devDependencies": {

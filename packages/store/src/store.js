@@ -108,6 +108,7 @@ class Store {
             storage: this.lf,
             stateReconciler: autoMergeLevel2,
             serialize: storeAsString,
+            deserialize: storeAsString,
             transforms: this.#transforms,
             whitelist: this.#persistKeys,
             writeFailHandler: error => this.storageFail(error)

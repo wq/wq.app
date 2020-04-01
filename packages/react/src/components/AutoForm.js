@@ -59,13 +59,31 @@ AutoForm.propTypes = {
 };
 
 export function initData(form, data) {
+    if (!data) {
+        data = {};
+    }
+
     const formData = {};
 
     form.forEach(field => {
         const fieldName = field['wq:ForeignKey']
             ? `${field.name}_id`
             : field.name;
-        formData[fieldName] = (data && data[fieldName]) || defaultValue(field);
+
+        let value;
+        if (field.type === 'repeat') {
+            value = (data[fieldName] || []).map(row =>
+                initData(field.children, row)
+            );
+        } else if (field.type == 'group') {
+            value = initData(field.children, data[fieldName] || {});
+        } else if (fieldName in data) {
+            value = data[fieldName];
+        } else {
+            value = defaultValue(field);
+        }
+
+        formData[fieldName] = value;
     });
 
     return formData;

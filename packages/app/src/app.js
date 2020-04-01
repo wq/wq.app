@@ -4,6 +4,7 @@ import outbox from '@wq/outbox';
 import router from '@wq/router';
 import spinner from './spinner';
 import Mustache from 'mustache';
+import deepcopy from 'deepcopy';
 
 var app = {
     OFFLINE: 'offline',
@@ -1004,7 +1005,7 @@ async function _renderOutboxItem(ctx) {
             template: template,
             outbox_id: item.id
         },
-        ...item.data
+        ...deepcopy(item.data)
     };
     if (id != 'new') {
         context.id = id;

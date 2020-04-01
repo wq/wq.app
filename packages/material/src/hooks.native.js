@@ -1,4 +1,4 @@
-import { createRef } from 'react';
+import React, { createRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useApp, useRoutesMap } from '@wq/react';
 import { pathToAction } from 'redux-first-router';
@@ -18,6 +18,7 @@ export function init(config) {
     if (config) {
         Object.assign(this.config, config);
     }
+    registerRootComponent(RootWrapper);
 }
 
 export function start() {
@@ -25,7 +26,7 @@ export function start() {
         store,
         plugins: { react }
     } = this.app;
-    registerRootComponent(react.getRootComponent());
+    _setRoot(() => react.getRootComponent());
     store.dispatch({ type: 'INDEX' });
 }
 
@@ -42,4 +43,17 @@ export function useOnPress(to) {
         routesMap = useRoutesMap();
 
     return () => nav(to, routesMap, navigation, app.store);
+}
+
+var _setRoot;
+
+function RootWrapper() {
+    const [Root, setRoot] = useState();
+    _setRoot = setRoot;
+
+    if (Root) {
+        return <Root />;
+    } else {
+        return null;
+    }
 }
