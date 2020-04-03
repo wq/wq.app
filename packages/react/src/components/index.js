@@ -17,6 +17,8 @@ import List from './List';
 import ListItem from './ListItem';
 import ListItemLink from './ListItemLink';
 import ListSubheader from './ListSubheader';
+import ExpansionPanel from './ExpansionPanel';
+import Divider from './Divider';
 
 import Table from './Table';
 import TableHead from './TableHead';
@@ -55,7 +57,7 @@ export {
 
 export { Link, Button, ButtonLink, Fab };
 
-export { List, ListItem, ListItemLink, ListSubheader };
+export { List, ListItem, ListItemLink, ListSubheader, ExpansionPanel, Divider };
 
 export { Table, TableHead, TableBody, TableRow, TableTitle, TableCell };
 

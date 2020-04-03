@@ -1,6 +1,7 @@
 import Container from './Container';
 import Header from './Header';
 import Main from './Main';
+import Footer from './Footer';
 import View from './View';
 import ScrollView from './ScrollView';
 import HorizontalView from './HorizontalView';
@@ -16,6 +17,8 @@ import List from './List';
 import ListItem from './ListItem';
 import ListItemLink from './ListItemLink';
 import ListSubheader from './ListSubheader';
+import ExpansionPanel from './ExpansionPanel';
+import Divider from './Divider';
 
 import Table from './Table';
 import TableHead from './TableHead';
@@ -38,6 +41,7 @@ export {
     Container,
     Header,
     Main,
+    Footer,
     View,
     ScrollView,
     HorizontalView,
@@ -47,7 +51,7 @@ export {
 
 export { Link, Button, ButtonLink, Fab };
 
-export { List, ListItem, ListItemLink, ListSubheader };
+export { List, ListItem, ListItemLink, ListSubheader, ExpansionPanel, Divider };
 
 export { Table, TableHead, TableBody, TableRow, TableTitle, TableCell };
 

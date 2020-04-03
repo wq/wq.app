@@ -5,13 +5,20 @@ import { useSpinner } from '@wq/react';
 
 export default function Spinner() {
     const { active } = useSpinner();
-    if (!active) {
-        return null;
-    }
+
     // FIXME: text, type
     return (
-        <Modal open>
-            <CircularProgress />
+        <Modal open={active}>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100vh'
+                }}
+            >
+                <CircularProgress />
+            </div>
         </Modal>
     );
 }

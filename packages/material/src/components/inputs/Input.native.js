@@ -13,7 +13,7 @@ const keyboards = {
 
 export default function Input(props) {
     const { name, type, label } = props,
-        { maxlength } = useHtmlInput(props),
+        { maxLength } = useHtmlInput(props),
         [, meta, helpers] = useField(name),
         { value } = meta,
         { setValue, setTouched } = helpers;
@@ -31,7 +31,7 @@ export default function Input(props) {
             label={label}
             multiline={type === 'text'}
             keyboardType={keyboards[type] || 'default'}
-            maxLength={maxlength}
+            maxLength={maxLength}
             onChangeText={handleChange}
             onBlur={() => setTouched(true)}
             value={typeof value === 'number' ? '' + value : value}

@@ -1,7 +1,15 @@
 import reactRenderer from './src/index';
 import App from './src/App';
-import Link from './src/components/Link';
-import FormError from './src/components/FormError';
+import {
+    Link,
+    Form,
+    FormError,
+    AutoForm,
+    AutoInput,
+    AutoSubform,
+    AutoSubformArray,
+    DebugContext
+} from './src/components/index';
 import {
     useRoutesMap,
     useNav,
@@ -30,7 +38,13 @@ export default reactRenderer;
 export {
     App,
     Link,
+    Form,
     FormError,
+    AutoForm,
+    AutoInput,
+    AutoSubform,
+    AutoSubformArray,
+    DebugContext,
     useRoutesMap,
     useNav,
     useRenderContext,

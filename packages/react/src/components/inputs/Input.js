@@ -26,16 +26,17 @@ const HTML5_INPUT_TYPES = {
     note: false
 };
 
-export function useHtmlInput({ name, type, ['wq:length']: maxlength }) {
+export function useHtmlInput({ name, type, ['wq:length']: length }) {
     return {
         name,
         type: HTML5_INPUT_TYPES[type] || 'text',
-        maxlength: maxlength && +maxlength
+        maxLength: length && +length
     };
 }
 
-export default function Input({ label, ...rest }) {
-    const inputProps = useHtmlInput(rest);
+export default function Input(props) {
+    const inputProps = useHtmlInput(props),
+        { name, label } = props;
     return (
         <div style={{ marginBottom: '0.5em' }}>
             <div style={{ display: 'flex' }}>

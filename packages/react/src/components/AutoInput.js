@@ -1,10 +1,11 @@
 import React from 'react';
 import { useComponents, useInputComponents, useRenderContext } from '../hooks';
 import PropTypes from 'prop-types';
+import { pascalCase } from 'pascal-case';
 
 export default function AutoInput({ name, choices, type, ...rest }) {
     const inputs = useInputComponents(),
-        { AutoSubform, AutoSubformArray } = useComponents(),
+        { AutoSubform, AutoSubformArray, Text } = useComponents(),
         context = useRenderContext();
 
     if (type === 'group') {
@@ -46,6 +47,15 @@ export default function AutoInput({ name, choices, type, ...rest }) {
     }
 
     const Input = inputs[inputType];
+
+    if (!Input) {
+        return (
+            <Text>
+                Unknown input type &quot;{inputType}&quot;. Perhaps you need to
+                define inputs.{pascalCase(inputType)} in a plugin?
+            </Text>
+        );
+    }
 
     return <Input name={name} choices={choices} type={type} {...rest} />;
 }
