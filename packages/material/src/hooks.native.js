@@ -26,7 +26,10 @@ export function start() {
         store,
         plugins: { react }
     } = this.app;
-    _setRoot(() => react.getRootComponent());
+    _Root = () => react.getRootComponent();
+    if (_setRoot) {
+        _setRoot(_Root);
+    }
     store.dispatch({ type: 'INDEX' });
 }
 
@@ -45,10 +48,10 @@ export function useOnPress(to) {
     return () => nav(to, routesMap, navigation, app.store);
 }
 
-var _setRoot;
+var _setRoot, _Root;
 
 function RootWrapper() {
-    const [Root, setRoot] = useState();
+    const [Root, setRoot] = useState(_Root);
     _setRoot = setRoot;
 
     if (Root) {
