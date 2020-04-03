@@ -202,7 +202,7 @@ app.init = function(config) {
     });
 
     // Register outbox
-    router.register('outbox', 'outbox_list', () => outbox.loadItems());
+    router.register('outbox/', 'outbox_list', () => outbox.loadItems());
     router.register('outbox/<slug>', 'outbox_detail', _renderOutboxItem);
     router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
 
@@ -637,8 +637,9 @@ function _extendRouteInfo(routeInfo) {
 // handles requests for [url] and [url]/
 _register.list = function(page) {
     const conf = _getBaseConf(page),
-        register = conf.url === '' ? router.registerLast : router.register;
-    register(conf.url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
+        register = conf.url === '' ? router.registerLast : router.register,
+        url = conf.url === '' ? '' : conf.url + '/';
+    register(url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     app.getParents(page).forEach(function(ppage) {

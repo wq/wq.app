@@ -11,6 +11,7 @@ export default function Form({
     outboxId,
     preserve,
     data = {},
+    error,
     children
 }) {
     const app = useApp(),
@@ -40,23 +41,7 @@ export default function Form({
         });
 
         if (error) {
-            const errors = {};
-            if (typeof item.error === 'string') {
-                errors['__other__'] = item.error;
-            } else {
-                Object.entries(item.error).map(([key, error]) => {
-                    if (!(key in values)) {
-                        key = '__other__';
-                    }
-                    if (!Array.isArray(error)) {
-                        error = [error];
-                    }
-                    if (errors[key]) {
-                        error = [error[key], ...error];
-                    }
-                    errors[key] = error.join('; ');
-                });
-            }
+            const errors = parseApiError(item.error, values);
             setErrors(errors);
             setTouched(errors, false);
         }
@@ -64,8 +49,15 @@ export default function Form({
         setSubmitting(false);
     }
 
+    const errors = parseApiError(error);
+
     return (
-        <Formik initialValues={data} onSubmit={handleSubmit}>
+        <Formik
+            initialValues={data}
+            initialErrors={errors}
+            initialTouched={errors}
+            onSubmit={handleSubmit}
+        >
             <FormRoot>{children}</FormRoot>
         </Formik>
     );
@@ -79,5 +71,30 @@ Form.propTypes = {
     outboxId: PropTypes.number,
     preserve: PropTypes.arrayOf(PropTypes.string),
     data: PropTypes.object,
+    error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     children: PropTypes.node
 };
+
+function parseApiError(error, values) {
+    if (!error) {
+        return;
+    }
+    const errors = {};
+    if (typeof error === 'string') {
+        errors['__other__'] = error;
+    } else {
+        Object.entries(error).map(([key, error]) => {
+            if (!(key in values)) {
+                key = '__other__';
+            }
+            if (!Array.isArray(error)) {
+                error = [error];
+            }
+            if (errors[key]) {
+                error = [errors[key], ...error];
+            }
+            errors[key] = error.join('; ');
+        });
+    }
+    return errors;
+}

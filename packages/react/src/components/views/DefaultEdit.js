@@ -13,16 +13,20 @@ export default function DefaultEdit() {
         { form } = page_config,
         { ScrollView, AutoForm } = useComponents();
 
-    let backUrl, submitUrl, method;
-
-    if (variant === 'new') {
-        backUrl = reverse(`${page}_list`);
-        submitUrl = `${page_config.url}/`;
-        method = 'POST';
+    let backUrl;
+    if (outbox_id || variant === 'new') {
+        backUrl = reverse(`${page_config.name}_list`);
     } else {
         backUrl = reverse(`${page}_detail`, context.id);
+    }
+
+    let submitUrl, method;
+    if (context.id) {
         submitUrl = `${page_config.url}/${context.id}`;
         method = 'PUT';
+    } else {
+        submitUrl = `${page_config.url}/`;
+        method = 'POST';
     }
 
     return (
@@ -33,6 +37,7 @@ export default function DefaultEdit() {
                 method={method}
                 outboxId={outbox_id}
                 data={context}
+                error={outbox_id ? context.error : null}
                 form={form}
             />
         </ScrollView>

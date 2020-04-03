@@ -203,7 +203,7 @@ export function useBreadcrumbs() {
 
     if (item_id) {
         addLink(
-            reverse(`${page}_list`),
+            reverse(`${page_config.name}_list`),
             getRouteTitle({
                 page_config,
                 mode: 'list'

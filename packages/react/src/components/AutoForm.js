@@ -11,6 +11,7 @@ export default function AutoForm({
     outboxId,
     form = [],
     data,
+    error,
     children
 }) {
     const {
@@ -29,6 +30,7 @@ export default function AutoForm({
             action={action}
             method={method}
             data={formData}
+            error={error}
             storage={storage}
             backgroundSync={backgroundSync}
             outboxId={outboxId}
@@ -55,6 +57,7 @@ AutoForm.propTypes = {
     outboxId: PropTypes.number,
     form: PropTypes.arrayOf(PropTypes.object),
     data: PropTypes.object,
+    error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     children: PropTypes.node
 };
 
