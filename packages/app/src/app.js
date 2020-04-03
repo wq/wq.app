@@ -3,6 +3,7 @@ import modelModule from '@wq/model';
 import outbox from '@wq/outbox';
 import router from '@wq/router';
 import spinner from './spinner';
+import auth from './auth';
 import Mustache from 'mustache';
 import deepcopy from 'deepcopy';
 
@@ -21,12 +22,7 @@ var app = {
     }
 };
 
-const SERVER = '@@SERVER',
-    LOGIN_SUCCESS = 'LOGIN_SUCCESS',
-    LOGIN_RELOAD = 'LOGIN_RELOAD',
-    CSRFTOKEN = 'CSRFTOKEN',
-    LOGOUT = '@@LOGOUT';
-
+const SERVER = '@@SERVER';
 const CORE_PLUGINS = ['renderer'];
 
 app.models = {};
@@ -42,14 +38,13 @@ app.init = function(config) {
     });
     app.use(spinner);
     app.use(syncRefresh);
+    if (config.pages.login && !app.plugins.auth) {
+        // FIXME: Require explicit auth registration in 2.0
+        app.use(auth);
+    }
     router.addRouteInfo(_extendRouteInfo);
     router.addContext(() => spinner.start() && {});
-    router.addContext(app.userInfo);
     router.addContext(_getSyncInfo);
-    router.addThunk(LOGIN_SUCCESS, _refreshUserInfo);
-    router.addThunk(LOGIN_RELOAD, _refreshUserInfo);
-    router.addThunk(LOGOUT, _refreshUserInfo);
-    router.addThunk(CSRFTOKEN, _refreshCSRFToken);
 
     // Router (wq/router.js) configuration
     if (!config.router) {
@@ -70,15 +65,15 @@ app.init = function(config) {
         config.fetchFail = _fetchFail;
     }
 
-    ds.addReducer('auth', _authReducer, true);
-
     Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.ajax) {
             config.store.ajax = plugin.ajax;
         }
         if (plugin.reducer) {
-            ds.addReducer(name, (state, action) =>
-                plugin.reducer(state, action)
+            ds.addReducer(
+                name,
+                (state, action) => plugin.reducer(state, action),
+                plugin.persist || false
             );
         }
         if (plugin.actions) {
@@ -89,6 +84,9 @@ app.init = function(config) {
         }
         if (plugin.subscriber) {
             ds.subscribe(() => plugin.subscriber(ds.getState()));
+        }
+        if (plugin.pages) {
+            Object.assign(config.pages, plugin.pages);
         }
     });
 
@@ -129,7 +127,6 @@ app.init = function(config) {
     app.config = config;
 
     app['native'] = !!window.cordova;
-    app.can_login = !!config.pages.login;
 
     // Initialize wq/router.js
     router.init(config.router);
@@ -244,16 +241,6 @@ app.init = function(config) {
 
     var ready = ds.ready.then(() => outbox.init(config.outbox));
 
-    if (app.can_login) {
-        // Initialize authentication, if applicable
-        router.register('logout', 'logout', app.logout);
-        ready = ready
-            .then(() => {
-                app.outbox.setCSRFToken(app.csrftoken);
-            })
-            .then(_checkLogin);
-    }
-
     if (app.config.jqmInit) {
         // FIXME: Remove in 2.0
         ready = ready.then(app.jqmInit);
@@ -314,53 +301,6 @@ app.start = function() {
     router.start();
     app.callPlugins('start');
 };
-
-app.logout = function() {
-    if (!app.can_login || !app.user) {
-        return;
-    }
-
-    ds.dispatch({
-        type: LOGOUT
-    });
-
-    // Notify server (don't need to wait for this)
-    ds.fetch('/logout').then(function(result) {
-        ds.dispatch({
-            type: CSRFTOKEN,
-            payload: result
-        });
-    });
-};
-
-app.userInfo = function() {
-    return {
-        user: app.user,
-        is_authenticated: !!app.user,
-        app_config: app.config,
-        wq_config: app.wq_config,
-        csrf_token: app.csrftoken
-    };
-};
-
-async function _refreshUserInfo(dispatch, getState) {
-    await _refreshCSRFToken();
-    router.render(
-        {
-            ...router.getContext(),
-            ...app.userInfo()
-        },
-        true
-    );
-    // FIXME: Better way to do this?
-    app.spin.start();
-    await app.prefetchAll();
-    app.spin.stop();
-    await router.reload();
-}
-async function _refreshCSRFToken() {
-    outbox.setCSRFToken(app.csrftoken);
-}
 
 async function _getSyncInfo() {
     const unsynced = await outbox.unsynced();
@@ -963,7 +903,13 @@ async function _displayItem(ctx) {
 // handles requests for [url] and [url]/
 function _registerOther(page) {
     var conf = _getBaseConf(page);
-    router.register(conf.url, page, _displayOther);
+    router.register(
+        conf.url,
+        page,
+        conf.context || _displayOther,
+        undefined,
+        conf.thunk || null
+    );
     async function _displayOther() {
         if (conf.server_only) {
             return _loadFromServer(app.base_url + '/' + conf.url);
@@ -1104,60 +1050,8 @@ app.submitForm = async function(kwargs) {
 };
 
 app.getAuthState = function() {
-    return this.store.getState().auth || {};
+    return (this.plugins.auth && this.plugins.auth.getState()) || {};
 };
-
-function _authReducer(state = {}, action) {
-    if (!app.can_login) {
-        return state;
-    }
-    switch (action.type) {
-        case LOGIN_SUCCESS:
-        case LOGIN_RELOAD: {
-            const { user, config, csrftoken } = action.payload;
-            return { user, config, csrftoken };
-        }
-        case LOGOUT: {
-            const { csrftoken } = action.payload || {};
-            if (csrftoken) {
-                return { csrftoken };
-            } else {
-                return {};
-            }
-        }
-        case CSRFTOKEN: {
-            const { csrftoken } = action.payload;
-            return {
-                ...state,
-                csrftoken
-            };
-        }
-        default: {
-            return state;
-        }
-    }
-}
-
-function _checkLogin() {
-    setTimeout(function() {
-        ds.fetch('/login').then(function(result) {
-            if (result && result.user && result.config) {
-                ds.dispatch({
-                    type: LOGIN_RELOAD,
-                    payload: result
-                });
-            } else {
-                const { csrftoken } = result || {};
-                ds.dispatch({
-                    type: app.user ? LOGOUT : CSRFTOKEN,
-                    payload: {
-                        csrftoken
-                    }
-                });
-            }
-        });
-    }, 10);
-}
 
 // Add various callback functions to context object to automate foreign key
 // lookups within templates

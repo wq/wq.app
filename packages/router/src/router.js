@@ -145,7 +145,13 @@ async function _generateContext(dispatch, getState, refresh = false) {
     return router.render(context, refresh);
 }
 
-router.register = function(path, nameOrContext, context, order = DEFAULT) {
+router.register = function(
+    path,
+    nameOrContext,
+    context,
+    order = DEFAULT,
+    thunk = null
+) {
     var name;
     const newUsage = ' Usage: router.register(path[, name[, contextFn]])';
     if (!validOrder[order]) {
@@ -188,15 +194,26 @@ router.register = function(path, nameOrContext, context, order = DEFAULT) {
         );
     }
 
+    let thunkFn;
+    if (thunk) {
+        thunkFn = (dispatch, getState) => {
+            _generateContext(dispatch, getState);
+            thunk(dispatch, getState);
+        };
+    } else {
+        thunkFn = _generateContext;
+    }
+
     router.routesMap[name.toUpperCase()] = {
         path: _normalizePath(path),
-        thunk: (dispatch, getState) => _generateContext(dispatch, getState),
+        thunk: thunkFn,
         order
     };
 
     if (context) {
         router.addContextForRoute(name, context);
     }
+
     return name;
 };
 
