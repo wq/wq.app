@@ -263,12 +263,10 @@ map.run = function($page, routeInfo) {
 
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
-    var cdn = '//stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg';
+    var cdn =
+        'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg';
     var attr =
         'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.';
-    if (!document.location.protocol.match('http')) {
-        cdn = 'https:' + cdn;
-    }
 
     return [
         {

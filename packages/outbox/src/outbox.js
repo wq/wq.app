@@ -393,7 +393,7 @@ class Outbox {
             url += '.' + defaults.format;
             delete defaults.format;
         }
-        var urlObj = new URL(url, window.location.origin);
+        var urlObj = new URL(url, window.location);
         Object.entries(defaults).forEach(([key, value]) =>
             urlObj.searchParams.append(key, value)
         );

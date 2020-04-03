@@ -367,7 +367,7 @@ class Store {
 
     // Hook to allow full AJAX customization
     ajax(url, data, method, headers) {
-        var urlObj = new URL(url, window.location.origin);
+        var urlObj = new URL(url, window.location);
         if (!method) {
             method = 'GET';
         } else {

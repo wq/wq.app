@@ -67,7 +67,7 @@ app.init = function(config) {
 
     Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.ajax) {
-            config.store.ajax = plugin.ajax;
+            config.store.ajax = plugin.ajax.bind(plugin);
         }
         if (plugin.reducer) {
             ds.addReducer(
@@ -484,8 +484,8 @@ app.postsaveurl = function(item, alreadySynced) {
 
 const syncRefresh = {
     onsync(obitem) {
-        const context = router.getContext(),
-            { router_info: routeInfo } = context,
+        const context = router.getContext() || {},
+            { router_info: routeInfo = {} } = context,
             { full_path, item_id, parent_id } = routeInfo,
             { id: outboxId, result } = obitem || {},
             { id: resultId } = result || {},

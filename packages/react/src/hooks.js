@@ -210,7 +210,12 @@ export function useBreadcrumbs() {
             })
         );
         if (mode !== 'detail') {
-            addLink(reverse(`${page}_detail`, item_id), title);
+            const currentTitle = getRouteTitle({ page_config, mode }),
+                detailTitle = getRouteTitle({ page_config, mode: 'detail' });
+            addLink(
+                reverse(`${page}_detail`, item_id),
+                title === currentTitle ? detailTitle : title
+            );
             addCurrentPage(mode);
         } else {
             addCurrentPage(title);
