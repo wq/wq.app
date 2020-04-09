@@ -34,6 +34,8 @@ matrix:
       env: PACKAGE=mapbox
     - name: "@wq/material"
       env: PACKAGE=material
+    - name: "@wq/material-native"
+      env: PACKAGE=material-native
     - name: "@wq/model"
       env: PACKAGE=model
     - name: "@wq/outbox"

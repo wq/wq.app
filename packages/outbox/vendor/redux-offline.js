@@ -11,16 +11,21 @@ var _typeof2 = _interopRequireDefault(require('@babel/runtime/helpers/typeof'));
 
 var _redux = require('redux');
 
-var _middleware = require('./middleware');
+var _middleware = require('@redux-offline/redux-offline/lib/middleware');
 
-var _updater = require('./updater');
+var _updater = require('@redux-offline/redux-offline/lib/updater');
 
-var _config = require('./config');
+// var _config = require('./config');
+var _config = {
+    applyDefaults: function(config) {
+        return config;
+    }
+}
 
-var _actions = require('./actions');
+var _actions = require('@redux-offline/redux-offline/lib/actions');
 
 var _offlineActionTracker = _interopRequireDefault(
-    require('./offlineActionTracker')
+    require('@redux-offline/redux-offline/lib/offlineActionTracker')
 );
 
 /* global $Shape */

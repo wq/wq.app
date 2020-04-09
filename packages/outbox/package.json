@@ -27,7 +27,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@redux-offline/redux-offline": "^2.5.2-native.3",
+        "@redux-offline/redux-offline": "2.5.2-native.3",
         "@wq/model": "^1.2.0",
         "@wq/store": "^1.2.0",
         "redux": "^4.0.4"
