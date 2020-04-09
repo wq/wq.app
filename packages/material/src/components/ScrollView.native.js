@@ -1,11 +1,11 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView as PaperScrollView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
-export default function Main(props) {
+export default function ScrollView(props) {
     const theme = useTheme();
     return (
-        <ScrollView
+        <PaperScrollView
             style={{ flex: 1, backgroundColor: theme.colors.background }}
             {...props}
         />

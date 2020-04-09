@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 export default function ScrollView({ children }) {
     return (
-        <div style={{ overflowX: 'hidden', overflowY: 'auto' }}>{children}</div>
+        <div style={{ overflowX: 'hidden', overflowY: 'auto', flex: 1 }}>
+            {children}
+        </div>
     );
 }
 
