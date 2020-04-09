@@ -31,6 +31,12 @@ app.plugins = {};
 var _register = {};
 
 app.init = function(config) {
+    if (!config) {
+        config = {};
+    }
+    if (!config.pages) {
+        config.pages = {};
+    }
     CORE_PLUGINS.forEach(type => {
         if (!app[type]) {
             throw new Error(`Register a ${type} with app.use()`);
@@ -246,7 +252,7 @@ app.init = function(config) {
         ready = ready.then(app.jqmInit);
     }
 
-    if (app.config.autoStart) {
+    if (app.config.autoStart !== false) {
         ready = ready.then(app.start);
     }
 
