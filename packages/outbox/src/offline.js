@@ -24,6 +24,6 @@ const offlineConfig = {
     offlineStateLens,
     // queue,
     returnPromises: false
-}
+};
 
 export { createOffline, offlineConfig, RESET_STATE, busy };

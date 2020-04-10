@@ -214,7 +214,15 @@ app.init = function(config) {
 
     // Fallback index page
     if (!root && !app.config.pages.index) {
-        router.registerLast('', 'index', function(ctx) {
+        router.registerLast('', 'index');
+    }
+
+    app.use({
+        context(ctx, routeInfo) {
+            if (routeInfo.name !== 'index') {
+                return;
+            }
+
             var context = {};
             context.pages = Object.keys(app.config.pages).map(function(page) {
                 var conf = app.config.pages[page];
@@ -225,8 +233,8 @@ app.init = function(config) {
                 };
             });
             return context;
-        });
-    }
+        }
+    });
 
     // Fallback for all other URLs
     router.registerLast(':path*', SERVER, _serverContext);
