@@ -249,6 +249,10 @@ export function useInputComponents() {
 
 export { useHtmlInput };
 
+export function useIconComponents() {
+    return usePluginComponentMap('react', 'icons');
+}
+
 export function useViewComponents() {
     return usePluginComponentMap('react', 'views');
 }

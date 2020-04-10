@@ -55,7 +55,7 @@ export default function DefaultDetail() {
             <ScrollView>
                 <PropertyTable />
             </ScrollView>
-            <Fab type="edit" to={editUrl} />
+            <Fab icon="edit" to={editUrl} />
         </>
     );
 }

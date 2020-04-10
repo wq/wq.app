@@ -7,6 +7,7 @@ import App from './App';
 
 import * as components from './components/index';
 import * as inputs from './components/inputs/index';
+import * as icons from './components/icons/index';
 import * as views from './components/views/index';
 
 export default {
@@ -19,42 +20,28 @@ export default {
             ...components
         },
         inputs: { ...inputs },
+        icons: { ...icons },
         views: { ...views }
     },
 
     init(config) {
+        if (config) {
+            Object.assign(this.config, config);
+        }
         Object.values(this.app.plugins).forEach(plugin => {
-            if (plugin.views) {
-                Object.assign(this.config.views, plugin.views);
+            if (plugin.components) {
+                Object.assign(this.config.components, plugin.components);
             }
             if (plugin.inputs) {
                 Object.assign(this.config.inputs, plugin.inputs);
             }
-            if (plugin.components) {
-                Object.assign(this.config.components, plugin.components);
+            if (plugin.icons) {
+                Object.assign(this.config.icons, plugin.icons);
+            }
+            if (plugin.views) {
+                Object.assign(this.config.views, plugin.views);
             }
         });
-        if (config) {
-            if (config.views) {
-                config.views = {
-                    ...this.config.views,
-                    ...config.views
-                };
-            }
-            if (config.inputs) {
-                config.inputs = {
-                    ...this.config.inputs,
-                    ...config.inputs
-                };
-            }
-            if (config.components) {
-                config.components = {
-                    ...this.config.components,
-                    ...config.components
-                };
-            }
-            Object.assign(this.config, config);
-        }
     },
 
     getRootComponent() {

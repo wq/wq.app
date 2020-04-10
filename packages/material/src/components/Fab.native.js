@@ -1,19 +1,17 @@
 import React from 'react';
 import { FAB } from 'react-native-paper';
 import { useOnPress } from '../hooks';
+import { useIconComponents } from '@wq/react';
 import PropTypes from 'prop-types';
 
-const icons = {
-    add: 'plus',
-    edit: 'pencil'
-};
-export default function Fab({ type, to }) {
-    const onPress = useOnPress(to);
-    const icon = icons[type];
+export default function Fab({ icon, to }) {
+    const onPress = useOnPress(to),
+        { [icon]: Icon } = useIconComponents();
+
     return (
         <FAB
             onPress={onPress}
-            icon={icon}
+            icon={Icon}
             color="white"
             style={{
                 position: 'absolute',
@@ -26,6 +24,6 @@ export default function Fab({ type, to }) {
 }
 
 Fab.propTypes = {
-    type: PropTypes.string,
+    icon: PropTypes.string,
     to: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
 };

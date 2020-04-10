@@ -2,6 +2,7 @@ import react from '@wq/react';
 import App from './App';
 import * as components from './components/index';
 import * as inputs from './components/inputs/index';
+import * as icons from './components/icons/index';
 import { init, start } from './hooks';
 
 export default {
@@ -17,6 +18,7 @@ export default {
 
     components: { App, ...components },
     inputs: { ...inputs },
+    icons: { ...icons },
 
     init,
     start

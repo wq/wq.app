@@ -3,6 +3,7 @@ import {
     useRenderContext,
     useRouteInfo,
     useComponents,
+    useViewComponents,
     useReverse
 } from '../../hooks';
 
@@ -18,7 +19,8 @@ export default function DefaultList() {
             ListItemLink,
             Pagination,
             Fab
-        } = useComponents();
+        } = useComponents(),
+        { OutboxList } = useViewComponents();
 
     const empty = !list || !list.length,
         unsynced = (unsyncedItems && unsyncedItems.length) || false;
@@ -26,21 +28,9 @@ export default function DefaultList() {
     return (
         <>
             <ScrollView>
+                {unsynced && <OutboxList embedded />}
                 <List>
-                    {unsynced && (
-                        <>
-                            <ListSubheader>Unsynced Items</ListSubheader>
-                            {unsyncedItems.map(row => (
-                                <ListItemLink
-                                    key={row.id}
-                                    to={reverse('outbox_edit', row.id)}
-                                >
-                                    {row.label}
-                                </ListItemLink>
-                            ))}
-                            <ListSubheader>Synced Items</ListSubheader>
-                        </>
-                    )}
+                    {unsynced && <ListSubheader>Synced Items</ListSubheader>}
                     {empty && <ListItem>Empty list.</ListItem>}
                     {(list || []).map(row => (
                         <ListItemLink
@@ -53,7 +43,7 @@ export default function DefaultList() {
                 </List>
                 <Pagination />
             </ScrollView>
-            <Fab type="add" to={reverse(`${page}_edit:new`)} />
+            <Fab icon="add" to={reverse(`${page}_edit:new`)} />
         </>
     );
 }

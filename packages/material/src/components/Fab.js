@@ -1,17 +1,11 @@
 import React from 'react';
 import MuiFab from '@material-ui/core/Fab';
-import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
 import { Link } from '@wq/react';
 import PropTypes from 'prop-types';
+import { useIconComponents } from '@wq/react';
 
-const icons = {
-    add: AddIcon,
-    edit: EditIcon
-};
-
-export default function Fab({ type, to }) {
-    const Icon = icons[type];
+export default function Fab({ icon, to }) {
+    const { [icon]: Icon } = useIconComponents();
     return (
         <MuiFab
             component={Link}
@@ -29,6 +23,6 @@ export default function Fab({ type, to }) {
 }
 
 Fab.propTypes = {
-    type: PropTypes.string,
+    icon: PropTypes.string,
     to: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
 };
