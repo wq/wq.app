@@ -1,6 +1,7 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useState, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useApp, useRoutesMap } from '@wq/react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useApp, usePlugin, useRoutesMap } from '@wq/react';
 import { pathToAction } from 'redux-first-router';
 import 'expo/build/Expo.fx';
 import registerRootComponent from 'expo/build/launch/registerRootComponent';
@@ -46,6 +47,18 @@ export function useOnPress(to) {
         routesMap = useRoutesMap();
 
     return () => nav(to, routesMap, navigation, app.store);
+}
+
+export function useCreateNavigator(theme) {
+    const config = usePlugin('material').config;
+    const createNavigator = config.createNavigator || createDefaultNavigator;
+    return useMemo(() => {
+        return createNavigator(theme);
+    }, [createNavigator, theme]);
+}
+
+function createDefaultNavigator() {
+    return createStackNavigator();
 }
 
 var _setRoot, _Root;

@@ -13,11 +13,9 @@ import {
     Provider as PaperProvider
 } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import PropTypes from 'prop-types';
 
-const Stack = createStackNavigator();
-import { navRef } from './hooks';
+import { navRef, useCreateNavigator } from './hooks';
 
 export default function App() {
     const { Header } = useComponents(),
@@ -37,12 +35,13 @@ export default function App() {
         [routesMap]
     );
 
-    const paperTheme = useMemo(() => createTheme(theme), [theme]);
+    const paperTheme = useMemo(() => createTheme(theme), [theme]),
+        { Navigator, Screen } = useCreateNavigator(paperTheme);
 
     return (
         <PaperProvider theme={paperTheme}>
             <NavigationContainer ref={navRef}>
-                <Stack.Navigator
+                <Navigator
                     initialRouteName={index.toUpperCase()}
                     screenOptions={{
                         header: function header(props) {
@@ -51,7 +50,7 @@ export default function App() {
                     }}
                 >
                     {routes.map(route => (
-                        <Stack.Screen
+                        <Screen
                             key={route.name}
                             name={route.name}
                             options={({ route }) => ({
@@ -61,21 +60,21 @@ export default function App() {
                                         paperTheme.colors.background
                                 }
                             })}
-                            component={Screen}
+                            component={AppScreen}
                             route={route}
                         />
                     ))}
-                </Stack.Navigator>
+                </Navigator>
             </NavigationContainer>
         </PaperProvider>
     );
 }
 
-function Screen({ route }) {
+function AppScreen({ route }) {
     const { name } = route;
     return <DefaultApp route={name.toLowerCase()} />;
 }
-Screen.propTypes = {
+AppScreen.propTypes = {
     route: PropTypes.object
 };
 
