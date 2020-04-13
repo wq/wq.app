@@ -6,12 +6,15 @@ import View from './View';
 import ScrollView from './ScrollView';
 import HorizontalView from './HorizontalView';
 import Text from './Text';
+import Typography from './Typography';
 import FormatJson from './FormatJson';
 
 import Link from './Link';
 import Button from './Button';
 import ButtonLink from './ButtonLink';
+import IconButton from './IconButton';
 import Fab from './Fab';
+import Chip from './Chip';
 
 import List from './List';
 import ListItem from './ListItem';
@@ -32,6 +35,7 @@ import FormError from './FormError';
 import Fieldset from './Fieldset';
 import FieldsetArray from './FieldsetArray';
 import SubmitButton from './SubmitButton';
+import IconSubmitButton from './IconSubmitButton';
 
 import Spinner from './Spinner';
 import Breadcrumbs from './Breadcrumbs';
@@ -46,15 +50,23 @@ export {
     ScrollView,
     HorizontalView,
     Text,
+    Typography,
     FormatJson
 };
 
-export { Link, Button, ButtonLink, Fab };
+export { Link, Button, ButtonLink, IconButton, Fab, Chip };
 
 export { List, ListItem, ListItemLink, ListSubheader, ExpansionPanel, Divider };
 
 export { Table, TableHead, TableBody, TableRow, TableTitle, TableCell };
 
-export { FormRoot, FormError, Fieldset, FieldsetArray, SubmitButton };
+export {
+    FormRoot,
+    FormError,
+    Fieldset,
+    FieldsetArray,
+    SubmitButton,
+    IconSubmitButton
+};
 
 export { Spinner, Breadcrumbs, Pagination };

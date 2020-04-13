@@ -12,7 +12,7 @@ const keyboards = {
 };
 
 export default function Input(props) {
-    const { name, type, label } = props,
+    const { name, type, label, style } = props,
         { maxLength } = useHtmlInput(props),
         [, meta, helpers] = useField(name),
         { value } = meta,
@@ -35,6 +35,7 @@ export default function Input(props) {
             onChangeText={handleChange}
             onBlur={() => setTouched(true)}
             value={typeof value === 'number' ? '' + value : value}
+            style={style}
         />
     );
 }
@@ -42,5 +43,6 @@ export default function Input(props) {
 Input.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
-    label: PropTypes.string
+    label: PropTypes.string,
+    style: PropTypes.object
 };
