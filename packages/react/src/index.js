@@ -80,9 +80,10 @@ export default {
                 plugins: { ...app.plugins }
             },
             config: {
-                views: {},
+                components: {},
                 inputs: {},
-                components: {}
+                icons: {},
+                views: {}
             },
             root
         };

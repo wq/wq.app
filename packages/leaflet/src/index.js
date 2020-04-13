@@ -12,6 +12,9 @@ export default {
     dependencies: [map],
     config: {
         popups: {},
+        icons: {
+            default: new L.Icon.Default()
+        },
         defaults: {
             // Defaults to simplify creation of new icons of the same dimensions
             // as L.Icon.Default
@@ -28,11 +31,8 @@ export default {
             this.config = { ...this.config, ...config };
         }
     },
-    icons: {
-        default: new L.Icon.Default()
-    },
     createIcon(name, options) {
-        return (this.icons[name] = L.icon({
+        return (this.config.icons[name] = L.icon({
             ...this.config.defaults.icon,
             ...options
         }));

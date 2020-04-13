@@ -17,7 +17,7 @@ export default function Geojson({
     cluster,
     clusterIcon
 }) {
-    const { config, icons } = usePlugin('leaflet'),
+    const { config } = usePlugin('leaflet'),
         { config: jqmConfig } = usePlugin('jqmrenderer') || {},
         geojson = useGeoJSON(url, data),
         options = {};
@@ -58,7 +58,7 @@ export default function Geojson({
             } else {
                 key = icon;
             }
-            return L.marker(latlng, { icon: icons[key] });
+            return L.marker(latlng, { icon: config.icons[key] });
         };
     }
 
