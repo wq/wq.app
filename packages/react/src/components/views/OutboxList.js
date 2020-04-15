@@ -5,10 +5,10 @@ import PropTypes from 'prop-types';
 export default function OutboxList({ embedded }) {
     const reverse = useReverse(),
         { list, unsyncedItems } = useRenderContext(),
-        { List, ListItem, ListItemLink } = useComponents();
+        { List, ListItem, ListItemLink, ListSubheader } = useComponents();
 
     const items = embedded ? unsyncedItems : list,
-        empty = !list || !list.length;
+        empty = !items || !items.length;
 
     function getIcon(item) {
         if (item.synced) {
@@ -44,6 +44,7 @@ export default function OutboxList({ embedded }) {
 
     return (
         <List>
+            {embedded && <ListSubheader>Unsynced Items</ListSubheader>}
             {empty && <ListItem>No items in outbox.</ListItem>}
             {(items || []).map(item => (
                 <ListItemLink
