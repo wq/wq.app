@@ -1,11 +1,27 @@
 import React from 'react';
-import { useRenderContext, useReverse, useComponents } from '../../hooks';
+import {
+    useApp,
+    useRenderContext,
+    useReverse,
+    useRouteTitle,
+    useComponents
+} from '../../hooks';
 import PropTypes from 'prop-types';
 
 export default function OutboxList({ embedded }) {
-    const reverse = useReverse(),
+    const app = useApp(),
+        reverse = useReverse(),
+        routeTitle = useRouteTitle(),
         { list, unsyncedItems } = useRenderContext(),
-        { List, ListItem, ListItemLink, ListSubheader } = useComponents();
+        {
+            List,
+            ListItem,
+            ListItemLink,
+            ListSubheader,
+            ScrollView,
+            HorizontalView,
+            Button
+        } = useComponents();
 
     const items = embedded ? unsyncedItems : list,
         empty = !items || !items.length;
@@ -21,8 +37,11 @@ export default function OutboxList({ embedded }) {
     }
 
     function getTitle(item) {
-        if (item.modelConf && !embedded) {
-            return `${item.modelConf.name}: {item.label}`;
+        if (item.options.modelConf && !embedded) {
+            const pageName = routeTitle(
+                `${item.options.modelConf.name}_detail`
+            );
+            return `${pageName}: ${item.label}`;
         } else {
             return item.label;
         }
@@ -42,22 +61,52 @@ export default function OutboxList({ embedded }) {
         }
     }
 
-    return (
-        <List>
-            {embedded && <ListSubheader>Unsynced Items</ListSubheader>}
-            {empty && <ListItem>No items in outbox.</ListItem>}
-            {(items || []).map(item => (
-                <ListItemLink
-                    key={item.id}
-                    to={reverse('outbox_edit', item.id)}
-                    icon={getIcon(item)}
-                    description={getStatus(item)}
-                >
-                    {getTitle(item)}
-                </ListItemLink>
-            ))}
-        </List>
-    );
+    function OutboxItems() {
+        return (
+            <>
+                {empty && <ListItem>No items in outbox.</ListItem>}
+                {(items || []).map(item => (
+                    <ListItemLink
+                        key={item.id}
+                        to={reverse('outbox_edit', item.id)}
+                        icon={getIcon(item)}
+                        description={getStatus(item)}
+                    >
+                        {getTitle(item)}
+                    </ListItemLink>
+                ))}
+            </>
+        );
+    }
+
+    if (embedded) {
+        return (
+            <List>
+                <ListSubheader>Unsynced Items</ListSubheader>
+                <OutboxItems />
+            </List>
+        );
+    } else {
+        return (
+            <>
+                <ScrollView>
+                    <List>
+                        <OutboxItems />
+                    </List>
+                </ScrollView>
+                {!empty && (
+                    <HorizontalView>
+                        <Button onClick={() => app.emptyOutbox(true)}>
+                            Empty Outbox
+                        </Button>
+                        <Button onClick={() => app.retryAll()}>
+                            Retry All
+                        </Button>
+                    </HorizontalView>
+                )}
+            </>
+        );
+    }
 }
 
 OutboxList.propTypes = {

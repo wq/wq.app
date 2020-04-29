@@ -252,9 +252,9 @@ class Outbox {
                     }
                 }
             });
-            const items = await this.loadItems();
-            // FIXME: Double check that this is the same record just submitted
-            return items.list[0];
+            const items = await this.loadItems(),
+                item = items.list.find(item => item.id === outboxId);
+            return item || items.list[0];
         } else {
             this.store.dispatch({ type, payload });
             return null;

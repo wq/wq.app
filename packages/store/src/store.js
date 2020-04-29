@@ -8,7 +8,7 @@ import {
 import logger from 'redux-logger';
 import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
-import { createStorage, storeAsString } from './storage';
+import { createStorage, serialize, deserialize } from './storage';
 
 import 'whatwg-fetch';
 
@@ -107,8 +107,8 @@ class Store {
             key: 'root',
             storage: this.lf,
             stateReconciler: autoMergeLevel2,
-            serialize: storeAsString,
-            deserialize: storeAsString,
+            serialize,
+            deserialize,
             transforms: this.#transforms,
             whitelist: this.#persistKeys,
             writeFailHandler: error => this.storageFail(error)

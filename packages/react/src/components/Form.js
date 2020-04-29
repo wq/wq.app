@@ -57,6 +57,7 @@ export default function Form({
             initialErrors={errors}
             initialTouched={errors}
             onSubmit={handleSubmit}
+            enableReinitialize={true}
         >
             <FormRoot>{children}</FormRoot>
         </Formik>

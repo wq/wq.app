@@ -7,20 +7,21 @@ import {
 } from '../../hooks';
 
 const Value = ({ context, field }) => {
-    const { FormatJson } = useComponents();
+    const { FormatJson } = useComponents(),
+        value = context[field.name];
 
     if (field['wq:ForeignKey']) {
-        if (context[field.name] && typeof context[field.name] === 'object') {
-            return context[field.name].label;
+        if (value && typeof value === 'object' && value.label) {
+            return value.label;
         } else {
             return (
                 context[field.name + '_label'] || context[field.name + '_id']
             );
         }
-    } else if (typeof context[field.name] !== 'string') {
-        return <FormatJson json={context[field.name]} />;
+    } else if (typeof value === 'object') {
+        return <FormatJson json={value} />;
     } else {
-        return context[field.name];
+        return value + '';
     }
 };
 
@@ -47,7 +48,7 @@ function PropertyTable() {
 
 export default function DefaultDetail() {
     const reverse = useReverse(),
-        { page, item_id } = useRouteInfo(),
+        { page, item_id, page_config } = useRouteInfo(),
         { ScrollView, Fab } = useComponents(),
         editUrl = reverse(`${page}_edit`, item_id);
     return (
@@ -55,7 +56,7 @@ export default function DefaultDetail() {
             <ScrollView>
                 <PropertyTable />
             </ScrollView>
-            <Fab icon="edit" to={editUrl} />
+            {page_config.can_change && <Fab icon="edit" to={editUrl} />}
         </>
     );
 }

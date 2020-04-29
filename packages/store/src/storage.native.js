@@ -1,7 +1,5 @@
 import { AsyncStorage } from 'react-native';
 
-export const storeAsString = true;
-
 export function createStorage(name) {
     return {
         getItem(key) {
@@ -11,4 +9,24 @@ export function createStorage(name) {
             return AsyncStorage.setItem(`${name}_${key}`, value);
         }
     };
+}
+
+export function serialize(value) {
+    return JSON.stringify(value);
+}
+
+export function deserialize(value) {
+    return JSON.parse(value, (key, val) => maybeParseDate(val));
+}
+
+function maybeParseDate(val) {
+    if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
+        try {
+            return new Date(val);
+        } catch (e) {
+            return val;
+        }
+    } else {
+        return val;
+    }
 }

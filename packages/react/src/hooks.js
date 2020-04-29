@@ -116,7 +116,9 @@ function getRouteTitle(routeInfo) {
             `${verbose_name}s`;
 
     let title;
-    if (mode === 'list') {
+    if (mode === 'list' && verbose_name === 'outbox') {
+        title = 'outbox';
+    } else if (mode === 'list') {
         title = verbose_name_plural;
     } else if (mode === 'edit') {
         if (variant === 'new') {

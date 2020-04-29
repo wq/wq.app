@@ -10,7 +10,7 @@ import {
 export default function DefaultList() {
     const reverse = useReverse(),
         { list, unsyncedItems } = useRenderContext(),
-        { page } = useRouteInfo(),
+        { page, page_config } = useRouteInfo(),
         {
             ScrollView,
             List,
@@ -25,6 +25,18 @@ export default function DefaultList() {
     const empty = !list || !list.length,
         unsynced = (unsyncedItems && unsyncedItems.length) || false;
 
+    function Row({ id, label }) {
+        if (page_config.can_view === false) {
+            return <ListItem>{label}</ListItem>;
+        } else {
+            return (
+                <ListItemLink to={reverse(`${page}_detail`, id)}>
+                    {label}
+                </ListItemLink>
+            );
+        }
+    }
+
     return (
         <>
             <ScrollView>
@@ -33,17 +45,14 @@ export default function DefaultList() {
                     {unsynced && <ListSubheader>Synced Items</ListSubheader>}
                     {empty && <ListItem>Empty list.</ListItem>}
                     {(list || []).map(row => (
-                        <ListItemLink
-                            key={row.id}
-                            to={reverse(`${page}_detail`, row.id)}
-                        >
-                            {row.label}
-                        </ListItemLink>
+                        <Row key={row.id} {...row} />
                     ))}
                 </List>
                 <Pagination />
             </ScrollView>
-            <Fab icon="add" to={reverse(`${page}_edit:new`)} />
+            {page_config.can_add && (
+                <Fab icon="add" to={reverse(`${page}_edit:new`)} />
+            )}
         </>
     );
 }
