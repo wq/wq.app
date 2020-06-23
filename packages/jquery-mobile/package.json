@@ -2,8 +2,8 @@
     "name": "@wq/jquery-mobile",
     "version": "1.2.0",
     "description": "Modified jQuery Mobile for use with @wq/app",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "type": "module",
+    "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/jquery-mobile",
         "build": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js",

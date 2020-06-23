@@ -2,13 +2,13 @@
     "name": "@wq/outbox",
     "version": "1.2.0",
     "description": "A simple model API for working with stored lists",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "type": "module",
+    "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/outbox",
         "build": "cd ../../ && npm run rollup -- -c packages/outbox/rollup.config.js",
         "prettier": "cd ../../ && npm run prettier -- --write packages/outbox/{,src/,src/*/,src/*/*/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/outbox/{,src/,src/*/,src/*/*/}*.js"
+        "lint": "cd ../../ && npm run eslint packages/outbox/{,src/,src/*/}*.js"
     },
     "repository": {
         "type": "git",

@@ -2,8 +2,8 @@
     "name": "@wq/material-native",
     "version": "1.3.0-dev",
     "description": "React Native Paper dependencies for @wq/material",
+    "type": "module",
     "main": "index.js",
-    "module": "index.es.js",
     "scripts": {
         "test": "echo 'No tests'",
         "build": "echo 'No build required'",

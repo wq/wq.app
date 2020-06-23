@@ -5,7 +5,6 @@ import {
     makeBanner,
     wqDeps,
     vendorLib,
-    babelNPM,
     babelAMD,
     outputAMD
 } from '../../rollup-utils.js';
@@ -22,43 +21,7 @@ const offlineForAMD = {
     }
 };
 
-const offlineForNPM = {
-    resolveId(path) {
-        if (path.match(/^@redux-offline/)) {
-            return {
-                id: path,
-                external: true
-            };
-        }
-    }
-};
-
 export default [
-    // ESM
-    {
-        input: 'packages/outbox/index.js',
-        plugins: [offlineForNPM, wqDeps('@wq'), babelNPM()],
-        output: [
-            {
-                banner: banner,
-                file: 'packages/outbox/dist/index.es.js',
-                format: 'esm'
-            }
-        ]
-    },
-    // CJS
-    {
-        input: 'packages/outbox/index.js',
-        plugins: [offlineForNPM, wqDeps('@wq'), babelNPM()],
-        output: [
-            {
-                banner: banner,
-                file: 'packages/outbox/dist/index.js',
-                format: 'cjs',
-                exports: 'named'
-            }
-        ]
-    },
     // AMD (for wq.app Python package)
     {
         input: 'packages/outbox/index.js',

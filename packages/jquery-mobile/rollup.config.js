@@ -2,31 +2,6 @@ import commonjs from 'rollup-plugin-commonjs';
 import { wqDeps, vendorLib } from '../../rollup-utils';
 
 export default [
-    // ESM
-    {
-        input: 'packages/jquery-mobile/index.js',
-        plugins: [wqDeps('@wq'), commonjs()],
-        external: ['jquery'],
-        output: [
-            {
-                file: 'packages/jquery-mobile/dist/index.es.js',
-                format: 'esm'
-            }
-        ]
-    },
-    // CJS
-    {
-        input: 'packages/jquery-mobile/index.js',
-        plugins: [wqDeps('@wq'), commonjs()],
-        external: ['jquery'],
-        output: [
-            {
-                file: 'packages/jquery-mobile/dist/index.js',
-                format: 'cjs',
-                exports: 'named'
-            }
-        ]
-    },
     // AMD (for wq.app Python package)
     {
         input: 'packages/jquery-mobile/src/jquery-mobile.js',

@@ -1,7 +1,5 @@
 import babelPlugin from 'rollup-plugin-babel';
 import { CodeGenerator } from '@babel/generator';
-import fs from 'fs';
-import path from 'path';
 
 export function wqDeps(path = '.') {
     return {
@@ -34,23 +32,6 @@ export function vendorLib(path) {
     };
 }
 
-export function resolveNative() {
-    return {
-        resolveId(source, importer) {
-            const filename = path.resolve(
-                path.dirname(importer || '.'),
-                `${source.replace('.js', '')}.native.js`
-            );
-
-            if (fs.existsSync(filename)) {
-                return filename;
-            } else {
-                return null;
-            }
-        }
-    };
-}
-
 export function makeBanner(pkg, startYear) {
     const currentYear = new Date().getFullYear();
     return `/*
@@ -60,28 +41,6 @@ export function makeBanner(pkg, startYear) {
  * https://wq.io/license
  */
 `;
-}
-
-export function babelNPM(opts) {
-    const { jsx } = opts || {},
-        presets = [
-            [
-                '@babel/preset-env',
-                {
-                    targets: {
-                        node: 8
-                    }
-                }
-            ]
-        ];
-    if (jsx) {
-        presets.push('@babel/preset-react');
-    }
-    return babelPlugin({
-        configFile: false,
-        presets,
-        plugins: ['@babel/plugin-proposal-class-properties', generatorOverride]
-    });
 }
 
 export function babelAMD(opts) {

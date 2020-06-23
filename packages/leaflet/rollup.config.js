@@ -2,7 +2,6 @@ import pkg from './package.json';
 import {
     makeBanner,
     wqDeps,
-    babelNPM,
     babelAMD,
     outputAMD
 } from '../../rollup-utils.js';
@@ -28,47 +27,6 @@ const banners = {
 };
 
 export default [
-    // ESM
-    {
-        input: 'packages/leaflet/index.js',
-        plugins: [wqDeps('@wq'), babelNPM({ jsx: true })],
-        external: [
-            'react',
-            'prop-types',
-            'react-leaflet',
-            'leaflet',
-            'esri-leaflet',
-            'leaflet.wms'
-        ],
-        output: [
-            {
-                banner: banners.leaflet,
-                file: 'packages/leaflet/dist/index.es.js',
-                format: 'esm'
-            }
-        ]
-    },
-    // CJS
-    {
-        input: 'packages/leaflet/index.js',
-        plugins: [wqDeps('@wq'), babelNPM({ jsx: true })],
-        external: [
-            'react',
-            'prop-types',
-            'react-leaflet',
-            'leaflet',
-            'esri-leaflet',
-            'leaflet.wms'
-        ],
-        output: [
-            {
-                banner: banners.leaflet,
-                file: 'packages/leaflet/dist/index.js',
-                format: 'cjs',
-                exports: 'named'
-            }
-        ]
-    },
     // AMD (for wq.app Python package)
     {
         input: 'packages/leaflet/src/index.js',

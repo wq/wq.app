@@ -2,8 +2,8 @@
     "name": "@wq/map",
     "version": "1.2.0",
     "description": "GIS integration for @wq/app pages",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "type": "module",
+    "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/map/ -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
         "build": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js",
