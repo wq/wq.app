@@ -3,7 +3,7 @@ import App from './App';
 import * as components from './components/index';
 import * as inputs from './components/inputs/index';
 import * as icons from './components/icons/index';
-import { init, start } from './hooks';
+import { init } from './init';
 
 export default {
     name: 'material',
@@ -20,6 +20,10 @@ export default {
     inputs: { ...inputs },
     icons: { ...icons },
 
-    init,
-    start
+    init(config) {
+        if (config) {
+            Object.assign(this.config, config);
+        }
+        init.call(this);
+    }
 };

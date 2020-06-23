@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Provider as StoreProvider } from 'react-redux';
 import { AppContext } from './hooks';
 
@@ -9,6 +8,7 @@ import * as components from './components/index';
 import * as inputs from './components/inputs/index';
 import * as icons from './components/icons/index';
 import * as views from './components/views/index';
+import { init, start, unmount } from './init';
 
 export default {
     name: 'react',
@@ -42,6 +42,7 @@ export default {
                 Object.assign(this.config.views, plugin.views);
             }
         });
+        init.call(this);
     },
 
     getRootComponent() {
@@ -59,16 +60,7 @@ export default {
         return AppRoot;
     },
 
-    start() {
-        if (!this.root) {
-            this.root = document.body.appendChild(
-                document.createElement('div')
-            );
-            this.root.id = 'wq-app-root';
-        }
-        const RootComponent = this.getRootComponent();
-        ReactDOM.render(<RootComponent />, this.root);
-    },
+    start,
 
     createInstance(component, root, app) {
         if (!app) {
@@ -96,7 +88,7 @@ export default {
         return {
             start: () => this.start.call(tempPlugin),
             getRootComponent: () => this.getRootComponent.call(tempPlugin),
-            stop: () => ReactDOM.unmountComponentAtNode(root)
+            stop: () => unmount.call(tempPlugin)
         };
     },
 
