@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { GeoJSONLayer } from 'react-mapbox-gl';
+import GeoJSONLayer from './GeoJSONLayer';
 
 export default function Geojson({
     name,
@@ -79,16 +79,21 @@ export default function Geojson({
         };
     }
 
-    const hidden = { visibility: 'none' };
-    if (active !== false) {
-        fillLayout = fillPaint ? {} : hidden;
-        lineLayout = linePaint ? {} : hidden;
-        circleLayout = circlePaint ? {} : hidden;
-    } else {
-        if (symbolLayout) {
-            symbolLayout = { ...symbolLayout, ...hidden };
-        }
-        fillLayout = lineLayout = circleLayout = hidden;
+    fillLayout = {
+        visibility: active && fillPaint ? 'visible' : 'none'
+    };
+    lineLayout = {
+        visibility: active && linePaint ? 'visible' : 'none'
+    };
+    circleLayout = {
+        visibility: active && circlePaint ? 'visible' : 'none'
+    };
+
+    if (symbolLayout) {
+        symbolLayout = {
+            ...symbolLayout,
+            visibility: active ? 'visible' : 'none'
+        };
     }
 
     return (
