@@ -2,13 +2,15 @@
     "name": "@wq/leaflet",
     "version": "1.2.0-beta.1",
     "description": "Leaflet integration for @wq/map",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "type": "module",
+    "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/leaflet -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
-        "build": "cd ../../ && npm run rollup -- -c packages/leaflet/rollup.config.js",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/leaflet/{,src/,src/*/,src/*/*/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/leaflet/{,src/,src/*/,src/*/*/}*.js"
+        "build": "npm run babel && npm run prettier",
+        "babel": "cd ../../ && npm run babel -- packages/leaflet/src --out-dir packages/leaflet/",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/leaflet/{,*/,*/*/,*/*/*/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/leaflet/{,src/,src/*/,src/*/*/}*.js",
+        "rollup": "cd ../../ && npm run rollup -- -c packages/leaflet/rollup.config.js"
     },
     "repository": {
         "type": "git",

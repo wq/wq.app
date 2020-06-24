@@ -27,3 +27,7 @@ export default {
         init.call(this);
     }
 };
+
+export { App };
+export * from './components/index';
+export * from './components/inputs/index';

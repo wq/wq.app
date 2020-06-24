@@ -104,3 +104,28 @@ export default {
         return instance.getRootComponent();
     }
 };
+
+export * from './hooks';
+
+const {
+    Link,
+    Form,
+    FormError,
+    AutoForm,
+    AutoInput,
+    AutoSubform,
+    AutoSubformArray,
+    DebugContext
+} = components;
+
+export {
+    App,
+    Link,
+    Form,
+    FormError,
+    AutoForm,
+    AutoInput,
+    AutoSubform,
+    AutoSubformArray,
+    DebugContext
+};

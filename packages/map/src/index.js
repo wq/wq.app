@@ -1,14 +1,15 @@
-import map from './src/map.js';
+import map from './map';
 import {
     useBasemapComponents,
     useOverlayComponents,
     useMapState,
     useMapInstance,
     useGeoJSON
-} from './src/hooks';
-import { EmbeddedGeo } from './src/components/inputs/index.js';
+} from './hooks';
+import { EmbeddedGeo } from './components/inputs/index';
 
 export default map;
+
 export {
     useBasemapComponents,
     useOverlayComponents,

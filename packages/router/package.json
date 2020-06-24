@@ -2,13 +2,13 @@
     "name": "@wq/router",
     "version": "1.2.0",
     "description": "Respond to URL changes with locally generated pages and custom events",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "type": "module",
+    "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/router",
-        "build": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js",
         "prettier": "cd ../../ && npm run prettier -- --write packages/router/{,src/,src/*/,src/*/*/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/router/{,src/,src/*/,src/*/*/}*.js"
+        "lint": "cd ../../ && npm run eslint packages/router/{,src/,src/*/,src/*/*/}*.js",
+        "rollup": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
     },
     "repository": {
         "type": "git",

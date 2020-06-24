@@ -6,7 +6,6 @@
     "main": "index.js",
     "scripts": {
         "test": "echo 'No tests'",
-        "build": "echo 'No build required'",
         "prettier": "cd ../../ && npm run prettier -- --write packages/material-native/*.js{,on}",
         "lint": "cd ../../ && npm run eslint packages/material-native/*.js"
     },

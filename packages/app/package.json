@@ -6,9 +6,9 @@
     "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/app",
-        "build": "cd ../../ && npm run rollup -- -c packages/app/rollup.config.js",
         "prettier": "cd ../../ && npm run prettier -- --write packages/app/{,src/,src/*/,src/*/*/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/app/{,src/,src/*/}*.js"
+        "lint": "cd ../../ && npm run eslint packages/app/{,src/,src/*/}*.js",
+        "rollup": "cd ../../ && npm run rollup -- -c packages/app/rollup.config.js"
     },
     "repository": {
         "type": "git",

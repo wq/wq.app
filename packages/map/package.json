@@ -6,9 +6,11 @@
     "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/map/ -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
-        "build": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/map/{,src/,src/*,src/*/*/}*.js{,on}",
-        "lint": "cd ../../ && npm run eslint packages/map/{,src/,src/*/,src/*/*/}*.js"
+        "build": "npm run babel && npm run prettier",
+        "babel": "cd ../../ && npm run babel -- packages/map/src --out-dir packages/map/",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/map/{,*/,*/*/,*/*/*/}*.js{,on}",
+        "lint": "cd ../../ && npm run eslint packages/map/{,src/,src/*/,src/*/*/}*.js",
+        "rollup": "cd ../../ && npm run rollup -- -c packages/map/rollup.config.js"
     },
     "repository": {
         "type": "git",

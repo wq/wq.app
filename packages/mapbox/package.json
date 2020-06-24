@@ -6,8 +6,9 @@
     "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/mapbox -- --moduleDirectories node_modules node_modules/@wq/react/node_modules",
-        "build": "echo \"No build required.\"",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/mapbox/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "build": "npm run babel && npm run prettier",
+        "babel": "cd ../../ && npm run babel -- packages/mapbox/src --out-dir packages/mapbox/",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/mapbox/{,*/,*/*/,*/*/*/}*.js{,on}",
         "lint": "cd ../../ && npm run eslint packages/mapbox/{,src/,src/*/,src/*/*/}*.js"
     },
     "repository": {

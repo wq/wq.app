@@ -6,6 +6,8 @@
         "build": "lerna run build",
         "jest": "jest --verbose",
         "rollup": "rollup",
+        "rollup-all": "lerna run rollup",
+        "babel": "babel --ignore **/__tests__/**",
         "precise-commits": "precise-commits",
         "prettier": "prettier",
         "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/*/,src/*/*/}*.js{,on}",
@@ -13,6 +15,7 @@
         "lint": "eslint *.js packages/*/{,src/,src/*/,src/*/*/}*.js"
     },
     "devDependencies": {
+        "@babel/cli": "^7.10.3",
         "@babel/plugin-proposal-class-properties": "^7.5.5",
         "@babel/plugin-transform-runtime": "^7.6.2",
         "@babel/preset-env": "^7.6.2",

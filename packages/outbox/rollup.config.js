@@ -40,7 +40,7 @@ export default [
         input: 'packages/outbox/vendor/json-forms.js',
         output: [
             {
-                file: 'packages/outbox/dist/json-forms.js',
+                file: 'js/json-forms.js',
                 format: 'amd',
                 indent: false
             }
@@ -52,7 +52,7 @@ export default [
         external: ['redux', 'redux-persist'],
         output: [
             {
-                file: 'packages/outbox/dist/redux-offline.js',
+                file: 'js/redux-offline.js',
                 format: 'amd',
                 indent: false
             }

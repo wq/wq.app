@@ -1,8 +1,10 @@
 dist: xenial
 language: node_js
-node_js: 11
+node_js: 14
 install:
- - make js_build
+ - npm i
+ - npm run bootstrap
+ - npm run build
 script:
  - python3 -m tests.server &
  - ./runtests.sh

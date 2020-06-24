@@ -103,7 +103,7 @@ export function outputAMD(name, banner, module) {
     }
     return {
         banner,
-        file: `packages/${module}/dist/${name}.js`,
+        file: `js/wq/${name}.js`,
         format: 'amd',
         sourcemap: true,
         sourcemapPathTransform: path =>

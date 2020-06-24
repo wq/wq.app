@@ -7,34 +7,22 @@ init:
 	mkdir -p css/wq
 	mkdir -p scss/wq
 
-js: js_wq js_lib
+js: js_build js_lib
 
 js_build: init
-	npm run build
+	npm run rollup-all
 
-js_wq: js_build
-	cp -p packages/app/dist/app.js* js/wq/
-	cp -p packages/jquery-mobile/dist/jquery-mobile.js* js/wq/
-	cp -p packages/leaflet/dist/leaflet.js* js/wq/
-	cp -p packages/leaflet/dist/locate.js* js/wq/
-	cp -p packages/leaflet/dist/mapserv.js* js/wq/
-	cp -p packages/map/dist/map.js* js/wq/
-	cp -p packages/model/dist/model.js* js/wq/
-	cp -p packages/outbox/dist/outbox.js* js/wq/
-	cp -p packages/router/dist/router.js* js/wq/
-	cp -p packages/store/dist/store.js* js/wq/
-
-js_leaflet_draw:
+js_leaflet_draw: init
 	echo "define(['leaflet'], function(L) {" > js/leaflet.draw.js
 	cat packages/leaflet/node_modules/leaflet-draw/dist/leaflet.draw-src.js >> js/leaflet.draw.js
 	echo "\n});" >> js/leaflet.draw.js
 
-js_regenerator_runtime:
+js_regenerator_runtime: init
 	echo "define(function() {" > js/regenerator-runtime.js
 	cat node_modules/regenerator-runtime/runtime.js >> js/regenerator-runtime.js
 	echo "\nreturn regeneratorRuntime;\n});" >> js/regenerator-runtime.js
 
-js_lib: js_build js_leaflet_draw js_regenerator_runtime
+js_lib: init js_leaflet_draw js_regenerator_runtime
 	cp -p packages/leaflet/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
 	cp -p packages/jquery-mobile/dist/jquery.mobile.vendor.js js/jquery.mobile.js
@@ -42,9 +30,6 @@ js_lib: js_build js_leaflet_draw js_regenerator_runtime
 	cp -p packages/store/node_modules/redux-persist/dist/redux-persist.js js/redux-persist.js
 	cp -p packages/store/node_modules/redux-logger/dist/redux-logger.js js/redux-logger.js
 	cp -p packages/router/node_modules/redux-first-router/dist/redux-first-router.js js/redux-first-router.js
-	cp -p packages/model/dist/redux-orm.js js/redux-orm.js
-	cp -p packages/outbox/dist/redux-offline.js js/redux-offline.js
-	cp -p packages/outbox/dist/json-forms.js js/json-forms.js
 	cp -p packages/leaflet/node_modules/leaflet/dist/leaflet-src.js js/leaflet.js
 	cp -p packages/leaflet/node_modules/leaflet.markercluster/dist/leaflet.markercluster-src.js js/leaflet.markercluster.js
 	sed -i "s/'exports'/'exports', 'leaflet'/" js/leaflet.markercluster.js

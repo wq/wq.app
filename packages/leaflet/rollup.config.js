@@ -1,10 +1,5 @@
 import pkg from './package.json';
-import {
-    makeBanner,
-    wqDeps,
-    babelAMD,
-    outputAMD
-} from '../../rollup-utils.js';
+import { makeBanner, wqDeps, babelAMD, outputAMD } from '../../rollup-utils.js';
 const banners = {
     leaflet: makeBanner(pkg, 2013),
     locate: makeBanner(

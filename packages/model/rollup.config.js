@@ -20,7 +20,7 @@ export default [
         plugins: [resolve(), commonjs()],
         output: [
             {
-                file: 'packages/model/dist/redux-orm.js',
+                file: 'js/redux-orm.js',
                 format: 'amd',
                 exports: 'named',
                 indent: false

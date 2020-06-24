@@ -1,6 +1,7 @@
 *.py[cod]
 *.egg-info/
 *.swp
+*.tgz
 dist/
 js/
 scss/
