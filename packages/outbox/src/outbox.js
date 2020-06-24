@@ -64,6 +64,9 @@ class Outbox {
         this.maxRetries = 10;
         this.csrftoken = null;
         this.csrftokenField = 'csrfmiddlewaretoken';
+        this._memoryItems = {};
+        this._waiting = {};
+        this._lastOutbox = [];
     }
 
     init(opts) {
@@ -458,7 +461,7 @@ class Outbox {
             if (!options.storage) {
                 data = effect.data;
             } else if (options.storage === 'temporary') {
-                data = this.#_memoryItems[options.id];
+                data = this._memoryItems[options.id];
             } else {
                 throw new Error(
                     'Binary submissions not currently supported in batch mode.'
@@ -750,9 +753,6 @@ class Outbox {
         this.store.dispatch(busy(false));
     }
 
-    #_waiting = {};
-    #_lastOutbox = [];
-
     waitForAll() {
         return this.waitForItem('ALL');
     }
@@ -760,10 +760,10 @@ class Outbox {
     waitForItem(id) {
         var resolve;
         const promise = new Promise(res => (resolve = res));
-        if (!this.#_waiting[id]) {
-            this.#_waiting[id] = [];
+        if (!this._waiting[id]) {
+            this._waiting[id] = [];
         }
-        this.#_waiting[id].push(resolve);
+        this._waiting[id].push(resolve);
         return promise;
     }
 
@@ -772,18 +772,18 @@ class Outbox {
             { offline } = state,
             { outbox } = offline;
 
-        if (outbox === this.#_lastOutbox) {
+        if (outbox === this._lastOutbox) {
             return;
         }
 
         const lastIds = {};
-        this.#_lastOutbox.forEach(action => {
+        this._lastOutbox.forEach(action => {
             lastIds[action.meta.offline.effect.options.id] = true;
         });
-        this.#_lastOutbox = outbox;
+        this._lastOutbox = outbox;
 
         const pending = await this._allPendingItems();
-        if (!pending.length && this.#_waiting['ALL']) {
+        if (!pending.length && this._waiting['ALL']) {
             this._resolveWaiting('ALL');
         }
 
@@ -791,7 +791,7 @@ class Outbox {
         pending.forEach(item => (pendingById[item.id] = true));
 
         const checkIds = Object.keys(lastIds).concat(
-            Object.keys(this.#_waiting)
+            Object.keys(this._waiting)
         );
         checkIds.forEach(id => {
             if (!pendingById[id] && id != 'ALL') {
@@ -801,7 +801,7 @@ class Outbox {
     }
 
     async _resolveWaiting(id) {
-        const waiting = this.#_waiting[id];
+        const waiting = this._waiting[id];
         if (!waiting && !(this.app && this.app.hasPlugin('onsync'))) {
             return;
         }
@@ -811,7 +811,7 @@ class Outbox {
         }
         if (waiting) {
             waiting.forEach(fn => fn(item));
-            delete this.#_waiting[id];
+            delete this._waiting[id];
         }
     }
 
@@ -972,12 +972,11 @@ class Outbox {
         return this._parseJsonForm(item);
     }
 
-    #_memoryItems = {};
     async _loadItemData(item) {
         if (!item || !item.options || !item.options.storage) {
             return item;
         } else if (item.options.storage == 'temporary') {
-            return setData(item, this.#_memoryItems[item.id]);
+            return setData(item, this._memoryItems[item.id]);
         } else {
             return this.store.lf
                 .getItem('outbox_' + item.id)
@@ -1025,7 +1024,7 @@ class Outbox {
             return item;
         }
         if (item.options.storage == 'temporary') {
-            this.#_memoryItems[item.id] = item.data;
+            this._memoryItems[item.id] = item.data;
             return this._withoutData(item);
         } else {
             return this.store.lf.setItem('outbox_' + item.id, item.data).then(
@@ -1064,9 +1063,9 @@ class Outbox {
         validItems.forEach(item => {
             validId[item.id] = true;
         });
-        Object.keys(this.#_memoryItems).forEach(itemId => {
+        Object.keys(this._memoryItems).forEach(itemId => {
             if (!validId[itemId]) {
-                delete this.#_memoryItems[itemId];
+                delete this._memoryItems[itemId];
             }
         });
         const keys = await this.store.lf.keys();

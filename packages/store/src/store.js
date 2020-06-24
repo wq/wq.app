@@ -24,38 +24,40 @@ var _verbosity = {
 };
 
 class Store {
-    name;
-    debug = false;
-    // Base URL of web service
-    service;
-    // Default parameters (e.g f=json)
-    defaults = {};
-
-    ready = {
-        then: function() {
-            throw new Error('Call init first!');
-        }
-    };
-
-    // Registered redux functions
-    #reducers = {};
-    #enhanceReducers = [];
-    #persistKeys = [];
-    #transforms = [];
-    #middleware = [];
-    #enhancers = [];
-    #subscribers = [];
-    #deferActions = [];
-    #thunkHandler = null;
-
-    #_promises = {}; // Save promises to prevent redundant fetches
-
     constructor(name) {
         if (_stores[name]) {
             throw name + ' store already exists!';
         }
         this.name = name;
         _stores[name] = this;
+
+        this.debug = false;
+
+        // Base URL of web service
+        this.service = undefined;
+
+        // Default parameters (e.g f=json)
+        this.defaults = {};
+
+        this.ready = {
+            then: function() {
+                throw new Error('Call init first!');
+            }
+        };
+
+        // Registered redux functions
+        this._reducers = {};
+        this._enhanceReducers = [];
+        this._persistKeys = [];
+        this._transforms = [];
+        this._middleware = [];
+        this._enhancers = [];
+        this._subscribers = [];
+        this._deferActions = [];
+        this._thunkHandler = null;
+
+        this._promises = {}; // Save promises to prevent redundant fetches
+
         this.addReducer(
             'kvp',
             (state, action) => this.kvpReducer(state, action),
@@ -92,13 +94,13 @@ class Store {
         var storeReady;
         self.ready = new Promise(resolve => (storeReady = resolve));
 
-        var reducer = combineReducers(this.#reducers);
-        this.#enhanceReducers.forEach(enhanceReducer => {
+        var reducer = combineReducers(this._reducers);
+        this._enhanceReducers.forEach(enhanceReducer => {
             reducer = enhanceReducer(reducer);
         });
         const enhancers = compose(
-            ...this.#enhancers,
-            applyMiddleware(...this.#middleware)
+            ...this._enhancers,
+            applyMiddleware(...this._middleware)
         );
 
         this.lf = createStorage(this.name);
@@ -109,8 +111,8 @@ class Store {
             stateReconciler: autoMergeLevel2,
             serialize,
             deserialize,
-            transforms: this.#transforms,
-            whitelist: this.#persistKeys,
+            transforms: this._transforms,
+            whitelist: this._persistKeys,
             writeFailHandler: error => this.storageFail(error)
         };
         const persistedReducer = persistReducer(persistConfig, reducer);
@@ -122,20 +124,20 @@ class Store {
                 storeReady();
             }
         });
-        this.#subscribers.forEach(fn => this._store.subscribe(fn));
-        this.#deferActions.forEach(this._store.dispatch);
+        this._subscribers.forEach(fn => this._store.subscribe(fn));
+        this._deferActions.forEach(this._store.dispatch);
     }
 
     dispatch(action) {
         if (this._store) {
             return this._store.dispatch(action);
         } else {
-            this.#deferActions.push(action);
+            this._deferActions.push(action);
         }
     }
 
     subscribe(fn) {
-        this.#subscribers.push(fn);
+        this._subscribers.push(fn);
         if (this._store) {
             this._store.subscribe(fn);
         }
@@ -146,34 +148,34 @@ class Store {
     }
 
     addReducer(name, reducer, persist, deserialize) {
-        this.#reducers[name] = reducer;
+        this._reducers[name] = reducer;
         if (persist) {
             this.persistKey(name, persist, deserialize);
         }
     }
 
     addEnhanceReducer(name, enhanceReducer, persist, deserialize) {
-        this.#enhanceReducers.push(enhanceReducer);
+        this._enhanceReducers.push(enhanceReducer);
         if (persist) {
             this.persistKey(name, persist, deserialize);
         }
     }
 
     persistKey(name, serialize, deserialize) {
-        this.#persistKeys.push(name);
+        this._persistKeys.push(name);
         if (serialize && deserialize) {
-            this.#transforms.push(
+            this._transforms.push(
                 createTransform(serialize, deserialize, { whitelist: [name] })
             );
         }
     }
 
     addMiddleware(middleware) {
-        this.#middleware.push(middleware);
+        this._middleware.push(middleware);
     }
 
     addEnhancer(enhancer) {
-        this.#enhancers.push(enhancer);
+        this._enhancers.push(enhancer);
     }
 
     bindActionCreators(actions) {
@@ -181,14 +183,14 @@ class Store {
     }
 
     addThunk(name, thunk) {
-        if (!this.#thunkHandler) {
+        if (!this._thunkHandler) {
             throw new Error('@wq/router is required to handle thunks');
         }
-        this.#thunkHandler(name, thunk);
+        this._thunkHandler(name, thunk);
     }
 
     setThunkHandler(handler) {
-        this.#thunkHandler = handler;
+        this._thunkHandler = handler;
     }
 
     kvpReducer(state = {}, action) {
@@ -329,8 +331,8 @@ class Store {
             delete data.format;
         }
 
-        if (this.#_promises[key]) {
-            return this.#_promises[key];
+        if (this._promises[key]) {
+            return this._promises[key];
         }
 
         if (self.debugNetwork) {
@@ -338,9 +340,9 @@ class Store {
         }
 
         var promise = self.ajax(url, data, 'GET');
-        this.#_promises[key] = promise.then(
+        this._promises[key] = promise.then(
             async data => {
-                delete this.#_promises[key];
+                delete this._promises[key];
                 if (!data) {
                     self.fetchFail(query, 'Error parsing data!');
                     return;
@@ -357,12 +359,12 @@ class Store {
                 return data;
             },
             error => {
-                delete this.#_promises[key];
+                delete this._promises[key];
                 console.error(error);
                 self.fetchFail(query, 'Error parsing data!');
             }
         );
-        return this.#_promises[key];
+        return this._promises[key];
     }
 
     // Hook to allow full AJAX customization
