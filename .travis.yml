@@ -20,6 +20,8 @@ deploy:
   provider: script
   script: npm publish
   skip_cleanup: true
+  on:
+    all_branches: true
 git:
   depth: false
 matrix:
