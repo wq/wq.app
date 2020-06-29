@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { GeoJSONLayer } from 'react-mapbox-gl';
+import GeoJSONLayer from './GeoJSONLayer';
 
 export default function Highlight({ data }) {
     return (

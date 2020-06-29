@@ -59,11 +59,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     };
 
     return (
-        <MapboxGL.MapView
-            styleURL={style}
-            onDidFinishLoadingMap={ready}
-            style={containerStyle}
-        >
+        <MapboxGL.MapView styleURL={style} ref={ready} style={containerStyle}>
             <MapboxGL.Camera bounds={fitBounds} animationDuration={0} />
             {children}
         </MapboxGL.MapView>

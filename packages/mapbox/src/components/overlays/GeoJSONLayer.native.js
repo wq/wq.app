@@ -5,6 +5,13 @@ import PropTypes from 'prop-types';
 const types = ['symbol', 'line', 'fill', 'circle'];
 
 export default function GeoJSONLayer({ id, before, data, ...rest }) {
+    if (!id) {
+        const ids =
+            data && data.features
+                ? data.features.map(feature => feature.id)
+                : [];
+        id = `_geojson_${ids.join('_')}`;
+    }
     const {
         symbolLayout,
         symbolPaint,
@@ -12,7 +19,8 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
         fillPaint,
         lineLayout,
         linePaint,
-        circleLayout
+        circleLayout,
+        circlePaint
     } = rest;
     const style = useMemo(() => {
         return {
@@ -40,7 +48,8 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
         fillPaint,
         lineLayout,
         linePaint,
-        circleLayout
+        circleLayout,
+        circlePaint
     ]);
 
     return <Style json={style} />;
