@@ -5,7 +5,11 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import { useMapState } from '@wq/map';
 
 export default function Map({ bounds, children, mapProps, containerStyle }) {
-    const { accessToken = 'NONE' } = mapProps || {};
+    const {
+        accessToken = 'NONE',
+        dragRotate: rotateEnabled,
+        pitchWithRotate: pitchEnabled = mapProps.dragRotate
+    } = mapProps || {};
     useEffect(() => {
         MapboxGL.setAccessToken(accessToken);
     }, [accessToken]);
@@ -52,6 +56,12 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
         style = null;
     }
 
+    const mapRef = React.useRef(),
+        setRef = React.useCallback(ref => {
+            mapRef.current = ref;
+            ready(ref);
+        }, []);
+
     containerStyle = {
         flex: 1,
         minHeight: 200,
@@ -59,8 +69,18 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     };
 
     return (
-        <MapboxGL.MapView styleURL={style} ref={ready} style={containerStyle}>
-            <MapboxGL.Camera bounds={fitBounds} animationDuration={0} />
+        <MapboxGL.MapView
+            styleURL={style}
+            ref={setRef}
+            rotateEnabled={rotateEnabled}
+            pitchEnabled={pitchEnabled}
+            style={containerStyle}
+        >
+            <MapboxGL.Camera
+                bounds={fitBounds}
+                ref={ref => (mapRef.current.camera = ref)}
+                animationDuration={0}
+            />
             {children}
         </MapboxGL.MapView>
     );
