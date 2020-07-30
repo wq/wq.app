@@ -21,14 +21,19 @@ const variants = {
     subtitle2: Subheading,
     body1: Paragraph,
     body2: Paragraph,
-    caption: Caption
+    caption: Caption,
+    overline: Caption
 };
 
-export default function Typography({ variant, ...rest }) {
+export default function Typography({ variant, children, ...rest }) {
     const Component = variants[variant] || variants.default;
-    return <Component {...rest} />;
+    if ((variant = 'overline' && typeof children === 'string')) {
+        children = children.toUpperCase();
+    }
+    return <Component {...rest}>{children}</Component>;
 }
 
 Typography.propTypes = {
-    variant: PropTypes.string
+    variant: PropTypes.string,
+    children: PropTypes.node
 };
