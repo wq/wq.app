@@ -1023,7 +1023,11 @@ app.submitForm = async function(kwargs) {
     if (conf) {
         options.modelConf = conf;
         if (conf.label_template) {
-            options.label = Mustache.render(conf.label_template, vals);
+            if (typeof conf.label_template === 'function') {
+                options.label = conf.label_template(vals);
+            } else {
+                options.label = Mustache.render(conf.label_template, vals);
+            }
         }
     }
 
