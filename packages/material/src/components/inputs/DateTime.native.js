@@ -37,7 +37,7 @@ export default function DateTime({ name, type, label }) {
             <DateTimePickerModal
                 isVisible={show}
                 mode={type}
-                value={value || new Date()}
+                date={value || new Date()}
                 onConfirm={onConfirm}
                 onCancel={hidePicker}
             />
