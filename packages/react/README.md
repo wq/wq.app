@@ -38,6 +38,8 @@ app.use(material);  // Automatically registers @wq/react
 app.init(...);
 ```
 
+@wq/react also exports a selection of [components](#general-components) and [hooks](#hooks).
+
 ## Components
 
 @wq/react provides a complete set of components corresponding to @wq/app's [data model][config] and [URL structure][url-structure].  The components are grouped into four categories:
@@ -79,17 +81,21 @@ export default {
 
 ### General Components
 
-@wq/material overrides most of the default general components, and only those that are not overridden are listed here.  See [@wq/material's general components][material-components] for the remainder.  The components below should not generally be overridden except in advanced cases.  
+@wq/material overrides most of the default general components.  Those that are exported directly by @wq/react are listed here.  See [@wq/material's general components][material-components] for the remainder.  The components below should not generally be overridden except in advanced cases.  
 
 Name | Details
 --|--
+[App]* | Top level component that renders the [`<Header/>`][Header], [`<Footer/>`][Footer], and the [view component](#view-components) corresponding to the current route.
 [AutoForm] | Reads the [form configuration][field-types] corresponding to the current route and renders a <Form> with the appropriate inputs and controls
 [AutoInput] | Selects the appropriate input component for the given [form field][field-types]
 [AutoSubform] | Automatically configures a [Fieldset] for a [nested form][nested-forms]
 [AutoSubformArray] | Automatically configures a [FieldsetArray] for a [repeating nested form][nested-forms]
 [DebugContext] | Shows the JSON contents of the current route rendering context
 [Form] | Connects [Formik] to [@wq/outbox]'s form handler
+[FormError]* | Renders form-level error messages.  (Field-level errors are handled in each [input component](#input-components)).
+[Link]* | General purpose link component that integrates with [@wq/router]
 
+Components marked with * are overridden and extended by @wq/material.
 
 ## Icon Components
 
@@ -150,7 +156,7 @@ The "name" field would be rendered with `<Input/>`, "favorite_color" be rendered
 
 ## View Components
 
-Unlike the other component types, the set of default view components is defined only in @wq/react and is not overridden by @wq/material.  This is because all view components are defined exclusively in terms of the other registered component types.
+Unlike the other component types, the set of default view components is defined only in @wq/react, and is not overridden by @wq/material.  This is because all view components are defined exclusively in terms of the other registered component types.
 
 The view component used to render a route is selected by the high level [`<App/>`][App] component by attempting a number of matches with increasing generality.  The configured [route name and mode][@wq/router] are most essential for matching. 
 
@@ -169,6 +175,73 @@ name | description
 [Server] | View for rendering content loaded from the server (WIP)
 
 To override a view for a specific route, register a corresponding component with the name converted to PascalCase.  E.g. "about" -> "About" or "observation_edit" -> "ObservationEdit".  Otherwise, override one of the Default* components above to make the change effective for all corresponding routes.
+
+Note that the default view components above are not exported by the @wq/react index package.  If you would like to extend a default view, you can always copy the entire source from the corresponding link in the above table.
+
+# Hooks
+
+@wq/react exports a number of [React hooks] that can be used to access various parts of the application state and plugin framework.
+
+```javascript
+import React from 'react';
+import { usePlugin, usePluginState } from '@wq/react';
+import { Text } from '@wq/material';
+
+export default function Status() {
+    const { status } = usePluginState("myplugin"),
+        { setStatus } = usePlugin("myplugin");
+    return <Text>{status}</Text>;
+}
+```
+
+The set of available hooks is described in the sections below.
+
+## @wq/router integration
+
+These hooks facilitate interaction with [@wq/router] and the underlying [Redux First Router].
+
+hook | description | example
+--|--|--
+useBreadcrumbs() | eg. Home -> List -> Detail -> Edit | `breadcrumbs.map(({label, url}) => <Link...>)`
+useContextTitle() | Title of currently rendered route |
+useNav() | Utility to programatically change pages | `nav("observations/")`
+useRenderContext() | Rendered context for the current route | `const { list } = renderContext;`
+useReverse() | Function to generate the [redux action][Redux First Router] for any route | `reverse('observation_list') === {"type":"OBSERVATION_LIST"}`
+useRouteInfo() | Current route info | `const { name, mode, item_id } = routeInfo`
+useRouteTitle(routeName) | Generic title for the specified route |
+
+## @wq/app plugin integration
+
+These hooks provide access to registered [@wq/app plugins][@wq/app].
+
+hook | description | example
+--|--|--
+useApp() | Return the main [@wq/app] instance | `app.retryAll()`
+usePlugin(pluginName) | Return the specified plugin | `plugin.triggerAction()`
+usePluginState(pluginName) | Return the [@wq/store state][@wq/store] for the specified plugin. | `const { status } = pluginState;`
+usePluginContent() | Returns a <PluginContent/> component for the current route (see below). |
+
+To specify content to be rendered in <PluginContent/>, define a `runComponent` method on a plugin.  The method should accept a [routeInfo object](@wq/router) and return a string specifying the name of a component to render.  (The actual component should be registered seperately in `plugin.components`.)  Note that the default [`<App/>`] compononent calls `usePluginContent()` automatically and places the component on the right side of the layout.
+
+## @wq/model integration
+
+These hooks provide integration with [@wq/model].  Note that in general, the relevant model data for the current route will already be available via `useRenderContext()`.
+
+hook | description
+--|--
+useModel(name, filter) | Load all data for the model, or a filtered subset. | `model.map(row => ...)`
+
+## @wq/react integration
+
+These hooks facilitate the definition of higher-order components (such as [views](#view-components)) that do not directly import their child components.  These hooks are intended for library and plugin authors - in most applications, it is easier to just import the child component directly.  
+
+hook | description
+--|--
+useComponents() | Mapping of [general components](#general-components)
+useInputComponents() | Mapping of [input components](#input-components) in both PascalCase and param-case
+useHtmlInput(fieldConf) | Returns { name, type, maxLength } for a given XLSForm [input config][field-types]
+useIconComponents() | Mapping of [icon components](#icon-components) in both PascalCase and param-case
+useViewComponents() | Mapping of [view components](#view-components) in both PascalCase and param-case
 
 [@wq/react]: https://github.com/wq/wq.app/tree/master/packages/react
 [@wq/app]: https://wq.io/docs/app-js
@@ -191,6 +264,8 @@ To override a view for a specific route, register a corresponding component with
 [React Native]: https://reactnative.dev/
 [Formik]: https://formik.org
 [xlsform-appearance]: https://xlsform.org/en/#appearance
+[React hooks]: https://reactjs.org/docs/hooks-overview.html
+[Redux First Router]: https://github.com/faceyspacey/redux-first-router
 
 [App]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/App.js
 [AutoForm]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/AutoForm.js
@@ -199,6 +274,11 @@ To override a view for a specific route, register a corresponding component with
 [AutoSubformArray]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/AutoSubformArray.js
 [DebugContext]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/DebugContext.js
 [Form]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Form.js
+[FormError]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/FormError.js
+[Link]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Link.js
+
+[Header]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Header.js
+[Footer]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Footer.js
 [Fab]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Fab.js
 [IconButton]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/IconButton.js
 [Fieldset]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Fieldset.js
