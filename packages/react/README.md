@@ -7,9 +7,9 @@
 
 @wq/react is meant to be used with [@wq/material], which provides a collection of ready-to-use Material Design interface components.
 
-## Installation
+# Installation
 
-### wq.app for PyPI
+## wq.app for PyPI
 
 ```bash
 python3 -m venv venv      # create virtual env (if needed)
@@ -18,14 +18,14 @@ python3 -m pip install wq # install wq framework (wq.app, wq.db, etc.)
 # pip install wq.app      # install wq.app only
 ```
 
-### @wq/react for npm
+## @wq/react for npm
 
 ```bash
 npm install @wq/material # install @wq/material and @wq/react and deps
 # npm install @wq/react  # install only @wq/react and deps
 ```
 
-## API
+# API
 
 @wq/react should be registered with @wq/app as a plugin, either directly or indirectly via [@wq/material].
 
@@ -40,7 +40,7 @@ app.init(...);
 
 @wq/react also exports a selection of [components](#general-components) and [hooks](#hooks).
 
-## Components
+# Components
 
 @wq/react provides a complete set of components corresponding to @wq/app's [data model][config] and [URL structure][url-structure].  The components are grouped into four categories:
 
@@ -79,7 +79,7 @@ export default {
 }
 ```
 
-### General Components
+## General Components
 
 @wq/material overrides most of the default general components.  Those that are exported directly by @wq/react are listed here.  See [@wq/material's general components][material-components] for the remainder.  The components below should not generally be overridden except in advanced cases.  
 
