@@ -12,7 +12,7 @@ const keyboards = {
 };
 
 export default function Input(props) {
-    const { name, type, label, style } = props,
+    const { name, type, label, style, min, max } = props,
         { maxLength } = useHtmlInput(props),
         [, meta, helpers] = useField(name),
         { value } = meta,
@@ -20,10 +20,32 @@ export default function Input(props) {
 
     function handleChange(value) {
         if (type === 'int' || type === 'decimal') {
-            setValue(+value);
+            if (type === 'int') {
+                value = parseInt(value);
+            } else {
+                value = +value;
+            }
+            if (Number.isNaN(value)) {
+                setValue(null);
+            } else {
+                if (typeof min === 'number' && value < min) {
+                    value = min;
+                }
+                if (typeof max === 'number' && value > max) {
+                    value = max;
+                }
+                setValue(value);
+            }
         } else {
             setValue(value);
         }
+    }
+
+    let formatValue;
+    if (type === 'int' || type === 'decimal') {
+        formatValue = typeof value === 'number' ? '' + value : '';
+    } else {
+        formatValue = value;
     }
 
     return (
@@ -34,7 +56,7 @@ export default function Input(props) {
             maxLength={maxLength}
             onChangeText={handleChange}
             onBlur={() => setTouched(true)}
-            value={typeof value === 'number' ? '' + value : value}
+            value={formatValue}
             style={style}
         />
     );
@@ -44,5 +66,7 @@ Input.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     label: PropTypes.string,
-    style: PropTypes.object
+    style: PropTypes.object,
+    min: PropTypes.number,
+    max: PropTypes.number
 };
