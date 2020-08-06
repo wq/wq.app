@@ -20,7 +20,8 @@ var router = {
         store: 'main',
         tmpl404: 404,
         debug: false,
-        getTemplateName: name => name
+        getTemplateName: name => name,
+        querySerializer: queryString
     },
     routesMap: {},
     routeInfoFn: [],
@@ -51,7 +52,10 @@ router.init = function(config) {
         initialDispatch
     } = connectRoutes(
         {},
-        { querySerializer: queryString, initialDispatch: false }
+        {
+            querySerializer: router.config.querySerializer,
+            initialDispatch: false
+        }
     );
     router.store = getStore(router.config.store);
     router.store.addReducer('location', routeReducer);

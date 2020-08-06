@@ -125,7 +125,11 @@ function reduceBasemaps(lastBasemaps, nextBasemaps) {
     if (!basemaps.some(basemap => basemap.active)) {
         basemaps[0].active = true;
     }
-    return basemaps;
+    if (sameLayers(basemaps, lastBasemaps)) {
+        return lastBasemaps;
+    } else {
+        return basemaps;
+    }
 }
 
 function reduceOverlays(lastOverlays, nextOverlays) {
@@ -153,5 +157,19 @@ function reduceOverlays(lastOverlays, nextOverlays) {
             };
         }
     });
-    return overlays;
+    if (sameLayers(overlays, lastOverlays)) {
+        return lastOverlays;
+    } else {
+        return overlays;
+    }
+}
+
+function sameLayers(arr1, arr2) {
+    if (arr1.length !== (arr2 || []).length) {
+        return false;
+    }
+    return arr1.every(
+        (layer, i) =>
+            layer.name === arr2[i].name && layer.active === arr2[i].active
+    );
 }

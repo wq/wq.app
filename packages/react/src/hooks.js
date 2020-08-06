@@ -52,7 +52,12 @@ export function useRouteInfo() {
         context = useRenderContext(),
         { router_info: ctxRouteInfo } = context;
     if (routeInfo) {
-        if (!ctxRouteInfo || ctxRouteInfo.full_path !== routeInfo.full_path) {
+        if (
+            !ctxRouteInfo ||
+            ['name', 'mode', 'variant', 'item_id'].some(
+                key => ctxRouteInfo[key] !== routeInfo[key]
+            )
+        ) {
             return {
                 ...routeInfo,
                 pending: true
