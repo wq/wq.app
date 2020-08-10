@@ -125,6 +125,7 @@ Name | HTML Equivalent | XLSForm Types
 --|--|--
 [Checkbox] | `<input type=checkbox>` | n/a
 [DateTime] | `<input type={date,time,datetime-local}>` | date, time, dateTime
+[Hidden] | `<input type=hidden>` | hidden
 [Input] | `<input type={text,number,file,...}>` | string, int, decimal, binary, ...
 [Radio] | `<input type=radio>` | select one
 [Select] | `<select>` | select one / select
@@ -293,6 +294,7 @@ useViewComponents() | Mapping of [view components](#view-components) in both Pas
 
 [Checkbox]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Checkbox.js
 [DateTime]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/DateTime.js
+[Hidden]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Hidden.js
 [Input]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Input.js
 [Radio]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Radio.js
 [Select]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Select.js
