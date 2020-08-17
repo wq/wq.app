@@ -8,9 +8,6 @@ import routeConfig from './config.json';
 import templates from './templates.json';
 import jqmrenderer, { photos } from '@wq/jquery-mobile';
 import { encode } from '@wq/outbox/vendor/json-forms';
-import promiseFinally from 'promise.prototype.finally';
-
-promiseFinally.shim();
 
 var onPageShow;
 

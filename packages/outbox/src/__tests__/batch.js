@@ -6,12 +6,9 @@ import store from '@wq/store';
 import router from '@wq/router';
 import outboxMod from '../outbox';
 import model from '@wq/model';
-import promiseFinally from 'promise.prototype.finally';
 
 const ds = store.getStore('batch-test');
 const outbox = outboxMod.getOutbox(ds);
-
-promiseFinally.shim();
 
 const mockApp = {
     plugins: {},

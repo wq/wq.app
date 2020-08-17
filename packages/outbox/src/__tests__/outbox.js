@@ -5,12 +5,9 @@
 import store from '@wq/store';
 import outboxMod from '../outbox';
 import model from '@wq/model';
-import promiseFinally from 'promise.prototype.finally';
 
 const ds = store.getStore('outbox-test');
 const outbox = outboxMod.getOutbox(ds);
-
-promiseFinally.shim();
 
 const mockApp = {
     plugins: {},

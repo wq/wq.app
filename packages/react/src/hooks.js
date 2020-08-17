@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { createSelector } from 'redux-orm';
+import { createSelector } from 'redux-orm/src/index.js';
 import {
     pathToAction,
     getOptions,

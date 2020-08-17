@@ -1,6 +1,6 @@
 {
     "name": "@wq/outbox",
-    "version": "1.2.0",
+    "version": "1.3.0-alpha.1",
     "description": "A simple model API for working with stored lists",
     "type": "module",
     "main": "index.js",
@@ -27,13 +27,11 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@redux-offline/redux-offline": "2.5.2-native.3",
-        "@wq/model": "^1.2.0",
-        "@wq/store": "^1.2.0",
-        "redux": "^4.0.4"
+        "@redux-offline/redux-offline": "^2.6.0-native.0",
+        "@wq/model": "^1.3.0-alpha.2",
+        "@wq/store": "^1.3.0-alpha.1"
     },
     "devDependencies": {
-        "@wq/router": "^1.2.0",
-        "promise.prototype.finally": "^3.1.1"
+        "@wq/router": "^1.3.0-alpha.1"
     }
 }

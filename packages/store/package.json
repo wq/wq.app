@@ -1,6 +1,6 @@
 {
     "name": "@wq/store",
-    "version": "1.2.0",
+    "version": "1.3.0-alpha.1",
     "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
     "type": "module",
     "main": "index.js",
@@ -26,10 +26,10 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "localforage": "^1.7.3",
-        "redux": "^4.0.4",
+        "localforage": "^1.9.0",
+        "redux": "^4.0.5",
         "redux-logger": "^3.0.6",
         "redux-persist": "^6.0.0",
-        "whatwg-fetch": "^3.0.0"
+        "whatwg-fetch": "^3.4.0"
     }
 }
