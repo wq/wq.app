@@ -82,8 +82,8 @@ export default {
         LOGIN_CHECK(dispatch, getState) {
             const user = getState().auth.user,
                 ds = this.app.store;
-            setTimeout(function() {
-                ds.fetch('/login').then(function(result) {
+            setTimeout(function () {
+                ds.fetch('/login').then(function (result) {
                     if (result && result.user && result.config) {
                         dispatch({
                             type: LOGIN_RELOAD,
@@ -103,7 +103,7 @@ export default {
         },
 
         LOGOUT_SUBMIT(dispatch) {
-            this.app.store.fetch('/logout').then(function(result) {
+            this.app.store.fetch('/logout').then(function (result) {
                 dispatch({
                     type: LOGOUT_SUCCESS,
                     payload: result

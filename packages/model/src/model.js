@@ -320,7 +320,7 @@ class Model {
         if (!this.opts) {
             throw 'Unknown cache option ' + config.cache;
         }
-        ['max_local_pages', 'partial', 'reversed'].forEach(function(name) {
+        ['max_local_pages', 'partial', 'reversed'].forEach(function (name) {
             if (name in config) {
                 throw '"' + name + '" is deprecated in favor of "cache"';
             }

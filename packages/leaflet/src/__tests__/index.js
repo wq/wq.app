@@ -53,7 +53,7 @@ beforeAll(() => {
     map.app = mockApp;
     map.init({});
     // L.Browser.svg not set correctly in jsdom
-    L.Map.prototype._createRenderer = function(opts) {
+    L.Map.prototype._createRenderer = function (opts) {
         return new L.SVG(opts);
     };
 });

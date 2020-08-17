@@ -392,7 +392,10 @@ test('overwrite - remove obsolete items', async () => {
         count: 2,
         pages: 1,
         per_page: 2,
-        list: [{ id: 3, name: 'Test #3' }, { id: 2, name: 'Test #2' }]
+        list: [
+            { id: 3, name: 'Test #3' },
+            { id: 2, name: 'Test #2' }
+        ]
     });
     await localmodel.overwrite([]);
     expect(await localmodel.load()).toEqual({

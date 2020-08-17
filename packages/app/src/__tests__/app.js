@@ -31,8 +31,8 @@ beforeAll(async () => {
         loadMissingAsJson: true,
 
         // Test warning messages
-        postsave: function() {},
-        showOutboxErrors: function() {},
+        postsave: function () {},
+        showOutboxErrors: function () {},
 
         ...routeConfig
     };
@@ -144,7 +144,7 @@ test('postsave - postsaveurl plugin hook', async () => {
 
     app.use({
         name: 'postsavetest',
-        postsaveurl: function(item) {
+        postsaveurl: function (item) {
             const { data } = item,
                 { type_id } = data;
             if (type_id) {
@@ -395,7 +395,7 @@ function testEAV(name, filter, params, expected) {
         }
         await changePage('items/', url);
         var context = router.getContext();
-        var ids = (context.values || []).map(function(value) {
+        var ids = (context.values || []).map(function (value) {
             return value.attribute_id;
         });
         expect(ids).toEqual(expected);

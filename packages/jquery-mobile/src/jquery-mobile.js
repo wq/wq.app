@@ -45,7 +45,7 @@ const jqmRenderer = {
         // Set `noScroll` to work around jsdom scroll support.
 
         if (config.noScroll) {
-            window.scrollTo = function() {};
+            window.scrollTo = function () {};
         }
 
         jQuery(document).on('mobileinit', () => {
@@ -294,7 +294,7 @@ const jqmRenderer = {
                         options.positionTo = link[0];
                     }
                     // Remove link highlight *after* popup is closed
-                    $page.bind('popupafterclose.resetlink', function() {
+                    $page.bind('popupafterclose.resetlink', function () {
                         link.removeClass('ui-btn-active');
                         $(this).unbind('popupafterclose.resetlink');
                     });
@@ -377,7 +377,7 @@ const jqmRenderer = {
         var vals = {};
         var $files = $form.find('input[type=file]');
         var has_files = false;
-        $files.each(function(i, input) {
+        $files.each(function (i, input) {
             if ($(input).val().length > 0) {
                 has_files = true;
             }
@@ -413,13 +413,13 @@ const jqmRenderer = {
                 vals[name] = val;
             }
         }
-        $.each($form.serializeArray(), function(i, v) {
+        $.each($form.serializeArray(), function (i, v) {
             addVal(v.name, v.value);
         });
         // Handle <input type=file>.  Use HTML JSON form-style objects, but
         // with Blob instead of base64 encoding to represent the actual file.
         if (has_files) {
-            $files.each(function() {
+            $files.each(function () {
                 var name = this.name,
                     file,
                     slice;
@@ -439,7 +439,7 @@ const jqmRenderer = {
             });
         }
         // Handle blob-stored files created by (e.g.) wq/photos.js
-        $form.find('input[data-wq-type=file]').each(function() {
+        $form.find('input[data-wq-type=file]').each(function () {
             // wq/photo.js files in memory, copy over to form
             var name = this.name;
             var value = this.value;
@@ -511,7 +511,7 @@ const jqmRenderer = {
             // REST API provided per-field error information
 
             // Form errors (other than non_field_errors) are keyed by fieldname
-            errs.forEach(function(f) {
+            errs.forEach(function (f) {
                 // FIXME: there may be multiple errors per field
                 var err = item.error[f][0];
                 if (f == 'non_field_errors') {
@@ -521,7 +521,7 @@ const jqmRenderer = {
                         showError(err, f);
                     } else {
                         // Nested object errors (e.g. attachment)
-                        item.error[f].forEach(function(err, i) {
+                        item.error[f].forEach(function (err, i) {
                             for (var n in err) {
                                 var fid = f + '-' + i + '-' + n;
                                 showError(err[n][0], fid);

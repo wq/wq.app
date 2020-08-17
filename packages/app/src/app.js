@@ -30,7 +30,7 @@ app.plugins = {};
 
 var _register = {};
 
-app.init = function(config) {
+app.init = function (config) {
     if (!config) {
         config = {};
     }
@@ -180,7 +180,7 @@ app.init = function(config) {
         );
     }
 
-    Object.keys(app.config.pages).forEach(function(page) {
+    Object.keys(app.config.pages).forEach(function (page) {
         app.config.pages[page].name = page;
     });
 
@@ -188,17 +188,17 @@ app.init = function(config) {
 
     // Register routes with wq/router.js
     var root = false;
-    Object.keys(app.config.pages).forEach(function(page) {
+    Object.keys(app.config.pages).forEach(function (page) {
         var conf = _getBaseConf(page);
         if (!conf.url) {
             root = true;
         }
         if (conf.list) {
-            conf.modes.forEach(function(mode) {
+            conf.modes.forEach(function (mode) {
                 var register = _register[mode] || _register.detail;
                 register(page, mode);
             });
-            (conf.server_modes || []).forEach(function(mode) {
+            (conf.server_modes || []).forEach(function (mode) {
                 _register.detail(page, mode, _serverContext);
             });
             app.models[page] = modelModule(conf);
@@ -224,7 +224,7 @@ app.init = function(config) {
             }
 
             var context = {};
-            context.pages = Object.keys(app.config.pages).map(function(page) {
+            context.pages = Object.keys(app.config.pages).map(function (page) {
                 var conf = app.config.pages[page];
                 return {
                     name: page,
@@ -268,7 +268,7 @@ app.init = function(config) {
 };
 
 var pcount = 0;
-app.use = function(plugin) {
+app.use = function (plugin) {
     if (Array.isArray(plugin)) {
         plugin.forEach(p => app.use(p));
     }
@@ -298,20 +298,20 @@ app.use = function(plugin) {
     }
 };
 
-app.prefetchAll = function() {
+app.prefetchAll = function () {
     return Promise.all(
-        Object.keys(app.models).map(function(name) {
+        Object.keys(app.models).map(function (name) {
             return app.models[name].prefetch();
         })
     );
 };
 
-app.jqmInit = function() {
+app.jqmInit = function () {
     console.warn(new Error('jqmInit() renamed to start()'));
     app.start();
 };
 
-app.start = function() {
+app.start = function () {
     router.start();
     app.callPlugins('start');
 };
@@ -326,12 +326,12 @@ async function _getSyncInfo() {
     };
 }
 
-app.go = function() {
+app.go = function () {
     throw new Error('app.go() has been removed.  Use app.nav() instead');
 };
 
 // Sync outbox and handle result
-app.sync = function(retryAll) {
+app.sync = function (retryAll) {
     if (retryAll) {
         console.warn('app.sync(true) renamed to app.retryAll()');
         app.retryAll();
@@ -339,8 +339,8 @@ app.sync = function(retryAll) {
         throw new Error('app.sync() no longer used.');
     }
 };
-app.retryAll = function() {
-    app.outbox.unsynced().then(function(unsynced) {
+app.retryAll = function () {
+    app.outbox.unsynced().then(function (unsynced) {
         if (!unsynced) {
             return;
         }
@@ -348,11 +348,11 @@ app.retryAll = function() {
     });
 };
 
-app.emptyOutbox = function(confirmFirst) {
+app.emptyOutbox = function (confirmFirst) {
     /* global confirm */
     if (confirmFirst) {
         if (navigator.notification && navigator.notification.confirm) {
-            navigator.notification.confirm('Empty Outbox?', function(button) {
+            navigator.notification.confirm('Empty Outbox?', function (button) {
                 if (button == 1) {
                     app.emptyOutbox();
                 }
@@ -367,13 +367,13 @@ app.emptyOutbox = function(confirmFirst) {
     return outbox.empty();
 };
 
-app.confirmSubmit = function(form, message) {
+app.confirmSubmit = function (form, message) {
     /* global confirm */
     if (navigator.notification && navigator.notification.confirm) {
         if (form.dataset.wqConfirmSubmit) {
             return true;
         }
-        navigator.notification.confirm(message, function(button) {
+        navigator.notification.confirm(message, function (button) {
             if (button == 1) {
                 form.dataset.wqConfirmSubmit = true;
                 form.submit();
@@ -388,7 +388,7 @@ app.confirmSubmit = function(form, message) {
 };
 
 // Handle navigation after form submission
-app.postSaveNav = function(item, alreadySynced) {
+app.postSaveNav = function (item, alreadySynced) {
     var url;
 
     const pluginUrl = app
@@ -408,7 +408,7 @@ app.postSaveNav = function(item, alreadySynced) {
     router.push(url);
 };
 
-app.postsaveurl = function(item, alreadySynced) {
+app.postsaveurl = function (item, alreadySynced) {
     var postsave, pconf, match, mode, url, itemid, modelConf;
 
     // conf.postsave can be set redirect to another page
@@ -514,32 +514,32 @@ const syncRefresh = {
 };
 
 // Return a list of all foreign key fields
-app.getParents = function(page) {
+app.getParents = function (page) {
     var conf = _getBaseConf(page);
     return conf.form
-        .filter(function(field) {
+        .filter(function (field) {
             return field['wq:ForeignKey'];
         })
-        .map(function(field) {
+        .map(function (field) {
             return field['wq:ForeignKey'];
         });
 };
 
 // Shortcuts for $.mobile.changePage
-app.nav = function(url) {
+app.nav = function (url) {
     url = app.base_url + '/' + url;
     router.push(url);
 };
 
-app.replaceState = function(url) {
+app.replaceState = function (url) {
     throw new Error('app.replaceState() no longer supported.');
 };
 
-app.refresh = function() {
+app.refresh = function () {
     router.refresh();
 };
 
-app.hasPlugin = function(method) {
+app.hasPlugin = function (method) {
     var plugin,
         fn,
         hasPlugin = false;
@@ -552,7 +552,7 @@ app.hasPlugin = function(method) {
     return hasPlugin;
 };
 
-app.callPlugins = function(method, args) {
+app.callPlugins = function (method, args) {
     var plugin,
         fn,
         fnArgs,
@@ -572,7 +572,7 @@ app.callPlugins = function(method, args) {
 };
 
 // Internal variables and functions
-app.splitRoute = function(routeName) {
+app.splitRoute = function (routeName) {
     const match = routeName.match(/^(.+)_([^_]+)$/);
     let page, mode, variant;
     if (match) {
@@ -649,14 +649,14 @@ function _extendRouteInfo(routeInfo) {
 
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
-_register.list = function(page) {
+_register.list = function (page) {
     const conf = _getBaseConf(page),
         register = conf.url === '' ? router.registerLast : router.register,
         url = conf.url === '' ? '' : conf.url + '/';
     register(url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
-    app.getParents(page).forEach(function(ppage) {
+    app.getParents(page).forEach(function (ppage) {
         var pconf = _getBaseConf(ppage);
         var url = pconf.url;
         var registerParent;
@@ -703,7 +703,7 @@ _register.list = function(page) {
     }
 };
 
-app._addOutboxItemsToContext = function(context, unsyncedItems) {
+app._addOutboxItemsToContext = function (context, unsyncedItems) {
     // Add any outbox items to context
     context.unsynced = unsyncedItems.length;
     context.unsyncedItems = unsyncedItems;
@@ -729,7 +729,7 @@ async function _displayList(ctx, parentInfo) {
             }
         }
         if (parentInfo) {
-            conf.form.forEach(function(field) {
+            conf.form.forEach(function (field) {
                 if (field['wq:ForeignKey'] == parentInfo.parent_page) {
                     filter[field.name + '_id'] = parentInfo.parent_id;
                 }
@@ -829,7 +829,7 @@ async function _displayList(ctx, parentInfo) {
 
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
-_register.detail = function(page, mode, contextFn = _displayItem) {
+_register.detail = function (page, mode, contextFn = _displayItem) {
     var conf = _getBaseConf(page);
     var url = _getDetailUrl(conf.url, mode);
     const register = conf.url === '' ? router.registerLast : router.register;
@@ -849,7 +849,7 @@ function _getDetailUrl(url, mode) {
 
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
-_register.edit = function(page) {
+_register.edit = function (page) {
     var conf = _getBaseConf(page);
     const register = conf.url === '' ? router.registerLast : router.register;
     register(
@@ -974,7 +974,7 @@ async function _renderOutboxItem(ctx) {
     return _addLookups(page, context, mode === 'edit');
 }
 
-app.isRegistered = function(url) {
+app.isRegistered = function (url) {
     if (_getConfByUrl(url, true)) {
         return true;
     } else {
@@ -982,7 +982,7 @@ app.isRegistered = function(url) {
     }
 };
 
-app.submitForm = async function(kwargs) {
+app.submitForm = async function (kwargs) {
     const {
         url,
         storage,
@@ -1068,7 +1068,7 @@ app.submitForm = async function(kwargs) {
     }
 };
 
-app.getAuthState = function() {
+app.getAuthState = function () {
     return (this.plugins.auth && this.plugins.auth.getState()) || {};
 };
 
@@ -1124,7 +1124,7 @@ function _addLookups(page, context, editable) {
         // Load types/initial list of nested forms
         // (i.e. repeats/attachments/EAV/child model)
         if (field.children) {
-            field.children.forEach(function(child) {
+            field.children.forEach(function (child) {
                 var fname = field.name + '.' + child.name;
                 addLookups(child, fname);
             });
@@ -1133,22 +1133,22 @@ function _addLookups(page, context, editable) {
             }
         }
     }
-    conf.form.forEach(function(field) {
+    conf.form.forEach(function (field) {
         addLookups(field, false);
     });
 
     // Process lookup functions
     var keys = Object.keys(lookups);
-    var queue = keys.map(function(key) {
+    var queue = keys.map(function (key) {
         return lookups[key];
     });
     return Promise.all(queue)
-        .then(function(results) {
-            results.forEach(function(result, i) {
+        .then(function (results) {
+            results.forEach(function (result, i) {
                 var key = keys[i];
                 context[key] = result;
             });
-            results.forEach(function(result, i) {
+            results.forEach(function (result, i) {
                 var parts = keys[i].split('.'),
                     nested;
                 if (parts.length != 2) {
@@ -1161,12 +1161,12 @@ function _addLookups(page, context, editable) {
                 if (!Array.isArray(nested)) {
                     nested = [nested];
                 }
-                nested.forEach(function(row) {
+                nested.forEach(function (row) {
                     row[parts[1]] = row[parts[1]] || result;
                 });
             });
         })
-        .then(function() {
+        .then(function () {
             return context;
         });
 }
@@ -1178,7 +1178,7 @@ function _choice_label_lookup(name, choices) {
             return;
         }
         var label;
-        choices.forEach(function(choice) {
+        choices.forEach(function (choice) {
             if (choice.name == this[name]) {
                 label = choice.label;
             }
@@ -1189,11 +1189,11 @@ function _choice_label_lookup(name, choices) {
 }
 
 function _choice_dropdown_lookup(name, choices) {
-    choices = choices.map(function(choice) {
+    choices = choices.map(function (choice) {
         return { ...choice };
     });
     function choiceDropdown() {
-        choices.forEach(function(choice) {
+        choices.forEach(function (choice) {
             if (choice.name == this[name]) {
                 choice.selected = true;
             } else {
@@ -1224,13 +1224,13 @@ function _parent_lookup(field, context) {
 function _this_parent_lookup(field) {
     var model = app.models[field['wq:ForeignKey']];
     return Promise.all([_getOutboxRecordLookup(model), model.load()]).then(
-        function(results) {
+        function (results) {
             const obRecords = results[0];
             var existing = {};
             results[1].list.forEach(item => {
                 existing[item.id] = item;
             });
-            return function() {
+            return function () {
                 var parentId = this[field.name + '_id'];
                 return obRecords[parentId] || existing[parentId];
             };
@@ -1240,8 +1240,8 @@ function _this_parent_lookup(field) {
 
 // Foreign key label
 function _parent_label_lookup(field) {
-    return _this_parent_lookup(field).then(function(lookup) {
-        return function() {
+    return _this_parent_lookup(field).then(function (lookup) {
+        return function () {
             var p = lookup.call(this);
             return p && p.label;
         };
@@ -1255,14 +1255,14 @@ function _parent_dropdown_lookup(field, context, nkey) {
     if (field.filter) {
         result = model.filter(_computeFilter(field.filter, context));
     } else {
-        result = model.load().then(function(data) {
-            return _getOutboxRecords(model).then(function(records) {
+        result = model.load().then(function (data) {
+            return _getOutboxRecords(model).then(function (records) {
                 return records.concat(data.list);
             });
         });
     }
-    return result.then(function(choices) {
-        return function() {
+    return result.then(function (choices) {
+        return function () {
             var parents = [],
                 current;
             if (nkey) {
@@ -1270,7 +1270,7 @@ function _parent_dropdown_lookup(field, context, nkey) {
             } else {
                 current = this[field.name + '_id'];
             }
-            choices.forEach(function(v) {
+            choices.forEach(function (v) {
                 var item = { ...v };
                 if (item.id == current) {
                     item.selected = true; // Currently selected item
@@ -1283,8 +1283,8 @@ function _parent_dropdown_lookup(field, context, nkey) {
 }
 
 function _getOutboxRecords(model) {
-    return model.unsyncedItems().then(function(items) {
-        return items.map(function(item) {
+    return model.unsyncedItems().then(function (items) {
+        return items.map(function (item) {
             return {
                 id: 'outbox-' + item.id,
                 label: item.label,
@@ -1296,9 +1296,9 @@ function _getOutboxRecords(model) {
 }
 
 function _getOutboxRecordLookup(model) {
-    return _getOutboxRecords(model).then(function(records) {
+    return _getOutboxRecords(model).then(function (records) {
         var lookup = {};
-        records.forEach(function(record) {
+        records.forEach(function (record) {
             lookup[record.id] = record;
         });
         return lookup;
@@ -1306,7 +1306,7 @@ function _getOutboxRecordLookup(model) {
 }
 
 function _getOutboxRecord(model, id) {
-    return _getOutboxRecordLookup(model).then(function(records) {
+    return _getOutboxRecordLookup(model).then(function (records) {
         return records[id];
     });
 }
@@ -1330,7 +1330,7 @@ function _default_attachments(field, context) {
         return Promise.resolve(attachments);
     }
     var typeField;
-    field.children.forEach(function(tf) {
+    field.children.forEach(function (tf) {
         if (tf.name == field.initial.type_field) {
             typeField = tf;
         }
@@ -1347,9 +1347,9 @@ function _default_attachments(field, context) {
         }
     }
     var filter = _computeFilter(filterConf, context);
-    return model.filter(filter).then(function(types) {
+    return model.filter(filter).then(function (types) {
         var attachments = [];
-        types.forEach(function(t, i) {
+        types.forEach(function (t, i) {
             var obj = {
                 '@index': i,
                 new_attachment: true
@@ -1405,12 +1405,12 @@ function _getConfByUrl(url, silentFail) {
 
 function _computeFilter(filter, context) {
     var computedFilter = {};
-    Object.keys(filter).forEach(function(key) {
+    Object.keys(filter).forEach(function (key) {
         var values = filter[key];
         if (!Array.isArray(values)) {
             values = [values];
         }
-        values = values.map(function(value) {
+        values = values.map(function (value) {
             if (value && value.indexOf && value.indexOf('{{') > -1) {
                 value = Mustache.render(value, context);
                 if (value === '') {

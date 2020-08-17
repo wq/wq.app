@@ -337,7 +337,10 @@ test('toggle layers', async () => {
                 active: false
             }
         ],
-        bounds: [[-4, -4], [4, 4]],
+        bounds: [
+            [-4, -4],
+            [4, 4]
+        ],
         mapProps: undefined,
         mapId: undefined,
         highlight: null,

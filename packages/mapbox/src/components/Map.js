@@ -9,7 +9,10 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
         Root = useMemo(() => ReactMapboxGl(mapProps || {}), [mapProps]),
         fitBounds = useMemo(() => {
             const [[ymin, xmin], [ymax, xmax]] = bounds;
-            return [[xmin, ymin], [xmax, ymax]];
+            return [
+                [xmin, ymin],
+                [xmax, ymax]
+            ];
         }, [bounds]),
         state = useMapState(),
         basemap = state && state.basemaps.filter(basemap => basemap.active)[0];

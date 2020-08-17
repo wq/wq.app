@@ -78,7 +78,10 @@ const map = {
         geoshape: Geo
     },
     config: {
-        bounds: [[-4, -4], [4, 4]],
+        bounds: [
+            [-4, -4],
+            [4, 4]
+        ],
         autoZoom: {
             wait: 0.5, // How long to wait before triggering autoZoom
             sticky: true, // Start new maps in same location as old maps
@@ -117,7 +120,7 @@ const map = {
 };
 
 // This will be called by app.init()
-map.init = function(config) {
+map.init = function (config) {
     var app = this.app;
 
     Object.values(app.plugins).forEach(plugin => {
@@ -141,7 +144,7 @@ map.init = function(config) {
     }
 
     // Define map configuration for all app pages with map=True
-    Object.keys(app.config.pages).forEach(function(page) {
+    Object.keys(app.config.pages).forEach(function (page) {
         var pconf = app.config.pages[page],
             mconf = pconf.map;
 
@@ -169,7 +172,7 @@ map.init = function(config) {
         };
 
         // Initialize map configurations for each page display mode
-        mconf.forEach(function(conf) {
+        mconf.forEach(function (conf) {
             var mode = conf.mode || 'defaults',
                 map = conf.map || 'main';
             if (mode === 'all') {
@@ -190,7 +193,7 @@ map.init = function(config) {
         } else if (pconf.list) {
             modes = ['list', 'detail', 'edit'];
         }
-        modes.forEach(function(mode) {
+        modes.forEach(function (mode) {
             if (mapconf[mode]) {
                 if (
                     mapconf[mode].maps &&
@@ -216,7 +219,7 @@ map.init = function(config) {
 };
 
 // Plugin API
-map.runComponent = function({ page, mode }) {
+map.runComponent = function ({ page, mode }) {
     var mapconf = map.config.maps[page];
     if (mapconf && mode !== 'edit' && !mapconf.mapId) {
         return 'AutoMap';
@@ -226,7 +229,7 @@ map.runComponent = function({ page, mode }) {
 };
 
 // FIXME: Drop this function in 2.0
-map.run = function($page, routeInfo) {
+map.run = function ($page, routeInfo) {
     var mapconf = map.config.maps[routeInfo.page],
         mode = routeInfo.mode,
         form = routeInfo.form,
@@ -279,7 +282,7 @@ function _defaultBasemaps() {
 }
 
 // FIXME: Drop this function in 2.0
-map.getMapId = function(routeInfo, mapname) {
+map.getMapId = function (routeInfo, mapname) {
     var rt = routeInfo,
         parts = [];
     if (rt.item_id || (rt.mode === 'edit' && rt.variant === 'new')) {

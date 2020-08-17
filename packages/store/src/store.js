@@ -40,7 +40,7 @@ class Store {
         this.defaults = {};
 
         this.ready = {
-            then: function() {
+            then: function () {
                 throw new Error('Call init first!');
             }
         };
@@ -77,7 +77,7 @@ class Store {
             'ajax',
             'formatKeyword'
         ];
-        optlist.forEach(function(opt) {
+        optlist.forEach(function (opt) {
             if (opts.hasOwnProperty(opt)) {
                 self[opt] = opts[opt];
             }
@@ -304,9 +304,9 @@ class Store {
     exists(query) {
         var self = this;
         var key = self.toKey(query);
-        return self.keys().then(function(keys) {
+        return self.keys().then(function (keys) {
             var found = false;
-            keys.forEach(function(k) {
+            keys.forEach(function (k) {
                 if (k === key) {
                     found = true;
                 }

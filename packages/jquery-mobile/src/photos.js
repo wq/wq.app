@@ -14,14 +14,14 @@ var _defaults = {
 
 var $, jqm, spin;
 
-photos.init = function(config) {
+photos.init = function (config) {
     $ = (config && config.jQuery) || window.jQuery;
     spin = photos.app.spin;
 };
 
-photos.context = function() {
+photos.context = function () {
     return {
-        image_url: function() {
+        image_url: function () {
             try {
                 return this.body && _getUrl(this.body);
             } catch (e) {
@@ -31,13 +31,13 @@ photos.context = function() {
     };
 };
 
-photos.run = function($page) {
+photos.run = function ($page) {
     $page.on('change', 'input[type=file]', photos.preview);
     $page.on('click', 'button[data-wq-action=take]', photos.take);
     $page.on('click', 'button[data-wq-action=pick]', photos.pick);
 };
 
-photos.preview = function(imgid, file) {
+photos.preview = function (imgid, file) {
     if (typeof imgid !== 'string' && !file) {
         imgid = $(this).data('wq-preview');
         if (!imgid) {
@@ -56,7 +56,7 @@ function _getUrl(file) {
     return URL && URL.createObjectURL(file);
 }
 
-photos.take = function(input, preview) {
+photos.take = function (input, preview) {
     var options = $.extend(
         {
             sourceType: Camera.PictureSourceType.CAMERA,
@@ -68,7 +68,7 @@ photos.take = function(input, preview) {
     _start.call(this, options, input, preview);
 };
 
-photos.pick = function(input, preview) {
+photos.pick = function (input, preview) {
     var options = $.extend(
         {
             sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM
@@ -87,17 +87,17 @@ function _start(options, input, preview) {
         preview = jqm.activePage.find('#' + input).data('wq-preview');
     }
     navigator.camera.getPicture(
-        function(data) {
+        function (data) {
             load(data, input, preview);
         },
-        function(msg) {
+        function (msg) {
             error(msg);
         },
         options
     );
 }
 
-photos.base64toBlob = async function(data) {
+photos.base64toBlob = async function (data) {
     await photos.app.store.ready;
     var serializer = await localForage.getSerializer();
     return serializer.deserialize(LOCALFORAGE_PREFIX + data);
@@ -105,7 +105,7 @@ photos.base64toBlob = async function(data) {
 
 photos._files = {};
 
-photos.storeFile = function(name, type, blob, input) {
+photos.storeFile = function (name, type, blob, input) {
     // Save blob data for later retrieval
     var file = {
         name: name,
@@ -120,7 +120,7 @@ photos.storeFile = function(name, type, blob, input) {
 
 function load(data, input, preview) {
     spin.start('Loading image...');
-    photos.base64toBlob(data).then(function(blob) {
+    photos.base64toBlob(data).then(function (blob) {
         var number = Math.round(Math.random() * 1e10);
         var name = $('#' + input).val() || 'photo' + number + '.jpg';
         photos.storeFile(name, 'image/jpeg', blob, input);

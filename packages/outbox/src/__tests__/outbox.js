@@ -316,7 +316,7 @@ test('sync dependent records in order - with ON_SUCCESS', async () => {
 
     // All records should now be synced and have results
     let results = {};
-    syncedOutbox.list.forEach(function(item) {
+    syncedOutbox.list.forEach(function (item) {
         const name =
             item.options &&
             item.options.modelConf &&
@@ -496,7 +496,7 @@ test('sync dependent records in order - with IMMEDIATE', async () => {
 
     // All records should now be synced and have results
     let results = {};
-    syncedOutbox.list.forEach(function(item) {
+    syncedOutbox.list.forEach(function (item) {
         const name =
             item.options &&
             item.options.modelConf &&

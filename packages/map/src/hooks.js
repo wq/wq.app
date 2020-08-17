@@ -187,12 +187,12 @@ export function useGeoJSON(url, data) {
 
         app.spin.start();
         app.store.ajax(url).then(
-            function(data) {
+            function (data) {
                 app.spin.stop();
                 _cache[url] = data;
                 setGeojson(data);
             },
-            function() {
+            function () {
                 app.spin.stop();
                 setGeojson(null);
             }

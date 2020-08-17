@@ -16,14 +16,14 @@ var locate = {
     }
 };
 
-locate.init = function(conf) {
+locate.init = function (conf) {
     L.extend(locate.config, conf || {});
 };
 
 locate.locators = {};
 
 // wq/app.js plugin
-locate.run = function($page, routeInfo) {
+locate.run = function ($page, routeInfo) {
     if (!routeInfo.page_config.locate) {
         return;
     }
@@ -38,7 +38,7 @@ locate.run = function($page, routeInfo) {
         fields[field] = $page.find('[name=' + name + ']');
     }
     var locator = locate.locator(map, fields, locate.config);
-    $page.on('pagehide', function() {
+    $page.on('pagehide', function () {
         locator.stop();
     });
     locate.locators[mapId] = locator;
@@ -47,7 +47,7 @@ locate.run = function($page, routeInfo) {
 // Interactive GPS & map-based locator tool
 // map should be an L.map; fields should be an map of keys to jQuery-wrapped
 // <input>s
-locate.Locator = function(map, fields, opts) {
+locate.Locator = function (map, fields, opts) {
     var self = this;
 
     if (!fields) {
@@ -63,7 +63,7 @@ locate.Locator = function(map, fields, opts) {
     var _mode, _marker, _circle, _lastSource, _hasSource;
 
     // Mode switching functions (define fields.toggle for default usage)
-    self.setMode = function(mode) {
+    self.setMode = function (mode) {
         if (!mode || !self[mode + 'Start']) {
             return;
         }
@@ -75,20 +75,20 @@ locate.Locator = function(map, fields, opts) {
         }
     };
 
-    self.start = function() {
+    self.start = function () {
         if (_mode) {
             self[_mode + 'Start']();
         }
     };
 
-    self.stop = function() {
+    self.stop = function () {
         if (_mode) {
             self[_mode + 'Stop']();
         }
     };
 
     // GPS mode
-    self.gpsStart = function() {
+    self.gpsStart = function () {
         var locateOpts = {
             enableHighAccuracy: true,
             watch: true,
@@ -108,21 +108,21 @@ locate.Locator = function(map, fields, opts) {
         }
     };
 
-    self.gpsStop = function() {
+    self.gpsStop = function () {
         map.stopLocate();
     };
 
     // Interactive mode
-    self.interactiveStart = function() {
+    self.interactiveStart = function () {
         L.DomUtil.addClass(map._container, 'interactive');
     };
 
-    self.interactiveStop = function() {
+    self.interactiveStop = function () {
         L.DomUtil.removeClass(map._container, 'interactive');
     };
 
     // Manual mode
-    self.manualStart = function() {
+    self.manualStart = function () {
         if (!fields.latitude || !fields.longitude) {
             return;
         }
@@ -130,22 +130,22 @@ locate.Locator = function(map, fields, opts) {
         fields.longitude.attr('readonly', false);
     };
 
-    self.manualStop = function() {
+    self.manualStop = function () {
         fields.latitude.attr('readonly', true);
         fields.longitude.attr('readonly', true);
     };
 
     // Default Circle & Marker generators, override to customize
-    self.makeCircle = function() {
+    self.makeCircle = function () {
         return L.circle([0, 0], 1, { weight: 1 });
     };
 
-    self.makeMarker = function() {
+    self.makeMarker = function () {
         return L.marker([0, 0]);
     };
 
     // Display and save updates to location
-    self.update = function(loc, accuracy, source) {
+    self.update = function (loc, accuracy, source) {
         if (!_marker) {
             _marker = self.makeMarker().addTo(map);
         }
@@ -203,7 +203,7 @@ locate.Locator = function(map, fields, opts) {
         }
     };
 
-    self.onerror = function(evt) {
+    self.onerror = function (evt) {
         if (window.console) {
             window.console.log('Error retrieving coordinates!');
         }
@@ -256,7 +256,7 @@ locate.Locator = function(map, fields, opts) {
     // Detect cordova-plugin-bluetooth-geolocation
     _hasSource = navigator.geolocation && navigator.geolocation.hasSource;
     if (_hasSource) {
-        map._handleGeolocationResponse = function(pos) {
+        map._handleGeolocationResponse = function (pos) {
             _lastSource = pos.source;
             L.Map.prototype._handleGeolocationResponse.call(map, pos);
         };
@@ -264,7 +264,7 @@ locate.Locator = function(map, fields, opts) {
 
     // jQuery Events
     if (fields.toggle) {
-        fields.toggle.on('click', function() {
+        fields.toggle.on('click', function () {
             self.setMode(_getVal(fields.toggle));
         });
         self.setMode(_getVal(fields.toggle));
@@ -277,7 +277,7 @@ locate.Locator = function(map, fields, opts) {
 };
 
 // Leaflet-style generator function
-locate.locator = function(map, fields, opts) {
+locate.locator = function (map, fields, opts) {
     return new locate.Locator(map, fields, opts);
 };
 

@@ -146,7 +146,7 @@ test('sync dependent records in order - with batchService', async () => {
 
     // All records should now be synced and have results
     let results = {};
-    syncedOutbox.list.forEach(function(item) {
+    syncedOutbox.list.forEach(function (item) {
         const name =
             item.options &&
             item.options.modelConf &&

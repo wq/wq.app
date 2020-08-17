@@ -41,7 +41,7 @@ Geo.propTypes = {
 export function flatten(geojson) {
     var geoms = [];
     if (geojson.type === 'FeatureCollection') {
-        geojson.features.forEach(function(feature) {
+        geojson.features.forEach(function (feature) {
             addGeometry(feature.geometry);
         });
     } else if (geojson.type === 'Feature') {

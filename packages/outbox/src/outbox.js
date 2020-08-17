@@ -978,9 +978,10 @@ class Outbox {
         } else if (item.options.storage == 'temporary') {
             return setData(item, this._memoryItems[item.id]);
         } else {
-            return this.store.lf
-                .getItem('outbox_' + item.id)
-                .then(data => setData(item, data), () => setData(item, null));
+            return this.store.lf.getItem('outbox_' + item.id).then(
+                data => setData(item, data),
+                () => setData(item, null)
+            );
         }
         function setData(obj, data) {
             if (data) {

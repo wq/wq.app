@@ -37,7 +37,7 @@ export default function Geojson({
     }
 
     if (oneach && popup) {
-        options.onEachFeature = function(feat, layer) {
+        options.onEachFeature = function (feat, layer) {
             popup(feat, layer);
             oneach(feat, layer);
         };

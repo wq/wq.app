@@ -29,7 +29,7 @@ var router = {
 };
 
 // Configuration
-router.init = function(config) {
+router.init = function (config) {
     // Define baseurl (without trailing slash) if it is not /
     if (config && config.base_url) {
         router.base_url = config.base_url;
@@ -67,12 +67,12 @@ router.init = function(config) {
     router._initialDispatch = initialDispatch;
 };
 
-router.start = function() {
+router.start = function () {
     if (!router.config) {
         throw new Error('Initialize router first!');
     }
     var orderedRoutes = {};
-    [FIRST, DEFAULT, LAST].forEach(function(order) {
+    [FIRST, DEFAULT, LAST].forEach(function (order) {
         Object.entries(router.routesMap).forEach(([name, path]) => {
             if (path.order === order) {
                 orderedRoutes[name] = path;
@@ -86,7 +86,7 @@ router.start = function() {
     router._initialDispatch();
 };
 
-router.jqmInit = function() {
+router.jqmInit = function () {
     console.warn(new Error('jqmInit() renamed to start()'));
     router.start();
 };
@@ -149,7 +149,7 @@ async function _generateContext(dispatch, getState, refresh = false) {
     return router.render(context, refresh);
 }
 
-router.register = function(
+router.register = function (
     path,
     nameOrContext,
     context,
@@ -221,22 +221,22 @@ router.register = function(
     return name;
 };
 
-router.registerFirst = function(path, name, context) {
+router.registerFirst = function (path, name, context) {
     router.register(path, name, context, FIRST);
 };
 
-router.registerLast = function(path, name, context) {
+router.registerLast = function (path, name, context) {
     router.register(path, name, context, LAST);
 };
 
-router.addThunk = function(name, thunk) {
+router.addThunk = function (name, thunk) {
     router.routesMap[name] = {
         thunk,
         order: FIRST
     };
 };
 
-router.addThunks = function(thunks, thisObj) {
+router.addThunks = function (thunks, thisObj) {
     Object.entries(thunks).forEach(([name, thunk]) => {
         if (thisObj) {
             thunk = thunk.bind(thisObj);
@@ -245,11 +245,11 @@ router.addThunks = function(thunks, thisObj) {
     });
 };
 
-router.addContext = function(fn) {
+router.addContext = function (fn) {
     router.contextProcessors.push(fn);
 };
 
-router.addContextForRoute = function(pathOrName, fn) {
+router.addContextForRoute = function (pathOrName, fn) {
     const name = _getRouteName(pathOrName);
     function contextForRoute(context) {
         if (context.router_info.name == name) {
@@ -261,21 +261,21 @@ router.addContextForRoute = function(pathOrName, fn) {
     router.addContext(contextForRoute);
 };
 
-router.onShow = function() {
+router.onShow = function () {
     throw new Error('router.onShow() is removed.  Use a run() plugin instead');
 };
 
-router.addRoute = function() {
+router.addRoute = function () {
     throw new Error(
         'router.addRoute() is removed.  Use a run() plugin instead'
     );
 };
 
-router.push = function(path) {
+router.push = function (path) {
     push(path);
 };
 
-router.render = function(context, refresh) {
+router.render = function (context, refresh) {
     if (refresh) {
         if (refresh === true) {
             refresh = (context._refreshCount || 0) + 1;
@@ -291,19 +291,19 @@ router.render = function(context, refresh) {
     });
 };
 
-router.getContext = function() {
+router.getContext = function () {
     const { context = {} } = router.store.getState();
     return context[CURRENT];
 };
 
 // Re-render existing context
-router.refresh = function() {
+router.refresh = function () {
     const context = router.getContext();
     router.render(context, true);
 };
 
 // Regenerate context, then re-render page
-router.reload = function() {
+router.reload = function () {
     const context = router.getContext(),
         refresh = (context._refreshCount || 0) + 1;
     return _generateContext(
@@ -314,14 +314,14 @@ router.reload = function() {
 };
 
 // Simple 404 page helper
-router.notFound = function() {
+router.notFound = function () {
     return {
         [NOT_FOUND]: true
     };
 };
 
 // Use when loading HTML from server
-router.rawHTML = function(html) {
+router.rawHTML = function (html) {
     return {
         [HTML]: html
     };
@@ -329,7 +329,7 @@ router.rawHTML = function(html) {
 
 router.base_url = '';
 
-router.addRouteInfo = function(fn) {
+router.addRouteInfo = function (fn) {
     router.routeInfoFn.push(fn);
 };
 

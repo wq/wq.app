@@ -281,9 +281,8 @@ export function useModel(name, filter) {
         typeof filter === 'function' ||
         (typeof filter === 'object' && !Array.isArray(filter))
     ) {
-        selector = createSelector(
-            model.orm,
-            session => session[name].filter(filter).toRefArray()
+        selector = createSelector(model.orm, session =>
+            session[name].filter(filter).toRefArray()
         );
     } else {
         selector = state => createSelector(model.orm[name])(state, filter);
