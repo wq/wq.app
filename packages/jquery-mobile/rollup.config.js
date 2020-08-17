@@ -1,4 +1,4 @@
-import commonjs from 'rollup-plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs';
 import { wqDeps, vendorLib } from '../../rollup-utils';
 
 export default [

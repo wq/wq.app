@@ -1,4 +1,4 @@
-import babelPlugin from 'rollup-plugin-babel';
+import babelPlugin from '@rollup/plugin-babel';
 import { CodeGenerator } from '@babel/generator';
 
 export function wqDeps(path = '.') {

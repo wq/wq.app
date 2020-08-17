@@ -1,6 +1,6 @@
 import ignore from 'rollup-plugin-ignore';
-import resolve from 'rollup-plugin-node-resolve';
-import replace from 'rollup-plugin-replace';
+import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 import pkg from './package.json';
 import { makeBanner, wqDeps, babelAMD, outputAMD } from '../../rollup-utils.js';
 const banner = makeBanner(pkg, 2012);
