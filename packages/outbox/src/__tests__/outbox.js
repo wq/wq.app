@@ -51,68 +51,74 @@ beforeEach(async () => {
 });
 
 test('form with no explicit storage', async () => {
-    await testOutbox({
-        data: { test: 123 },
-        options: {},
-        expectItem: {
-            id: 1,
-            label: 'Unsynced Item #1',
-            synced: false,
+    expect(
+        await testOutbox({
             data: { test: 123 },
-            options: {}
-        },
-        expectStored: null
-    });
+            options: {},
+            expectItem: {
+                id: 1,
+                label: 'Unsynced Item #1',
+                synced: false,
+                data: { test: 123 },
+                options: {}
+            },
+            expectStored: null
+        })
+    ).toBeTruthy();
 });
 
 test('form with storage=store', async () => {
     var blob = new Blob([1, 2, 3], { type: 'text/plain' });
-    await testOutbox({
-        data: {
-            file: {
-                type: 'text/plain',
-                name: 'test.txt',
-                body: blob
-            }
-        },
-        options: {
-            storage: 'store'
-        },
-        expectItem: {
-            id: 1,
-            label: 'Unsynced Item #1',
-            synced: false,
+    expect(
+        await testOutbox({
+            data: {
+                file: {
+                    type: 'text/plain',
+                    name: 'test.txt',
+                    body: blob
+                }
+            },
             options: {
                 storage: 'store'
+            },
+            expectItem: {
+                id: 1,
+                label: 'Unsynced Item #1',
+                synced: false,
+                options: {
+                    storage: 'store'
+                }
+            },
+            expectStored: {
+                file: {
+                    type: 'text/plain',
+                    name: 'test.txt',
+                    body: blob
+                }
             }
-        },
-        expectStored: {
-            file: {
-                type: 'text/plain',
-                name: 'test.txt',
-                body: blob
-            }
-        }
-    });
+        })
+    ).toBeTruthy();
 });
 
 test('form with storage=temporary', async () => {
-    await testOutbox({
-        data: { secret: 'code' },
-        options: {
-            storage: 'temporary'
-        },
-        expectItem: {
-            id: 1,
-            label: 'Unsynced Item #1',
-            synced: false,
+    expect(
+        await testOutbox({
+            data: { secret: 'code' },
             options: {
-                storage: 'temporary',
-                once: true
-            }
-        },
-        expectStored: null
-    });
+                storage: 'temporary'
+            },
+            expectItem: {
+                id: 1,
+                label: 'Unsynced Item #1',
+                synced: false,
+                options: {
+                    storage: 'temporary',
+                    once: true
+                }
+            },
+            expectStored: null
+        })
+    ).toBeTruthy();
 });
 
 async function testOutbox(test) {
@@ -132,6 +138,7 @@ async function testOutbox(test) {
     expect(actualOutbox).toEqual(expectOutbox);
     expect(actualStored).toEqual(test.expectStored);
     expect(actualItem.data).toEqual(test.data);
+    return true;
 }
 
 test('handle 200 success', async () => {
@@ -208,32 +215,34 @@ test('handle 500 error', async () => {
     });
 });
 
-test('onsync hook', async done => {
-    const simple = {
-        data: {
-            label: 'Test'
-        },
-        options: {
-            url: 'status/200'
-        }
-    };
-    outbox.app.plugins.testplugin = { onsync };
-    await outbox.save(simple.data, simple.options);
-
-    function onsync(item) {
-        expect(item).toEqual({
-            id: 1,
-            label: 'Unsynced Item #1',
-            synced: true,
-            result: {
-                id: item.result.id,
-                ...simple.data
+test('onsync hook', () => {
+    return new Promise(done => {
+        const simple = {
+            data: {
+                label: 'Test'
             },
-            ...simple
-        });
-        delete outbox.app.plugins.testplugin;
-        done();
-    }
+            options: {
+                url: 'status/200'
+            }
+        };
+        outbox.app.plugins.testplugin = { onsync };
+        outbox.save(simple.data, simple.options);
+
+        function onsync(item) {
+            expect(item).toEqual({
+                id: 1,
+                label: 'Unsynced Item #1',
+                synced: true,
+                result: {
+                    id: item.result.id,
+                    ...simple.data
+                },
+                ...simple
+            });
+            delete outbox.app.plugins.testplugin;
+            done();
+        }
+    });
 });
 
 test('sync dependent records in order - with ON_SUCCESS', async () => {

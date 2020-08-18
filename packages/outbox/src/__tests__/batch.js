@@ -170,31 +170,33 @@ test('sync dependent records in order - with batchService', async () => {
     });
 });
 
-test('onsync hook', async done => {
-    const simple = {
-        data: {
-            label: 'Test'
-        },
-        options: {
-            url: 'status/200'
-        }
-    };
-    outbox.app.plugins.testplugin = { onsync };
-    await outbox.save(simple.data, simple.options);
-
-    function onsync(item) {
-        expect(item).toEqual({
-            id: 1,
-            label: 'Unsynced Item #1',
-            synced: true,
-            result: {
-                id: item.result.id,
-                batch: 1,
-                ...simple.data
+test('onsync hook', () => {
+    return new Promise(done => {
+        const simple = {
+            data: {
+                label: 'Test'
             },
-            ...simple
-        });
-        delete outbox.app.plugins.testplugin;
-        done();
-    }
+            options: {
+                url: 'status/200'
+            }
+        };
+        outbox.app.plugins.testplugin = { onsync };
+        outbox.save(simple.data, simple.options);
+
+        function onsync(item) {
+            expect(item).toEqual({
+                id: 1,
+                label: 'Unsynced Item #1',
+                synced: true,
+                result: {
+                    id: item.result.id,
+                    batch: 1,
+                    ...simple.data
+                },
+                ...simple
+            });
+            delete outbox.app.plugins.testplugin;
+            done();
+        }
+    });
 });

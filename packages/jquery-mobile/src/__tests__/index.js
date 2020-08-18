@@ -37,48 +37,52 @@ test('inject jQuery Mobile page', () => {
     expect($page.find('.ui-btn').text()).toEqual('Test');
 });
 
-test('render context and inject page', done => {
-    jqmRenderer.handleShow = testOnShow;
-    jqmRenderer.renderPage({
-        router_info: {
-            name: 'another_page',
-            template: 'another_page',
-            full_path: '/anotherpage'
-        },
-        title: 'TEST 1234'
-    });
+test('render context and inject page', () => {
+    return new Promise(done => {
+        jqmRenderer.handleShow = testOnShow;
+        jqmRenderer.renderPage({
+            router_info: {
+                name: 'another_page',
+                template: 'another_page',
+                full_path: '/anotherpage'
+            },
+            title: 'TEST 1234'
+        });
 
-    function testOnShow() {
-        const $page = global.jQuery.mobile.activePage;
-        expect($page.text()).toEqual('TEST 1234');
-        done();
-    }
-});
-
-test('submit form', done => {
-    jqmRenderer.app = {
-        submitForm,
-        isRegistered: () => true,
-        config: {}
-    };
-    jqmRenderer.handleShow = completeForm;
-    jqmRenderer.renderPage({
-        router_info: {
-            name: 'edit_page',
-            template: 'edit_page',
-            full_path: '/edit'
+        function testOnShow() {
+            const $page = global.jQuery.mobile.activePage;
+            expect($page.text()).toEqual('TEST 1234');
+            done();
         }
     });
-    function completeForm($page) {
-        $page.find('input').val('Test Value');
-        $page.find('form').submit();
-    }
-    function submitForm(kwargs) {
-        expect(kwargs).toMatchObject({
-            url: '/test',
-            has_files: false,
-            data: { name: 'Test Value' }
+});
+
+test('submit form', () => {
+    return new Promise(done => {
+        jqmRenderer.app = {
+            submitForm,
+            isRegistered: () => true,
+            config: {}
+        };
+        jqmRenderer.handleShow = completeForm;
+        jqmRenderer.renderPage({
+            router_info: {
+                name: 'edit_page',
+                template: 'edit_page',
+                full_path: '/edit'
+            }
         });
-        done();
-    }
+        function completeForm($page) {
+            $page.find('input').val('Test Value');
+            $page.find('form').submit();
+        }
+        function submitForm(kwargs) {
+            expect(kwargs).toMatchObject({
+                url: '/test',
+                has_files: false,
+                data: { name: 'Test Value' }
+            });
+            done();
+        }
+    });
 });

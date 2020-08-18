@@ -154,25 +154,34 @@ test("don't filter by unknown field", async () => {
 });
 
 test('filter by boolean (true)', async () => {
-    await testBooleanResult(true, 1),
-        await testBooleanResult(1, 1),
-        await testBooleanResult('t', 1);
+    expect(
+        (await testBooleanResult(true, 1)) &&
+            (await testBooleanResult(1, 1)) &&
+            (await testBooleanResult('t', 1))
+    ).toBeTruthy();
 });
 
 test('filter by boolean (false)', async () => {
-    await testBooleanResult(false, 2),
-        await testBooleanResult(0, 2),
-        await testBooleanResult('f', 2);
+    expect(
+        (await testBooleanResult(false, 2)) &&
+            (await testBooleanResult(0, 2)) &&
+            (await testBooleanResult('f', 2))
+    ).toBeTruthy();
 });
 
 test('filter by boolean (null)', async () => {
-    await testBooleanResult(null, 3), await testBooleanResult('null', 3);
+    expect(
+        (await testBooleanResult(null, 3)) &&
+            (await testBooleanResult('null', 3))
+    ).toBeTruthy();
 });
 
 test('filter by boolean (empty)', async () => {
-    await testBooleanResult(undefined, null),
-        await testBooleanResult('', null),
-        await testBooleanResult('foo', null);
+    expect(
+        (await testBooleanResult(undefined, null)) &&
+            (await testBooleanResult('', null)) &&
+            (await testBooleanResult('foo', null))
+    ).toBeTruthy();
 });
 
 async function testBooleanResult(value, expectId) {
@@ -183,6 +192,7 @@ async function testBooleanResult(value, expectId) {
     } else {
         expect(types).toHaveLength(0);
     }
+    return true;
 }
 
 test('filter by boolean & non-boolean', async () => {

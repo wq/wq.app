@@ -16,20 +16,22 @@ beforeAll(() => {
     router.start();
 });
 
-test('render page', done => {
-    router.addContextForRoute('test/<slug>', async ctx => {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return {
-            title: ctx.router_info.slugs.slug,
-            params: JSON.stringify(ctx.router_info.params)
+test('render page', () => {
+    return new Promise(done => {
+        router.addContextForRoute('test/<slug>', async ctx => {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return {
+                title: ctx.router_info.slugs.slug,
+                params: JSON.stringify(ctx.router_info.params)
+            };
+        });
+
+        handleRender = context => {
+            expect(context.title).toBe('1234');
+            expect(context.params).toBe('{"p":"1"}');
+            done();
         };
+
+        router.push('/test/1234?p=1');
     });
-
-    handleRender = context => {
-        expect(context.title).toBe('1234');
-        expect(context.params).toBe('{"p":"1"}');
-        done();
-    };
-
-    router.push('/test/1234?p=1');
 });
