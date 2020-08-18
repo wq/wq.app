@@ -3,6 +3,7 @@ language: node_js
 node_js: 14
 install:
  - npm i
+ - npm run lerna exec npm install
  - npm run bootstrap
  - npm run build
 script:
