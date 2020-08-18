@@ -2,10 +2,13 @@ dist: xenial
 language: node_js
 node_js: 14
 install:
- - npm i
- - npm run lerna exec npm install
+ - npm ci
+ - npm run lerna exec npm ci
  - npm run bootstrap
  - npm run build
+cache:
+  directories:
+    - "$HOME/.npm"
 script:
  - python3 -m tests.server &
  - ./runtests.sh
@@ -77,7 +80,7 @@ matrix:
         - WHEEL=`cd dist && ls *.whl | tail -n 1 && cd ..`
         - "curl -X PUT -H 'Content-Type: application/json' -u $BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/file_metadata/wq/wq.app/$WHEEL -d '{\"list_in_downloads\": true}'"
     - name: "JavaScript Lint"
-      install: npm install
+      install: npm ci
       script: npm run lint
       before_deploy:
       deploy:
