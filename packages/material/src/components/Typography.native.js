@@ -27,7 +27,7 @@ const variants = {
 
 export default function Typography({ variant, children, ...rest }) {
     const Component = variants[variant] || variants.default;
-    if ((variant = 'overline' && typeof children === 'string')) {
+    if (variant === 'overline' && typeof children === 'string') {
         children = children.toUpperCase();
     }
     return <Component {...rest}>{children}</Component>;

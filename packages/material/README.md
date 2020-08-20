@@ -29,6 +29,7 @@ npm install @wq/material # install @wq/material, @wq/react, and web deps
 expo install react-native-paper \
   @react-navigation/native \
   @react-navigation/stack \
+  @react-native-community/masked-view \
   @react-native-community/netinfo \
   @react-native-community/datetimepicker \
   react-native-picker-select \
@@ -38,6 +39,7 @@ expo install react-native-paper \
 npm install react-native-paper \
   @react-navigation/native \
   @react-navigation/stack \
+  @react-native-community/masked-view \
   @react-native-community/netinfo \
   @react-native-community/datetimepicker \
   react-native-picker-select \
