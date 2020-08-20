@@ -124,7 +124,9 @@ class Store {
                 storeReady();
             }
         });
-        this._subscribers.forEach(fn => this._store.subscribe(fn));
+        this._unsubscribers = this._subscribers.map(fn =>
+            this._store.subscribe(fn)
+        );
         this._deferActions.forEach(this._store.dispatch);
     }
 
@@ -139,7 +141,15 @@ class Store {
     subscribe(fn) {
         this._subscribers.push(fn);
         if (this._store) {
-            this._store.subscribe(fn);
+            return this._store.subscribe(fn);
+        } else {
+            const index = this._subscribers.length - 1;
+            return () => {
+                if (!this._unsubscribers) {
+                    throw new Error('Store was never fully initialized!');
+                }
+                this._unsubscribers[index]();
+            };
         }
     }
 
