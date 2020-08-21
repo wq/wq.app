@@ -1,6 +1,6 @@
 import React from 'react';
 import { useIconComponents } from '@wq/react';
-import { Button as PaperButton } from 'react-native-paper';
+import { Button as PaperButton, useTheme } from 'react-native-paper';
 import PropTypes from 'prop-types';
 
 export default function Button({
@@ -9,16 +9,31 @@ export default function Button({
     variant,
     mode,
     icon,
+    color,
     ...rest
 }) {
-    const { [icon]: Icon } = useIconComponents();
+    const { [icon]: Icon } = useIconComponents(),
+        theme = useTheme();
     if (!onPress) {
         onPress = onClick;
     }
     if (!mode) {
         mode = variant;
     }
-    return <PaperButton onPress={onPress} mode={mode} icon={Icon} {...rest} />;
+    if (color === 'primary') {
+        color = theme.colors.primary;
+    } else if (color === 'secondary') {
+        color = theme.colors.accent;
+    }
+    return (
+        <PaperButton
+            onPress={onPress}
+            mode={mode}
+            icon={Icon}
+            color={color}
+            {...rest}
+        />
+    );
 }
 
 Button.propTypes = {
@@ -26,5 +41,6 @@ Button.propTypes = {
     onPress: PropTypes.func,
     variant: PropTypes.string,
     mode: PropTypes.string,
-    icon: PropTypes.string
+    icon: PropTypes.string,
+    color: PropTypes.string
 };
