@@ -291,6 +291,42 @@ export function useModel(name, filter) {
     return useSelector(selector);
 }
 
+export function useUnsynced(modelConf) {
+    const outbox = useSelector(state => state.offline.outbox) || [],
+        {
+            outbox: { filterUnsynced, parseOutbox }
+        } = useApp();
+
+    return filterUnsynced(parseOutbox(outbox), modelConf);
+}
+
+export function useList() {
+    const { list: contextList = [], show_unsynced } = useRenderContext(),
+        { page_config } = useRouteInfo(),
+        modelList = useModel(page_config.page),
+        unsynced = useUnsynced(page_config);
+
+    let list;
+    if (show_unsynced) {
+        // Context list should generally already equal model list, unless
+        // there has been a sync or other model update since last RENDER.
+        const seen = {};
+        modelList.forEach(row => (seen[row.id] = true));
+        list = modelList.concat(contextList.filter(row => !seen[row.id]));
+    } else {
+        // Context list probably came directly from server, ignore local model
+        list = contextList;
+    }
+    const empty = !list || !list.length;
+
+    return {
+        page_config,
+        list,
+        unsynced: show_unsynced ? unsynced : [],
+        empty
+    };
+}
+
 export function usePlugin(name) {
     const { plugins } = useApp();
     return plugins[name];

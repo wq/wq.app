@@ -853,8 +853,18 @@ class Outbox {
     }
 
     async loadItems() {
-        const actions = this.store.getState().offline.outbox;
-        const items = actions
+        const { outbox } = this.store.getState().offline,
+            items = this.parseOutbox(outbox);
+        return {
+            list: items,
+            count: items.length,
+            pages: 1,
+            per_page: items.length
+        };
+    }
+
+    parseOutbox(outbox) {
+        return outbox
             .map(action => {
                 const { data, options } = action.meta.offline.effect;
                 var item = {
@@ -887,12 +897,6 @@ class Outbox {
             .sort((a, b) => {
                 return b.id - a.id;
             });
-        return {
-            list: items,
-            count: items.length,
-            pages: 1,
-            per_page: items.length
-        };
     }
 
     // Count of unsynced outbox items (never synced, or sync was unsuccessful)
@@ -901,13 +905,12 @@ class Outbox {
         return items.length;
     }
 
-    // Actual unsynced items
-    async unsyncedItems(modelConf, withData) {
-        var items = (await this.loadItems()).list.filter(item => !item.synced);
-
-        // Exclude temporary items from list
+    filterUnsynced(items, modelConf) {
+        // Exclude synced & temporary items from list
         items = items.filter(item => {
-            if (item.options.storage == 'temporary') {
+            if (item.synced) {
+                return false;
+            } else if (item.options.storage == 'temporary') {
                 if (item.options.desiredStorage) {
                     return true;
                 }
@@ -917,20 +920,23 @@ class Outbox {
             }
         });
 
-        if (modelConf)
+        if (modelConf) {
             // Only match items corresponding to the specified list
             items = items.filter(item => {
                 if (!item.options.modelConf) {
                     return false;
                 }
-                for (var key in modelConf) {
-                    if (item.options.modelConf[key] != modelConf[key]) {
-                        return false;
-                    }
-                }
-                return true;
+                return item.options.modelConf.url === modelConf.url;
             });
+        }
 
+        return items;
+    }
+
+    // Actual unsynced items
+    async unsyncedItems(modelConf, withData) {
+        const { list } = await this.loadItems(),
+            items = this.filterUnsynced(list, modelConf);
         if (withData) {
             return await Promise.all(
                 items.map(item => this._loadItemData(item))

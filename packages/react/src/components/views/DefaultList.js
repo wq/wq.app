@@ -1,16 +1,14 @@
 import React from 'react';
 import {
-    useRenderContext,
-    useRouteInfo,
     useComponents,
     useViewComponents,
-    useReverse
+    useReverse,
+    useList
 } from '../../hooks';
 
 export default function DefaultList() {
     const reverse = useReverse(),
-        { list, unsyncedItems } = useRenderContext(),
-        { page, page_config } = useRouteInfo(),
+        { list, unsynced, empty, page_config } = useList(),
         {
             ScrollView,
             List,
@@ -20,13 +18,12 @@ export default function DefaultList() {
             Pagination,
             Fab
         } = useComponents(),
-        { OutboxList } = useViewComponents();
-
-    const empty = !list || !list.length,
-        unsynced = (unsyncedItems && unsyncedItems.length) || false;
+        { OutboxList } = useViewComponents(),
+        { page, can_add, can_view } = page_config,
+        hasUnsynced = unsynced.length > 0;
 
     function Row({ id, label }) {
-        if (page_config.can_view === false) {
+        if (can_view === false) {
             return <ListItem>{label}</ListItem>;
         } else {
             return (
@@ -40,9 +37,9 @@ export default function DefaultList() {
     return (
         <>
             <ScrollView>
-                {unsynced && <OutboxList embedded />}
+                {hasUnsynced && <OutboxList modelConf={page_config} />}
                 <List>
-                    {unsynced && <ListSubheader>Synced Items</ListSubheader>}
+                    {hasUnsynced && <ListSubheader>Synced Items</ListSubheader>}
                     {empty && <ListItem>Empty list.</ListItem>}
                     {(list || []).map(row => (
                         <Row key={row.id} {...row} />
@@ -50,9 +47,7 @@ export default function DefaultList() {
                 </List>
                 <Pagination />
             </ScrollView>
-            {page_config.can_add && (
-                <Fab icon="add" to={reverse(`${page}_edit:new`)} />
-            )}
+            {can_add && <Fab icon="add" to={reverse(`${page}_edit:new`)} />}
         </>
     );
 }

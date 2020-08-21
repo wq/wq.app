@@ -642,6 +642,16 @@ const jqmRenderer = {
                 $row = $button.parents('.section-' + section);
             $row.remove();
         });
+    },
+
+    onsync() {
+        const { router } = this.app,
+            context = router.getContext(),
+            { router_info: routeInfo = {} } = context,
+            { page, mode } = routeInfo;
+        if (page === 'outbox' || mode === 'list') {
+            router.reload();
+        }
     }
 };
 export default jqmRenderer;

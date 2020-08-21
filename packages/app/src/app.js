@@ -43,7 +43,7 @@ app.init = function (config) {
         }
     });
     app.use(spinner);
-    app.use(syncRefresh);
+    app.use(syncUpdateUrl);
     if (config.pages.login && !app.plugins.auth) {
         // FIXME: Require explicit auth registration in 2.0
         app.use(auth);
@@ -496,7 +496,7 @@ app.postsaveurl = function (item, alreadySynced) {
     return url;
 };
 
-const syncRefresh = {
+const syncUpdateUrl = {
     onsync(obitem) {
         const context = router.getContext() || {},
             { router_info: routeInfo = {} } = context,
@@ -507,8 +507,6 @@ const syncRefresh = {
 
         if (resultId && (item_id === outboxSlug || parent_id === outboxSlug)) {
             router.push(full_path.replace(outboxSlug, resultId));
-        } else if (routeInfo.page === 'outbox' || routeInfo.mode === 'list') {
-            router.reload();
         }
     }
 };
@@ -759,6 +757,9 @@ async function _displayList(ctx, parentInfo) {
         pnum = 1;
     }
 
+    const showUnsynced =
+        pnum == model.opts.page || (pnum == 1 && !model.opts.client);
+
     function getData() {
         if (filter) {
             return model.filterPage(filter);
@@ -769,7 +770,7 @@ async function _displayList(ctx, parentInfo) {
         }
     }
     async function getUnsynced() {
-        if (pnum == model.opts.page || (pnum == 1 && !model.opts.client)) {
+        if (showUnsynced) {
             return model.unsyncedItems();
         } else {
             return [];
@@ -818,6 +819,7 @@ async function _displayList(ctx, parentInfo) {
         next: next ? '/' + next : null,
         multiple: prev || next ? true : false,
         page: pnum,
+        show_unsynced: showUnsynced,
         previous_is_local: prevIsLocal,
         current_is_local: currentIsLocal
     };

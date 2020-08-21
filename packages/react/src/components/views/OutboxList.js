@@ -1,18 +1,18 @@
 import React from 'react';
 import {
     useApp,
-    useRenderContext,
     useReverse,
     useRouteTitle,
-    useComponents
+    useComponents,
+    useUnsynced
 } from '../../hooks';
 import PropTypes from 'prop-types';
 
-export default function OutboxList({ embedded }) {
+export default function OutboxList({ modelConf }) {
     const app = useApp(),
         reverse = useReverse(),
         routeTitle = useRouteTitle(),
-        { list, unsyncedItems } = useRenderContext(),
+        items = useUnsynced(modelConf),
         {
             List,
             ListItem,
@@ -23,8 +23,7 @@ export default function OutboxList({ embedded }) {
             Button
         } = useComponents();
 
-    const items = embedded ? unsyncedItems : list,
-        empty = !items || !items.length;
+    const empty = !items.length;
 
     function getIcon(item) {
         if (item.synced) {
@@ -37,7 +36,7 @@ export default function OutboxList({ embedded }) {
     }
 
     function getTitle(item) {
-        if (item.options.modelConf && !embedded) {
+        if (item.options.modelConf && !modelConf) {
             const pageName = routeTitle(
                 `${item.options.modelConf.name}_detail`
             );
@@ -65,7 +64,7 @@ export default function OutboxList({ embedded }) {
         return (
             <>
                 {empty && <ListItem>No items in outbox.</ListItem>}
-                {(items || []).map(item => (
+                {items.map(item => (
                     <ListItemLink
                         key={item.id}
                         to={reverse('outbox_edit', item.id)}
@@ -79,7 +78,7 @@ export default function OutboxList({ embedded }) {
         );
     }
 
-    if (embedded) {
+    if (modelConf) {
         return (
             <List>
                 <ListSubheader>Unsynced Items</ListSubheader>
@@ -110,5 +109,5 @@ export default function OutboxList({ embedded }) {
 }
 
 OutboxList.propTypes = {
-    embedded: PropTypes.bool
+    modelConf: PropTypes.object
 };
