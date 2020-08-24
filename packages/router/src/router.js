@@ -198,14 +198,11 @@ router.register = function (
         );
     }
 
-    let thunkFn;
-    if (thunk) {
-        thunkFn = (dispatch, getState) => {
-            _generateContext(dispatch, getState);
-            thunk(dispatch, getState);
-        };
-    } else {
-        thunkFn = _generateContext;
+    function thunkFn(dispatch, getState, bag) {
+        _generateContext(dispatch, getState);
+        if (thunk) {
+            thunk(dispatch, getState, bag);
+        }
     }
 
     router.routesMap[name.toUpperCase()] = {
