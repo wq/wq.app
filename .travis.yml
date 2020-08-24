@@ -32,26 +32,26 @@ matrix:
   include:
     - name: "@wq/app"
       env: PACKAGE=app
-    - name: "@wq/jquery-mobile"
-      env: PACKAGE=jquery-mobile
-    - name: "@wq/leaflet"
-      env: PACKAGE=leaflet
-    - name: "@wq/map"
-      env: PACKAGE=map
-    - name: "@wq/mapbox"
-      env: PACKAGE=mapbox
-    - name: "@wq/material"
-      env: PACKAGE=material
     - name: "@wq/model"
       env: PACKAGE=model
     - name: "@wq/outbox"
       env: PACKAGE=outbox
-    - name: "@wq/react"
-      env: PACKAGE=react
     - name: "@wq/router"
       env: PACKAGE=router
     - name: "@wq/store"
       env: PACKAGE=store
+    - name: "@wq/react"
+      env: PACKAGE=react
+    - name: "@wq/material"
+      env: PACKAGE=material
+    - name: "@wq/map"
+      env: PACKAGE=map
+    - name: "@wq/mapbox"
+      env: PACKAGE=mapbox
+    - name: "@wq/leaflet"
+      env: PACKAGE=leaflet
+    - name: "@wq/jquery-mobile"
+      env: PACKAGE=jquery-mobile
     - name: "wq.app PyPI Package"
       language: python
       python: 3.7
