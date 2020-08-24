@@ -60,7 +60,7 @@ export function useRouteInfo() {
         if (
             !ctxRouteInfo ||
             ['name', 'mode', 'variant', 'item_id'].some(
-                key => ctxRouteInfo[key] !== routeInfo[key]
+                key => ctxRouteInfo[key] != routeInfo[key]
             )
         ) {
             return {
