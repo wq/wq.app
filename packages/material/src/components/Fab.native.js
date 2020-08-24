@@ -1,11 +1,10 @@
 import React from 'react';
 import { FAB } from 'react-native-paper';
-import { useOnPress } from '../hooks';
-import { useIconComponents } from '@wq/react';
+import { useNav, useIconComponents } from '@wq/react';
 import PropTypes from 'prop-types';
 
 export default function Fab({ icon, to }) {
-    const onPress = useOnPress(to),
+    const onPress = useNav(to),
         { [icon]: Icon } = useIconComponents();
 
     return (

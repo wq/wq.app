@@ -16,19 +16,24 @@ export function useRoutesMap() {
     return useSelector(state => selectLocationState(state).routesMap);
 }
 
-export function useNav() {
+export function useNav(to) {
     const dispatch = useDispatch(),
         routesMap = useRoutesMap(),
         { querySerializer } = getOptions();
-    return useCallback(
-        path => {
+
+    return useMemo(() => {
+        function nav(path) {
             const action = isAction(path)
                 ? path
-                : pathToAction('/' + path, routesMap, querySerializer);
+                : pathToAction(
+                      path.indexOf('/') === 0 ? path : '/' + path,
+                      routesMap,
+                      querySerializer
+                  );
             dispatch(action);
-        },
-        [dispatch, routesMap, querySerializer]
-    );
+        }
+        return to ? nav.bind(null, to) : nav;
+    }, [dispatch, routesMap, querySerializer, to]);
 }
 
 export const RouteContext = React.createContext({

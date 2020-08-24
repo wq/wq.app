@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { AppRegistry } from 'react-native';
+import { navRef, nav } from './hooks';
 
 export function init() {
+    const { router, store } = this.app;
+    router.push = to => nav(to, router.routesMap, navRef.current, store);
     AppRegistry.registerComponent('main', () => RootWrapper);
 }
 

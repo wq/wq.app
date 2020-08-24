@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from 'react-native';
-import { useOnPress } from '../hooks';
+import { useNav } from '@wq/react';
 import PropTypes from 'prop-types';
 
 export default function Link({ to, children }) {
-    const onPress = useOnPress(to);
+    const onPress = useNav(to);
     // FIXME: Use styled text instead?
     return <Button title={children} onPress={onPress} />;
 }

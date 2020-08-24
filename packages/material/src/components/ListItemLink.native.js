@@ -1,11 +1,10 @@
 import React from 'react';
-import { useComponents } from '@wq/react';
-import { useOnPress } from '../hooks';
+import { useNav, useComponents } from '@wq/react';
 import PropTypes from 'prop-types';
 
 export default function ListItemLink({ to, ...rest }) {
     const { ListItem } = useComponents(),
-        onPress = useOnPress(to);
+        onPress = useNav(to);
     return <ListItem onPress={onPress} {...rest} />;
 }
 

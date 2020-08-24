@@ -1,82 +1,30 @@
 import React, { useMemo } from 'react';
-import {
-    App as DefaultApp,
-    useComponents,
-    useRoutesMap,
-    useIndexRoute,
-    useRouteTitle,
-    usePlugin
-} from '@wq/react';
+import { App as DefaultApp, usePlugin } from '@wq/react';
 import {
     DefaultTheme,
     DarkTheme,
     Provider as PaperProvider
 } from 'react-native-paper';
-import { NavigationContainer } from '@react-navigation/native';
-import PropTypes from 'prop-types';
-
-import { navRef, useCreateNavigator } from './hooks';
 
 export default function App() {
-    const { Header } = useComponents(),
-        routesMap = useRoutesMap(),
-        index = useIndexRoute(),
-        routeTitle = useRouteTitle(),
-        { theme } = usePlugin('material').config;
-
-    const routes = useMemo(
-        () =>
-            Object.entries(routesMap)
-                .filter(([name, route]) => route.path && name !== '@@SERVER')
-                .map(([name, route]) => ({
-                    name,
-                    ...route
-                })),
-        [routesMap]
-    );
-
-    const paperTheme = useMemo(() => createTheme(theme), [theme]),
-        { Navigator, Screen } = useCreateNavigator(paperTheme);
+    const { theme: configTheme } = usePlugin('material').config,
+        theme = useMemo(() => createTheme(configTheme), [configTheme]),
+        options = useMemo(
+            () => ({
+                navigator: { theme },
+                screen: {
+                    cardStyle: { backgroundColor: theme.colors.background }
+                }
+            }),
+            [theme]
+        );
 
     return (
-        <PaperProvider theme={paperTheme}>
-            <NavigationContainer ref={navRef}>
-                <Navigator
-                    initialRouteName={index.toUpperCase()}
-                    screenOptions={{
-                        header: function header(props) {
-                            return <Header {...props} />;
-                        }
-                    }}
-                >
-                    {routes.map(route => (
-                        <Screen
-                            key={route.name}
-                            name={route.name}
-                            options={({ route }) => ({
-                                title: routeTitle(route.name.toLowerCase()),
-                                cardStyle: {
-                                    backgroundColor:
-                                        paperTheme.colors.background
-                                }
-                            })}
-                            component={AppScreen}
-                            route={route}
-                        />
-                    ))}
-                </Navigator>
-            </NavigationContainer>
+        <PaperProvider theme={theme}>
+            <DefaultApp options={options} />
         </PaperProvider>
     );
 }
-
-function AppScreen({ route }) {
-    const { name } = route;
-    return <DefaultApp route={name.toLowerCase()} />;
-}
-AppScreen.propTypes = {
-    route: PropTypes.object
-};
 
 function createTheme({ type, primary, secondary, background }) {
     const colors = {},
