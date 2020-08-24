@@ -1,6 +1,8 @@
 /index.js
 /App.js
+/App.native.js
 /hooks.js
+/hooks.native.js
 /init.js
 /init.expo.js
 /init.native.js

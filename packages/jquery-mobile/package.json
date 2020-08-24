@@ -1,6 +1,6 @@
 {
     "name": "@wq/jquery-mobile",
-    "version": "1.3.0-alpha.1",
+    "version": "1.3.0-alpha.2",
     "description": "Modified jQuery Mobile for use with @wq/app",
     "type": "module",
     "main": "index.js",
@@ -26,7 +26,7 @@
     },
     "homepage": "https://wq.io/wq.app",
     "dependencies": {
-        "@wq/store": "^1.3.0-alpha.1",
+        "@wq/store": "^1.3.0-alpha.2",
         "jquery": "^1.12.4",
         "mustache": "^4.0.1"
     }
