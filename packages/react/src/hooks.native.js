@@ -28,6 +28,11 @@ export function useNav(to) {
     }, [navigation, app, routesMap, to]);
 }
 
+export function useNavigationProps() {
+    const config = usePlugin('react').config;
+    return config.navigationProps || {};
+}
+
 export function useCreateNavigator(options) {
     const config = usePlugin('react').config;
     const createNavigator = config.createNavigator || createDefaultNavigator;

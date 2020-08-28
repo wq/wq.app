@@ -6,6 +6,7 @@ import {
     useIndexRoute,
     useRouteTitle,
     navRef,
+    useNavigationProps,
     useCreateNavigator
 } from './hooks';
 import { NavigationContainer } from '@react-navigation/native';
@@ -14,6 +15,7 @@ import PropTypes from 'prop-types';
 export default function App({ options = {} }) {
     const { Header } = useComponents(),
         { Navigator, Screen } = useCreateNavigator(options.navigator),
+        navProps = useNavigationProps(),
         routesMap = useRoutesMap(),
         index = useIndexRoute(),
         routeTitle = useRouteTitle(),
@@ -31,7 +33,7 @@ export default function App({ options = {} }) {
         );
 
     return (
-        <NavigationContainer ref={navRef}>
+        <NavigationContainer ref={navRef} {...navProps}>
             <Navigator
                 initialRouteName={index.toUpperCase()}
                 screenOptions={{
