@@ -6,7 +6,7 @@ import { useMapState } from '@wq/map';
 
 export default function Map({ bounds, children, mapProps, containerStyle }) {
     const {
-        accessToken = 'NONE',
+        accessToken = null,
         dragRotate: rotateEnabled,
         pitchWithRotate: pitchEnabled = mapProps.dragRotate
     } = mapProps || {};
@@ -74,6 +74,8 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
             ref={setRef}
             rotateEnabled={rotateEnabled}
             pitchEnabled={pitchEnabled}
+            attributionEnabled={!!accessToken}
+            logoEnabled={!!accessToken}
             style={containerStyle}
         >
             <MapboxGL.Camera
