@@ -94,6 +94,7 @@ Name | Details
 [Form] | Connects [Formik] to [@wq/outbox]'s form handler
 [FormError]* | Renders form-level error messages.  (Field-level errors are handled in each [input component](#input-components)).
 [Link]* | General purpose link component that integrates with [@wq/router]
+[Message] | Displays one of the configured [default message strings][messages].  To override the defaults, register a plugin with a `messages` attribute, e.g. `app.use({messages: {SUBMIT: 'Save Changes'}});`
 
 Components marked with * are overridden and extended by @wq/material.
 
@@ -175,9 +176,15 @@ name | description
 [OutboxList] | Lists items in the outbox.  (There is no OutboxDetail/OutboxEdit, as the model-specific views are used instead).
 [Server] | View for rendering content loaded from the server (WIP)
 
-To override a view for a specific route, register a corresponding component with the name converted to PascalCase.  E.g. "about" -> "About" or "observation_edit" -> "ObservationEdit".  Otherwise, override one of the Default* components above to make the change effective for all corresponding routes.
+To override a view for a specific route, register a corresponding component with the name converted to PascalCase.  E.g. "about" -> "About" or "observation_edit" -> "ObservationEdit".
 
-Note that the default view components above are not exported by the @wq/react index package.  If you would like to extend a default view, you can always copy the entire source from the corresponding link in the above table.
+Note that the default view components are not directly exported by the @wq/react index package, and are generally not meant to be extended or overridden directly.  It should be possible to accomplish most default view customizations by:
+
+ * Customising the [@wq/material] theme
+ * Overriding one or more configured [messages](#general-components)
+ * Overriding the relevant [child components](#components) (all views call [`useComponents()`](#wqreact-integration) to determine their children)
+
+If none of the above are sufficient to customize a default view, you can always copy the entire source from the corresponding link in the above table.  (Be sure to replace references to '../../hooks' with '@wq/react')
 
 # Hooks
 
@@ -277,6 +284,8 @@ useViewComponents() | Mapping of [view components](#view-components) in both Pas
 [Form]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Form.js
 [FormError]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/FormError.js
 [Link]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Link.js
+[Message]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Message.js
+[messages]: https://github.com/wq/wq.app/blob/master/packages/react/src/messages.js
 
 [Header]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Header.js
 [Footer]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Footer.js

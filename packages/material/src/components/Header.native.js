@@ -1,14 +1,16 @@
 import React from 'react';
 import { Appbar } from 'react-native-paper';
+import { useBreadcrumbs, useNav } from '@wq/react';
 import PropTypes from 'prop-types';
 
-export default function Header({ navigation, scene, previous }) {
+export default function Header({ scene }) {
+    const breadcrumbs = useBreadcrumbs(),
+        previous = breadcrumbs[breadcrumbs.length - 2],
+        nav = useNav(previous);
     return (
         <Appbar.Header>
-            {previous && (
-                <Appbar.BackAction onPress={() => navigation.goBack()} />
-            )}
-            <Appbar.Content title={scene && scene.descriptor.options.title} />
+            {previous && <Appbar.BackAction onPress={nav} />}
+            <Appbar.Content title={scene?.descriptor.options.title} />
         </Appbar.Header>
     );
 }

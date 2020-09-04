@@ -4,6 +4,7 @@ import { AppContext } from './hooks';
 
 import App from './App';
 
+import messages from './messages';
 import * as components from './components/index';
 import * as inputs from './components/inputs/index';
 import * as icons from './components/icons/index';
@@ -15,6 +16,7 @@ export default {
     type: 'renderer',
 
     config: {
+        messages: { ...messages },
         components: {
             App,
             ...components
@@ -29,6 +31,9 @@ export default {
             Object.assign(this.config, config);
         }
         Object.values(this.app.plugins).forEach(plugin => {
+            if (plugin.messages) {
+                Object.assign(this.config.messages, plugin.messages);
+            }
             if (plugin.components) {
                 Object.assign(this.config.components, plugin.components);
             }
@@ -109,6 +114,7 @@ export * from './hooks';
 
 const {
     Link,
+    Message,
     Form,
     FormError,
     AutoForm,
@@ -120,6 +126,7 @@ const {
 
 export {
     App,
+    Message,
     Link,
     Form,
     FormError,

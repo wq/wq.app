@@ -152,6 +152,7 @@ Component|HTML Equivalent|Description
 [FormError]&nbsp;([.native][FormError.native]) |  | Renders form-level error messages. (Field-level errors are handled in each [input component](#input-components)).
 [Fieldset]&nbsp;([.native][Fieldset.native]) | `<fieldset>` | Group of related fields (e.g. for an XLSForm "group")
 [FieldsetArray]&nbsp;([.native][FieldsetArray.native]) |  | Repeating group of nested fields (e.g. XLSForm "repeat") with support for adding/removing nested records
+[CancelButton]&nbsp;([.native][CancelButton.native]) | `<a href="../">` | Returns to previous page without saving
 [SubmitButton]&nbsp;([.native][SubmitButton.native]) | `<button type="submit">` | Use this rather than `<Button type="submit">` to ensure native support (see [Formik docs][formik-native]).
 [IconSubmitButton]&nbsp;([.native][IconSubmitButton.native]) |  | `<IconButton/>` with `<SubmitButton/>` functionality
 
@@ -281,6 +282,8 @@ Component|HTML Equivalent|XLSForm Types
 [Fieldset.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/Fieldset.native.js
 [FieldsetArray]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/FieldsetArray.js
 [FieldsetArray.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/FieldsetArray.native.js
+[CancelButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/CancelButton.js
+[CancelButton.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/CancelButton.native.js
 [SubmitButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/SubmitButton.js
 [SubmitButton.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/SubmitButton.native.js
 [IconSubmitButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/IconSubmitButton.js

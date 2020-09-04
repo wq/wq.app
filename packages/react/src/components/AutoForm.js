@@ -15,12 +15,13 @@ export default function AutoForm({
     children
 }) {
     const {
+        Message,
         AutoInput,
         Form,
         FormError,
         HorizontalView,
-        SubmitButton,
-        ButtonLink
+        CancelButton,
+        SubmitButton
     } = useComponents();
 
     const formData = initData(form, data);
@@ -40,8 +41,14 @@ export default function AutoForm({
             ))}
             <FormError />
             <HorizontalView>
-                {cancel && <ButtonLink to={cancel}>Cancel</ButtonLink>}
-                <SubmitButton>Submit</SubmitButton>
+                {cancel && (
+                    <CancelButton to={cancel}>
+                        <Message id="CANCEL" />
+                    </CancelButton>
+                )}
+                <SubmitButton>
+                    <Message id="SUBMIT" />
+                </SubmitButton>
             </HorizontalView>
             {children}
         </Form>

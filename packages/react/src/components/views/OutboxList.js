@@ -14,6 +14,7 @@ export default function OutboxList({ modelConf }) {
         routeTitle = useRouteTitle(),
         items = useUnsynced(modelConf),
         {
+            Message,
             List,
             ListItem,
             ListItemLink,
@@ -48,12 +49,12 @@ export default function OutboxList({ modelConf }) {
 
     function getStatus(item) {
         if (item.synced) {
-            return 'Successfully synced.';
+            return 'SYNC_SUCCESS';
         } else if (item.error) {
             if (typeof item.error === 'string') {
                 return item.error;
             } else {
-                return 'One or more errors found.';
+                return 'SYNC_ERROR';
             }
         } else {
             return null;
@@ -63,13 +64,17 @@ export default function OutboxList({ modelConf }) {
     function OutboxItems() {
         return (
             <>
-                {empty && <ListItem>No items in outbox.</ListItem>}
+                {empty && (
+                    <ListItem>
+                        <Message id="OUTBOX_IS_EMPTY" />
+                    </ListItem>
+                )}
                 {items.map(item => (
                     <ListItemLink
                         key={item.id}
                         to={reverse('outbox_edit', item.id)}
                         icon={getIcon(item)}
-                        description={getStatus(item)}
+                        description={<Message id={getStatus(item)} />}
                     >
                         {getTitle(item)}
                     </ListItemLink>
@@ -81,7 +86,9 @@ export default function OutboxList({ modelConf }) {
     if (modelConf) {
         return (
             <List>
-                <ListSubheader>Unsynced Items</ListSubheader>
+                <ListSubheader>
+                    <Message id="UNSYNCED_ITEMS" />
+                </ListSubheader>
                 <OutboxItems />
             </List>
         );
@@ -96,10 +103,10 @@ export default function OutboxList({ modelConf }) {
                 {!empty && (
                     <HorizontalView>
                         <Button onClick={() => app.emptyOutbox(true)}>
-                            Empty Outbox
+                            <Message id="EMPTY_OUTBOX" />
                         </Button>
                         <Button onClick={() => app.retryAll()}>
-                            Retry All
+                            <Message id="RETRY_ALL" />
                         </Button>
                     </HorizontalView>
                 )}

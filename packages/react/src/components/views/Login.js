@@ -4,10 +4,11 @@ import { useComponents, useInputComponents, useReverse } from '../../hooks';
 export default function Login() {
     const reverse = useReverse(),
         {
+            Message,
             Form,
             FormError,
             HorizontalView,
-            ButtonLink,
+            CancelButton,
             SubmitButton
         } = useComponents(),
         { Input } = useInputComponents();
@@ -24,8 +25,12 @@ export default function Login() {
                 <Input name="password" type="password" label="Password" />
                 <FormError />
                 <HorizontalView>
-                    <ButtonLink to={reverse('index')}>Cancel</ButtonLink>
-                    <SubmitButton>Submit</SubmitButton>
+                    <CancelButton to={reverse('index')}>
+                        <Message id="CANCEL" />
+                    </CancelButton>
+                    <SubmitButton>
+                        <Message id="SUBMIT" />
+                    </SubmitButton>
                 </HorizontalView>
             </Form>
         </>

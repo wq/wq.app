@@ -10,6 +10,7 @@ export default function DefaultList() {
     const reverse = useReverse(),
         { list, unsynced, empty, page_config } = useList(),
         {
+            Message,
             ScrollView,
             List,
             ListSubheader,
@@ -39,8 +40,16 @@ export default function DefaultList() {
             <ScrollView>
                 {hasUnsynced && <OutboxList modelConf={page_config} />}
                 <List>
-                    {hasUnsynced && <ListSubheader>Synced Items</ListSubheader>}
-                    {empty && <ListItem>Empty list.</ListItem>}
+                    {hasUnsynced && (
+                        <ListSubheader>
+                            <Message id="SYNCED_ITEMS" />
+                        </ListSubheader>
+                    )}
+                    {empty && (
+                        <ListItem>
+                            <Message id="LIST_IS_EMPTY" />
+                        </ListItem>
+                    )}
                     {(list || []).map(row => (
                         <Row key={row.id} {...row} />
                     ))}

@@ -389,3 +389,8 @@ export function usePluginContent() {
         [content]
     );
 }
+
+export function useMessages() {
+    const { config } = usePlugin('react');
+    return config.messages;
+}

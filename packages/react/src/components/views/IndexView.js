@@ -11,7 +11,13 @@ export default function Index() {
     const reverse = useReverse(),
         routeTitle = useRouteTitle(),
         { pages } = useRenderContext(),
-        { ScrollView, List, ListSubheader, ListItemLink } = useComponents();
+        {
+            Message,
+            ScrollView,
+            List,
+            ListSubheader,
+            ListItemLink
+        } = useComponents();
 
     const options = (pages || []).filter(page => !page.list),
         models = (pages || []).filter(page => page.list);
@@ -28,11 +34,19 @@ export default function Index() {
     return (
         <ScrollView>
             <List>
-                {models.length > 0 && <ListSubheader>Options</ListSubheader>}
+                {models.length > 0 && (
+                    <ListSubheader>
+                        <Message id="OTHER_PAGES" />
+                    </ListSubheader>
+                )}
                 {options.map(page => (
                     <PageLink key={page.name} name={page.name} />
                 ))}
-                {models.length > 0 && <ListSubheader>Content</ListSubheader>}
+                {models.length > 0 && (
+                    <ListSubheader>
+                        <Message id="MODEL_PAGES" />
+                    </ListSubheader>
+                )}
                 {models.map(page => (
                     <PageLink key={page.name} name={`${page.name}_list`} />
                 ))}
