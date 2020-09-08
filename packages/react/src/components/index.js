@@ -9,6 +9,8 @@ import Text from './Text';
 import Typography from './Typography';
 import FormatJson from './FormatJson';
 
+import Message from './Message';
+
 import Link from './Link';
 import Button from './Button';
 import ButtonLink from './ButtonLink';
@@ -62,6 +64,8 @@ export {
 };
 
 export { Link, Button, ButtonLink, IconButton, Fab, Chip };
+
+export { Message };
 
 export { List, ListItem, ListItemLink, ListSubheader, ExpansionPanel, Divider };
 

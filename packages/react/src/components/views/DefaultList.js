@@ -38,22 +38,31 @@ export default function DefaultList() {
     return (
         <>
             <ScrollView>
-                {hasUnsynced && <OutboxList modelConf={page_config} />}
-                <List>
-                    {hasUnsynced && (
-                        <ListSubheader>
-                            <Message id="SYNCED_ITEMS" />
-                        </ListSubheader>
-                    )}
-                    {empty && (
-                        <ListItem>
-                            <Message id="LIST_IS_EMPTY" />
-                        </ListItem>
-                    )}
-                    {(list || []).map(row => (
-                        <Row key={row.id} {...row} />
-                    ))}
-                </List>
+                {hasUnsynced ? (
+                    <>
+                        <OutboxList modelConf={page_config} />
+                        {!empty && (
+                            <List>
+                                <ListSubheader>
+                                    <Message id="SYNCED_ITEMS" />
+                                </ListSubheader>
+                                {list.map(row => (
+                                    <Row key={row.id} {...row} />
+                                ))}
+                            </List>
+                        )}
+                    </>
+                ) : (
+                    <List>
+                        {empty ? (
+                            <ListItem>
+                                <Message id="LIST_IS_EMPTY" />
+                            </ListItem>
+                        ) : (
+                            list.map(row => <Row key={row.id} {...row} />)
+                        )}
+                    </List>
+                )}
                 <Pagination />
             </ScrollView>
             {can_add && <Fab icon="add" to={reverse(`${page}_edit:new`)} />}
