@@ -1,0 +1,8 @@
+*.md
+*.css
+*.scss
+*.html
+*.yml
+packages/outbox/vendor/json-forms.js
+packages/jquery-mobile/vendor/jquery-mobile.js
+tests/

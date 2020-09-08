@@ -6,5 +6,6 @@
 /init.js
 /init.expo.js
 /init.native.js
+/messages.js
 /components/
 /__tests__/

@@ -10,7 +10,7 @@
         "babel": "babel --ignore **/__tests__/**",
         "precise-commits": "precise-commits",
         "prettier": "prettier",
-        "prettier-all": "prettier --write *.js{,on} packages/*/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "prettier-all": "prettier --write .",
         "eslint": "eslint",
         "lint": "eslint *.js packages/*/{,src/,src/*/,src/*/*/}*.js"
     },

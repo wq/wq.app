@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/router",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/router/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/router/",
         "lint": "cd ../../ && npm run eslint packages/router/{,src/,src/*/,src/*/*/}*.js",
         "rollup": "cd ../../ && npm run rollup -- -c packages/router/rollup.config.js"
     },

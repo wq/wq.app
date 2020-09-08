@@ -8,7 +8,7 @@
         "test": "cd ../../ && npm run jest packages/leaflet -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
         "build": "npm run babel && npm run prettier",
         "babel": "cd ../../ && npm run babel -- packages/leaflet/src --out-dir packages/leaflet/",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/leaflet/{,*/,*/*/,*/*/*/}*.js{,on}",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/leaflet/",
         "lint": "cd ../../ && npm run eslint packages/leaflet/{,src/,src/*/,src/*/*/}*.js",
         "rollup": "cd ../../ && npm run rollup -- -c packages/leaflet/rollup.config.js"
     },

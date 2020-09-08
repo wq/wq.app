@@ -8,7 +8,7 @@
         "test": "cd ../../ && npm run jest packages/react",
         "build": "npm run babel && npm run prettier",
         "babel": "cd ../../ && npm run babel -- packages/react/src --out-dir packages/react/",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/react/{,*/,*/*/,*/*/*/}*.js{,on}",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/react/",
         "lint": "cd ../../ && npm run eslint packages/react/{,src/,src/*/,src/*/*/}*.js"
     },
     "repository": {

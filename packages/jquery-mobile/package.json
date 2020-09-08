@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/jquery-mobile",
-        "prettier": "cd ../../ && npm run prettier -- --write packages/jquery-mobile/{,src/,src/*/,src/*/*/}*.js{,on}",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/jquery-mobile/",
         "lint": "cd ../../ && npm run eslint packages/jquery-mobile/{,src/,src/*/,src/*/*/}*.js",
         "rollup": "cd ../../ && npm run rollup -- -c packages/jquery-mobile/rollup.config.js"
     },
