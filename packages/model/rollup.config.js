@@ -16,7 +16,7 @@ export default [
         }
     },
     {
-        input: 'packages/model/node_modules/redux-orm/es/index.js',
+        input: 'packages/model/node_modules/redux-orm/src/index.js',
         plugins: [resolve(), commonjs()],
         output: [
             {

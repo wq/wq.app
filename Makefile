@@ -23,9 +23,9 @@ js_regenerator_runtime: init
 	echo "\nreturn regeneratorRuntime;\n});" >> js/regenerator-runtime.js
 
 js_lib: init js_leaflet_draw js_regenerator_runtime
+	cp -p packages/app/node_modules/deepcopy/umd/deepcopy.js js/deepcopy.js
 	cp -p packages/leaflet/node_modules/esri-leaflet/dist/esri-leaflet-debug.js js/esri-leaflet.js
 	cp -p packages/jquery-mobile/node_modules/jquery/dist/jquery.js js/jquery.js
-	cp -p packages/jquery-mobile/dist/jquery.mobile.vendor.js js/jquery.mobile.js
 	cp -p packages/store/node_modules/redux/dist/redux.js js/redux.js
 	cp -p packages/store/node_modules/redux-persist/dist/redux-persist.js js/redux-persist.js
 	cp -p packages/store/node_modules/redux-logger/dist/redux-logger.js js/redux-logger.js

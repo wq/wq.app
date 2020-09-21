@@ -7,7 +7,7 @@ export default [
     {
         input: 'packages/app/src/app.js',
         plugins: [wqDeps(), babelAMD()],
-        external: ['mustache'],
+        external: ['mustache', 'deepcopy'],
         output: outputAMD('app', banner)
     }
 ];

@@ -6,10 +6,10 @@ export default [
     {
         input: 'packages/jquery-mobile/src/jquery-mobile.js',
         plugins: [wqDeps('.'), vendorLib('../vendor/jquery-mobile')],
-        external: ['jquery'],
+        external: ['jquery', 'mustache'],
         output: [
             {
-                file: 'packages/jquery-mobile/dist/jquery-mobile.js',
+                file: 'js/wq/jquery-mobile.js',
                 format: 'amd',
                 name: 'jqmRenderer',
                 indent: false
@@ -22,7 +22,7 @@ export default [
         external: ['jquery'],
         output: [
             {
-                file: 'packages/jquery-mobile/dist/jquery.mobile.vendor.js',
+                file: 'js/jquery.mobile.js',
                 format: 'amd',
                 name: 'jqmInit',
                 indent: false

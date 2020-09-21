@@ -7,7 +7,7 @@ const banner = makeBanner(pkg, 2012);
 
 const autoMergeLevel2 = 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 const resolveMerge = resolve({
-    only: ['redux-persist']
+    resolveOnly: ['redux-persist']
 });
 resolveMerge.resolveId = (defaultResolveId => {
     return (source, importer) => {

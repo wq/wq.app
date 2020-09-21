@@ -60,6 +60,7 @@ export function babelAMD(opts) {
     }
     const plugin = babelPlugin({
         configFile: false,
+        babelHelpers: 'bundled',
         presets,
         plugins: [
             '@babel/plugin-proposal-class-properties',
