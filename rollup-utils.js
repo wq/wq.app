@@ -20,9 +20,11 @@ export function wqDeps(path = '.') {
     };
 }
 
-export function vendorLib(path) {
-    const parts = path.split('/'),
+export function vendorLib(path, module) {
+    if (!module) {
+        const parts = path.split('/');
         module = parts[parts.length - 1];
+    }
     return {
         resolveId: source => {
             if (source === path) {
@@ -98,12 +100,13 @@ function generator(ast, opts, code) {
 
 const generatorOverride = { generatorOverride: generator };
 
-export function outputAMD(name, banner, module) {
+export function outputAMD(name, banner, module, exportName) {
     if (!module) {
         module = name;
     }
     return {
         banner,
+        name: exportName,
         file: `js/wq/${name}.js`,
         format: 'amd',
         sourcemap: true,

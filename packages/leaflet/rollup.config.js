@@ -27,7 +27,8 @@ const banners = {
     },
     deps = {
         '@wq/map': './packages/map/src/index.js',
-        '@wq/react': './packages/react/src/index.js'
+        '@wq/react': './packages/react/src/index.js',
+        'redux-orm/src/index.js': { id: 'redux-orm', external: true }
     };
 function resolveId(id) {
     return deps[id];
@@ -44,6 +45,7 @@ const replaceConf = {
     "import Draw from 'leaflet-draw": "import * as Draw from 'leaflet-draw",
     "from 'react-leaflet-markercluster'":
         "from 'react-leaflet-markercluster/src/react-leaflet-markercluster'",
+    "require('leaflet.markercluster')": "import 'leaflet.markercluster'",
 
     // rudy-history
     'exports.default = createBrowserHistory;':
@@ -65,7 +67,19 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/leaflet/src/index.js',
-        external: ['leaflet', 'mustache'],
+        external: [
+            'leaflet',
+            'leaflet.markercluster',
+            'mustache',
+            'react',
+            'react-dom',
+            'react-is',
+            'react-redux',
+            'redux-first-router',
+            'redux-first-router-link',
+            'scheduler',
+            'prop-types'
+        ],
         output: outputAMD('map', banners.leaflet),
         plugins: [
             replace({
@@ -97,7 +111,22 @@ export default [
     },
     {
         input: 'packages/leaflet/src/mapserv.js',
-        external: ['leaflet', 'mustache', 'esri-leaflet', 'leaflet.wms'],
+        external: [
+            'leaflet',
+            'leaflet.markercluster',
+            'mustache',
+            'react',
+            'react-dom',
+            'react-is',
+            'react-redux',
+            'redux-orm',
+            'redux-first-router',
+            'redux-first-router-link',
+            'scheduler',
+            'prop-types',
+            'esri-leaflet',
+            'leaflet.wms'
+        ],
         output: outputAMD('mapserv', banners.mapserv, 'leaflet'),
         plugins: [
             replace(replaceConf),

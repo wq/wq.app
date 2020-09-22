@@ -8,8 +8,20 @@ export default [
     // AMD (for wq.app Python package)
     {
         input: 'packages/model/index.js',
-        plugins: [wqDeps(), commonjs(), resolve(), babelAMD()],
-        external: ['redux-orm'],
+        plugins: [
+            wqDeps(),
+            {
+                resolveId(id) {
+                    if (id === 'redux-orm/src/index.js') {
+                        return { id: 'redux-orm', external: true };
+                    }
+                }
+            },
+            commonjs(),
+            babelAMD(),
+            resolve()
+        ],
+        external: ['redux-orm', 'deepcopy'],
         output: {
             ...outputAMD('model', banner),
             exports: 'named'
@@ -17,7 +29,7 @@ export default [
     },
     {
         input: 'packages/model/node_modules/redux-orm/src/index.js',
-        plugins: [resolve(), commonjs()],
+        plugins: [resolve(), commonjs(), babelAMD()],
         output: [
             {
                 file: 'js/redux-orm.js',

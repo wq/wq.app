@@ -1,6 +1,7 @@
 import jqmRenderer from '../jquery-mobile';
 
 beforeAll(() => {
+    jqmRenderer.app = { config: {} };
     jqmRenderer.init({
         templates: {
             test: '<html>{{>head}}<h1>{{title}}</h1></html>',

@@ -82,7 +82,8 @@ export default {
                 icons: {},
                 views: {}
             },
-            root
+            root,
+            getRootComponent: this.getRootComponent
         };
 
         this.init.call(tempPlugin);
@@ -92,7 +93,7 @@ export default {
 
         return {
             start: () => this.start.call(tempPlugin),
-            getRootComponent: () => this.getRootComponent.call(tempPlugin),
+            getRootComponent: () => tempPlugin.getRootComponent(),
             stop: () => unmount.call(tempPlugin)
         };
     },

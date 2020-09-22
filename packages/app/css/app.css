@@ -12,6 +12,7 @@
 
 .map {
     border: 1px solid #999;
+    display: flex;
 }
 .map.list-map {
     height: 500px;

@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
 import Mustache from 'mustache';
 import jqmInit from '../vendor/jquery-mobile';
+import photos from './photos';
 
 const HTML = '@@HTML', // @wq/router
     RENDER = 'RENDER', // @wq/router
@@ -10,6 +11,7 @@ const HTML = '@@HTML', // @wq/router
 const jqmRenderer = {
     name: 'jqmrenderer',
     type: 'renderer',
+    dependencies: [photos],
 
     config: {
         templates: {},
@@ -25,18 +27,49 @@ const jqmRenderer = {
     },
 
     init(config) {
-        if (config) {
-            if (config.transitions) {
-                config.transitions = {
-                    ...this.config.transitions,
-                    ...config.transitions
-                };
+        const appConf = this.app.config;
+
+        if (!config) {
+            config = {};
+            if (appConf.template?.templates) {
+                console.warn(
+                    'Rename config.template.templates to config.jqmrenderer.templates'
+                );
+                config.templates = appConf.template.templates;
+                if (appConf.template.partials) {
+                    config.partials = appConf.template.partials;
+                }
             }
-            if (config.templates && config.templates.partials) {
-                config.partials = config.templates.partials;
+
+            if (appConf.transitions) {
+                console.warn(
+                    'Rename config.transitions to config.jqmrenderer.transitions'
+                );
+                config.transitions = appConf.transitions;
             }
-            Object.assign(this.config, config);
+
+            if (appConf.router?.injectOnce) {
+                console.warn(
+                    'Rename config.router.injectOnce to config.jqmrenderer.injectOnce'
+                );
+                config.injectOnce = appConf.router.injectOnce;
+            }
         }
+
+        if (!('debug' in config)) {
+            config.debug = appConf.debug;
+        }
+
+        if (config.transitions) {
+            config.transitions = {
+                ...this.config.transitions,
+                ...config.transitions
+            };
+        }
+        if (config.templates && config.templates.partials) {
+            config.partials = config.templates.partials;
+        }
+        Object.assign(this.config, config);
         config = this.config;
 
         // Configuration options:
