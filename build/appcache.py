@@ -2,6 +2,7 @@ from wq.core import wq
 import click
 import os
 import re
+import time
 
 
 @wq.command()
@@ -9,13 +10,18 @@ import re
 @wq.pass_config
 def appcache(config, version):
     """
-    Generate an HTML5 appcache manifest.  Should be run after wq optimize, as
-    some of the manifest entries will be inferred from the build log.
+    (DEPRECATED) Generate an HTML5 appcache.  Should be run after
+    wq optimize, as some of the manifest entries will be inferred from the
+    build log.
 
-    A manifest will be created for both the source directory and the build
-    directory, so you can test offline capabilities even when running off of
-    the source AMD files.
+    Note that browser vendors are deprecating support for Application Cache
+    in favor of Service Workers. The `wq appcache` command will be removed in
+    wq.app 2.0.
     """
+
+    click.echo("Warning: Application Cache is deprecated by browser vendors.")
+    time.sleep(10)
+
     if 'appcache' not in config:
         raise click.UsageError(
             "appcache section not found in %s" % config.filename

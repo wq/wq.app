@@ -7,6 +7,7 @@ import json
 import shutil
 import pystache
 from .icons import icons, SIZES
+import time
 
 
 @wq.command()
@@ -37,7 +38,7 @@ from .icons import icons, SIZES
 @click.pass_context
 def phonegap(ctx, config, version, **conf):
     """
-    Upload application to PhoneGap Build.  Specifically,
+    (DEPRECATED) Package app for PhoneGap Build.  Specifically,
 
     \b
     1. Create a working directory, if not present.
@@ -48,8 +49,15 @@ def phonegap(ctx, config, version, **conf):
     6. Upload the zip file to PhoneGap build.
     7. Save the returned app ID for future builds.
     \b
-    (Inspired by, but not dependent on, the `phonegap remote` api)
+    Note that PhoneGap Build is no longer online.  The `wq phonegap` command
+    will be removed in wq.app 2.0.  @wq/react and @wq/material support using
+    React Native and/or Expo to deploy native apps.
     """
+
+    click.echo(
+        "Warning: PhoneGap Build is offline; this command will likely fail."
+    )
+    time.sleep(10)
 
     if conf['source']:
         source = conf['source']

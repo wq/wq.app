@@ -17,10 +17,14 @@ from babeljs import transformer as babeljs
 @wq.pass_config
 def optimize(config):
     """
-    Use r.js to optimize JS and CSS assets.  This command requires an
-    "optimize" section in your configuration file, which will be passed as-is
-    to r.js for compilation.  See http://requirejs.org/docs/optimization.html
-    for available configuration options.
+    (DEPRECATED) Use r.js to optimize JS and CSS. This command requires an
+    "optimize" section in your configuration file, which will be passed to
+    r.js for compilation.  See http://requirejs.org/docs/optimization.html
+    for available options.
+
+    Note that r.js-based compilation is deprecated and will be removed in
+    wq.app 2.0. For full control over the compilation process, use
+    `wq start --with-npm` instead.
     """
     conf = config.get('optimize', None)
     if not conf:
@@ -42,10 +46,14 @@ def optimize(config):
 @wq.pass_config
 def babel(config):
     """
-    Use babel.js to compile ES6/2015+.  Generates ES5-compatible JavaScript for
-    older browsers.  Note that wq babel is run after wq optimize, on the
-    compiled modules created by r.js.  Support for running babel at other
-    stages of the build process may be added in a future version of wq.app.
+    (DEPRECATED) Use babel.js with ES6/2015+.  Generates ES5-compatible
+    JavaScript for older browsers.  Note that wq babel is run after
+    wq optimize, on the compiled modules created by r.js.  For more control
+    over the compilation process, use `wq start --with-npm` instead of
+    an r.js-based build.
+
+    Note that this command will be removed in wq.app 2.0 in favor of
+    `wq start --with-npm`.
     """
     rconf = config.get('optimize', None)
     if not rconf:
@@ -93,9 +101,12 @@ def babel(config):
 )
 def scss(**conf):
     """
-    Render all SCSS/SASS files into CSS.  The input directory will be searched
+    (DEPRECATED) Render SCSS/SASS into CSS.  The input folder will be searched
     for *.scss files, which will be compiled to corresponding *.css files in
     the output directory.
+
+    Note: This command will be removed in wq.app 2.0 in favor of
+    Material UI themes.
     """
     compiler = pyScss.Scss(scss_opts={'compress': 0})
     logging.getLogger("scss").addHandler(logging.StreamHandler())
@@ -133,7 +144,7 @@ def scss(**conf):
 )
 def mustache(**conf):
     """
-    Render a mustache template into static HTML.  The template context can be
+    (DEPRECATED) Render mustache into HTML files.  The template context can be
     provided via a nexted object in wq.yml, or by pointing to a folder
     containing JSON or YAML files.  Similarly, the partials can be defined as a
     nested object in wq.yml or by a folder path.
@@ -154,6 +165,8 @@ def mustache(**conf):
     Example command line configuration:
 
     wq mustache --template tmpl.html --partials partials/ --context conf/
+
+    Note: This command will be removed in wq.app 2.0 in favor of JSX.
     """
     template = conf['template']
     if template is None:

@@ -1,5 +1,7 @@
 from wq.core import wq
 import click
+import subprocess
+import os
 
 from .collect import collectjson
 from .setversion import setversion
@@ -23,14 +25,27 @@ def build(ctx, config, version):
         wq collectjson (if configured)
         wq scss        (if configured)
         wq mustache    (if configured)
-        wq optimize
-        wq babel       (if configured)
-        wq appcache    (if configured)
+
+    \b
+    Followed by either:
+        wq optimize + wq babel + wq appcache
+    Or:
+        npm build
     """
-    if 'optimize' not in config:
-        raise click.UsageError(
-            "optimize section not found in %s" % config.filename
-        )
+
+    has_package_json = os.path.exists(
+        os.path.join(os.path.dirname(config.filename), 'package.json')
+    )
+    if has_package_json:
+        if 'optimize' in config:
+            raise click.UsageError(
+                "optimize section is not used for npm build"
+            )
+    else:
+        if 'optimize' not in config:
+            raise click.UsageError(
+                "optimize section not found in %s" % config.filename
+            )
 
     def run(command, **kwargs):
         confs = config.get(command.name, {})
@@ -49,13 +64,19 @@ def build(ctx, config, version):
         if command.name in config:
             run(command)
 
-    # Compile Javascript / CSS (using r.js)
-    ctx.invoke(optimize)
+    if has_package_json:
+        subprocess.check_call(
+            ['npm', 'build'],
+            cwd=os.path.abspath(os.path.dirname(config.filename))
+        )
+    else:
+        # Compile Javascript / CSS (using r.js)
+        ctx.invoke(optimize)
 
-    # Convert to ES5 via babel.js
-    if 'babel' in config:
-        ctx.invoke(babel)
+        # Convert to ES5 via babel.js
+        if 'babel' in config:
+            ctx.invoke(babel)
 
-    # Generate HTML5 Cache manifests
-    if 'appcache' in config:
-        ctx.invoke(appcache, version=version)
+        # Generate HTML5 Cache manifests
+        if 'appcache' in config:
+            ctx.invoke(appcache, version=version)
