@@ -63,6 +63,8 @@ setup(
     },
     package_data={
         'wq.app': [
+            'static/app/js/*',
+            'static/app/css/*',
             'js/*',
             'js/*/*',
             'css/*',

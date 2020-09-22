@@ -19,7 +19,7 @@ from os import symlink, mkdir
 )
 def init(**conf):
     """
-    Link js, css, and scss to wq.app libs.  This makes it possible to leverage
+    (DEPRECATED) Symlink wq.app's js/css/scss.  This facilitates uisng
     wq.app's assets via short relative paths without vendoring the entire
     wq.app codebase in your project.  A "lib/" folder will be configured for
     each of the three asset types.
@@ -31,6 +31,9 @@ def init(**conf):
     Note: It's best to configure VCS to completely ignore the lib/ entries -
     since they may be different on each computer, and they can be created
     automatically as needed.
+
+    `wq init` will be removed in wq.app 2.0, in favor of
+    ./manage.py collectstatic.
     """
 
     def maybe_symlink(source, dest):

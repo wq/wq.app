@@ -2,13 +2,14 @@
 *.egg-info/
 *.swp
 *.tgz
-dist/
-js/
-scss/
-css/
+.eggs
+/dist/
+/static/
+/js/
+/scss/
+/css/
 # Note: build/*.py is actually wq.app.build, while build/*/ is 
 # created by distutils...
-build/*/
-README.rst
-wq/__init__.py
+/build/*/
+/wq/__init__.py
 node_modules

@@ -20,7 +20,7 @@ def build(ctx, config, version):
 
     \b
     Runs the following in order:
-        wq init
+        wq init        (if using wq optimize)
         wq setversion
         wq collectjson (if configured)
         wq scss        (if configured)
@@ -55,7 +55,8 @@ def build(ctx, config, version):
             conf.update(kwargs)
             ctx.invoke(command, **conf)
 
-    run(init)
+    if not has_package_json:
+        run(init)
 
     # Save version information
     run(setversion, version=version)

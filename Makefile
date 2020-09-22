@@ -3,6 +3,8 @@ all: js css scss
 init:
 	npm i
 	npm run bootstrap
+	mkdir -p static/app/js
+	mkdir -p static/app/css
 	mkdir -p js/wq
 	mkdir -p css/wq
 	mkdir -p scss/wq
@@ -11,6 +13,7 @@ js: js_build js_lib
 	cp -p packages/jquery-mobile/compat/*.js js/wq/
 
 js_build: init
+	npm run rollup -- -c
 	npm run rollup-all
 
 js_leaflet_draw: init
@@ -47,6 +50,8 @@ js_lib: init js_leaflet_draw js_regenerator_runtime
 	cp -p node_modules/requirejs/require.js js/require.js
 
 css: init
+	cp -p packages/app/css/wq.css static/app/css/wq.css
+	cp -p packages/mapbox/node_modules/mapbox-gl/dist/mapbox-gl.css static/app/css/mapbox-gl.css
 	cp -a packages/jquery-mobile/css/* css/
 	cp -p packages/app/css/app.css css/wq/app.css
 	cp -a packages/leaflet/node_modules/leaflet-draw/dist/leaflet.draw.css css/leaflet.draw.css
