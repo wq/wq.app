@@ -12,7 +12,8 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wq/wq.app.git"
+        "url": "git+https://github.com/wq/wq.app.git",
+        "directory": "packages/model"
     },
     "keywords": [
         "wq",
