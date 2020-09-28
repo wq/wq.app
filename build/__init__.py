@@ -6,6 +6,7 @@ from .init import init
 from .setversion import setversion
 from .icons import icons
 from .phonegap import phonegap
+from .serviceworker import serviceworker
 
 __all__ = (
     "appcache",
@@ -18,4 +19,5 @@ __all__ = (
     "setversion",
     "icons",
     "phonegap",
+    "serviceworker",
 )

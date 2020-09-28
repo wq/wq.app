@@ -50,8 +50,9 @@ def phonegap(ctx, config, version, **conf):
     7. Save the returned app ID for future builds.
     \b
     Note that PhoneGap Build is no longer online.  The `wq phonegap` command
-    will be removed in wq.app 2.0.  @wq/react and @wq/material support using
-    React Native and/or Expo to deploy native apps.
+    will be removed in wq.app 2.0.  Use `wq serviceworker` to generate an
+    installable PWA instead.  Alternatively, you can deploy a native app using
+    React Native and/or Expo, together with @wq/react and @wq/material.
     """
 
     click.echo(

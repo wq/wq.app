@@ -15,8 +15,8 @@ def appcache(config, version):
     build log.
 
     Note that browser vendors are deprecating support for Application Cache
-    in favor of Service Workers. The `wq appcache` command will be removed in
-    wq.app 2.0.
+    in favor of Service Workers.  The `wq appcache` command will be removed
+    in wq.app 2.0.  Use the `wq serviceworker` command instead.
     """
 
     click.echo("Warning: Application Cache is deprecated by browser vendors.")
