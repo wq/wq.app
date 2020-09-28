@@ -1,6 +1,7 @@
 import os
 from wq.core import wq
 import click
+import re
 
 
 @wq.command()
@@ -9,6 +10,8 @@ import click
     help="Name of text file (default is version.txt)"
 )
 @click.option('--jsout', help="Name of an AMD module (e.g. myapp/version.js)")
+@click.option('--esm', help="Name of an ESM module (e.g. myapp/version.js)")
+@click.option('--package', help="Path to package.json")
 @click.argument('version')
 def setversion(**conf):
     """
@@ -27,16 +30,29 @@ def setversion(**conf):
         vtxt.write(version)
         vtxt.close()
 
-    if conf['jsout']:
+    if conf['esm'] or conf['jsout']:
         # Update version.js
-        vjs = open(conf['jsout'], 'w')
-        vjs.write(VERSIONJS_TMPL % version)
-        vjs.close()
-        click.echo('%s: %s' % (conf['jsout'], version))
+        if conf['esm']:
+            js_file = conf['esm']
+            js_tmpl = """export default "%s";"""
+        else:
+            js_file = conf['jsout']
+            js_tmpl = """define(function(){return "%s";});"""
+        with open(js_file, 'w') as f:
+            f.write(js_tmpl % version)
+        click.echo('%s: %s' % (js_file, version))
     else:
         click.echo('Application version: %s' % version)
 
+    if conf['package']:
+        with open(conf['package']) as f:
+            content = f.read()
+        content = re.sub(
+            '"version": "[^"]+"',
+            '"version": "%s"' % version,
+            content
+        )
+        with open(conf['package'], 'w') as f:
+            f.write(content)
+
     return version
-
-
-VERSIONJS_TMPL = """define(function(){return "%s";});"""

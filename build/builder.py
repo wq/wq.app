@@ -20,32 +20,24 @@ def build(ctx, config, version):
 
     \b
     Runs the following in order:
-        wq init        (if using wq optimize)
+        wq init        (if using r.js)
         wq setversion
         wq collectjson (if configured)
         wq scss        (if configured)
         wq mustache    (if configured)
-
-    \b
-    Followed by either:
-        wq optimize + wq babel + wq appcache
-    Or:
-        npm build
+        npm build      (if using npm)
+        wq optimize    (if using r.js)
+        wq babel       (if configured & using r.js)
+        wq appcache    (if configured & using r.js)
     """
 
     has_package_json = os.path.exists(
         os.path.join(os.path.dirname(config.filename), 'package.json')
     )
-    if has_package_json:
-        if 'optimize' in config:
-            raise click.UsageError(
-                "optimize section is not used for npm build"
-            )
-    else:
-        if 'optimize' not in config:
-            raise click.UsageError(
-                "optimize section not found in %s" % config.filename
-            )
+    if has_package_json and 'optimize' in config:
+        raise click.UsageError(
+            "optimize section is not used for npm build"
+        )
 
     def run(command, **kwargs):
         confs = config.get(command.name, {})
@@ -55,7 +47,7 @@ def build(ctx, config, version):
             conf.update(kwargs)
             ctx.invoke(command, **conf)
 
-    if not has_package_json:
+    if 'optimize' in config:
         run(init)
 
     # Save version information
@@ -70,7 +62,7 @@ def build(ctx, config, version):
             ['npm', 'build'],
             cwd=os.path.abspath(os.path.dirname(config.filename))
         )
-    else:
+    elif 'optimize' in config:
         # Compile Javascript / CSS (using r.js)
         ctx.invoke(optimize)
 
