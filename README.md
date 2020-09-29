@@ -67,7 +67,7 @@ module | description
 [@wq/react]+[@wq/material] | New Material Design renderer based on [React] and [React Native]
 [@wq/jquery-mobile] | Legacy renderer based on [jQuery Mobile] and [Mustache.js], used in wq.app 1.2 and all earlier versions
 
-When installing @wq/app from NPM, one of the two renderers should be installed and registered explicitly.  When using the wq.app PyPI package, a default renderer will be provided based on the configuration specified when running [wq start][wq.start].  (New ESM-based projects will default to the @wq/material renderer, while backwards-compatible AMD/RequireJS projects will default to the @wq/jquery-mobile renderer.)
+When installing @wq/app directly from NPM, one of the two renderers should be installed and registered explicitly.  When using the wq.app PyPI package, a default renderer will be provided based on the version of [wq start][wq.start] used to create the project.  (New ESM-based projects will default to the @wq/material renderer, while older AMD/RequireJS projects will default to the @wq/jquery-mobile renderer.)
 
 ### Map Engines
 
@@ -105,5 +105,3 @@ module | description
 [@wq/map]: https://github.com/wq/wq.app/tree/master/packages/map
 [@wq/mapbox]: https://github.com/wq/wq.app/tree/master/packages/mapbox
 [@wq/leaflet]: https://github.com/wq/wq.app/tree/master/packages/leaflet
-
- 
