@@ -7,6 +7,13 @@ import babel from '@rollup/plugin-babel';
 import analyze from 'rollup-plugin-analyzer';
 import child_process from 'child_process';
 
+/*
+ * NOTE: This config is specific to the wq.app monorepo.
+ * If you want to customize a wq.js build, start from
+ * https://github.com/wq/wq/blob/master/rollup.config.js
+ * instead, as it uses npm instead of overriding paths.
+ */
+
 const version = child_process.execSync('python3 setup.py --version');
 
 const banner = `/*!
@@ -55,6 +62,7 @@ export default [
                         './packages/outbox/node_modules/',
                         './packages/react/node_modules/',
                         './packages/material/node_modules/',
+                        './packages/map/node_modules/',
                         './packages/mapbox/node_modules/',
                         'node_modules/'
                     ]
