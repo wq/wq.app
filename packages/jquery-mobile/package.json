@@ -1,6 +1,6 @@
 {
     "name": "@wq/jquery-mobile",
-    "version": "1.3.0-alpha.2",
+    "version": "1.3.0-alpha.3",
     "description": "Modified jQuery Mobile for use with @wq/app",
     "type": "module",
     "main": "index.js",

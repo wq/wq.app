@@ -76,5 +76,5 @@ config.jqmrenderer = {
 [wq.app]: https://wq.io/wq.app
 [@wq/app]: https://wq.io/docs/app-js
 [@wq/router]: https://wq.io/docs/router-js
-[@wq/material]: https://wq.io/docs/material-js
+[@wq/material]: https://github.com/wq/wq.app/tree/master/packages/material
 [wq collectjson]: https://wq.io/docs/collectjson
