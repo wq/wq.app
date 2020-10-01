@@ -15,7 +15,7 @@
 [![Travis Build Status](https://img.shields.io/travis/wq/wq.app/master.svg)](https://travis-ci.org/wq/wq.app)
 [![Python Wheel](https://img.shields.io/bintray/v/wq/wq.app/wq.app.svg)](https://bintray.com/wq/wq.app/wq.app/_latestVersion)
 
-# Getting Started
+# Getting Started of an amazing project
 
 wq.app is available via both npm (as [@wq/app](https://npmjs.com/package/@wq/app)) and PyPI (as [wq.app](https://pypi.org/project/wq.app)).  To facilitate rapid deployment with [wq.db] and Django, the wq.app Python package comes with pre-bundled builds of @wq/app's core dependencies and recommended plugins.
 
