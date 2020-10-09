@@ -40,7 +40,8 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
                 sources: {
                     [basemap.name]: {
                         type: 'raster',
-                        tiles: urls
+                        tiles: urls,
+                        tileSize: basemap.tileSize || 256
                     }
                 },
                 layers: [

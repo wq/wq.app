@@ -19,6 +19,7 @@ import {
 } from './components/overlays/index';
 
 export default {
+    name: 'mapbox',
     dependencies: [map],
     components: {
         Map,
