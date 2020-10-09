@@ -271,6 +271,7 @@ var pcount = 0;
 app.use = function (plugin) {
     if (Array.isArray(plugin)) {
         plugin.forEach(p => app.use(p));
+        return;
     }
     if (plugin.dependencies) {
         app.use(plugin.dependencies);

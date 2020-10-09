@@ -56,7 +56,9 @@ export default function DefaultDetail() {
             <ScrollView>
                 <PropertyTable />
             </ScrollView>
-            {page_config.can_change && <Fab icon="edit" to={editUrl} />}
+            {page_config.can_change !== false && (
+                <Fab icon="edit" to={editUrl} />
+            )}
         </>
     );
 }

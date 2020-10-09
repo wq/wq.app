@@ -65,7 +65,9 @@ export default function DefaultList() {
                 )}
                 <Pagination />
             </ScrollView>
-            {can_add && <Fab icon="add" to={reverse(`${page}_edit:new`)} />}
+            {can_add !== false && (
+                <Fab icon="add" to={reverse(`${page}_edit:new`)} />
+            )}
         </>
     );
 }

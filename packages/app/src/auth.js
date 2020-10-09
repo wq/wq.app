@@ -116,28 +116,42 @@ export default {
         }
     },
 
-    context() {
-        return this.userInfo();
+    context(ctx) {
+        return this.userInfo(ctx);
     },
 
-    userInfo() {
-        const { user, config, csrftoken } = this.getState();
+    userInfo(ctx) {
+        const { user, config, csrftoken } = this.getState(),
+            pageConf = (ctx.router_info && ctx.router_info.page_config) || {},
+            wqPageConf =
+                (config && config.pages && config.pages[pageConf.name]) || {};
         return {
             user,
             is_authenticated: !!user,
             app_config: this.app.config,
             wq_config: config,
-            csrf_token: csrftoken
+            csrf_token: csrftoken,
+            router_info: {
+                ...ctx.router_info,
+                page_config: {
+                    ...pageConf,
+                    can_view: wqPageConf.can_view !== false,
+                    can_add: wqPageConf.can_add || false,
+                    can_change: wqPageConf.can_change || false,
+                    can_delete: wqPageConf.can_delete || false
+                }
+            }
         };
     },
 
     async refreshUserInfo() {
         await this.refreshCSRFToken();
-        const app = this.app;
+        const app = this.app,
+            context = app.router.getContext();
         app.router.render(
             {
-                ...app.router.getContext(),
-                ...this.userInfo()
+                ...context,
+                ...this.userInfo(context)
             },
             true
         );
@@ -149,6 +163,7 @@ export default {
     },
 
     async refreshCSRFToken() {
-        this.app.outbox.setCSRFToken(this.userInfo().csrf_token);
+        const { csrftoken } = this.getState();
+        this.app.outbox.setCSRFToken(csrftoken);
     }
 };
