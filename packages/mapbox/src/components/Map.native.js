@@ -58,9 +58,19 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     }
 
     const mapRef = React.useRef(),
-        setRef = React.useCallback(ref => {
+        setMapRef = React.useCallback(ref => {
+            if (cameraRef.current) {
+                ref.camera = cameraRef.current;
+            }
             mapRef.current = ref;
             ready(ref);
+        }, []),
+        cameraRef = React.useRef(),
+        setCameraRef = React.useCallback(ref => {
+            cameraRef.current = ref;
+            if (mapRef.current) {
+                mapRef.current.camera = ref;
+            }
         }, []);
 
     containerStyle = {
@@ -72,7 +82,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     return (
         <MapboxGL.MapView
             styleURL={style}
-            ref={setRef}
+            ref={setMapRef}
             rotateEnabled={rotateEnabled}
             pitchEnabled={pitchEnabled}
             attributionEnabled={!!accessToken}
@@ -81,7 +91,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
         >
             <MapboxGL.Camera
                 bounds={fitBounds}
-                ref={ref => (mapRef.current.camera = ref)}
+                ref={setCameraRef}
                 animationDuration={0}
             />
             {children}
