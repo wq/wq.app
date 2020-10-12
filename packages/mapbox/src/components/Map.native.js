@@ -59,16 +59,18 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
 
     const mapRef = React.useRef(),
         setMapRef = React.useCallback(ref => {
-            if (cameraRef.current) {
+            mapRef.current = ref;
+            if (ref && cameraRef.current) {
                 ref.camera = cameraRef.current;
             }
-            mapRef.current = ref;
-            ready(ref);
+            if (ref) {
+                ready(ref);
+            }
         }, []),
         cameraRef = React.useRef(),
         setCameraRef = React.useCallback(ref => {
             cameraRef.current = ref;
-            if (mapRef.current) {
+            if (ref && mapRef.current) {
                 mapRef.current.camera = ref;
             }
         }, []);
