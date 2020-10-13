@@ -29,7 +29,8 @@ export default function DeleteForm({ action }) {
                         text: CONFIRM_DELETE_OK,
                         onPress() {
                             resolve(true);
-                        }
+                        },
+                        style: 'destructive'
                     }
                 ],
                 {

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Field } from 'formik';
+import { Field, getIn } from 'formik';
 import { Select as FMuiSelect } from 'formik-material-ui';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -11,7 +11,7 @@ import { useFormikContext } from 'formik';
 
 function ContextCheckbox({ value, field }) {
     const { values } = useFormikContext();
-    const checked = values[field] && values[field].some(val => val === value);
+    const checked = (getIn(values, field) || []).some(val => val === value);
     return <Checkbox checked={checked} />;
 }
 
@@ -21,7 +21,7 @@ ContextCheckbox.propTypes = {
 };
 
 export default function Select({ choices, label, ...rest }) {
-    const { name: fieldName, type } = rest,
+    const { name: fieldName, type, hint } = rest,
         multiple = type === 'select',
         renderValue = sel => sel.map(getLabel).join(', ');
 
@@ -40,6 +40,7 @@ export default function Select({ choices, label, ...rest }) {
                 component={FMuiSelect}
                 multiple={multiple}
                 renderValue={multiple ? renderValue : undefined}
+                helperText={hint}
                 {...rest}
             >
                 {!multiple && (

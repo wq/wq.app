@@ -5,6 +5,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import MuiRadio from '@material-ui/core/Radio';
+import HelperText from './HelperText';
 import PropTypes from 'prop-types';
 
 export default function Radio({ choices, label, ...rest }) {
@@ -21,6 +22,7 @@ export default function Radio({ choices, label, ...rest }) {
                     />
                 ))}
             </Field>
+            <HelperText name={rest.name} hint={rest.hint} />
         </FormControl>
     );
 }

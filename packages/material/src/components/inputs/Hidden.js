@@ -1,18 +1,18 @@
 import React from 'react';
-import { Field, ErrorMessage } from 'formik';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import { Field } from 'formik';
+import HelperText from './HelperText';
 import PropTypes from 'prop-types';
 
 export default function Hidden(props) {
-    const { name } = props;
     return (
         <>
             <Field {...props} type="hidden" />
-            <ErrorMessage error component={FormHelperText} name={name} />
+            <HelperText name={props.name} hint={props.hint} />
         </>
     );
 }
 
 Hidden.propTypes = {
-    name: PropTypes.string
+    name: PropTypes.string,
+    hint: PropTypes.string
 };

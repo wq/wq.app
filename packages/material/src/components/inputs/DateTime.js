@@ -15,15 +15,23 @@ const pickers = {
     datetime: DateTimePicker
 };
 
-export default function DateTime({ type, ...rest }) {
+export default function DateTime({ type, hint, ...rest }) {
     const Picker = pickers[type];
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <Field fullWidth margin="dense" component={Picker} {...rest} />
+            <Field
+                fullWidth
+                margin="dense"
+                component={Picker}
+                helperText={hint}
+                {...rest}
+            />
         </MuiPickersUtilsProvider>
     );
 }
 
 DateTime.propTypes = {
-    type: PropTypes.string
+    name: PropTypes.string,
+    type: PropTypes.string,
+    hint: PropTypes.string
 };
