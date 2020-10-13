@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 export default function Form({
     action,
     method,
+    onSubmit,
     storage,
     backgroundSync,
     outboxId,
@@ -25,6 +26,14 @@ export default function Form({
         values,
         { setSubmitting, setTouched, setErrors }
     ) {
+        if (onSubmit) {
+            const result = await onSubmit();
+            if (!result) {
+                setSubmitting(false);
+                return;
+            }
+        }
+
         const has_files = false; // FIXME
 
         const [item, error] = await app.submitForm({
@@ -67,6 +76,7 @@ export default function Form({
 Form.propTypes = {
     action: PropTypes.string,
     method: PropTypes.string,
+    onSubmit: PropTypes.func,
     storage: PropTypes.string,
     backgroundSync: PropTypes.bool,
     outboxId: PropTypes.number,

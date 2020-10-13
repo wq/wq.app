@@ -11,7 +11,7 @@ export default function DefaultEdit() {
         context = useRenderContext(),
         { page, variant, page_config, outbox_id } = useRouteInfo(),
         { form } = page_config,
-        { ScrollView, AutoForm } = useComponents();
+        { ScrollView, AutoForm, DeleteForm } = useComponents();
 
     let backUrl;
     if (outbox_id || variant === 'new') {
@@ -31,6 +31,9 @@ export default function DefaultEdit() {
 
     return (
         <ScrollView>
+            {context.id && page_config.can_delete !== false && (
+                <DeleteForm action={submitUrl} />
+            )}
             <AutoForm
                 action={submitUrl}
                 cancel={backUrl}

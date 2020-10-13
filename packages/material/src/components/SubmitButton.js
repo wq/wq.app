@@ -1,7 +1,8 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
+import { useComponents } from '@wq/react';
 
 export default function SubmitButton(props) {
+    const { Button } = useComponents();
     return (
         <Button color="primary" variant="contained" type="submit" {...props} />
     );

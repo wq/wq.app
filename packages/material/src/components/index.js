@@ -37,6 +37,7 @@ import FieldsetArray from './FieldsetArray';
 import CancelButton from './CancelButton';
 import SubmitButton from './SubmitButton';
 import IconSubmitButton from './IconSubmitButton';
+import DeleteForm from './DeleteForm';
 
 import Spinner from './Spinner';
 import Breadcrumbs from './Breadcrumbs';
@@ -68,7 +69,8 @@ export {
     FieldsetArray,
     CancelButton,
     SubmitButton,
-    IconSubmitButton
+    IconSubmitButton,
+    DeleteForm
 };
 
 export { Spinner, Breadcrumbs, Pagination };

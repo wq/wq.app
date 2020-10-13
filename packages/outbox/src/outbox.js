@@ -875,6 +875,9 @@ class Outbox {
                     synced: !!action.meta.success
                 };
                 delete item.options.id;
+                if (item.options.method === DELETE) {
+                    item.deletedId = action.payload;
+                }
                 if (action.meta.parents) {
                     item.parents = action.meta.parents;
                 }

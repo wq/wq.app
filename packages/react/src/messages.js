@@ -11,6 +11,14 @@ export default {
     LIST_IS_EMPTY: 'Empty list.',
     SYNCED_ITEMS: 'Synced Items',
 
+    // DeleteForm
+    CONFIRM_DELETE: 'Are you sure you want to delete this record?',
+
+    // DeleteForm.native
+    CONFIRM_DELETE_TITLE: 'Confirm Deletion',
+    CONFIRM_DELETE_OK: 'Yes, Delete',
+    CONFIRM_DELETE_CANCEL: 'Cancel',
+
     // OutboxList
     EMPTY_OUTBOX: 'Empty Outbox',
     RETRY_ALL: 'Retry All',
