@@ -4,6 +4,7 @@
     "description": "React + Material UI renderer for use with @wq/app",
     "type": "module",
     "main": "index.js",
+    "react-native": "src/index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/material -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
         "build": "npm run babel && npm run prettier",

@@ -4,6 +4,7 @@
     "description": "MapBox GL JS integration for @wq/map",
     "type": "module",
     "main": "index.js",
+    "react-native": "src/index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/mapbox -- --moduleDirectories node_modules node_modules/@wq/react/node_modules",
         "build": "npm run babel && npm run prettier",

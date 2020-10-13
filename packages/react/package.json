@@ -4,6 +4,7 @@
     "description": "React renderer for use with @wq/app",
     "type": "module",
     "main": "index.js",
+    "react-native": "src/index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/react",
         "build": "npm run babel && npm run prettier",
