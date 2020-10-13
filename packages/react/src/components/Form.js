@@ -58,7 +58,7 @@ export default function Form({
         setSubmitting(false);
     }
 
-    const errors = parseApiError(error);
+    const errors = parseApiError(error, data);
 
     return (
         <Formik
