@@ -1,5 +1,10 @@
 import React from 'react';
-import { useComponents, useInputComponents, useReverse } from '../../hooks';
+import {
+    useComponents,
+    useInputComponents,
+    useReverse,
+    useRenderContext
+} from '../../hooks';
 
 export default function Login() {
     const reverse = useReverse(),
@@ -9,10 +14,27 @@ export default function Login() {
             FormError,
             HorizontalView,
             CancelButton,
-            SubmitButton
+            SubmitButton,
+            View,
+            Text,
+            ButtonLink
         } = useComponents(),
-        { Input } = useInputComponents();
+        { Input } = useInputComponents(),
+        { is_authenticated, user } = useRenderContext();
 
+    if (is_authenticated) {
+        return (
+            <View>
+                <Text>Logged in as {user.label || user.username}</Text>
+                <HorizontalView>
+                    <ButtonLink to={reverse('logout')}>Log Out</ButtonLink>
+                    <ButtonLink to={reverse('index')}>
+                        Return to Home
+                    </ButtonLink>
+                </HorizontalView>
+            </View>
+        );
+    }
     return (
         <>
             <Form

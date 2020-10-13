@@ -28,7 +28,7 @@ export default {
     UNSYNCED_ITEMS: 'Unsynced Items',
 
     // Logout
-    LOGGED_OUT: 'Logged out',
+    LOGGED_OUT: 'Logged out.',
     LOGGING_OUT: 'Logging out...',
 
     // Loading
