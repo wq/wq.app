@@ -36,6 +36,7 @@ import AutoForm from './AutoForm';
 import AutoInput from './AutoInput';
 import AutoSubform from './AutoSubform';
 import AutoSubformArray from './AutoSubformArray';
+import PropertyTable from './PropertyTable';
 import Form from './Form';
 import FormRoot from './FormRoot';
 import FormError from './FormError';
@@ -77,6 +78,7 @@ export {
     AutoInput,
     AutoSubform,
     AutoSubformArray,
+    PropertyTable,
     Form,
     FormRoot,
     FormError,

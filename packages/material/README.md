@@ -155,6 +155,7 @@ Component|HTML Equivalent|Description
 [CancelButton]&nbsp;([.native][CancelButton.native]) | `<a href="../">` | Returns to previous page without saving
 [SubmitButton]&nbsp;([.native][SubmitButton.native]) | `<button type="submit">` | Use this rather than `<Button type="submit">` to ensure native support (see [Formik docs][formik-native]).
 [IconSubmitButton]&nbsp;([.native][IconSubmitButton.native]) |  | `<IconButton/>` with `<SubmitButton/>` functionality
+[DeleteForm]&nbsp;([.native][DeleteForm.native]) | | Form that deletes the current record (after confirmation)
 
 # Icon Components
 
@@ -288,6 +289,8 @@ Component|HTML Equivalent|XLSForm Types
 [SubmitButton.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/SubmitButton.native.js
 [IconSubmitButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/IconSubmitButton.js
 [IconSubmitButton.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/IconSubmitButton.native.js
+[DeleteForm]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/DeleteForm.js
+[DeleteForm.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/DeleteForm.native.js
 
 [Add]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Add.js
 [Add.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Add.native.js

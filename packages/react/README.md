@@ -90,6 +90,7 @@ Name | Details
 [AutoInput] | Selects the appropriate input component for the given [form field][field-types]
 [AutoSubform] | Automatically configures a [Fieldset] for a [nested form][nested-forms]
 [AutoSubformArray] | Automatically configures a [FieldsetArray] for a [repeating nested form][nested-forms]
+[PropertyTable] | Generates a read-only table showing the current value for each field in the form configuration
 [DebugContext] | Shows the JSON contents of the current route rendering context
 [Form] | Connects [Formik] to [@wq/outbox]'s form handler
 [FormError]* | Renders form-level error messages.  (Field-level errors are handled in each [input component](#input-components)).
@@ -280,6 +281,7 @@ useViewComponents() | Mapping of [view components](#view-components) in both Pas
 [AutoInput]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/AutoInput.js
 [AutoSubform]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/AutoSubform.js
 [AutoSubformArray]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/AutoSubformArray.js
+[PropertyTable]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/PropertyTable.js
 [DebugContext]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/DebugContext.js
 [Form]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Form.js
 [FormError]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/FormError.js

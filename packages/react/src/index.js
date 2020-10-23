@@ -122,6 +122,7 @@ const {
     AutoInput,
     AutoSubform,
     AutoSubformArray,
+    PropertyTable,
     DebugContext
 } = components;
 
@@ -135,5 +136,6 @@ export {
     AutoInput,
     AutoSubform,
     AutoSubformArray,
+    PropertyTable,
     DebugContext
 };
