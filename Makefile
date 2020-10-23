@@ -52,6 +52,7 @@ js_lib: init js_leaflet_draw js_regenerator_runtime
 css: init
 	cp -p packages/app/css/wq.css static/app/css/wq.css
 	cp -p packages/mapbox/node_modules/mapbox-gl/dist/mapbox-gl.css static/app/css/mapbox-gl.css
+	cp -p packages/mapbox/node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css static/app/css/mapbox-gl-draw.css
 	cp -a packages/jquery-mobile/css/* css/
 	cp -p packages/app/css/app.css css/wq/app.css
 	cp -a packages/leaflet/node_modules/leaflet-draw/dist/leaflet.draw.css css/leaflet.draw.css
