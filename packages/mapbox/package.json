@@ -1,6 +1,6 @@
 {
     "name": "@wq/mapbox",
-    "version": "1.3.0-alpha.3",
+    "version": "1.3.0-alpha.4",
     "description": "MapBox GL JS integration for @wq/map",
     "type": "module",
     "main": "index.js",
