@@ -6,7 +6,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { useBreadcrumbs, useComponents } from '@wq/react';
+import { useBreadcrumbs, useReverse, useComponents } from '@wq/react';
 
 const useStyles = makeStyles(theme => ({
     breadcrumbs: {
@@ -20,11 +20,12 @@ const useStyles = makeStyles(theme => ({
 
 export default function Breadcrumbs() {
     var links = useBreadcrumbs(),
+        reverse = useReverse(),
         classes = useStyles(),
         { ButtonLink } = useComponents();
 
     if (!links) {
-        links = [{ url: '/', label: 'Home', active: true }];
+        links = [{ url: reverse('index'), label: 'Home', active: true }];
     }
     links[0].label = <HomeIcon className={classes.icon} />;
 

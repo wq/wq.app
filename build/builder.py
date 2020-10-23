@@ -25,7 +25,7 @@ def build(ctx, config, version):
         wq collectjson (if configured)
         wq scss        (if configured)
         wq mustache    (if configured)
-        npm build      (if using npm)
+        npm run build  (if using npm)
         wq optimize    (if using r.js)
         wq babel       (if configured & using r.js)
         wq appcache    (if configured & using r.js)
@@ -59,7 +59,7 @@ def build(ctx, config, version):
 
     if has_package_json:
         subprocess.check_call(
-            ['npm', 'build'],
+            ['npm', 'run', 'build'],
             cwd=os.path.abspath(os.path.dirname(config.filename))
         )
     elif 'optimize' in config:

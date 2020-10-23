@@ -40,7 +40,10 @@ function AppLayout({ showHeader }) {
         name = 'server';
     } else if (views[routeInfo.template]) {
         name = routeInfo.template;
-    } else if (views[routeInfo.template.replace('_', '-')]) {
+    } else if (
+        typeof routeInfo.template === 'string' &&
+        views[routeInfo.template.replace('_', '-')]
+    ) {
         name = routeInfo.template.replace('_', '-');
     } else if (views[routeInfo.name]) {
         name = routeInfo.name;

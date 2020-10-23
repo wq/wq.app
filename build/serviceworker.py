@@ -25,12 +25,18 @@ from glob import glob
     help="File(s) or directories to cache"
 )
 @click.option(
+    '--scope',
+    type=str,
+    default="/",
+    help="Path prefix for service worker and cached files"
+)
+@click.option(
     '--timeout',
     type=int,
     default=400,
     help="Timeout to use before falling back to cache."
 )
-def serviceworker(version, template, output, cache, timeout):
+def serviceworker(version, template, output, cache, scope, timeout):
     """
     Generate a service-worker.js.  The default service worker will function as
     follows:
@@ -53,19 +59,26 @@ def serviceworker(version, template, output, cache, timeout):
     create-react-app, so you do not need to use this command.
     """
 
-    if not template:
+    if template:
+        with open(template) as f:
+            template = f.read()
+    else:
         template = SW_TMPL
+
+    if not scope.endswith('/'):
+        scope += '/'
 
     basedir = os.path.dirname(output)
     paths = []
+
     for path in cache:
-        if '*' not in path:
-            paths.append(path)
-            continue
         if path.startswith('/'):
             path = path[1:]
+        if '*' not in path:
+            paths.append(scope + path)
+            continue
         for filename in glob(os.path.join(basedir, path)):
-            paths.append(filename.replace(basedir, ''))
+            paths.append(filename.replace(basedir + '/', scope))
 
     cache = ",".join(json.dumps(path) for path in paths)
 
