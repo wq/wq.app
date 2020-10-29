@@ -75,6 +75,10 @@ export function initData(form, data) {
 
     const formData = {};
 
+    if (data.id) {
+        formData.id = data.id;
+    }
+
     form.forEach(field => {
         const fieldName = field['wq:ForeignKey']
             ? `${field.name}_id`

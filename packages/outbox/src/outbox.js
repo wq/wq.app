@@ -317,7 +317,9 @@ class Outbox {
         }
 
         Object.keys(data || {}).forEach(key => {
-            var match = data[key].match && data[key].match(/^outbox-(\d+)$/);
+            var match =
+                typeof data[key] === 'string' &&
+                data[key].match(/^outbox-(\d+)$/);
             if (match) {
                 if (!action.meta.parents) {
                     action.meta.parents = [];
@@ -1019,7 +1021,9 @@ class Outbox {
         for (key in item.data) {
             if (Array.isArray(item.data[key])) {
                 item.data[key].forEach((row, i) => {
-                    row['@index'] = i;
+                    if (typeof row === 'object') {
+                        row['@index'] = i;
+                    }
                 });
             }
         }

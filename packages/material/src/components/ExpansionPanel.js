@@ -16,7 +16,7 @@ export default function ExpansionPanel({ summary, children, open, onToggle }) {
                 {summary}
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-                <div>{children}</div>
+                <div style={{ flex: 1 }}>{children}</div>
             </ExpansionPanelDetails>
         </MuiExpansionPanel>
     );

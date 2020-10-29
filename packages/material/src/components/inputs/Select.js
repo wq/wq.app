@@ -20,10 +20,13 @@ ContextCheckbox.propTypes = {
     field: PropTypes.string
 };
 
-export default function Select({ choices, label, ...rest }) {
+export default function Select({ choices, label, renderValue, ...rest }) {
     const { name: fieldName, type, hint } = rest,
-        multiple = type === 'select',
+        multiple = type === 'select';
+
+    if (multiple && !renderValue) {
         renderValue = sel => sel.map(getLabel).join(', ');
+    }
 
     const getLabel = useMemo(() => {
         const labels = {};
@@ -39,7 +42,7 @@ export default function Select({ choices, label, ...rest }) {
             <Field
                 component={FMuiSelect}
                 multiple={multiple}
-                renderValue={multiple ? renderValue : undefined}
+                renderValue={renderValue}
                 helperText={hint}
                 {...rest}
             >
@@ -63,5 +66,6 @@ export default function Select({ choices, label, ...rest }) {
 
 Select.propTypes = {
     choices: PropTypes.arrayOf(PropTypes.object),
-    label: PropTypes.string
+    label: PropTypes.string,
+    renderValue: PropTypes.func
 };

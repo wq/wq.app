@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import * as formik from 'formik';
 import * as muiUtils from '@material-ui/utils';
 import * as muiStyles from '@material-ui/styles';
 import ButtonBase from '@material-ui/core/ButtonBase';
@@ -19,6 +20,7 @@ export default {
     react: React,
     'react-dom': ReactDOM,
     'prop-types': PropTypes,
+    formik: formik,
     '@material-ui/utils': muiUtils,
     '@material-ui/styles': muiStyles,
     '@material-ui/core/ButtonBase': ButtonBase,

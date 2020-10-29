@@ -1010,6 +1010,17 @@ app.submitForm = async function (kwargs) {
         options.storage = 'store';
     }
 
+    if (
+        !has_files &&
+        Object.values(vals).some(
+            val =>
+                typeof val === 'object' &&
+                (!Array.isArray(val) || typeof val[0] === 'object')
+        )
+    ) {
+        options.json = true;
+    }
+
     if (outboxId) {
         options.id = outboxId;
         if (preserve && preserve.split) {
