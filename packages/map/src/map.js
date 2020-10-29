@@ -14,7 +14,8 @@ import reducer, {
     MAP_HIDE_OVERLAY,
     MAP_SET_BASEMAP,
     MAP_SET_HIGHLIGHT,
-    MAP_CLEAR_HIGHLIGHT
+    MAP_CLEAR_HIGHLIGHT,
+    MAP_SET_BOUNDS
 } from './reducer';
 import reactRenderer from '@wq/react';
 
@@ -58,6 +59,12 @@ const map = {
         clearHighlight() {
             return {
                 type: MAP_CLEAR_HIGHLIGHT
+            };
+        },
+        setBounds(bounds) {
+            return {
+                type: MAP_SET_BOUNDS,
+                payload: bounds
             };
         }
     },
@@ -129,6 +136,13 @@ map.init = function (config) {
         }
         if (plugin.overlays) {
             Object.assign(this.config.overlays, plugin.overlays);
+        }
+        if (plugin.geocoder) {
+            this.config.geocoder = address => plugin.geocoder(address);
+        }
+        if (plugin.geocoderAddress) {
+            this.config.geocoderAddress = values =>
+                plugin.geocoderAddress(values);
         }
     });
 

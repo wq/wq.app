@@ -85,11 +85,11 @@ export default {
 
 Name | Details
 --|--
-[App]* | Top level component that renders the [`<Header/>`][Header], [`<Footer/>`][Footer], and the [view component](#view-components) corresponding to the current route.
+[App]* | Top level component that renders the [`<Header/>`][material-layout], [`<Footer/>`][material-layout], and the [view component](#view-components) corresponding to the current route.
 [AutoForm] | Reads the [form configuration][field-types] corresponding to the current route and renders a <Form> with the appropriate inputs and controls
 [AutoInput] | Selects the appropriate input component for the given [form field][field-types]
-[AutoSubform] | Automatically configures a [Fieldset] for a [nested form][nested-forms]
-[AutoSubformArray] | Automatically configures a [FieldsetArray] for a [repeating nested form][nested-forms]
+[AutoSubform] | Automatically configures a [Fieldset][material-forms] for a [nested form][nested-forms]
+[AutoSubformArray] | Automatically configures a [FieldsetArray][material-forms] for a [repeating nested form][nested-forms]
 [PropertyTable] | Generates a read-only table showing the current value for each field in the form configuration
 [DebugContext] | Shows the JSON contents of the current route rendering context
 [Form] | Connects [Formik] to [@wq/outbox]'s form handler
@@ -105,14 +105,17 @@ Components marked with * are overridden and extended by @wq/material.
 
 name | description
 --|--
-[Add] | Used for "Add New Record" [Fab]
-[Edit] | Used for "Edit This Record" [Fab]
-[Delete] |
+[Add] | Used for "Add New Record" [Fab][material-navigation]
+[Edit] | Used for "Edit This Record" [Fab][material-navigation]
+[Delete] | Used for [DeleteForm][material-forms]
 [Success] | Shown in outbox for synced records
 [Error] | Shown in outbox for failed sync attempts
 [Pending] | Shown in outbox for currently syncing records
+[GpsStart] | Used in [Geo][map-inputs] input component
+[GpsStop] | Used in [Geo][map-inputs] input component
+[Search] | Used in [Geo][map-inputs] input component
 
-While the defaults can be overridden, the more common use of a custom `{ icons }` plugin is to to specify the rest of a "vocabulary" of icons to use throughout the application.  Icon components are registered as PascalCase, but should be referenced via param-case in general components like [`<IconButton/>`][IconButton] and [`<Fab/>`][Fab].
+While the defaults can be overridden, the more common use of a custom `{ icons }` plugin is to to specify the rest of a "vocabulary" of icons to use throughout the application.  Icon components are registered as PascalCase, but should be referenced via param-case in general components like [`<IconButton/>`][material-navigation] and [`<Fab/>`][material-navigation].
 
 ```javascript
 <IconButton icon="delete" />
@@ -266,6 +269,10 @@ useViewComponents() | Mapping of [view components](#view-components) in both Pas
 [material-components]: https://github.com/wq/wq.app/tree/master/packages/material#general-components
 [material-icons]: https://github.com/wq/wq.app/tree/master/packages/material#icon-components
 [material-inputs]: https://github.com/wq/wq.app/tree/master/packages/material#input-components
+[material-forms]: https://github.com/wq/wq.app/tree/master/packages/material#forms
+[material-navigation]: https://github.com/wq/wq.app/tree/master/packages/material#navigation
+[material-layout]: https://github.com/wq/wq.app/tree/master/packages/material#layout
+[map-inputs]: https://github.com/wq/wq.app/tree/master/packages/map#input-components
 [field-types]: https://wq.io/docs/field-types
 [nested-forms]: https://wq.io/docs/nested-forms
 
@@ -289,19 +296,15 @@ useViewComponents() | Mapping of [view components](#view-components) in both Pas
 [Message]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Message.js
 [messages]: https://github.com/wq/wq.app/blob/master/packages/react/src/messages.js
 
-[Header]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Header.js
-[Footer]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Footer.js
-[Fab]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Fab.js
-[IconButton]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/IconButton.js
-[Fieldset]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Fieldset.js
-[FieldsetArray]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/FieldsetArray.js
-
 [Add]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Add.js
 [Edit]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Edit.js
 [Delete]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Delete.js
 [Success]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Success.js
 [Error]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Error.js
 [Pending]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Pending.js
+[GpsStart]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/GpsStart.js
+[GpsStop]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/GpsStop.js
+[Search]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Search.js
 
 [Checkbox]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Checkbox.js
 [DateTime]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/DateTime.js

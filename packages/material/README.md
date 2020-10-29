@@ -167,10 +167,13 @@ Icon | Component |`icon` Prop Value | Description
 --|--|--|--
 ![Add][Add-Icon] | [Add]&nbsp;([.native][Add.native]) | `"add"` | Used for "Add New Record" [`<Fab/>`](#navigation) in [`<DefaultList/>`][react-views]
 ![Edit][Edit-Icon] | [Edit]&nbsp;([.native][Edit.native]) | `"edit"` | Used for "Edit This Record" [`<Fab/>`](#navigation) in [`<DefaultDetail/>`][react-views]
-![Delete][Delete-Icon] | [Delete]&nbsp;([.native][Delete.native]) | `"delete"` |
+![Delete][Delete-Icon] | [Delete]&nbsp;([.native][Delete.native]) | `"delete"` | Used in [`<DeleteForm/>`](#forms)
 ![Success][Success-Icon] | [Success]&nbsp;([.native][Success.native]) | `"success"` | Shown in [`<OutboxList/>`][react-views] for synced records
 ![Error][Error-Icon] | [Error]&nbsp;([.native][Error.native]) | `"error"` | Shown in [`<OutboxList/>`][react-views] for failed sync attempts
 ![Pending][Pending-Icon] | [Pending]&nbsp;([.native][Pending.native]) | `"pending"` | Shown in [`<OutboxList/>`][react-views] for currently syncing records
+![GpsStart][GpsStart-Icon] | [GpsStart]&nbsp;([.native][GpsStart.native]) | `"gps-start"` |  Used in [Geo][map-inputs] input component
+![GpsStop][GpsStop-Icon] | [GpsStop]&nbsp;([.native][GpsStop.native]) | `"gps-stop"` |  Used in [Geo][map-inputs] input component
+![Search][Search-Icon] | [Search]&nbsp;([.native][Search.native]) | `"search"` |  Used in [Geo][map-inputs] input component
 
 # Input Components
 
@@ -196,6 +199,7 @@ Component|HTML Equivalent|XLSForm Types
 [react-inputs]: https://github.com/wq/wq.app/tree/master/packages/react#input-components
 [react-views]: https://github.com/wq/wq.app/tree/master/packages/react#view-components
 [react-hooks]: https://github.com/wq/wq.app/tree/master/packages/react#hooks
+[map-inputs]: https://github.com/wq/wq.app/tree/master/packages/map#input-components
 [field-types]: https://wq.io/docs/field-types
 
 [React]: https://reactjs.org
@@ -304,6 +308,12 @@ Component|HTML Equivalent|XLSForm Types
 [Error.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Error.native.js
 [Pending]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Pending.js
 [Pending.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Pending.native.js
+[GpsStart]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/GpsStart.js
+[GpsStart.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/GpsStart.native.js
+[GpsStop]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/GpsStop.js
+[GpsStop.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/GpsStop.native.js
+[Search]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Search.js
+[Search.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/icons/Search.native.js
 
 [Checkbox]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Checkbox.js
 [Checkbox.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Checkbox.native.js
@@ -321,9 +331,12 @@ Component|HTML Equivalent|XLSForm Types
 [Toggle.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Toggle.native.js
 
 
-[Add-Icon]: https://github.com/google/material-design-icons/raw/master/content/svg/production/ic_add_24px.svg
-[Edit-Icon]: https://github.com/google/material-design-icons/raw/master/image/svg/production/ic_edit_24px.svg
-[Delete-Icon]: https://github.com/google/material-design-icons/raw/master/action/svg/production/ic_delete_24px.svg
-[Success-Icon]: https://github.com/google/material-design-icons/raw/master/action/svg/production/ic_done_24px.svg
-[Error-Icon]: https://github.com/google/material-design-icons/raw/master/alert/svg/production/ic_error_24px.svg
-[Pending-Icon]: https://github.com/google/material-design-icons/raw/master/notification/svg/production/ic_sync_24px.svg
+[Add-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/content/add/materialicons/24px.svg
+[Edit-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/image/edit/materialicons/24px.svg
+[Delete-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/action/delete/materialicons/24px.svg
+[Success-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/action/done/materialicons/24px.svg
+[Error-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/alert/error/materialicons/24px.svg
+[Pending-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/notification/sync/materialicons/24px.svg
+[GpsStart-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/device/gps_fixed/materialicons/24px.svg
+[GpsOff-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/device/gps_off/materialicons/24px.svg
+[Search-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/action/search/materialicons/24px.svg

@@ -6,7 +6,8 @@ export const MAP_READY = 'MAP_READY',
     MAP_HIDE_OVERLAY = 'MAP_HIDE_OVERLAY',
     MAP_SET_BASEMAP = 'MAP_SET_BASEMAP',
     MAP_SET_HIGHLIGHT = 'MAP_SET_HIGHLIGHT',
-    MAP_CLEAR_HIGHLIGHT = 'MAP_CLEAR_HIGHLIGHT';
+    MAP_CLEAR_HIGHLIGHT = 'MAP_CLEAR_HIGHLIGHT',
+    MAP_SET_BOUNDS = 'MAP_SET_BOUNDS';
 
 var _lastRouteInfo = null;
 
@@ -97,6 +98,11 @@ export default function reducer(state = {}, action, config) {
                     highlight: undefined
                 };
             }
+        case MAP_SET_BOUNDS:
+            return {
+                ...state,
+                bounds: action.payload
+            };
         default:
             return state;
     }
