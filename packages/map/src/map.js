@@ -2,6 +2,7 @@ import {
     AutoMap,
     AutoBasemap,
     AutoOverlay,
+    StickyMap,
     Map,
     Legend,
     BasemapToggle,
@@ -14,6 +15,9 @@ import reducer, {
     MAP_HIDE_OVERLAY,
     MAP_SET_BASEMAP,
     MAP_SET_HIGHLIGHT,
+    MAP_ADD_HIGHLIGHT,
+    MAP_TOGGLE_HIGHLIGHT,
+    MAP_REMOVE_HIGHLIGHT,
     MAP_CLEAR_HIGHLIGHT,
     MAP_SET_BOUNDS
 } from './reducer';
@@ -53,7 +57,25 @@ const map = {
         setHighlight(geojson) {
             return {
                 type: MAP_SET_HIGHLIGHT,
-                payload: geojson
+                payload: asFeatureCollection(geojson)
+            };
+        },
+        addHighlight(geojson) {
+            return {
+                type: MAP_ADD_HIGHLIGHT,
+                payload: asFeatureCollection(geojson)
+            };
+        },
+        toggleHighlight(geojson) {
+            return {
+                type: MAP_TOGGLE_HIGHLIGHT,
+                payload: asFeatureCollection(geojson)
+            };
+        },
+        removeHighlight(geojson) {
+            return {
+                type: MAP_REMOVE_HIGHLIGHT,
+                payload: asFeatureCollection(geojson)
             };
         },
         clearHighlight() {
@@ -72,6 +94,7 @@ const map = {
         AutoMap,
         AutoBasemap,
         AutoOverlay,
+        StickyMap,
         Map,
         MapInteraction: () => null,
         Legend,
@@ -315,5 +338,19 @@ map.getMapId = function (routeInfo, mapname) {
     }
     return parts.join('-');
 };
+
+function asFeatureCollection(geojson) {
+    if (!geojson) {
+        geojson = [];
+    } else if (geojson.type && geojson.type !== 'FeatureCollection') {
+        geojson = [geojson];
+    }
+    if (Array.isArray(geojson)) {
+        geojson = { type: 'FeatureCollection', features: geojson };
+    } else if (!geojson.type) {
+        throw new Error('Invalid GeoJSON');
+    }
+    return geojson;
+}
 
 export default map;

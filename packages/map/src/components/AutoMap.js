@@ -3,8 +3,8 @@ import { useComponents } from '@wq/react';
 import { useMapState, useOverlayComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
-export default function AutoMap({ containerStyle, children }) {
-    const state = useMapState(),
+export default function AutoMap({ containerStyle, state, children }) {
+    const mapState = useMapState(),
         {
             Map,
             MapInteraction,
@@ -15,6 +15,10 @@ export default function AutoMap({ containerStyle, children }) {
             OverlayToggle
         } = useComponents(),
         { Highlight } = useOverlayComponents();
+
+    if (!state) {
+        state = mapState;
+    }
 
     if (!state) {
         return null;
@@ -57,6 +61,7 @@ export default function AutoMap({ containerStyle, children }) {
 
 AutoMap.propTypes = {
     containerStyle: PropTypes.object,
+    state: PropTypes.object,
     children: PropTypes.node
 };
 

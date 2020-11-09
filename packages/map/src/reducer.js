@@ -6,6 +6,9 @@ export const MAP_READY = 'MAP_READY',
     MAP_HIDE_OVERLAY = 'MAP_HIDE_OVERLAY',
     MAP_SET_BASEMAP = 'MAP_SET_BASEMAP',
     MAP_SET_HIGHLIGHT = 'MAP_SET_HIGHLIGHT',
+    MAP_ADD_HIGHLIGHT = 'MAP_ADD_HIGHLIGHT',
+    MAP_TOGGLE_HIGHLIGHT = 'MAP_TOGGLE_HIGHLIGHT',
+    MAP_REMOVE_HIGHLIGHT = 'MAP_REMOVE_HIGHLIGHT',
     MAP_CLEAR_HIGHLIGHT = 'MAP_CLEAR_HIGHLIGHT',
     MAP_SET_BOUNDS = 'MAP_SET_BOUNDS';
 
@@ -21,28 +24,33 @@ export default function reducer(state = {}, action, config) {
                 return state;
             } else {
                 _lastRouteInfo = routeInfo;
+                let nextState = {};
+                const { stickyMaps } = state;
                 if (!conf) {
-                    return {};
+                    nextState = { stickyMaps };
                 } else {
-                    const mapId = state.mapId,
-                        sameMap = mapId && mapId === conf.mapId;
-                    return {
+                    const { mapId } = conf,
+                        { highlight = null, instance = null } =
+                            (mapId && stickyMaps && stickyMaps[mapId]) || {};
+                    nextState = {
                         basemaps: reduceBasemaps(state.basemaps, conf.basemaps),
                         overlays: reduceOverlays(state.overlays, conf.layers),
                         bounds: conf.bounds,
                         mapProps: conf.mapProps,
-                        highlight: sameMap ? state.highlight : null,
-                        instance: sameMap ? state.instance : null,
-                        mapId: conf.mapId
+                        highlight,
+                        instance,
+                        mapId,
+                        stickyMaps
                     };
                 }
+                if (!nextState.stickyMaps) {
+                    delete nextState.stickyMaps;
+                }
+                return nextState;
             }
         }
         case MAP_READY:
-            return {
-                ...state,
-                instance: action.payload
-            };
+            return reduceMapState({ ...state, instance: action.payload });
         case MAP_SHOW_OVERLAY:
             return {
                 ...state,
@@ -85,18 +93,89 @@ export default function reducer(state = {}, action, config) {
                     })
             };
         case MAP_SET_HIGHLIGHT:
-            return {
+            return reduceMapState({
                 ...state,
                 highlight: action.payload
-            };
+            });
+        case MAP_ADD_HIGHLIGHT: {
+            if (!state.highlight) {
+                return reduceMapState({ ...state, highlight: action.payload });
+            }
+            const features = {};
+            let hasNew = false;
+            state.highlight.features.forEach(
+                feature => (features[feature.id] = feature)
+            );
+            action.payload.features.forEach(feature => {
+                if (!features[feature.id]) {
+                    hasNew = true;
+                    features[feature.id] = feature;
+                }
+            });
+            if (!hasNew) {
+                return state;
+            }
+            return reduceMapState({
+                ...state,
+                highlight: {
+                    type: 'FeatureCollection',
+                    features: Object.values(features)
+                }
+            });
+        }
+        case MAP_TOGGLE_HIGHLIGHT: {
+            if (!state.highlight) {
+                return reduceMapState({ ...state, highlight: action.payload });
+            }
+            const features = {};
+            state.highlight.features.forEach(
+                feature => (features[feature.id] = feature)
+            );
+
+            action.payload.features.forEach(feature => {
+                if (features[feature.id]) {
+                    delete features[feature.id];
+                } else {
+                    features[feature.id] = feature;
+                }
+            });
+
+            return reduceMapState({
+                ...state,
+                highlight: checkEmpty({
+                    type: 'FeatureCollection',
+                    features: Object.values(features)
+                })
+            });
+        }
+        case MAP_REMOVE_HIGHLIGHT: {
+            if (!state.highlight) {
+                return state;
+            }
+            const remove = {};
+            action.payload.features.forEach(
+                feature => (remove[feature.id] = true)
+            );
+
+            return reduceMapState({
+                ...state,
+                highlight: checkEmpty({
+                    type: 'FeatureCollection',
+                    features: state.highlight.features.filter(
+                        feature => !remove[feature.id]
+                    )
+                })
+            });
+        }
+
         case MAP_CLEAR_HIGHLIGHT:
-            if (state.highlight === undefined) {
+            if (!state.highlight) {
                 return state;
             } else {
-                return {
+                return reduceMapState({
                     ...state,
-                    highlight: undefined
-                };
+                    highlight: null
+                });
             }
         case MAP_SET_BOUNDS:
             return {
@@ -178,4 +257,28 @@ function sameLayers(arr1, arr2) {
         (layer, i) =>
             layer.name === arr2[i].name && layer.active === arr2[i].active
     );
+}
+
+function checkEmpty(geojson) {
+    if (geojson.features.length === 0) {
+        return null;
+    } else {
+        return geojson;
+    }
+}
+
+function reduceMapState(state) {
+    const { mapId, instance, highlight } = state;
+    if (mapId) {
+        const stickyMaps = state.stickyMaps || {};
+        return {
+            ...state,
+            stickyMaps: {
+                ...stickyMaps,
+                [mapId]: { instance, highlight }
+            }
+        };
+    } else {
+        return state;
+    }
 }

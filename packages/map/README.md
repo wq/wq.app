@@ -82,12 +82,14 @@ Each page in the [wq configuration object][config] can optionally have one or mo
 
 name | default | purpose
 -----|---------|---------
+`mapId` | [none] | Unique identifier to ensure certain key maps are persisted offscreen when navigating between routes.  (See [Sticky Maps](#sticky-maps)).
 `mode` | `defaults` | [Route mode][@wq/router] that this configuration applies to.  Typically one of `list`, `detail`, or `edit`.  If set to `all` or `defaults`, the defined configuration will be mixed together with any other applicable configuration when rendering mode-specific maps.  You can also use `all` or `defaults` to define maps for simple (non-list) pages, which do not use rendering modes.
 `map` | `main` | Whether this configuration applies to the default (main) map or to a secondary map on the same screen.
 `layers` | See `autoLayers` | Array of overlay configurations to apply to the map.  Each object should have a `name` attribute (for the [Legend](#general-components)) and a `type` specifying which [overlay component](#overlay-components) to use.  All other object props will be passed to the component.
 `autoLayers` | `true` | If `true`, the maps created for the page will automatically include a default `"geojson"` layer corresponding to [the page URL and mode][url-structure], as well as any explicitly defined layers.
 `autoZoom` | global setting | Set to `false` to disable auto-zooming on a per-map basis.
 `minBounds` | none | Minimum bounds to set when auto-zooming.
+
 # Components
 
 @wq/map provides placeholder components for defining a [model-driven][config] map with overlays and basemaps.  Like [@wq/react], the components are grouped into categories:
@@ -134,6 +136,7 @@ name | details
 [AutoMap] | Reads the [map configuration](#configuration) corresponding to the current route and renders a `<Map>` with the appropriate inputs and controls
 [AutoBasemap] | Selects the appropriate basemap component based on the [global basemaps definition](#global-configuration)
 [AutoOverlay] | Selects the appropriate overlay component based on the [layer configuration](#page-configuration)
+[StickyMap] | Ensures the specified `mapId` is never unmounted, even when navigating to another route (see [Sticky Maps](#sticky-maps)).
 [Map]* | Top level component that renders the root component from the map engine
 [Legend]* | Renders the map engine's Legend component (if applicable), with BasemapToggle/OverlayToggle as children
 [BasemapToggle][Legend]* | Wraps AutoBasemap with a radio switch that controls active state
@@ -225,6 +228,42 @@ useMapState() | Current basemap, active overlays, and highlight | `mapState.over
 useMapInstance() | Current instance of map engine.  Note that the available attributes depend on the underlying engine | `mapInstance.on(...)`
 useGeoJSON(url) | Load GeoJSON data from the specified URL (via `useEffect()`), triggering a second render when the data loads | `geojson && geojson.features.map(...)`
 
+## Sticky Maps
+
+By default, any rendered map components will be unmounted and recreated when navigating between routes.  However, it may be better for the user experience to persist certain key maps (such a home screen map), so they appear instantly (and in the same state) when returning to the relevant screen.
+
+To do this, configure the map with a unique `mapId` and render it with the `<StickyMap/>` component, *outside of any route-specific view component*.  For example, this can be accomplished by registering a custom [`<Main/>`][material-layout] component.
+
+```javascript
+// config.js
+config.pages.index.map = {
+   mapId: 'home-map',
+   layers: [...],
+}
+
+// CustomMain.js
+import { Main } from '@wq/material';
+import { StickyMap } from '@wq/map';
+
+export default function CustomMain({children, ...rest}) {
+    return <Main {...rest}>
+       {children}
+       <StickyMap id="home-map" />
+    </Main>;
+}
+
+// index.js
+import app from '@wq/app';
+import Main from './components/CustomMain.js';
+
+app.use({ components: { Main }});
+
+```
+
+`<StickyMap/>` is a wrapper for `<AutoMap/>`, which will automatically configure basemaps and overlays corresponding to the map configuration for the current route.  `<StickyMap/>` accepts an optional `invisibleStyle` which will be merged with `<AutoMap/>`'s `containerStyle` to ensure the map is rendered offscreen when the route is inactive.  The default `invisibleStyle` renders the map container far above the screen, while preserving the dimensions to avoid disrupting the map extent.
+
+> Note that persisting many maps offscreen may negatively impact performance.  In particular, browsers typically do not allow more than 16 active WebGL contexts per site.
+
 [@wq/map]: https://github.com/wq/wq.app/tree/master/packages/map
 [@wq/map plugin]: https://github.com/wq/wq.app/tree/master/packages/map/src/map.js
 
@@ -241,6 +280,7 @@ useGeoJSON(url) | Load GeoJSON data from the specified URL (via `useEffect()`), 
 [wq.db]: https://wq.io/wq.db
 [config]: https://wq.io/docs/config
 [react-components]: https://github.com/wq/wq.app/tree/master/packages/react#components
+[material-layout]: https://github.com/wq/wq.app/tree/master/packages/material#layout
 [field-types]: https://wq.io/docs/field-types
 [url-structure]: https://wq.io/docs/url-structure
 
@@ -252,6 +292,7 @@ useGeoJSON(url) | Load GeoJSON data from the specified URL (via `useEffect()`), 
 [AutoMap]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/AutoMap.js
 [AutoBasemap]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/AutoBasemap.js
 [AutoOverlay]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/AutoOverlay.js
+[StickyMap]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/StickyMap.js
 [Legend]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/Legend.js
 [Geo]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/inputs/Geo.js
 [EmbeddedGeo]: https://github.com/wq/wq.app/blob/master/packages/map/src/components/inputs/EmbeddedGeo.js
