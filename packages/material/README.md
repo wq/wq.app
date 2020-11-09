@@ -341,5 +341,5 @@ Component|HTML Equivalent|XLSForm Types
 [Error-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/alert/error/materialicons/24px.svg
 [Pending-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/notification/sync/materialicons/24px.svg
 [GpsStart-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/device/gps_fixed/materialicons/24px.svg
-[GpsOff-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/device/gps_off/materialicons/24px.svg
+[GpsStop-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/device/gps_off/materialicons/24px.svg
 [Search-Icon]: https://raw.githubusercontent.com/google/material-design-icons/master/src/action/search/materialicons/24px.svg
