@@ -5,9 +5,11 @@ import * as formik from 'formik';
 import * as muiUtils from '@material-ui/utils';
 import * as muiStyles from '@material-ui/styles';
 import ButtonBase from '@material-ui/core/ButtonBase';
+import Paper from '@material-ui/core/Paper';
 import withStyles from '@material-ui/core/styles/withStyles';
 import * as colorManipulator from '@material-ui/core/styles/colorManipulator';
 import mapboxgl from 'mapbox-gl';
+import ReactMapboxGl, * as reactMapboxGlExports from 'react-mapbox-gl';
 
 import app from '@wq/app';
 import material, * as materialExports from '@wq/material';
@@ -24,9 +26,14 @@ export default {
     '@material-ui/utils': muiUtils,
     '@material-ui/styles': muiStyles,
     '@material-ui/core/ButtonBase': ButtonBase,
+    '@material-ui/core/Paper': Paper,
     '@material-ui/core/styles/withStyles': withStyles,
     '@material-ui/core/styles/colorManipulator': colorManipulator,
     'mapbox-gl': mapboxgl,
+    'react-mapbox-gl': {
+        default: ReactMapboxGl,
+        ...reactMapboxGlExports
+    },
     '@wq/app': app,
     '@wq/react': {
         default: react,

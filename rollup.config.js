@@ -81,8 +81,9 @@ export default [
                 "const isEqual = require('deep-equal')":
                     "import isEqual from 'deep-equal'",
                 "require('mapbox-gl/dist/mapbox-gl.css')": '',
-                "'react-mapbox-gl'": "'react-mapbox-gl/src/index'",
-                '"react-mapbox-gl"': "'react-mapbox-gl/src/index'",
+                "from 'react-mapbox-gl'": "from 'react-mapbox-gl/src/index'",
+                'require("react-mapbox-gl")':
+                    "require('react-mapbox-gl/src/index')",
                 delimiters: ['', '']
             }),
             commonjs(),
@@ -91,8 +92,11 @@ export default [
         output: {
             file: 'static/app/js/wq.js',
             banner,
+            format: 'esm',
             sourcemap: true,
-            format: 'esm'
+            sourcemapPathTransform(path) {
+                return path.replace('../../../', `wq/app/`);
+            }
         }
     }
 ];
