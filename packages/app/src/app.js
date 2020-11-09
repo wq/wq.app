@@ -1139,7 +1139,9 @@ function _addLookups(page, context, editable) {
         // (i.e. repeats/attachments/EAV/child model)
         if (field.children) {
             field.children.forEach(function (child) {
-                var fname = field.name + '.' + child.name;
+                var fname = field.name
+                    ? field.name + '.' + child.name
+                    : child.name;
                 addLookups(child, fname);
             });
             if (editable == 'new' && !context[field.name]) {

@@ -42,12 +42,15 @@ export default function AutoSubform({
         Fieldset = components.Fieldset;
     }
 
+    const prefix = name ? `${name}.` : '';
+
     return (
         <Fieldset name={name} label={label}>
-            {subform.map(({ name: fieldName, ...rest }) => (
+            {subform.map(({ name: fieldName, children: subform, ...rest }) => (
                 <AutoInput
                     key={fieldName}
-                    name={`${name}.${fieldName}`}
+                    name={`${prefix}${fieldName}`}
+                    subform={subform}
                     {...rest}
                 />
             ))}

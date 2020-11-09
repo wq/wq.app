@@ -1,6 +1,6 @@
 import React from 'react';
 import { useComponents } from '../hooks';
-import { FieldArray } from 'formik';
+import { FieldArray, getIn } from 'formik';
 import PropTypes from 'prop-types';
 import { initData } from './AutoForm';
 import { pascalCase } from 'pascal-case';
@@ -37,7 +37,7 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
 
     function SubformArray({ form: formikContext, push, pop }) {
         const { values } = formikContext,
-            list = values[name] || [];
+            list = getIn(values, name) || [];
 
         function addRow(vals) {
             const row = initData(subform, vals || {});

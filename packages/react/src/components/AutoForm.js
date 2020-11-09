@@ -89,15 +89,23 @@ export function initData(form, data) {
             value = (data[fieldName] || []).map(row =>
                 initData(field.children, row)
             );
-        } else if (field.type == 'group') {
-            value = initData(field.children, data[fieldName] || {});
+        } else if (field.type === 'group') {
+            if (fieldName) {
+                value = initData(field.children, data[fieldName] || {});
+            } else {
+                value = initData(field.children, data);
+            }
         } else if (fieldName in data) {
             value = data[fieldName];
         } else {
             value = defaultValue(field);
         }
 
-        formData[fieldName] = value;
+        if (fieldName) {
+            formData[fieldName] = value;
+        } else {
+            Object.assign(formData, value);
+        }
     });
 
     return formData;
