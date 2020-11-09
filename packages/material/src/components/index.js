@@ -12,6 +12,7 @@ import FormatJson from './FormatJson';
 import Link from './Link';
 import Button from './Button';
 import ButtonLink from './ButtonLink';
+import HomeLink from './HomeLink';
 import IconButton from './IconButton';
 import Fab from './Fab';
 import Chip from './Chip';
@@ -56,7 +57,7 @@ export {
     FormatJson
 };
 
-export { Link, Button, ButtonLink, IconButton, Fab, Chip };
+export { Link, Button, ButtonLink, HomeLink, IconButton, Fab, Chip };
 
 export { List, ListItem, ListItemLink, ListSubheader, ExpansionPanel, Divider };
 

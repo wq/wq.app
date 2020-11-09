@@ -115,6 +115,7 @@ Component|HTML Equivalent|Description
 [Link]&nbsp;([.native][Link.native]) | `<a>` | Hyperlink that is aware of [@wq/router] actions and paths
 [Button]&nbsp;([.native][Button.native]) | `<button type="button">` | Generic button (for use outside of forms).  Accepts an optional string `icon` prop (see [icon components](#icon-components)).  If an `onClick` prop is provided, it will be passed as `onPress` to React Native Paper's `<Button/>`.
 [ButtonLink]&nbsp;([.native][ButtonLink.native]) | `<a class="button">` | `<Link/>` formatted to look like a button
+[HomeLink]&nbsp;([.native][HomeLink.native]) | `<a href="/">` | Link to index page with "Home" icon (used in `<Breadcrumbs/>`)
 [IconButton]&nbsp;([.native][IconButton.native]) |  | Circular button with only an [icon](#icon-components)
 [Fab]&nbsp;([.native][Fab.native]) |  | Floating action button with [icon](#icon-components)
 [Chip]&nbsp;([.native][Chip.native]) |  | Chip with optional [icon](#icon-components)
@@ -240,6 +241,8 @@ Component|HTML Equivalent|XLSForm Types
 [Button.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/Button.native.js
 [ButtonLink]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/ButtonLink.js
 [ButtonLink.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/ButtonLink.native.js
+[HomeLink]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/HomeLink.js
+[HomeLink.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/HomeLink.native.js
 [IconButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/IconButton.js
 [IconButton.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/IconButton.native.js
 [Fab]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/Fab.js
