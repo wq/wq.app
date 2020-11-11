@@ -50,7 +50,7 @@ export default [
                 extensions: ['.js', '.ts', '.tsx'],
                 babelHelpers: 'bundled'
             }),
-            terser(),
+            terser({ keep_fnames: /^([A-Z]|use[A-Z])/ }), // Preserve component & hook names
             { resolveId },
             resolve({
                 preferBuiltins: false,
