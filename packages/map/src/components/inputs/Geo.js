@@ -40,7 +40,7 @@ export default function Geo({ name, type, label }) {
         [, { value: longitude }, { setValue: setLongitude }] = useField(
             name + '_longitude'
         ),
-        [, { setValue: setAccuracy }] = useField(name + '_accuracy'),
+        [, , { setValue: setAccuracy }] = useField(name + '_accuracy'),
         { setBounds, config } = usePlugin('map'),
         [gpsStatus, setGpsStatus] = useState(''),
         [gpsWatch, setGpsWatch] = useState(''),
@@ -127,8 +127,8 @@ export default function Geo({ name, type, label }) {
 
     function recenterMap(lat, lng) {
         setBounds([
-            [lat - 0.01, lng - 0.01],
-            [lat + 0.01, lng + 0.01]
+            [lat - 0.0005, lng - 0.0005],
+            [lat + 0.0005, lng + 0.0005]
         ]);
     }
 
