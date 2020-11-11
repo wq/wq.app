@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { usePlugin } from '@wq/react';
 import PropTypes from 'prop-types';
 import ReactMapboxGl from 'react-mapbox-gl';
-import { useMapState } from '@wq/map';
+import { findBasemapStyle } from '../util';
 
 export default function Map({ bounds, children, mapProps, containerStyle }) {
     const { ready } = usePlugin('map'),
@@ -14,43 +14,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
                 [xmax, ymax]
             ];
         }, [bounds]),
-        state = useMapState(),
-        basemap = state && state.basemaps.filter(basemap => basemap.active)[0];
-
-    let style;
-    if (basemap) {
-        if (basemap.type === 'vector-tile') {
-            style = basemap.url;
-        } else if (basemap.type === 'tile') {
-            const urls = [];
-            if (basemap.url.match('{s}')) {
-                (basemap.subdomains || ['a', 'b', 'c']).forEach(s =>
-                    urls.push(basemap.url.replace('{s}', s))
-                );
-            } else {
-                urls.push(basemap.url);
-            }
-            style = {
-                version: 8,
-                sources: {
-                    [basemap.name]: {
-                        type: 'raster',
-                        tiles: urls,
-                        tileSize: basemap.tileSize || 256
-                    }
-                },
-                layers: [
-                    {
-                        id: basemap.name,
-                        type: 'raster',
-                        source: basemap.name
-                    }
-                ]
-            };
-        }
-    } else {
-        style = null;
-    }
+        style = findBasemapStyle(children);
 
     containerStyle = {
         flex: '1',
