@@ -16,7 +16,7 @@ const pickers = {
 };
 
 export default function DateTime({ type, hint, ...rest }) {
-    const Picker = pickers[type];
+    const Picker = pickers[type.toLowerCase()];
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Field

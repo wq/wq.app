@@ -8,5 +8,17 @@ import Hidden from './Hidden';
 
 const Date = DateTime;
 const Time = DateTime;
+const dateTime = DateTime;
 
-export { Input, Checkbox, DateTime, Date, Time, Select, Radio, Toggle, Hidden };
+export {
+    Input,
+    Checkbox,
+    DateTime,
+    Date,
+    Time,
+    dateTime,
+    Select,
+    Radio,
+    Toggle,
+    Hidden
+};
