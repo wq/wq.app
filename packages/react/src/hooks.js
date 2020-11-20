@@ -17,11 +17,12 @@ export function useRoutesMap() {
 }
 
 export function toNavAction(path, routesMap) {
-    const { querySerializer } = getOptions();
+    const { querySerializer } = getOptions(),
+        baseUrl = routesMap.INDEX ? routesMap.INDEX.path : '/';
     return isAction(path)
         ? path
         : pathToAction(
-              path.indexOf('/') === 0 ? path : '/' + path,
+              path.indexOf('/') === 0 ? path : baseUrl + path,
               routesMap,
               querySerializer
           );
@@ -244,6 +245,15 @@ export function useBreadcrumbs() {
     }
 
     return links;
+}
+
+export function useSitemap() {
+    const app = useApp(),
+        pages = Object.values(app.config.pages),
+        options = pages.filter(page => !page.list),
+        models = pages.filter(page => page.list);
+
+    return { options, models };
 }
 
 export function useSpinner() {

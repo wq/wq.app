@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    useRenderContext,
+    useSitemap,
     useReverse,
     useRouteTitle,
     useComponents
@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 export default function Index() {
     const reverse = useReverse(),
         routeTitle = useRouteTitle(),
-        { pages } = useRenderContext(),
+        { options, models } = useSitemap(),
         {
             Message,
             ScrollView,
@@ -18,9 +18,6 @@ export default function Index() {
             ListSubheader,
             ListItemLink
         } = useComponents();
-
-    const options = (pages || []).filter(page => !page.list),
-        models = (pages || []).filter(page => page.list);
 
     function PageLink({ name }) {
         const to = reverse(name),
@@ -31,10 +28,12 @@ export default function Index() {
         name: PropTypes.string
     };
 
+    const subheadings = models.length > 0 && options.length > 0;
+
     return (
         <ScrollView>
             <List>
-                {models.length > 0 && (
+                {subheadings && (
                     <ListSubheader>
                         <Message id="OTHER_PAGES" />
                     </ListSubheader>
@@ -42,7 +41,7 @@ export default function Index() {
                 {options.map(page => (
                     <PageLink key={page.name} name={page.name} />
                 ))}
-                {models.length > 0 && (
+                {subheadings && (
                     <ListSubheader>
                         <Message id="MODEL_PAGES" />
                     </ListSubheader>

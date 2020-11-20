@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from '@wq/react';
-import Button from '@material-ui/core/Button';
+import { useComponents, Link } from '@wq/react';
 
 export default function ButtonLink(props) {
+    const { Button } = useComponents();
     return <Button component={Link} {...props} />;
 }

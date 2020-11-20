@@ -219,6 +219,7 @@ app.init = function (config) {
 
     app.use({
         context(ctx, routeInfo) {
+            // FIXME: Remove in 2.0, in favor of useSitemap()
             if (routeInfo.name !== 'index') {
                 return;
             }
