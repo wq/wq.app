@@ -228,7 +228,7 @@ useMapState() | Current basemap, active overlays, and highlight | `mapState.over
 useMapInstance() | Current instance of map engine.  Note that the available attributes depend on the underlying engine | `mapInstance.on(...)`
 useGeoJSON(url) | Load GeoJSON data from the specified URL (via `useEffect()`), triggering a second render when the data loads | `geojson && geojson.features.map(...)`
 
-## Sticky Maps
+# Sticky Maps
 
 By default, any rendered map components will be unmounted and recreated when navigating between routes.  However, it may be better for the user experience to persist certain key maps (such a home screen map), so they appear instantly (and in the same state) when returning to the relevant screen.
 
@@ -242,13 +242,14 @@ config.pages.index.map = {
 }
 
 // CustomMain.js
+import React from 'react';
 import { Main } from '@wq/material';
 import { StickyMap } from '@wq/map';
 
 export default function CustomMain({children, ...rest}) {
     return <Main {...rest}>
        {children}
-       <StickyMap id="home-map" />
+       <StickyMap mapId="home-map" />
     </Main>;
 }
 
