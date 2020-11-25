@@ -42,6 +42,7 @@ import FormRoot from './FormRoot';
 import FormError from './FormError';
 import Fieldset from './Fieldset';
 import FieldsetArray from './FieldsetArray';
+import FileArray from './FileArray';
 import CancelButton from './CancelButton';
 import SubmitButton from './SubmitButton';
 import IconSubmitButton from './IconSubmitButton';
@@ -84,6 +85,7 @@ export {
     FormError,
     Fieldset,
     FieldsetArray,
+    FileArray,
     CancelButton,
     SubmitButton,
     IconSubmitButton,

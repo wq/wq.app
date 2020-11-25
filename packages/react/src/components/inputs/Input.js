@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 const HTML5_INPUT_TYPES = {
     // Map XForm field types to <input type>
     barcode: false,
-    binary: 'file',
+    file: 'file',
+    binary: 'file', // wq.db <1.3
     date: 'date',
     dateTime: 'datetime-local',
     decimal: 'number',

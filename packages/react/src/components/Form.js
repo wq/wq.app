@@ -34,7 +34,7 @@ export default function Form({
             }
         }
 
-        const has_files = false; // FIXME
+        const has_files = checkForFiles(values);
 
         const [item, error] = await app.submitForm({
             url: action,
@@ -108,4 +108,17 @@ function parseApiError(error, values) {
         });
     }
     return errors;
+}
+
+function checkForFiles(values) {
+    if (!values || typeof values !== 'object') {
+        return false;
+    }
+    if (values.name && values.type && values.body) {
+        return true;
+    }
+    if (Array.isArray(values)) {
+        return values.some(checkForFiles);
+    }
+    return Object.values(values).some(checkForFiles);
 }

@@ -333,6 +333,13 @@ export function useFeatureCollection(value) {
 }
 
 function asFeatureCollection(geojson) {
+    if (typeof geojson === 'string') {
+        try {
+            geojson = JSON.parse(geojson);
+        } catch (e) {
+            geojson = null;
+        }
+    }
     if (!geojson || !geojson.type) {
         return geojson;
     }

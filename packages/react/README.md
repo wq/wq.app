@@ -130,8 +130,10 @@ Name | HTML Equivalent | XLSForm Types
 --|--|--
 [Checkbox] | `<input type=checkbox>` | n/a
 [DateTime] | `<input type={date,time,datetime-local}>` | date, time, dateTime
+[File] | `<input type=file>` | file, video, audio
 [Hidden] | `<input type=hidden>` | hidden
-[Input] | `<input type={text,number,file,...}>` | string, int, decimal, binary, ...
+[Input] | `<input type={text,number,...}>` | string, int, decimal, ...
+[Image] | `<input type=file accept="image/*">` | image
 [Radio] | `<input type=radio>` | select one
 [Select] | `<select>` | select one / select
 [Toggle] | n/a | select one

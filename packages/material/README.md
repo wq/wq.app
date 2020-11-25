@@ -153,6 +153,7 @@ Component|HTML Equivalent|Description
 [FormError]&nbsp;([.native][FormError.native]) |  | Renders form-level error messages. (Field-level errors are handled in each [input component](#input-components)).
 [Fieldset]&nbsp;([.native][Fieldset.native]) | `<fieldset>` | Group of related fields (e.g. for an XLSForm "group")
 [FieldsetArray]&nbsp;([.native][FieldsetArray.native]) |  | Repeating group of nested fields (e.g. XLSForm "repeat") with support for adding/removing nested records
+[FileArray]&nbsp;([.native][FileArray.native]) | `<input type="file" multiple>` | Streamlined UI for an array of files (e.g. XLSForm "repeat" with only a single "file" or "image" field)
 [CancelButton]&nbsp;([.native][CancelButton.native]) | `<a href="../">` | Returns to previous page without saving
 [SubmitButton]&nbsp;([.native][SubmitButton.native]) | `<button type="submit">` | Use this rather than `<Button type="submit">` to ensure native support (see [Formik docs][formik-native]).
 [IconSubmitButton]&nbsp;([.native][IconSubmitButton.native]) |  | `<IconButton/>` with `<SubmitButton/>` functionality
@@ -183,8 +184,10 @@ Component|HTML Equivalent|XLSForm Types
 --|--|--
 [Checkbox]&nbsp;([.native][Checkbox.native]) | `<input type=checkbox>` | n/a
 [DateTime]&nbsp;([.native][DateTime.native]) | `<input type={date,time,datetime-local}>` | date, time, dateTime
+[File]&nbsp;([.native][File.native]) | `<input type=file>` | file, video, audio
 [Hidden]&nbsp;([.native][Hidden.native]) | `<input type=hidden>` | hidden
-[Input]&nbsp;([.native][Input.native]) | `<input type={text,number,file,...}>` | string, int, decimal, binary, ...
+[Input]&nbsp;([.native][Input.native]) | `<input type={text,number,file,...}>` | string, int, decimal, ...
+[Image]&nbsp;([.native][Image.native]) | `<input type=file accept="image/*">` | image
 [Radio]&nbsp;([.native][Radio.native]) | `<input type=radio>` | select one
 [Select]&nbsp;([.native][Select.native]) | `<select>` | select one / select
 [Toggle]&nbsp;([.native][Toggle.native]) |  | select one
@@ -290,6 +293,8 @@ Component|HTML Equivalent|XLSForm Types
 [Fieldset.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/Fieldset.native.js
 [FieldsetArray]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/FieldsetArray.js
 [FieldsetArray.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/FieldsetArray.native.js
+[FileArray]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/FileArray.js
+[FileArray.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/FileArray.native.js
 [CancelButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/CancelButton.js
 [CancelButton.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/CancelButton.native.js
 [SubmitButton]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/SubmitButton.js
@@ -322,10 +327,14 @@ Component|HTML Equivalent|XLSForm Types
 [Checkbox.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Checkbox.native.js
 [DateTime]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/DateTime.js
 [DateTime.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/DateTime.native.js
+[File]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/File.js
+[File.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/File.native.js
 [Hidden]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Hidden.js
 [Hidden.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Hidden.native.js
 [Input]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Input.js
 [Input.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Input.native.js
+[Image]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Image.js
+[Image.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Image.native.js
 [Radio]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Radio.js
 [Radio.native]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Radio.native.js
 [Select]: https://github.com/wq/wq.app/tree/master/packages/material/src/components/inputs/Select.js

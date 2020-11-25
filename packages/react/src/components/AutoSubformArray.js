@@ -30,6 +30,12 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
                 );
             };
         }
+    } else if (
+        subform.length === 1 &&
+        (subform[0].type === 'file' || subform[0].type === 'image')
+    ) {
+        // Special case for subforms containing only a single file field
+        FieldsetArray = components.FileArray;
     } else {
         // Default (or global default override)
         FieldsetArray = components.FieldsetArray;

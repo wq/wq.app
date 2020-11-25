@@ -39,7 +39,16 @@ export default function AutoInput({ name, choices, type, ...rest }) {
     } else if (inputs[type]) {
         inputType = type;
     } else {
-        inputType = 'input';
+        if (type === 'picture' || type === 'photo') {
+            inputType = 'image';
+        } else if (type === 'video' || type === 'audio') {
+            inputType = 'file';
+        } else if (type === 'binary') {
+            // wq.db <1.3
+            inputType = 'file';
+        } else {
+            inputType = 'input';
+        }
     }
 
     if (rest.control && rest.control.appearance) {

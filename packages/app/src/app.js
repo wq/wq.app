@@ -986,17 +986,15 @@ app.isRegistered = function (url) {
     }
 };
 
-app.submitForm = async function (kwargs) {
-    const {
-        url,
-        storage,
-        backgroundSync,
-        has_files,
-        outboxId,
-        preserve,
-        data: vals
-    } = kwargs;
-
+app.submitForm = async function ({
+    url,
+    storage,
+    backgroundSync,
+    has_files,
+    outboxId,
+    preserve,
+    data: vals
+}) {
     const conf = _getConfByUrl(url, true);
 
     var options = {
@@ -1011,15 +1009,12 @@ app.submitForm = async function (kwargs) {
         options.storage = 'store';
     }
 
-    if (
-        !has_files &&
-        Object.values(vals).some(
-            val =>
-                typeof val === 'object' &&
-                (!Array.isArray(val) || typeof val[0] === 'object')
-        )
-    ) {
-        options.json = true;
+    if (_hasNestedObject(vals)) {
+        if (has_files) {
+            vals = _flattenJson(vals);
+        } else {
+            options.json = true;
+        }
     }
 
     if (outboxId) {
@@ -1082,6 +1077,52 @@ app.submitForm = async function (kwargs) {
         return [item, app.ERROR];
     }
 };
+
+function _hasNestedObject(value) {
+    return Object.values(value).some(
+        val =>
+            typeof val === 'object' &&
+            (!Array.isArray(val) || typeof val[0] === 'object')
+    );
+}
+
+function _flattenJson(value, prefix = '') {
+    const result = {};
+    if (prefix) {
+        if (value === null || value === undefined) {
+            return { [prefix]: '' };
+        } else if (typeof value !== 'object') {
+            return { [prefix]: value };
+        }
+    }
+    Object.entries(value).forEach(([key, val]) => {
+        const fullKey = prefix ? `${prefix}[${key}]` : key;
+        if (Array.isArray(val)) {
+            val.forEach((row, i) =>
+                Object.assign(result, _flattenJson(row, `${fullKey}[${i}]`))
+            );
+        } else if (typeof val === 'object') {
+            if (_isFile(val)) {
+                result[fullKey] = val;
+            } else if (_isGeometry(val)) {
+                result[fullKey] = JSON.stringify(val);
+            } else {
+                Object.assign(result, _flattenJson(val, fullKey));
+            }
+        } else {
+            result[fullKey] = val;
+        }
+    });
+    return result;
+}
+
+function _isFile(val) {
+    return val && val.type && val.name && val.body;
+}
+
+function _isGeometry(val) {
+    return val && val.type && val.coordinates;
+}
 
 app.getAuthState = function () {
     return (this.plugins.auth && this.plugins.auth.getState()) || {};
