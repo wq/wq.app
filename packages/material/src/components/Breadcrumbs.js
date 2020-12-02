@@ -30,7 +30,11 @@ export default function Breadcrumbs() {
     return (
         <Paper elevation={0} className={classes.breadcrumbs} square>
             <MuiBreadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-                <HomeLink {...links[0]} />
+                <HomeLink
+                    to={links[0].url}
+                    label={links[0].label}
+                    active={links[0].active}
+                />
                 {links.slice(1).map(({ url, label, active }, i) => (
                     <ButtonLink
                         key={i}
