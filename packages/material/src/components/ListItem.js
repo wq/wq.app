@@ -3,11 +3,10 @@ import MuiListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import PropTypes from 'prop-types';
-import { useIconComponents } from '@wq/react';
+import { useIcon } from '@wq/react';
 
 export default function ListItem({ children, description, icon, ...rest }) {
-    const icons = useIconComponents(),
-        Icon = icon ? icons[icon] : null;
+    const Icon = useIcon(icon);
     return (
         <MuiListItem {...rest}>
             {Icon && (

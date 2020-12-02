@@ -233,6 +233,7 @@ hook | description | example
 useApp() | Return the main [@wq/app] instance | `app.retryAll()`
 usePlugin(pluginName) | Return the specified plugin | `plugin.triggerAction()`
 usePluginState(pluginName) | Return the [@wq/store state][@wq/store] for the specified plugin. | `const { status } = pluginState;`
+usePluginReducer(pluginName) | Returns the two element array `[usePluginState(), usePlugin()]`. | `[{ status }, { triggerAction }]`
 usePluginContent() | Returns a <PluginContent/> component for the current route (see below). |
 
 To specify content to be rendered in <PluginContent/>, define a `runComponent` method on a plugin.  The method should accept a [routeInfo object](@wq/router) and return a string specifying the name of a component to render.  (The actual component should be registered seperately in `plugin.components`.)  Note that the default [`<App/>`] compononent calls `usePluginContent()` automatically and places the component on the right side of the layout.
@@ -255,6 +256,7 @@ useComponents() | Mapping of [general components](#general-components)
 useInputComponents() | Mapping of [input components](#input-components) in both PascalCase and param-case
 useHtmlInput(fieldConf) | Returns { name, type, maxLength } for a given XLSForm [input config][field-types]
 useIconComponents() | Mapping of [icon components](#icon-components) in both PascalCase and param-case
+useIcon(name | component) | If given a name, returns the component from useIconComponents(); otherwise returns component as-is.
 useViewComponents() | Mapping of [view components](#view-components) in both PascalCase and param-case
 
 [@wq/react]: https://github.com/wq/wq.app/tree/master/packages/react

@@ -1,11 +1,10 @@
 import React from 'react';
-import { useComponents, useIconComponents } from '../hooks';
+import { useComponents, useIcon } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function Chip({ label, icon, onDelete, ...rest }) {
     const { IconButton } = useComponents(),
-        icons = useIconComponents(),
-        Icon = icon ? icons[icon] : null;
+        Icon = useIcon(icon);
     return (
         <span
             style={{

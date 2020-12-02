@@ -1,5 +1,5 @@
 import React from 'react';
-import { useIconComponents } from '@wq/react';
+import { useIcon } from '@wq/react';
 import { Chip as PaperChip, useTheme } from 'react-native-paper';
 import PropTypes from 'prop-types';
 
@@ -14,8 +14,7 @@ export default function Chip({
     ...rest
 }) {
     const theme = useTheme(),
-        icons = useIconComponents(),
-        Icon = icon ? icons[icon] : null;
+        Icon = useIcon(icon);
 
     if (color === 'primary') {
         color = theme.colors.primary;

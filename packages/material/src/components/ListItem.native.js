@@ -1,11 +1,10 @@
 import React from 'react';
-import { useIconComponents } from '@wq/react';
+import { useIcon } from '@wq/react';
 import { List } from 'react-native-paper';
 import PropTypes from 'prop-types';
 
 export default function ListItem({ children, description, icon, ...rest }) {
-    const icons = useIconComponents(),
-        Icon = icon ? icons[icon] : null;
+    const Icon = useIcon(icon);
     return (
         <List.Item
             title={children}

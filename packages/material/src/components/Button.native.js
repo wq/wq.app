@@ -1,5 +1,5 @@
 import React from 'react';
-import { useIconComponents } from '@wq/react';
+import { useIcon } from '@wq/react';
 import { Button as PaperButton, useTheme } from 'react-native-paper';
 import PropTypes from 'prop-types';
 
@@ -12,7 +12,7 @@ export default function Button({
     color,
     ...rest
 }) {
-    const { [icon]: Icon } = useIconComponents(),
+    const Icon = useIcon(icon),
         theme = useTheme();
     if (!onPress) {
         onPress = onClick;

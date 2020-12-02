@@ -1,11 +1,11 @@
 import React from 'react';
 import { FAB } from 'react-native-paper';
-import { useNav, useIconComponents } from '@wq/react';
+import { useNav, useIcon } from '@wq/react';
 import PropTypes from 'prop-types';
 
 export default function Fab({ icon, to }) {
     const onPress = useNav(to),
-        { [icon]: Icon } = useIconComponents();
+        Icon = useIcon(icon);
 
     return (
         <FAB

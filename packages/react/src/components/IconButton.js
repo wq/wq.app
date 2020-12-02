@@ -1,9 +1,9 @@
 import React from 'react';
-import { useIconComponents } from '../hooks';
+import { useIcon } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function IconButton({ icon, type = 'button', ...rest }) {
-    const { [icon]: Icon } = useIconComponents();
+    const Icon = useIcon(icon);
     return (
         <button type={type} {...rest}>
             <Icon />

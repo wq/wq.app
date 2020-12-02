@@ -282,6 +282,21 @@ export function useIconComponents() {
     return usePluginComponentMap('react', 'icons');
 }
 
+export function useIcon(icon) {
+    const icons = useIconComponents();
+    if (typeof icon === 'string') {
+        if (icons[icon]) {
+            return icons[icon];
+        } else {
+            return null;
+        }
+    } else if (typeof icon === 'function') {
+        return icon;
+    } else {
+        return null;
+    }
+}
+
 export function useViewComponents() {
     return usePluginComponentMap('react', 'views');
 }
@@ -372,6 +387,17 @@ export function usePluginState(name) {
         return pluginState;
     } else {
         return null;
+    }
+}
+
+export function usePluginReducer(name) {
+    const plugin = usePlugin(name),
+        pluginState = useSelector(state => state[name]);
+
+    if (plugin) {
+        return [pluginState, plugin];
+    } else {
+        return [null, null];
     }
 }
 

@@ -1,10 +1,9 @@
 import React from 'react';
-import { useIconComponents } from '../hooks';
+import { useIcon } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function ListItem({ children, description, icon, ...rest }) {
-    const icons = useIconComponents(),
-        Icon = icon ? icons[icon] : null;
+    const Icon = useIcon(icon);
     return (
         <li {...rest}>
             {Icon && <Icon />}

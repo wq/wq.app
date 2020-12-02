@@ -2,10 +2,10 @@ import React from 'react';
 import MuiFab from '@material-ui/core/Fab';
 import { Link } from '@wq/react';
 import PropTypes from 'prop-types';
-import { useIconComponents } from '@wq/react';
+import { useIcon } from '@wq/react';
 
 export default function Fab({ icon, to }) {
-    const { [icon]: Icon } = useIconComponents();
+    const Icon = useIcon(icon);
     return (
         <MuiFab
             component={Link}
