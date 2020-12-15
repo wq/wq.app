@@ -8,6 +8,7 @@
     "scripts": {
         "test": "cd ../../ && npm run jest packages/material -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
         "build": "npm run babel && npm run prettier",
+        "rollup": "cd ../../ && npm run rollup -- -c packages/material/rollup.config.js",
         "babel": "cd ../../ && npm run babel -- packages/material/src --out-dir packages/material/",
         "prettier": "cd ../../ && npm run prettier -- --write packages/material/",
         "lint": "cd ../../ && npm run eslint packages/material/{,src/,src/*/,src/*/*/}*.js"

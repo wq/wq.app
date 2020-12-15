@@ -2,4 +2,6 @@
 /App.js
 /App.native.js
 /components/
+/vendor/
+/src/vendor/
 /__tests__/
