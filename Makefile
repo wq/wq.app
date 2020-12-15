@@ -13,8 +13,8 @@ js: js_build js_lib
 	cp -p packages/jquery-mobile/compat/*.js js/wq/
 
 js_build: init
-	npm run rollup -- -c
 	npm run rollup-all
+	npm run rollup -- -c
 
 js_leaflet_draw: init
 	echo "define(['leaflet'], function(L) {" > js/leaflet.draw.js
