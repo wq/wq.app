@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ReactIs from 'react-is';
 import PropTypes from 'prop-types';
 import * as formik from 'formik';
 import * as muiUtils from '@material-ui/utils';
@@ -21,6 +22,7 @@ import mapbox, * as mapboxExports from '@wq/mapbox';
 export default {
     react: React,
     'react-dom': ReactDOM,
+    'react-is': ReactIs,
     'prop-types': PropTypes,
     formik: formik,
     '@material-ui/utils': muiUtils,
