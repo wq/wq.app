@@ -5,7 +5,12 @@ export default [
         input:
             'packages/material/node_modules/material-ui-dropzone/src/index.js',
         plugins: [
-            babel(),
+            babel({
+                plugins: [
+                    '@babel/plugin-proposal-optional-chaining',
+                    '@babel/plugin-proposal-nullish-coalescing-operator'
+                ]
+            }),
             {
                 resolveId(id) {
                     if (id.startsWith('@material-ui/')) {

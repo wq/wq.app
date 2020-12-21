@@ -45,7 +45,10 @@ export default [
             babel({
                 presets: ['@babel/preset-typescript'],
                 plugins: [
-                    ['@babel/plugin-transform-react-jsx', { useSpread: true }]
+                    ['@babel/plugin-transform-react-jsx', { useSpread: true }],
+
+                    // For redux-orm/src/
+                    '@babel/plugin-proposal-class-properties'
                 ],
                 extensions: ['.js', '.ts', '.tsx'],
                 babelHelpers: 'bundled'
