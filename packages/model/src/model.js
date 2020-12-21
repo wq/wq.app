@@ -409,8 +409,8 @@ class Model {
         return this.orm.session(this.store.getState().orm);
     }
 
-    getSessionModel() {
-        const model = this.getSession()[this.name];
+    getSessionModel(session) {
+        const model = (session || this.getSession())[this.name];
         if (!model) {
             throw new Error('Could not find model in session');
         }
@@ -421,11 +421,25 @@ class Model {
         return this.getSessionModel();
     }
 
-    getQuerySet() {
-        const model = this.getSessionModel();
-        return model
-            .all()
-            .orderBy(this.idCol, this.opts.reversed ? 'desc' : 'asc');
+    getQuerySet(session) {
+        const model = this.getSessionModel(session),
+            ordering = this.config.ordering || [
+                this.opts.reversed ? `-${this.idCol}` : this.idCol
+            ],
+            columns = [],
+            orders = [];
+
+        ordering.map(name => {
+            let order = 'asc';
+            if (name.startsWith('-')) {
+                order = 'desc';
+                name = name.slice(1);
+            }
+            columns.push(name);
+            orders.push(order);
+        });
+
+        return model.all().orderBy(columns, orders);
     }
 
     get objects() {

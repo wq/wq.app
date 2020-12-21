@@ -318,11 +318,18 @@ export function useModel(name, filter) {
         typeof filter === 'function' ||
         (typeof filter === 'object' && !Array.isArray(filter))
     ) {
+        // Filter by query
         selector = createSelector(model.orm, session =>
-            session[name].filter(filter).toRefArray()
+            model.getQuerySet(session).filter(filter).toRefArray()
         );
-    } else {
+    } else if (filter) {
+        // Filter by id (default ModelSelectorSpec behavior)
         selector = state => createSelector(model.orm[name])(state, filter);
+    } else {
+        // All objects (use getQuerySet() to leverage config.ordering)
+        selector = createSelector(model.orm, session =>
+            model.getQuerySet(session).toRefArray()
+        );
     }
 
     return useSelector(selector);

@@ -7,7 +7,12 @@ import PropTypes from 'prop-types';
 export default function Input({ label, ...props }) {
     return (
         <>
-            <Field component={CheckboxWithLabel} Label={{ label }} {...props} />
+            <Field
+                component={CheckboxWithLabel}
+                Label={{ label }}
+                {...props}
+                type="checkbox"
+            />
             <HelperText name={props.name} hint={props.hint} />
         </>
     );
