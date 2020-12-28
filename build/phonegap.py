@@ -1,13 +1,12 @@
-import requests
 from wq.core import wq
 import click
 import os
 import yaml
 import json
 import shutil
-import pystache
 from .icons import icons, SIZES
 import time
+from .compilers import NotInstalled
 
 
 @wq.command()
@@ -54,6 +53,16 @@ def phonegap(ctx, config, version, **conf):
     installable PWA instead.  Alternatively, you can deploy a native app using
     React Native and/or Expo, together with @wq/react and @wq/material.
     """
+
+    try:
+        import requests  # noqa
+    except ImportError:
+        raise NotInstalled('requests')
+
+    try:
+        import pystache  # noqa
+    except ImportError:
+        raise NotInstalled('pystache')
 
     click.echo(
         "Warning: PhoneGap Build is offline; this command will likely fail."
@@ -117,6 +126,8 @@ def phonegap(ctx, config, version, **conf):
 
 def create_zipfile(directory, source, version, context,
                    icon=None, splash=None, config_xml=None, index_html=None):
+    import pystache
+
     folder = os.path.join(directory, 'build')
     if os.path.exists(folder):
         shutil.rmtree(folder)
@@ -198,6 +209,8 @@ def create_zipfile(directory, source, version, context,
 
 
 def upload_zipfile(directory, filename, token, pgb_api):
+    import requests
+
     pgb_url = pgb_api + "{path}?auth_token={token}"
     app_id = get_pgb_config(directory, 'app_id')
     if app_id:
@@ -268,6 +281,8 @@ def check_error(response):
 
 
 def get_token(directory, token_url):
+    import requests
+
     token = get_pgb_config(directory, 'token')
     if token:
         return token

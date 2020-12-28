@@ -3,14 +3,8 @@ import click
 
 import os
 import json
-
-import scss as pyScss
 import logging
-import pystache
-
 from .collect import readfiles
-import requirejs
-from babeljs import transformer as babeljs
 
 
 @wq.command()
@@ -26,6 +20,11 @@ def optimize(config):
     wq.app 2.0. For full control over the compilation process, use
     `wq start --with-npm` instead.
     """
+    try:
+        import requirejs
+    except ImportError:
+        raise NotInstalled('requirejs')
+
     conf = config.get('optimize', None)
     if not conf:
         raise click.UsageError(
@@ -55,6 +54,11 @@ def babel(config):
     Note that this command will be removed in wq.app 2.0 in favor of
     `wq start --with-npm`.
     """
+    try:
+        from babeljs import transformer as babeljs
+    except ImportError:
+        raise NotInstalled('PyBabeljs')
+
     rconf = config.get('optimize', None)
     if not rconf:
         raise click.UsageError(
@@ -108,6 +112,11 @@ def scss(**conf):
     Note: This command will be removed in wq.app 2.0 in favor of
     Material UI themes.
     """
+    try:
+        import scss as pyScss
+    except ImportError:
+        raise NotInstalled("pyScss")
+
     compiler = pyScss.Scss(scss_opts={'compress': 0})
     logging.getLogger("scss").addHandler(logging.StreamHandler())
 
@@ -168,6 +177,11 @@ def mustache(**conf):
 
     Note: This command will be removed in wq.app 2.0 in favor of JSX.
     """
+    try:
+        import pystache
+    except ImportError:
+        raise NotInstalled('pystache')
+
     template = conf['template']
     if template is None:
         return
@@ -196,3 +210,11 @@ def mustache(**conf):
     f = open(conf['output'], 'w')
     f.write(html)
     f.close()
+
+
+class NotInstalled(click.ClickException):
+    def __init__(self, dep):
+        super().__init__(
+            "Could not find {}. Install compat dependencies via:"
+            "\n    pip install wq.app[compat]".format(dep)
+        )

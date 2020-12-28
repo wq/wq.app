@@ -77,15 +77,19 @@ setup(
     include_package_data=True,
     install_requires=[
         'wq.core',
-        'pyScss>=1.3',
-        'compass-stylesheets==0.12.6',
         'PyYAML',
-        'requests',
-        'pystache',
         'Pillow',
-        'requirejs>=0.2.0',
-        'PyBabeljs',
     ],
+    extras_require={
+        'compat': [
+            'pyScss>=1.3',
+            'compass-stylesheets==0.12.6',
+            'requests',
+            'pystache',
+            'requirejs>=0.2.0',
+            'PyBabeljs',
+        ]
+    },
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=readme(),

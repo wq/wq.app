@@ -59,7 +59,7 @@ matrix:
         - nvm install 14
         - pip install --upgrade pip
         - python setup.py bdist_wheel
-        - pip install dist/*.whl
+        - pip install `ls dist/*.whl`[compat]
       script:
         - cd tests
         - mkdir css && wq init && wq scss --indir scss --outdir css

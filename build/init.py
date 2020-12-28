@@ -2,6 +2,7 @@ import click
 from wq.core import wq
 from os.path import exists, join, dirname
 from os import symlink, mkdir
+from .compilers import NotInstalled
 
 
 @wq.command()
@@ -66,6 +67,10 @@ def init(**conf):
             maybe_symlink(join(wqpath, 'wq'), join(projpath, 'wq'))
         if name == "scss" and not exists(join(projpath, 'compass')):
             # myapp/scss/lib/compass -> compass_stylesheets/stylesheets/compass
+            try:
+                import compass_stylesheets  # noqa
+            except ImportError:
+                raise NotInstalled("compass_stylesheets")
             import pkg_resources
             compass = pkg_resources.resource_filename(
                 'compass_stylesheets',
