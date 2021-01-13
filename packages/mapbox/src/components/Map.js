@@ -8,7 +8,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     const { ready } = usePlugin('map'),
         Root = useMemo(() => ReactMapboxGl(mapProps || {}), [mapProps]),
         fitBounds = useMemo(() => {
-            const [[ymin, xmin], [ymax, xmax]] = bounds;
+            const [[xmin, ymin], [xmax, ymax]] = bounds;
             return [
                 [xmin, ymin],
                 [xmax, ymax]

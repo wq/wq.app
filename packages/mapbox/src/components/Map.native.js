@@ -16,7 +16,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
 
     const { ready } = usePlugin('map'),
         fitBounds = useMemo(() => {
-            const [[ymin, xmin], [ymax, xmax]] = bounds;
+            const [[xmin, ymin], [xmax, ymax]] = bounds;
             return { sw: [xmin, ymin], ne: [xmax, ymax] };
         }, [bounds]),
         style = findBasemapStyle(children);

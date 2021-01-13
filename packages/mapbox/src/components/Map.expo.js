@@ -8,7 +8,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     const { ready } = usePlugin('map'),
         window = useWindowDimensions(),
         region = useMemo(() => {
-            const [[ymin, xmin], [ymax, xmax]] = bounds,
+            const [[xmin, ymin], [xmax, ymax]] = bounds,
                 x = (xmax + xmin) / 2,
                 y = (ymax + ymin) / 2,
                 xdelta = Math.abs(xmax - xmin),
