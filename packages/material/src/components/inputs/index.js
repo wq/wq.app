@@ -7,6 +7,7 @@ import Select from './Select';
 import Radio from './Radio';
 import Toggle from './Toggle';
 import Hidden from './Hidden';
+import HelperText from './HelperText';
 
 const Date = DateTime;
 const Time = DateTime;
@@ -24,5 +25,6 @@ export {
     Select,
     Radio,
     Toggle,
-    Hidden
+    Hidden,
+    HelperText
 };

@@ -8,6 +8,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import PropTypes from 'prop-types';
 import { useFormikContext } from 'formik';
+import HelperText from './HelperText';
 
 function ContextCheckbox({ value, field }) {
     const { values } = useFormikContext();
@@ -43,7 +44,6 @@ export default function Select({ choices, label, renderValue, ...rest }) {
                 component={FMuiSelect}
                 multiple={multiple}
                 renderValue={renderValue}
-                helperText={hint}
                 {...rest}
             >
                 {!multiple && (
@@ -60,6 +60,7 @@ export default function Select({ choices, label, renderValue, ...rest }) {
                     </MenuItem>
                 ))}
             </Field>
+            <HelperText name={fieldName} hint={hint} />
         </FormControl>
     );
 }

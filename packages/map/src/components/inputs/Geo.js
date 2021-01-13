@@ -16,7 +16,7 @@ const LOOKUP_METHODS = [
     { name: 'manual', label: 'Lat/Lng' }
 ];
 
-export default function Geo({ name, type, label }) {
+export default function Geo({ name, type, label, hint }) {
     const {
             Fieldset,
             AutoMap,
@@ -25,7 +25,7 @@ export default function Geo({ name, type, label }) {
             IconButton,
             Typography
         } = useComponents(),
-        { Input, Toggle } = useInputComponents(),
+        { Input, Toggle, HelperText } = useInputComponents(),
         { Draw } = useOverlayComponents(),
         [, { value }, { setValue }] = useField(name),
         [, { value: method }] = useField(name + '_method'),
@@ -61,7 +61,9 @@ export default function Geo({ name, type, label }) {
             if (type === 'geopoint') {
                 setValue(geometry);
             }
-            recenterMap(geometry.coordinates[1], geometry.coordinates[0]);
+            if (geometry) {
+                recenterMap(geometry.coordinates[1], geometry.coordinates[0]);
+            }
             setGeocodeStatus(result.label || 'Location found!');
         } catch (e) {
             setAddressError(e.message || '' + e);
@@ -72,6 +74,7 @@ export default function Geo({ name, type, label }) {
     function handleChange(geojson) {
         geojson = flatten(geojson);
         if (
+            geojson &&
             geojson.type === 'GeometryCollection' &&
             geojson.geometries.length > maxGeometries
         ) {
@@ -80,6 +83,7 @@ export default function Geo({ name, type, label }) {
         if (
             method === 'manual' &&
             type === 'geopoint' &&
+            geojson &&
             geojson.type === 'Point'
         ) {
             setLongitude(+geojson.coordinates[0].toFixed(6));
@@ -287,6 +291,7 @@ export default function Geo({ name, type, label }) {
             <AutoMap containerStyle={{ minHeight: 400 }}>
                 <Draw type={drawType} data={geojson} setData={handleChange} />
             </AutoMap>
+            <HelperText name={name} hint={hint} />
         </Fieldset>
     );
 }
@@ -294,7 +299,8 @@ export default function Geo({ name, type, label }) {
 Geo.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
-    label: PropTypes.string
+    label: PropTypes.string,
+    hint: PropTypes.string
 };
 
 export function flatten(geojson) {
@@ -309,7 +315,9 @@ export function flatten(geojson) {
         addGeometry(geojson);
     }
 
-    if (geoms.length == 1) {
+    if (geoms.length == 0) {
+        return null;
+    } else if (geoms.length == 1) {
         return geoms[0];
     } else {
         return {
@@ -344,6 +352,10 @@ function asFeatureCollection(geojson) {
         return geojson;
     }
     const geometry = flatten(geojson);
+
+    if (!geometry) {
+        return null;
+    }
 
     let features;
     if (geometry.type === 'GeometryCollection') {
