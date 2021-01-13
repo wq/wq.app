@@ -2,10 +2,11 @@ import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { useContextTitle, useComponents } from '@wq/react';
+import { useContextTitle, useBreadcrumbs, useComponents } from '@wq/react';
 
 export default function Header() {
     const title = useContextTitle(),
+        links = useBreadcrumbs(),
         { Breadcrumbs } = useComponents();
     return (
         <>
@@ -14,7 +15,7 @@ export default function Header() {
                     <Typography variant="h6">{title}</Typography>
                 </Toolbar>
             </AppBar>
-            <Breadcrumbs />
+            <Breadcrumbs links={links} />
         </>
     );
 }

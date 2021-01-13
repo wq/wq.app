@@ -5,7 +5,9 @@ import MuiBreadcrumbs from '@material-ui/core/Breadcrumbs';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { useBreadcrumbs, useReverse, useComponents } from '@wq/react';
+import { useReverse, useComponents } from '@wq/react';
+
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
     breadcrumbs: {
@@ -14,9 +16,8 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function Breadcrumbs() {
-    var links = useBreadcrumbs(),
-        reverse = useReverse(),
+export default function Breadcrumbs({ links }) {
+    const reverse = useReverse(),
         classes = useStyles(),
         { ButtonLink, HomeLink } = useComponents();
 
@@ -48,3 +49,7 @@ export default function Breadcrumbs() {
         </Paper>
     );
 }
+
+Breadcrumbs.propTypes = {
+    links: PropTypes.arrayOf(PropTypes.object)
+};

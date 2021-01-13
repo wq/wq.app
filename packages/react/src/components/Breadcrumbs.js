@@ -1,9 +1,9 @@
 import React from 'react';
-import { useBreadcrumbs, useComponents } from '../hooks';
+import { useComponents } from '../hooks';
+import PropTypes from 'prop-types';
 
-export default function Breadcrumbs() {
-    const links = useBreadcrumbs(),
-        { Link } = useComponents();
+export default function Breadcrumbs({ links }) {
+    const { Link } = useComponents();
 
     if (!links) {
         return null;
@@ -24,3 +24,7 @@ export default function Breadcrumbs() {
         </div>
     );
 }
+
+Breadcrumbs.propTypes = {
+    links: PropTypes.arrayOf(PropTypes.object)
+};
