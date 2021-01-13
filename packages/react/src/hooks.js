@@ -52,17 +52,17 @@ function useCurrentRoute() {
     return useContext(RouteContext).name;
 }
 
-export function useRenderContext() {
+export function useRenderContext(routeName) {
     const context = useSelector(state => state.context),
         currentRoute = useCurrentRoute();
-    return (context && context[currentRoute]) || {};
+    return (context && context[routeName || currentRoute]) || {};
 }
 
-export function useRouteInfo() {
+export function useRouteInfo(routeName) {
     const currentRoute = useCurrentRoute(),
         routeInfos = useSelector(state => state.routeInfo),
-        routeInfo = routeInfos && routeInfos[currentRoute],
-        context = useRenderContext(),
+        routeInfo = routeInfos && routeInfos[routeName || currentRoute],
+        context = useRenderContext(routeName),
         { router_info: ctxRouteInfo } = context;
     if (routeInfo) {
         if (
