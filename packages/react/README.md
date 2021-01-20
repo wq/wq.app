@@ -223,6 +223,7 @@ useRenderContext() | Rendered context for the current route | `const { list } = 
 useReverse() | Function to generate the [redux action][Redux First Router] for any route | `reverse('observation_list') === {"type":"OBSERVATION_LIST"}`
 useRouteInfo() | Current route info | `const { name, mode, item_id } = routeInfo`
 useRouteTitle(routeName) | Generic title for the specified route |
+useSiteTitle() | Site title for header (defaults to route title unless `config.site_title` is set) |
 
 ## @wq/app plugin integration
 
@@ -231,6 +232,7 @@ These hooks provide access to registered [@wq/app plugins][@wq/app].
 hook | description | example
 --|--|--
 useApp() | Return the main [@wq/app] instance | `app.retryAll()`
+useConfig() | Return the config object registered via `app.init()` | `config.store.service`
 usePlugin(pluginName) | Return the specified plugin | `plugin.triggerAction()`
 usePluginState(pluginName) | Return the [@wq/store state][@wq/store] for the specified plugin. | `const { status } = pluginState;`
 usePluginReducer(pluginName) | Returns the two element array `[usePluginState(), usePlugin()]`. | `[{ status }, { triggerAction }]`

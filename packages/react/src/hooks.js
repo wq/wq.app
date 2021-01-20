@@ -83,6 +83,12 @@ export function useRouteInfo(routeName) {
     }
 }
 
+export function useSiteTitle() {
+    const siteTitle = useConfig().site_title,
+        contextTitle = useContextTitle();
+    return siteTitle || contextTitle;
+}
+
 export function useContextTitle() {
     const context = useRenderContext(),
         routeInfo = useRouteInfo();
@@ -104,11 +110,12 @@ export function useContextTitle() {
 }
 
 export function useRouteTitle(routeName) {
-    const app = useApp();
+    const app = useApp(),
+        config = useConfig();
 
     function routeTitle(routeName) {
         const [name, mode, variant] = app.splitRoute(routeName);
-        const page_config = app.config.pages[name] || {
+        const page_config = config.pages[name] || {
             name
         };
         return getRouteTitle({
@@ -248,8 +255,10 @@ export function useBreadcrumbs() {
 }
 
 export function useSitemap() {
-    const app = useApp(),
-        pages = Object.values(app.config.pages),
+    const config = useConfig(),
+        pages = Object.values(config.pages).filter(
+            page => page.show_in_index !== false
+        ),
         options = pages.filter(page => !page.list),
         models = pages.filter(page => page.list);
 
@@ -303,6 +312,11 @@ export function useViewComponents() {
 
 export function useApp() {
     return useContext(AppContext).app;
+}
+
+export function useConfig() {
+    const app = useApp();
+    return app.config;
 }
 
 export function useModel(name, filter) {
