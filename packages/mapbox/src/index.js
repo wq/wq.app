@@ -8,7 +8,7 @@ import {
     OverlayToggle
 } from './components/index';
 
-import { VectorTile, Tile } from './components/basemaps/index';
+import { VectorTile, Tile } from './basemaps/index';
 
 import {
     Geojson,
@@ -16,7 +16,7 @@ import {
     Draw,
     VectorTile as VectorTileOverlay,
     Tile as TileOverlay
-} from './components/overlays/index';
+} from './overlays/index';
 
 export default {
     name: 'mapbox',

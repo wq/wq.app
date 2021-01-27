@@ -1,8 +1,8 @@
 import react from '@wq/react';
 import App from './App';
 import * as components from './components/index';
-import * as inputs from './components/inputs/index';
-import * as icons from './components/icons/index';
+import * as inputs from './inputs/index';
+import * as icons from './icons';
 
 export default {
     name: 'material',
@@ -28,4 +28,4 @@ export default {
 
 export { App };
 export * from './components/index';
-export * from './components/inputs/index';
+export * from './inputs/index';

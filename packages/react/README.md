@@ -184,11 +184,12 @@ name | description
 
 To override a view for a specific route, register a corresponding component with the name converted to PascalCase.  E.g. "about" -> "About" or "observation_edit" -> "ObservationEdit".
 
-Note that the default view components are not directly exported by the @wq/react index package, and are generally not meant to be extended or overridden directly.  It should be possible to accomplish most default view customizations by:
+The default view components are exported by @wq/react, but are generally not meant to be extended or overridden directly.  It should be possible to accomplish most default view customizations by:
 
  * Customising the [@wq/material] theme
  * Overriding one or more configured [messages](#general-components)
  * Overriding the relevant [child components](#components) (all views call [`useComponents()`](#wqreact-integration) to determine their children)
+ * Creating a wrapper component that renders the corresponding default view as well as additional children.
 
 If none of the above are sufficient to customize a default view, you can always copy the entire source from the corresponding link in the above table.  (Be sure to replace references to '../../hooks' with '@wq/react')
 
@@ -302,32 +303,32 @@ useViewComponents() | Mapping of [view components](#view-components) in both Pas
 [Message]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/Message.js
 [messages]: https://github.com/wq/wq.app/blob/master/packages/react/src/messages.js
 
-[Add]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Add.js
-[Edit]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Edit.js
-[Delete]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Delete.js
-[Success]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Success.js
-[Error]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Error.js
-[Pending]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Pending.js
-[GpsStart]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/GpsStart.js
-[GpsStop]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/GpsStop.js
-[Search]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/icons/Search.js
+[Add]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[Edit]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[Delete]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[Success]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[Error]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[Pending]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[GpsStart]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[GpsStop]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
+[Search]: https://github.com/wq/wq.app/blob/master/packages/react/src/icons.js
 
-[Checkbox]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Checkbox.js
-[DateTime]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/DateTime.js
-[Hidden]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Hidden.js
-[Input]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Input.js
-[Radio]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Radio.js
-[Select]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Select.js
-[Toggle]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/inputs/Toggle.js
+[Checkbox]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/Checkbox.js
+[DateTime]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/DateTime.js
+[Hidden]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/Hidden.js
+[Input]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/Input.js
+[Radio]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/Radio.js
+[Select]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/Select.js
+[Toggle]: https://github.com/wq/wq.app/blob/master/packages/react/src/inputs/Toggle.js
 
-[Default]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/Default.js
-[DefaultDetail]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/DefaultDetail.js
-[DefaultEdit]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/DefaultEdit.js
-[DefaultList]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/DefaultList.js
-[Index]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/Index.js
-[Loading]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/Loading.js
-[Login]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/Login.js
-[Logout]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/Logout.js
-[NotFound]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/NotFound.js
-[OutboxList]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/OutboxList.js
-[Server]: https://github.com/wq/wq.app/blob/master/packages/react/src/components/views/Server.js
+[Default]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/Default.js
+[DefaultDetail]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/DefaultDetail.js
+[DefaultEdit]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/DefaultEdit.js
+[DefaultList]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/DefaultList.js
+[Index]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/Index.js
+[Loading]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/Loading.js
+[Login]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/Login.js
+[Logout]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/Logout.js
+[NotFound]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/NotFound.js
+[OutboxList]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/OutboxList.js
+[Server]: https://github.com/wq/wq.app/blob/master/packages/react/src/views/Server.js

@@ -8,7 +8,7 @@ import {
     BasemapToggle,
     OverlayToggle
 } from './components/index';
-import { Geo, EmbeddedGeo } from './components/inputs/index';
+import { Geo, EmbeddedGeo } from './inputs/index';
 import reducer, {
     MAP_READY,
     MAP_SHOW_OVERLAY,

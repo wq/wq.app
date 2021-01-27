@@ -1,7 +1,7 @@
 import map from '@wq/map';
 import { Map, Legend, BasemapToggle, OverlayToggle } from './components/index';
-import { Tile } from './components/basemaps/index';
-import { Geojson, Highlight, Draw } from './components/overlays/index';
+import { Tile } from './basemaps/index';
+import { Geojson, Highlight, Draw } from './overlays/index';
 import { LayerGroup as Group } from 'react-leaflet';
 import L from 'leaflet';
 

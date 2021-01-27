@@ -6,9 +6,9 @@ import App from './App';
 
 import messages from './messages';
 import * as components from './components/index';
-import * as inputs from './components/inputs/index';
-import * as icons from './components/icons/index';
-import * as views from './components/views/index';
+import * as inputs from './inputs/index';
+import * as icons from './icons';
+import * as views from './views/index';
 import { init, start, unmount } from './init';
 
 export default {
@@ -112,6 +112,7 @@ export default {
 };
 
 export * from './hooks';
+export * from './views/index';
 
 const {
     Link,

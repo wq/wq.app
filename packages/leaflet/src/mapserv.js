@@ -1,6 +1,6 @@
-import { EsriBasemap, EsriTiled, WmsTiled } from './components/basemaps/index';
+import { EsriBasemap, EsriTiled, WmsTiled } from './basemaps/index';
 
-import { EsriDynamic, EsriFeature, Wms } from './components/overlays/index';
+import { EsriDynamic, EsriFeature, Wms } from './overlays/index';
 
 import leaflet from './index';
 

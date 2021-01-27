@@ -8,7 +8,7 @@ import {
 } from 'redux-first-router';
 import { paramCase } from 'param-case';
 import { capitalCase } from 'capital-case';
-import { useHtmlInput } from './components/inputs/Input';
+import { useHtmlInput } from './inputs/Input';
 
 const isAction = path => path && path.type;
 

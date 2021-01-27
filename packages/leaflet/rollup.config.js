@@ -85,12 +85,12 @@ export default [
             replace({
                 ...replaceConf,
                 // Avoid loading esri-leaflet
-                "import { Tile } from './components/basemaps/index'":
-                    "import Tile from './components/basemaps/Tile'",
-                "import { Geojson, Highlight, Draw } from './components/overlays/index'":
-                    "import Geojson from './components/overlays/Geojson'\n" +
-                    "import Highlight from './components/overlays/Highlight'\n" +
-                    "import Draw from './components/overlays/Draw'\n"
+                "import { Tile } from './basemaps/index'":
+                    "import Tile from './basemaps/Tile'",
+                "import { Geojson, Highlight, Draw } from './overlays/index'":
+                    "import Geojson from './overlays/Geojson'\n" +
+                    "import Highlight from './overlays/Highlight'\n" +
+                    "import Draw from './overlays/Draw'\n"
             }),
             { resolveId },
             wqDeps('.'),

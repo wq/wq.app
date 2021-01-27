@@ -205,14 +205,14 @@ Options marked with * are only available by importing `@wq/leaflet/mapserv` inst
 [Map]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/Map.js
 [Legend]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/Legend.js
 
-[Tile]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/basemaps/Tile.js
-[EsriBasemap]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/basemaps/EsriBasemap.js
-[EsriTiled]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/basemaps/EsriTiled.js
-[WmsTiled]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/basemaps/WmsTiled.js
+[Tile]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/Tile.js
+[EsriBasemap]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/EsriBasemap.js
+[EsriTiled]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/EsriTiled.js
+[WmsTiled]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/WmsTiled.js
 
-[Geojson]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/overlays/Geojson.js
-[EsriDynamic]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/overlays/EsriDynamic.js
-[EsriFeature]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/overlays/EsriFeature.js
-[Wms]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/overlays/Wms.js
-[Highlight]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/overlays/Highlight.js
-[Draw]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/overlays/Draw.js
+[Geojson]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Geojson.js
+[EsriDynamic]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/EsriDynamic.js
+[EsriFeature]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/EsriFeature.js
+[Wms]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Wms.js
+[Highlight]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Highlight.js
+[Draw]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Draw.js

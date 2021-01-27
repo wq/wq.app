@@ -7,7 +7,7 @@ import {
     useGeoJSON
 } from './hooks';
 import { StickyMap } from './components/index';
-import { EmbeddedGeo } from './components/inputs/index';
+import { EmbeddedGeo } from './inputs/index';
 
 export default map;
 
