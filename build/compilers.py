@@ -1,10 +1,10 @@
-from wq.core import wq
+from wq.build import wq
 import click
 
 import os
 import json
 import logging
-from .collect import readfiles
+from wq.build.collect import readfiles
 
 
 @wq.command()

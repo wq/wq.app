@@ -1,10 +1,10 @@
-from wq.core import wq
+from wq.build import wq
 import click
 import subprocess
 import os
 
-from .collect import collectjson
-from .setversion import setversion
+from wq.build.collect import collectjson
+from wq.build.setversion import setversion
 from .appcache import appcache
 from .compilers import optimize, babel, scss, mustache
 from .init import init
@@ -16,7 +16,7 @@ from .init import init
 @click.argument('version')
 def build(ctx, config, version):
     """
-    Compile and optimize an application.
+    (DEPRECATED) Compile and optimize an application.
 
     \b
     Runs the following in order:

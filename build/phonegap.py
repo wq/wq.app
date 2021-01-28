@@ -1,10 +1,10 @@
-from wq.core import wq
+from wq.build import wq
 import click
 import os
 import yaml
 import json
 import shutil
-from .icons import icons, SIZES
+from wq.build.icons import icons, SIZES
 import time
 from .compilers import NotInstalled
 

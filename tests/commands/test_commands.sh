@@ -23,7 +23,6 @@ function test_command {
     cd ..;
 }
 
-test_command collectjson;
 test_command mustache;
 test_command scss;
 

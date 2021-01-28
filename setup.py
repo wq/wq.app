@@ -76,9 +76,7 @@ setup(
     },
     include_package_data=True,
     install_requires=[
-        'wq.core',
-        'PyYAML',
-        'Pillow',
+        'wq.build',
     ],
     extras_require={
         'compat': [

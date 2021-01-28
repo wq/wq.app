@@ -1,12 +1,12 @@
 from .appcache import appcache
 from .builder import build
-from .collect import collectjson
+from wq.build.collect import collectjson
 from .compilers import optimize, scss, mustache
 from .init import init
-from .setversion import setversion
-from .icons import icons
+from wq.build.setversion import setversion
+from wq.build.icons import icons
 from .phonegap import phonegap
-from .serviceworker import serviceworker
+from wq.build.serviceworker import serviceworker
 
 __all__ = (
     "appcache",

@@ -1,6 +1,0 @@
-collectjson:
-    paths:
-     - input
-    type: yaml
-    extension: yml
-    output: output/output.json

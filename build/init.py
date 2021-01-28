@@ -1,5 +1,5 @@
 import click
-from wq.core import wq
+from wq.build import wq
 from os.path import exists, join, dirname
 from os import symlink, mkdir
 from .compilers import NotInstalled

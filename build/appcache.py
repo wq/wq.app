@@ -1,4 +1,4 @@
-from wq.core import wq
+from wq.build import wq
 import click
 import os
 import re
