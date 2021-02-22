@@ -12,8 +12,7 @@
 
 #### Latest Build
 
-[![Travis Build Status](https://img.shields.io/travis/wq/wq.app/master.svg)](https://travis-ci.org/wq/wq.app)
-[![Python Wheel](https://img.shields.io/bintray/v/wq/wq.app/wq.app.svg)](https://bintray.com/wq/wq.app/wq.app/_latestVersion)
+[![Package Tests](https://github.com/wq/wq.app/actions/workflows/test.yml/badge.svg)](https://github.com/wq/wq.app/actions/workflows/test.yml)
 
 # Getting Started
 
