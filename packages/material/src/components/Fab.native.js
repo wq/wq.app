@@ -3,7 +3,7 @@ import { FAB } from 'react-native-paper';
 import { useNav, useIcon } from '@wq/react';
 import PropTypes from 'prop-types';
 
-export default function Fab({ icon, to }) {
+export default function Fab({ icon, to, ...rest }) {
     const onPress = useNav(to),
         Icon = useIcon(icon);
 
@@ -18,6 +18,7 @@ export default function Fab({ icon, to }) {
                 right: 0,
                 bottom: 0
             }}
+            {...rest}
         />
     );
 }

@@ -4,7 +4,7 @@ import { Link } from '@wq/react';
 import PropTypes from 'prop-types';
 import { useIcon } from '@wq/react';
 
-export default function Fab({ icon, to }) {
+export default function Fab({ icon, to, ...rest }) {
     const Icon = useIcon(icon);
     return (
         <MuiFab
@@ -17,6 +17,7 @@ export default function Fab({ icon, to }) {
                 bottom: 16,
                 zIndex: 1
             }}
+            {...rest}
         >
             <Icon />
         </MuiFab>
