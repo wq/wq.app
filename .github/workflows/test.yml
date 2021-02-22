@@ -1,0 +1,82 @@
+name: Package Tests
+
+on: [push, pull_request]
+
+jobs:
+  npm:
+    name: "@wq/${{ matrix.package }}"
+    runs-on: ubuntu-20.04
+    env:
+      PACKAGE: ${{ matrix.package }}
+    strategy:
+      matrix:
+        python-version: [3.9]
+        node-version: [14]
+        package:
+          - app
+          - model
+          - outbox
+          - router
+          - store
+          - react
+          - material
+          - map
+          - mapbox
+          - leaflet
+          - jquery-mobile
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm run lerna exec npm ci
+        npm run bootstrap
+        npm run build
+    - name: Lint with ESLint
+      run: npm run lint
+    - name: Start test server
+      run: python -m tests.server &
+    - name: Test with Jest
+      run: |
+         cd packages/$PACKAGE
+         npm run test
+  pip:
+    name: Python Package
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.9]
+        node-version: [14]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Set up Node ${{ matrix.python-node }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install wheel
+        python -m pip install git+https://github.com/wq/wq.build.git
+    - name: Build Python Wheel
+      run: |
+        python setup.py bdist_wheel
+        python -m pip install `ls dist/*.whl`[compat]
+    - name: Test (deprecated) CLI Commands
+      run: |
+        cd tests
+        mkdir css && wq init && wq scss --indir scss --outdir css
+        cd commands
+        ./test_commands.sh

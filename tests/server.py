@@ -21,7 +21,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         pdict = {key: val.encode('utf-8') for key, val in pdict.items()}
         form = cgi.parse_multipart(self.rfile, pdict)
         data = parse_json_form({
-            key: val[0].decode('utf-8')
+            key: val[0]
             for key, val in form.items()
         })
         for value in data.values():
