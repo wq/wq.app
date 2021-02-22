@@ -4,7 +4,7 @@ import click
 import os
 import json
 import logging
-from wq.build.collect import readfiles
+from wq.build.commands.collect import readfiles
 
 
 @wq.command()

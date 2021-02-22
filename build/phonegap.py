@@ -4,7 +4,7 @@ import os
 import yaml
 import json
 import shutil
-from wq.build.icons import icons, SIZES
+from wq.build.commands.icons import icons, SIZES
 import time
 from .compilers import NotInstalled
 

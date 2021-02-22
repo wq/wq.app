@@ -1,6 +1,6 @@
 import map from '../map';
 import { routeMapConf } from '../hooks';
-import { EmbeddedGeo } from '../components/inputs';
+import { EmbeddedGeo } from '../inputs';
 import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';

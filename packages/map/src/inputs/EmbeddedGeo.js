@@ -1,6 +1,6 @@
 import React from 'react';
 import { useComponents } from '@wq/react';
-import { useOverlayComponents } from '../../hooks';
+import { useOverlayComponents } from '../hooks';
 import { TYPE_MAP, flatten, useFeatureCollection } from './Geo';
 import PropTypes from 'prop-types';
 

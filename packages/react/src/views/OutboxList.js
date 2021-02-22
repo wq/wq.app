@@ -5,7 +5,7 @@ import {
     useRouteTitle,
     useComponents,
     useUnsynced
-} from '../../hooks';
+} from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function OutboxList({ modelConf }) {

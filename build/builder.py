@@ -3,8 +3,8 @@ import click
 import subprocess
 import os
 
-from wq.build.collect import collectjson
-from wq.build.setversion import setversion
+from wq.build.commands.collect import collectjson
+from wq.build.commands.setversion import setversion
 from .appcache import appcache
 from .compilers import optimize, babel, scss, mustache
 from .init import init

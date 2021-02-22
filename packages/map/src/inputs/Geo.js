@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useComponents, useInputComponents, usePlugin } from '@wq/react';
-import { useOverlayComponents } from '../../hooks';
+import { useOverlayComponents } from '../hooks';
 import { useField, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 
