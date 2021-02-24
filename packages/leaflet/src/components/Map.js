@@ -14,6 +14,9 @@ function Ready() {
 
 export default function Map({ bounds, children, mapProps, containerStyle }) {
     const fitBounds = useMemo(() => {
+        if (!bounds) {
+            return bounds;
+        }
         const [[xmin, ymin], [xmax, ymax]] = bounds;
         return [
             [ymin, xmin],
