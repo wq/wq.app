@@ -11,6 +11,8 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import * as colorManipulator from '@material-ui/core/styles/colorManipulator';
 import mapboxgl from 'mapbox-gl';
 import ReactMapboxGl, * as reactMapboxGlExports from 'react-mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import DrawControl from 'react-mapbox-gl-draw';
 
 import app from '@wq/app';
 import material, * as materialExports from '@wq/material';
@@ -36,6 +38,8 @@ export default {
         default: ReactMapboxGl,
         ...reactMapboxGlExports
     },
+    '@mapbox/mapbox-gl-draw': MapboxDraw,
+    'react-mapbox-gl-draw': DrawControl,
     '@wq/app': app,
     '@wq/react': {
         default: react,
