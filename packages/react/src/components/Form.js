@@ -98,7 +98,12 @@ function parseApiError(error, values) {
             if (!(key in values)) {
                 key = '__other__';
             }
-            if (!Array.isArray(error)) {
+            if (Array.isArray(error)) {
+                // pass
+            } else if (typeof error === 'object') {
+                errors[key] = parseApiError(error, values[key] || {});
+                return;
+            } else {
                 error = [error];
             }
             if (errors[key]) {

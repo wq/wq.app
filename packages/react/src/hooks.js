@@ -349,13 +349,20 @@ export function useModel(name, filter) {
     return useSelector(selector);
 }
 
-export function useUnsynced(modelConf) {
+export function useOutbox() {
     const outbox = useSelector(state => state.offline.outbox) || [],
         {
-            outbox: { filterUnsynced, parseOutbox }
+            outbox: { parseOutbox }
         } = useApp();
+    return parseOutbox(outbox);
+}
 
-    return filterUnsynced(parseOutbox(outbox), modelConf);
+export function useUnsynced(modelConf) {
+    const outbox = useOutbox(),
+        {
+            outbox: { filterUnsynced }
+        } = useApp();
+    return filterUnsynced(outbox, modelConf);
 }
 
 export function useList() {

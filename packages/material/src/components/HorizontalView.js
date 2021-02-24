@@ -11,9 +11,13 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function HorizontalView({ children }) {
+export default function HorizontalView({ children, ...rest }) {
     const classes = useStyles();
-    return <div className={classes.root}>{children}</div>;
+    return (
+        <div className={classes.root} {...rest}>
+            {children}
+        </div>
+    );
 }
 
 HorizontalView.propTypes = {
