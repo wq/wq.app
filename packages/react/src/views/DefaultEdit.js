@@ -42,6 +42,7 @@ export default function DefaultEdit() {
                 data={context}
                 error={outbox_id ? context.error : null}
                 form={form}
+                modelConf={page_config}
             />
         </ScrollView>
     );

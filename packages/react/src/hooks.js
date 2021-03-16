@@ -465,3 +465,11 @@ export function useMessages() {
     const { config } = usePlugin('react');
     return config.messages;
 }
+
+export function useValidate() {
+    const app = useApp();
+    return useCallback(
+        (values, modelConf) => app.outbox.validate(values, modelConf),
+        [app]
+    );
+}

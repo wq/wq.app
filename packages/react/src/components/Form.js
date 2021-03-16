@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp, useComponents } from '../hooks';
+import { useApp, useComponents, useValidate } from '../hooks';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 
@@ -11,11 +11,13 @@ export default function Form({
     backgroundSync,
     outboxId,
     preserve,
+    modelConf,
     data = {},
     error,
     children
 }) {
     const app = useApp(),
+        validate = useValidate(),
         { FormRoot } = useComponents();
 
     if (backgroundSync === undefined) {
@@ -65,6 +67,7 @@ export default function Form({
             initialValues={data}
             initialErrors={errors}
             initialTouched={errors}
+            validate={values => validate(values, modelConf)}
             onSubmit={handleSubmit}
             enableReinitialize={true}
         >
@@ -81,6 +84,7 @@ Form.propTypes = {
     backgroundSync: PropTypes.bool,
     outboxId: PropTypes.number,
     preserve: PropTypes.arrayOf(PropTypes.string),
+    modelConf: PropTypes.object,
     data: PropTypes.object,
     error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     children: PropTypes.node

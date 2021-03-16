@@ -10,6 +10,7 @@ export default function AutoForm({
     backgroundSync,
     outboxId,
     form = [],
+    modelConf,
     data,
     error,
     children
@@ -26,11 +27,16 @@ export default function AutoForm({
 
     const formData = initData(form, data);
 
+    if (!modelConf) {
+        modelConf = { form };
+    }
+
     return (
         <Form
             action={action}
             method={method}
             data={formData}
+            modelConf={modelConf}
             error={error}
             storage={storage}
             backgroundSync={backgroundSync}
@@ -63,6 +69,7 @@ AutoForm.propTypes = {
     backgroundSync: PropTypes.bool,
     outboxId: PropTypes.number,
     form: PropTypes.arrayOf(PropTypes.object),
+    modelConf: PropTypes.object,
     data: PropTypes.object,
     error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     children: PropTypes.node

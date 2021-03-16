@@ -89,7 +89,6 @@ class Outbox {
             'csrftokenField',
 
             // Outbox functions
-            'validate',
             'applyResult',
             'updateModels'
         ];
@@ -103,9 +102,15 @@ class Outbox {
             }
         });
 
-        if (opts.parseBatchResult) {
+        if (opts && opts.parseBatchResult) {
             throw new Error(
-                'parseBatchResult() no longer supported.  Use ajax() hook instead.'
+                'parseBatchResult() no longer supported.  Use an ajax() plugin instead.'
+            );
+        }
+
+        if (opts && opts.validate) {
+            throw new Error(
+                'config.outbox.validate() no longer supported.  Use a validate() plugin instead'
             );
         }
 
@@ -159,9 +164,6 @@ class Outbox {
         }
         if (options.storage === 'temporary') {
             options.once = true;
-        }
-        if (!this.validate(data, options)) {
-            return null;
         }
 
         // FIXME: What if next id changes during await?
@@ -264,7 +266,7 @@ class Outbox {
         }
     }
 
-    _enqueue(array, action, context) {
+    _enqueue(array, action) {
         const { offline } = action.meta,
             { data, options } = offline.effect;
         if (options.id) {
@@ -331,9 +333,14 @@ class Outbox {
     }
 
     // Validate a record before adding it to the outbox
-    validate(data, options) {
-        /* eslint no-unused-vars: off */
-        return true;
+    validate(data, modelConf) {
+        const errors = {};
+        this.app
+            .callPlugins('validate', [data, modelConf])
+            .forEach(pluginErrors => {
+                Object.assign(errors, pluginErrors);
+            });
+        return errors;
     }
 
     // Send a single item from the outbox to the server
@@ -342,7 +349,7 @@ class Outbox {
             'sendItem() no longer supported; use waitForItem() instead'
         );
     }
-    _peek(array, action, context) {
+    _peek(array) {
         const pending = array.filter(act => {
             if (act.meta.completed) {
                 return false;
@@ -698,7 +705,7 @@ class Outbox {
         );
     }
 
-    _dequeue(array, action, context) {
+    _dequeue(array, action) {
         if (action.type === REMOVE_ITEMS) {
             return array.filter(
                 item => action.payload.indexOf(item.meta.outboxId) === -1
@@ -720,7 +727,7 @@ class Outbox {
             });
         } else if (action.type == BATCH_SUCCESS || action.type == BATCH_ERROR) {
             this._processBatchResponse(action).forEach(nextAction => {
-                array = this._dequeue(array, nextAction, context);
+                array = this._dequeue(array, nextAction);
             });
             return array;
         } else if (action.meta.offlineAction) {
