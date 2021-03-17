@@ -103,7 +103,12 @@ function parseApiError(error, values) {
                 key = '__other__';
             }
             if (Array.isArray(error)) {
-                // pass
+                if (typeof error[0] === 'object') {
+                    errors[key] = error.map((err, i) =>
+                        parseApiError(err, (values[key] || [])[i] || {})
+                    );
+                    return;
+                }
             } else if (typeof error === 'object') {
                 errors[key] = parseApiError(error, values[key] || {});
                 return;
