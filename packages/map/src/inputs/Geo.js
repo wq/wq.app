@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useComponents, useInputComponents, usePlugin } from '@wq/react';
+import {
+    useComponents,
+    useInputComponents,
+    usePlugin,
+    useMessages
+} from '@wq/react';
 import { useOverlayComponents } from '../hooks';
 import { useField, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
@@ -16,9 +21,17 @@ const LOOKUP_METHODS = [
     { name: 'manual', label: 'Lat/Lng' }
 ];
 
-export default function Geo({ name, type, label, hint }) {
+export default function Geo({
+    name,
+    type,
+    required,
+    label,
+    hint,
+    inset = true
+}) {
     const {
-            Fieldset,
+            Fieldset: DefaultFieldset,
+            FlatFieldset,
             AutoMap,
             View,
             Button,
@@ -49,8 +62,33 @@ export default function Geo({ name, type, label, hint }) {
 
     const { values } = useFormikContext();
 
-    const drawType = TYPE_MAP[type] || 'all',
-        geojson = useFeatureCollection(value);
+    const geojson = useFeatureCollection(value),
+        drawType = TYPE_MAP[type] || 'all',
+        iconClass = `mapbox-gl-draw_${
+            drawType == 'line_string' ? 'line' : drawType
+        }`,
+        messageId = `GEO_${drawType.toUpperCase()}_${value ? 'EDIT' : 'NEW'}`,
+        { [messageId]: messageTemplate } = useMessages(),
+        message = [];
+
+    if (messageTemplate) {
+        messageTemplate.split('{TOOL_ICON}').forEach(part => {
+            if (message.length > 0) {
+                message.push(
+                    <span
+                        className={iconClass}
+                        style={{
+                            display: 'inline-block',
+                            width: 18,
+                            height: 18,
+                            verticalAlign: 'middle'
+                        }}
+                    />
+                );
+            }
+            message.push(part);
+        });
+    }
 
     async function geocode() {
         setAddressError(null);
@@ -131,8 +169,8 @@ export default function Geo({ name, type, label, hint }) {
 
     function recenterMap(lat, lng) {
         setBounds([
-            [lat - 0.0005, lng - 0.0005],
-            [lat + 0.0005, lng + 0.0005]
+            [lng - 0.0005, lat - 0.0005],
+            [lng + 0.0005, lat + 0.0005]
         ]);
     }
 
@@ -196,7 +234,8 @@ export default function Geo({ name, type, label, hint }) {
         setGpsWatch(null);
     }
 
-    const gpsActive = !!gpsWatch;
+    const gpsActive = !!gpsWatch,
+        Fieldset = inset ? DefaultFieldset : FlatFieldset;
 
     return (
         <Fieldset label={label}>
@@ -210,6 +249,14 @@ export default function Geo({ name, type, label, hint }) {
                 <View style={{ marginRight: 8 }}>
                     <Toggle name={name + '_method'} choices={methods} />
                 </View>
+                {!method && message.length > 0 && (
+                    <Typography
+                        color="textSecondary"
+                        style={{ flex: 1, textAlign: 'right' }}
+                    >
+                        {message}
+                    </Typography>
+                )}
                 {method === 'gps' && (
                     <>
                         <Typography
@@ -289,7 +336,12 @@ export default function Geo({ name, type, label, hint }) {
                 )}
             </View>
             <AutoMap containerStyle={{ minHeight: 400 }}>
-                <Draw type={drawType} data={geojson} setData={handleChange} />
+                <Draw
+                    type={drawType}
+                    required={required}
+                    data={geojson}
+                    setData={handleChange}
+                />
             </AutoMap>
             <HelperText name={name} hint={hint} />
         </Fieldset>
@@ -299,8 +351,10 @@ export default function Geo({ name, type, label, hint }) {
 Geo.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
+    required: PropTypes.boolean,
     label: PropTypes.string,
-    hint: PropTypes.string
+    hint: PropTypes.string,
+    inset: PropTypes.boolean
 };
 
 export function flatten(geojson) {

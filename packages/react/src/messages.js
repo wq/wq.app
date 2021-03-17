@@ -32,5 +32,15 @@ export default {
     LOGGING_OUT: 'Logging out...',
 
     // Loading
-    LOADING: 'Loading...'
+    LOADING: 'Loading...',
+
+    // Geo
+    GEO_POINT_NEW: 'Click the {TOOL_ICON} tool to draw a new point.',
+    GEO_POINT_EDIT:
+        'Select the existing point to move it, or click the {TOOL_ICON} tool to draw a new point.',
+    GEO_LINE_STRING_NEW: 'Click the {TOOL_ICON} tool to draw a new line.',
+    GEO_LINE_STRING_EDIT:
+        'Select the existing line to move it or its vertices.',
+    GEO_POLYGON_NEW: 'Click the {TOOL_ICON} tool to draw a new polygon.',
+    GEO_POLYGON_EDIT: 'Select the existing polygon to move it or its vertices.'
 };

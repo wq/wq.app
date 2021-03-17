@@ -3,7 +3,7 @@ import { useComponents, useInputComponents, useRenderContext } from '../hooks';
 import PropTypes from 'prop-types';
 import { pascalCase } from 'pascal-case';
 
-export default function AutoInput({ name, choices, type, ...rest }) {
+export default function AutoInput({ name, choices, type, bind = {}, ...rest }) {
     const inputs = useInputComponents(),
         { AutoSubform, AutoSubformArray, Text } = useComponents(),
         context = useRenderContext();
@@ -14,7 +14,8 @@ export default function AutoInput({ name, choices, type, ...rest }) {
         return <AutoSubformArray name={name} {...rest} />;
     }
 
-    let inputType;
+    let inputType,
+        required = bind.required;
     if (rest['wq:ForeignKey']) {
         let choicesFn = context[name.replace(/\[\d+\]/, '') + '_list'];
         choices = choicesFn ? choicesFn.call(context) : [];
@@ -66,12 +67,21 @@ export default function AutoInput({ name, choices, type, ...rest }) {
         );
     }
 
-    return <Input name={name} choices={choices} type={type} {...rest} />;
+    return (
+        <Input
+            name={name}
+            choices={choices}
+            type={type}
+            required={required}
+            {...rest}
+        />
+    );
 }
 
 AutoInput.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
+    bind: PropTypes.object,
     'wq:ForeignKey': PropTypes.string,
     choices: PropTypes.arrayOf(PropTypes.object)
 };

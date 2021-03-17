@@ -2,14 +2,16 @@ import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DrawControl from 'react-mapbox-gl-draw';
 
-export default function Draw({ type, data, setData }) {
+export default function Draw({ type, required, data, setData }) {
     const types = type === 'all' ? ['point', 'line_string', 'polygon'] : [type],
-        controls = {
-            trash: true
-        },
+        controls = {},
         ref = useRef();
 
     types.forEach(type => (controls[type] = true));
+
+    if (!required) {
+        controls.trash = true;
+    }
 
     useEffect(() => {
         if (data && ref.current) {
@@ -40,6 +42,7 @@ export default function Draw({ type, data, setData }) {
 
 Draw.propTypes = {
     type: PropTypes.string,
+    required: PropTypes.boolean,
     data: PropTypes.object,
     setData: PropTypes.func
 };
