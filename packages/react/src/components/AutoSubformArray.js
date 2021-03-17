@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useComponents } from '../hooks';
 import { FieldArray, getIn } from 'formik';
 import PropTypes from 'prop-types';
@@ -41,43 +41,43 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
         FieldsetArray = components.FieldsetArray;
     }
 
-    function SubformArray({ form: formikContext, push, pop }) {
-        const { values } = formikContext,
-            list = getIn(values, name) || [];
+    const SubformArray = useCallback(
+        ({ form: formikContext, push, pop }) => {
+            const { values } = formikContext,
+                list = getIn(values, name) || [];
 
-        function addRow(vals) {
-            const row = initData(subform, vals || {});
-            push(row);
-        }
+            function addRow(vals) {
+                const row = initData(subform, vals || {});
+                push(row);
+            }
 
-        const removeLastRow = pop;
+            const removeLastRow = pop;
 
-        return (
-            <FieldsetArray
-                name={name}
-                label={label}
-                subform={subform}
-                addRow={addRow}
-                removeLastRow={removeLastRow}
-                {...rest}
-            >
-                {list.map((row, i) => (
-                    <AutoSubform
-                        key={i}
-                        label={`${label} ${i + 1}`}
-                        name={`${name}[${i}]`}
-                        subform={subform}
-                        component={FieldsetArray.Fieldset}
-                    />
-                ))}
-            </FieldsetArray>
-        );
-    }
-    SubformArray.propTypes = {
-        form: PropTypes.object,
-        push: PropTypes.func,
-        pop: PropTypes.func
-    };
+            return (
+                <FieldsetArray
+                    name={name}
+                    label={label}
+                    subform={subform}
+                    addRow={addRow}
+                    removeLastRow={removeLastRow}
+                    {...rest}
+                >
+                    {list.map((row, i) => (
+                        <AutoSubform
+                            key={i}
+                            label={`${label} ${i + 1}`}
+                            name={`${name}[${i}]`}
+                            subform={subform}
+                            component={FieldsetArray.Fieldset}
+                        />
+                    ))}
+                </FieldsetArray>
+            );
+        },
+        [name, label, subform, FieldsetArray, AutoSubform]
+    );
+
+    SubformArray.displayName = 'SubformArray';
 
     return (
         <FieldArray
