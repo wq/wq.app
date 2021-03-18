@@ -26,6 +26,8 @@ jobs:
           - jquery-mobile
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Node ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
@@ -48,6 +50,17 @@ jobs:
       run: |
          cd packages/$PACKAGE
          npm run test
+    - name: Publish to Github Packages
+      if: |
+          github.event_name == 'push' &&
+          matrix.package != 'jquery-mobile' &&
+          matrix.package != 'leaflet'
+      run: |
+         ./set_dev_version.sh
+         cd packages/$PACKAGE
+         echo "registry=https://npm.pkg.github.com/wq" > .npmrc
+         echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+         npm publish
   pip:
     name: Python Package
     runs-on: ubuntu-20.04
