@@ -38,6 +38,7 @@ export default function DefaultEdit() {
                 action={submitUrl}
                 cancel={backUrl}
                 method={method}
+                backgroundSync={page_config.background_sync}
                 outboxId={outbox_id}
                 data={context}
                 error={outbox_id ? context.error : null}
