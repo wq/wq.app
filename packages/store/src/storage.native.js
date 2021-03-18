@@ -16,17 +16,5 @@ export function serialize(value) {
 }
 
 export function deserialize(value) {
-    return JSON.parse(value, (key, val) => maybeParseDate(val));
-}
-
-function maybeParseDate(val) {
-    if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
-        try {
-            return new Date(val);
-        } catch (e) {
-            return val;
-        }
-    } else {
-        return val;
-    }
+    return JSON.parse(value);
 }

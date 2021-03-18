@@ -120,6 +120,12 @@ export function initData(form, data) {
     function defaultValue(field) {
         if (field.type === 'select') {
             return [];
+        } else if (
+            field.type === 'date' ||
+            field.type === 'time' ||
+            field.type === 'dateTime'
+        ) {
+            return null;
         } else {
             return '';
         }

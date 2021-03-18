@@ -4,8 +4,17 @@ import { Text } from 'react-native';
 import { TouchableRipple, TextInput } from 'react-native-paper';
 import { useField } from 'formik';
 import PropTypes from 'prop-types';
+import { format, parse } from './date-utils';
+
+const displayFormat = {
+    date: value => value.toLocaleDateString(),
+    time: value => value.toLocaleTimeString(),
+    datetime: value => value.toLocaleString()
+};
 
 export default function DateTime({ name, type, label }) {
+    type = type.toLowerCase();
+
     const [, meta, helpers] = useField(name),
         { value } = meta,
         { setValue } = helpers;
@@ -20,14 +29,14 @@ export default function DateTime({ name, type, label }) {
     }
     function onConfirm(val) {
         hidePicker();
-        setValue(val);
+        setValue(format[type](val));
     }
 
     return (
         <>
             <TextInput
                 label={label}
-                value={format(value, type)}
+                value={value ? displayFormat[type](value) : ''}
                 render={({ style, value }) => (
                     <TouchableRipple onPress={showPicker}>
                         <Text style={style}>{value}</Text>
@@ -37,7 +46,7 @@ export default function DateTime({ name, type, label }) {
             <DateTimePickerModal
                 isVisible={show}
                 mode={type}
-                date={value || new Date()}
+                date={parse[type](value) || new Date()}
                 onConfirm={onConfirm}
                 onCancel={hidePicker}
             />
@@ -50,13 +59,3 @@ DateTime.propTypes = {
     type: PropTypes.string,
     label: PropTypes.string
 };
-
-function format(value, type) {
-    if (!value) {
-        return '';
-    } else if (type === 'time') {
-        return value.toLocaleTimeString();
-    } else {
-        return value.toLocaleDateString();
-    }
-}
