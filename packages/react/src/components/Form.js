@@ -68,6 +68,8 @@ export default function Form({
             initialErrors={errors}
             initialTouched={errors}
             validate={values => validate(values, modelConf)}
+            validateOnBlur={true}
+            validateOnChange={false}
             onSubmit={handleSubmit}
             enableReinitialize={true}
         >

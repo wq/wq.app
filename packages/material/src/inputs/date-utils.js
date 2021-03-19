@@ -1,4 +1,5 @@
 import formatISO9075 from 'date-fns/formatISO9075';
+import parseISO from 'date-fns/parseISO';
 
 export const format = {
     date: value => formatISO9075(value, { representation: 'date' }),
@@ -7,7 +8,7 @@ export const format = {
 };
 
 export const parse = {
-    date: value => (value ? new Date(value) : null),
-    time: value => (value ? new Date('9999-01-01 ' + value) : null),
-    datetime: value => (value ? new Date(value) : null)
+    date: value => (value ? parseISO(value) : null),
+    time: value => (value ? parseISO('9999-01-01 ' + value) : null),
+    datetime: value => (value ? parseISO(value) : null)
 };

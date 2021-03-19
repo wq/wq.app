@@ -10,6 +10,7 @@ import * as inputs from './inputs/index';
 import * as icons from './icons';
 import * as views from './views/index';
 import { init, start, unmount } from './init';
+import validate from './validate';
 
 export default {
     name: 'react',
@@ -66,6 +67,7 @@ export default {
     },
 
     start,
+    validate,
 
     createInstance(component, root, app) {
         if (!app) {

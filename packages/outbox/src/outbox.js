@@ -338,7 +338,7 @@ class Outbox {
         this.app
             .callPlugins('validate', [data, modelConf])
             .forEach(pluginErrors => {
-                Object.assign(errors, pluginErrors);
+                mergeErrors(errors, pluginErrors);
             });
         return errors;
     }
@@ -1129,6 +1129,35 @@ class Outbox {
     _deserialize(state) {
         return state;
     }
+}
+
+function mergeErrors(errors, newErrors) {
+    if (
+        !newErrors ||
+        typeof newErrors !== 'object' ||
+        !Object.keys(newErrors).length
+    ) {
+        return errors;
+    }
+    Object.entries(newErrors).forEach(([key, newError]) => {
+        const error = errors[key];
+        if (
+            !error ||
+            typeof error !== typeof newError ||
+            Array.isArray(error) !== Array.isArray(newError)
+        ) {
+            errors[key] = newError;
+        } else if (typeof error === 'string') {
+            errors[key] = error + ' • ' + newError;
+        } else if (Array.isArray(error)) {
+            errors[key] = error
+                .map((err, i) => mergeErrors(err, newError[i]))
+                .concat(newError.slice(error.length));
+        } else if (typeof error === 'object') {
+            errors[key] = mergeErrors(error, newError);
+        }
+    });
+    return errors;
 }
 
 var outbox = new Outbox(ds);

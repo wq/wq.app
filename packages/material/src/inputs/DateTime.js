@@ -41,7 +41,7 @@ export default function DateTime({ type, hint, ...rest }) {
     type = type.toLowerCase();
 
     const Picker = pickers[type],
-        [, { value }, { setValue }] = useField(rest.name);
+        [, { value, error, touched }, { setValue }] = useField(rest.name);
 
     useEffect(() => {
         if (value instanceof Date) {
@@ -55,7 +55,7 @@ export default function DateTime({ type, hint, ...rest }) {
                 fullWidth
                 margin="dense"
                 component={Picker}
-                helperText={hint}
+                helperText={!!error && touched ? error : hint}
                 {...rest}
             />
         </MuiPickersUtilsProvider>

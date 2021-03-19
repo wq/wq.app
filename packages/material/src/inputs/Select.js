@@ -21,8 +21,16 @@ ContextCheckbox.propTypes = {
     field: PropTypes.string
 };
 
-export default function Select({ choices, label, renderValue, ...rest }) {
+export default function Select({
+    choices,
+    label,
+    required,
+    renderValue,
+    ...rest
+}) {
     const { name: fieldName, type, hint } = rest,
+        { errors, touched } = useFormikContext(),
+        showError = !!getIn(errors, fieldName) && getIn(touched, fieldName),
         multiple = type === 'select';
 
     if (multiple && !renderValue) {
@@ -39,10 +47,17 @@ export default function Select({ choices, label, renderValue, ...rest }) {
 
     return (
         <FormControl fullWidth margin="dense">
-            <InputLabel htmlFor={fieldName}>{label}</InputLabel>
+            <InputLabel
+                htmlFor={fieldName}
+                required={required}
+                error={showError}
+            >
+                {label}
+            </InputLabel>
             <Field
                 component={FMuiSelect}
                 multiple={multiple}
+                required={required}
                 renderValue={renderValue}
                 {...rest}
             >
@@ -68,5 +83,6 @@ export default function Select({ choices, label, renderValue, ...rest }) {
 Select.propTypes = {
     choices: PropTypes.arrayOf(PropTypes.object),
     label: PropTypes.string,
+    required: PropTypes.bool,
     renderValue: PropTypes.func
 };
