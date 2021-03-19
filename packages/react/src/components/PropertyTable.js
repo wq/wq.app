@@ -20,11 +20,19 @@ const Value = ({ values, field }) => {
 };
 
 export default function PropertyTable({ form, values }) {
-    const { Table, TableBody, TableRow, TableCell } = useComponents();
+    const { Table, TableBody, TableRow, TableCell } = useComponents(),
+        rootFieldset = form.find(
+            field => field.name === '' && field.type === 'group'
+        ),
+        fields = rootFieldset
+            ? rootFieldset.children.concat(
+                  form.filter(field => field !== rootFieldset)
+              )
+            : form;
     return (
         <Table>
             <TableBody>
-                {form.map(field => (
+                {fields.map(field => (
                     <TableRow key={field.name}>
                         <TableCell>{field.label || field.name}</TableCell>
                         <TableCell>
