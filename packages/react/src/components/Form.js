@@ -29,7 +29,7 @@ export default function Form({
         { setSubmitting, setTouched, setErrors }
     ) {
         if (onSubmit) {
-            const result = await onSubmit();
+            const result = await onSubmit(values);
             if (!result) {
                 setSubmitting(false);
                 return;
