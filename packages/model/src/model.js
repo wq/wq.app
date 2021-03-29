@@ -690,7 +690,6 @@ class Model {
                 'Usage: update(items[, meta]).  To customize id attr use config.idCol'
             );
         }
-        update = this._processData(update).list;
         return this.dispatch(UPDATE, update, meta);
     }
 
@@ -731,7 +730,7 @@ class Model {
         // Update local list with recent items from server
         var q = { ...this.query, ...params };
         const data = await this.store.fetch(q);
-        return this.update(data);
+        return this.update(this._processData(data).list);
     }
 
     // Unsaved form items related to this list
