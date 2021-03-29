@@ -9,13 +9,13 @@ export default function Input({ hint, inputProps, ...rest }) {
     return (
         <Field
             name={name}
-            type={type}
             fullWidth
             margin="dense"
             component={TextField}
             helperText={hint}
             inputProps={{ maxLength, ...inputProps }}
             {...rest}
+            type={type}
         />
     );
 }
