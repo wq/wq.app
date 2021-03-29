@@ -690,6 +690,7 @@ class Model {
                 'Usage: update(items[, meta]).  To customize id attr use config.idCol'
             );
         }
+        update = this._processData(update).list;
         return this.dispatch(UPDATE, update, meta);
     }
 
