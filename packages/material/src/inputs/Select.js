@@ -62,8 +62,8 @@ export default function Select({
                 {...rest}
             >
                 {!multiple && (
-                    <MenuItem value="" disabled>
-                        Select one...
+                    <MenuItem value="" disabled={!!required}>
+                        {required ? 'Select one...' : '(No Selection)'}
                     </MenuItem>
                 )}
                 {choices.map(({ name, label }) => (

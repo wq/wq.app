@@ -12,6 +12,11 @@ export default {
         theme: {
             primary: '#550099',
             secondary: '#0dccb1'
+        },
+        inputFormat: {
+            date: 'yyyy-MM-dd',
+            time: 'HH:mm',
+            datetime: 'yyyy-MM-dd HH:mm'
         }
     },
 
@@ -20,8 +25,14 @@ export default {
     icons: { ...icons },
 
     init(config) {
-        if (config) {
-            Object.assign(this.config, config);
+        if (!config) {
+            return;
+        }
+        if (config.theme) {
+            Object.assign(this.config.theme, config.theme);
+        }
+        if (config.inputFormat) {
+            Object.assign(this.config.inputFormat, config.inputFormat);
         }
     }
 };

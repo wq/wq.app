@@ -2,10 +2,18 @@ import formatISO9075 from 'date-fns/formatISO9075';
 import parseISO from 'date-fns/parseISO';
 
 export const format = {
-    date: value => formatISO9075(value, { representation: 'date' }),
-    time: value => formatISO9075(value, { representation: 'time' }),
-    datetime: value => formatISO9075(value)
+    date: value => tryFormat(value, { representation: 'date' }),
+    time: value => tryFormat(value, { representation: 'time' }),
+    datetime: value => tryFormat(value)
 };
+
+function tryFormat(value, options) {
+    try {
+        return formatISO9075(value, options);
+    } catch (e) {
+        return value;
+    }
+}
 
 export const parse = {
     date: value => (value ? parseISO(value) : null),
