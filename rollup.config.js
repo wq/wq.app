@@ -32,7 +32,7 @@ const deps = {
     '@wq/react': './packages/react/src/index.js',
     '@wq/material': './packages/material/src/index.js',
     '@wq/map': './packages/map/src/index.js',
-    '@wq/mapbox': './packages/mapbox/src/index.js'
+    '@wq/map-gl': './packages/map-gl/src/index.js'
 };
 function resolveId(id) {
     return deps[id];
@@ -66,7 +66,7 @@ export default [
                         './packages/react/node_modules/',
                         './packages/material/node_modules/',
                         './packages/map/node_modules/',
-                        './packages/mapbox/node_modules/',
+                        './packages/map-gl/node_modules/',
                         'node_modules/'
                     ]
                 },

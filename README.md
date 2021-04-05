@@ -74,7 +74,7 @@ wq.app also provides optional map plugins for projects needing interactive GIS c
 
 module | description
 --|--
-[@wq/map]+[@wq/mapbox] | [Mapbox GL JS] integration for web and Mapbox Maps SDK for [Android][mapbox-android] & [iOS][mapbox-ios].
+[@wq/map]+[@wq/map-gl] | [Mapbox GL JS] integration for web and Mapbox Maps SDK for [Android][mapbox-android] & [iOS][mapbox-ios].
 [@wq/map]+[@wq/leaflet] | [Leaflet] integration (web only).  Compatible with @wq/map 1.2 and earlier
 
 [wq framework]: https://wq.io
@@ -102,5 +102,5 @@ module | description
 [@wq/material]: https://github.com/wq/wq.app/tree/master/packages/material
 [@wq/jquery-mobile]: https://github.com/wq/wq.app/tree/master/packages/jquery-mobile
 [@wq/map]: https://github.com/wq/wq.app/tree/master/packages/map
-[@wq/mapbox]: https://github.com/wq/wq.app/tree/master/packages/mapbox
+[@wq/map-gl]: https://github.com/wq/wq.app/tree/master/packages/map-gl
 [@wq/leaflet]: https://github.com/wq/wq.app/tree/master/packages/leaflet

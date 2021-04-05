@@ -18,7 +18,7 @@ import app from '@wq/app';
 import material, * as materialExports from '@wq/material';
 import react, * as reactExports from '@wq/react';
 import map, * as mapExports from '@wq/map';
-import mapbox, * as mapboxExports from '@wq/mapbox';
+import mapgl, * as mapglExports from '@wq/map-gl';
 
 // For use with @wq/rollup-plugin
 export default {
@@ -53,8 +53,8 @@ export default {
         default: map,
         ...mapExports
     },
-    '@wq/mapbox': {
-        default: mapbox,
-        ...mapboxExports
+    '@wq/map-gl': {
+        default: mapgl,
+        ...mapglExports
     }
 };
