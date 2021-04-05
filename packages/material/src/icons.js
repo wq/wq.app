@@ -4,6 +4,8 @@ import Delete from '@material-ui/icons/Delete';
 import Success from '@material-ui/icons/Done';
 import Error from '@material-ui/icons/Error';
 import Pending from '@material-ui/icons/Sync';
+import Expand from '@material-ui/icons/ExpandMore';
+import Collapse from '@material-ui/icons/ExpandLess';
 import GpsStart from '@material-ui/icons/GpsFixed';
 import GpsStop from '@material-ui/icons/GpsOff';
 import Search from '@material-ui/icons/Search';
@@ -15,6 +17,8 @@ export {
     Success,
     Error,
     Pending,
+    Expand,
+    Collapse,
     GpsStart,
     GpsStop,
     Search
