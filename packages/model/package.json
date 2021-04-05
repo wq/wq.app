@@ -26,7 +26,7 @@
     "bugs": {
         "url": "https://github.com/wq/wq.app/issues"
     },
-    "homepage": "https://wq.io/wq.app",
+    "homepage": "https://wq.io/@wq/model",
     "dependencies": {
         "@wq/store": "^1.3.0-alpha.2",
         "deepcopy": "^2.1.0",

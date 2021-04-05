@@ -1,7 +1,7 @@
 @wq/leaflet
 ======
 
-[@wq/leaflet]
+[@wq/leaflet][source]
 
 **@wq/leaflet** is a plugin for [@wq/app] that provides integration with [Leaflet].   When used together with [@wq/map], @wq/leaflet can leverage the [wq configuration object][config] to generate interactive maps for pages rendered via @wq/app.  The generated maps can automatically download and display GeoJSON data rendered by [wq.db's REST API][wq.db] or any third party service.
 
@@ -39,7 +39,7 @@ app.init(...);
 
 ## Configuration
 
-@wq/leaflet relies on [@wq/map's configuration][map-configuration] and conventions, as well as two additional options to configure popup content and marker icons.
+@wq/leaflet relies on [@wq/map]'s configuration and conventions, as well as two additional options to configure popup content and marker icons.
 
 ```javascript
 app.init({
@@ -124,7 +124,7 @@ If a template or a function, it will be called with the `feature.properties` for
 
 # Components
 
-@wq/leaflet provides implementations of the components defined by [@wq/map][map-components].
+@wq/leaflet provides implementations of the components defined by [@wq/map].
 
 plugin key | description
 --|--
@@ -134,7 +134,7 @@ plugin key | description
 
 ## General Components
 
-See [@wq/map's general components][map-general] for more info.
+See [@wq/map] for more info.
 
 name | details
 --|--
@@ -146,7 +146,7 @@ MapInteraction | Not overridden by @wq/leaflet
 
 ## Basemap Components
 
-See [@wq/map's basemap components][map-basemaps] for more info.  @wq/leaflet implements the default `tile`, `empty`, and `group` layer types.  @wq/leaflet/mapserv also provides a few additional basemap types via [esri-leaflet] and [react-leaflet]
+See [basemap components][basemaps] for more info.  @wq/leaflet implements the default `tile`, `empty`, and `group` layer types.  @wq/leaflet/mapserv also provides a few additional basemap types via [esri-leaflet] and [react-leaflet]
 
 config name | component | details
 --|--|--
@@ -161,12 +161,12 @@ Options marked with * are only available by importing `@wq/leaflet/mapserv` inst
 
 ## Overlay Components
 
-See [@wq/map's overlay components][map-overlays] for more info.  @wq/leaflet implements the default `geojson`, `empty`, and `group` layer types.  @wq/leaflet/mapserv also provides a few additional overlay types from [esri-leaflet] and [leaflet.wms]
+See [overlay components][overlays] for more info.  @wq/leaflet implements the default `geojson`, `empty`, and `group` layer types.  @wq/leaflet/mapserv also provides a few additional overlay types from [esri-leaflet] and [leaflet.wms]
 
 config name | component | details
 --|--|--
 geojson | [Geojson] | GeoJSON overlay.  If a URL is provided it will be retrieved and loaded
-empty | Empty | Non-rendered layer that essentially is just to provide a toggle-able entry in the legend.  (Typically used with a custom component somewhere else in the tree that calls [`useMapState()`][map-hooks] and renders accordingly)
+empty | Empty | Non-rendered layer that essentially is just to provide a toggle-able entry in the legend.  (Typically used with a custom component somewhere else in the tree that calls [`useMapState()`][useMapState] and renders accordingly)
 group | Group | Treats a group of related layers as a single overlay.  The configuration for the group should specify a `layers` array containing one or more overlay configurations.
 esri-dynamic* | [EsriDynamic] | Renders custom [Esri dynamic][esri-leaflet] (non-tiled) map imagery
 esri-feature*  | [EsriFeature] | Renders custom [Esri feature][esri-leaflet] vectors
@@ -176,14 +176,14 @@ n/a | [Draw] | Drawing tools based on [react-leaflet-draw]
 
 Options marked with * are only available by importing `@wq/leaflet/mapserv` instead of `@wq/leaflet`
 
-[@wq/leaflet]: https://github.com/wq/wq.app/tree/master/packages/leaflet
+[source]: https://github.com/wq/wq.app/tree/main/packages/leaflet
 
-[@wq/app]: https://wq.io/docs/app-js
-[@wq/map]: https://github.com/wq/wq.app/tree/master/packages/map
-[@wq/map 1.2]: https://wq.io/1.2/docs/map-js
-[@wq/react]: https://github.com/wq/wq.app/tree/master/packages/react
-[@wq/material]: https://github.com/wq/wq.app/tree/master/packages/material
-[@wq/jquery-mobile]: https://github.com/wq/wq.app/tree/master/packages/jquery-mobile
+[@wq/app]: https://wq.io/@wq/app
+[@wq/map]: https://wq.io/@wq/map
+[@wq/map 1.2]: https://v1.wq.io/docs/map-js
+[@wq/react]: https://wq.io/@wq/react
+[@wq/material]: https://wq.io/@wq/material
+[@wq/jquery-mobile]: https://github.com/wq/wq.app/tree/main/packages/jquery-mobile
 
 [Leaflet]: https://leafletjs.com
 [react-leaflet]: https://react-leaflet.js.org/
@@ -193,26 +193,23 @@ Options marked with * are only available by importing `@wq/leaflet/mapserv` inst
 [Mustache]: https://github.com/janl/mustache.js
 [L.Icon]: http://leafletjs.com/reference.html#icon
 
-[wq.db]: https://wq.io/wq.db
-[config]: https://wq.io/docs/config
-[map-configuration]: https://github.com/wq/wq.app/tree/master/packages/map#configuration
-[map-components]: https://github.com/wq/wq.app/tree/master/packages/map#components
-[map-general]: https://github.com/wq/wq.app/tree/master/packages/map#general-components
-[map-basemaps]: https://github.com/wq/wq.app/tree/master/packages/map#basemap-components
-[map-overlays]: https://github.com/wq/wq.app/tree/master/packages/map#overlay-components
-[map-hooks]: https://github.com/wq/wq.app/tree/master/packages/map#hooks
+[wq.db]: https://wq.io/wq.db/
+[config]: https://wq.io/config
+[basemaps]: https://wq.io/basemaps/
+[overlays]: https://wq.io/overlays/
+[useMapState]: https://wq.io/hooks/useMapState
 
-[Map]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/Map.js
-[Legend]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/components/Legend.js
+[Map]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/components/Map.js
+[Legend]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/components/Legend.js
 
-[Tile]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/Tile.js
-[EsriBasemap]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/EsriBasemap.js
-[EsriTiled]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/EsriTiled.js
-[WmsTiled]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/basemaps/WmsTiled.js
+[Tile]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/basemaps/Tile.js
+[EsriBasemap]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/basemaps/EsriBasemap.js
+[EsriTiled]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/basemaps/EsriTiled.js
+[WmsTiled]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/basemaps/WmsTiled.js
 
-[Geojson]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Geojson.js
-[EsriDynamic]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/EsriDynamic.js
-[EsriFeature]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/EsriFeature.js
-[Wms]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Wms.js
-[Highlight]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Highlight.js
-[Draw]: https://github.com/wq/wq.app/blob/master/packages/leaflet/src/overlays/Draw.js
+[Geojson]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/overlays/Geojson.js
+[EsriDynamic]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/overlays/EsriDynamic.js
+[EsriFeature]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/overlays/EsriFeature.js
+[Wms]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/overlays/Wms.js
+[Highlight]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/overlays/Highlight.js
+[Draw]: https://github.com/wq/wq.app/blob/main/packages/leaflet/src/overlays/Draw.js

@@ -73,8 +73,8 @@ config.jqmrenderer = {
 
 > Note: Rather than writing out the template object by hand, you can use the [wq collectjson] command to load HTML files from a folder.
 
-[wq.app]: https://wq.io/wq.app
-[@wq/app]: https://wq.io/docs/app-js
-[@wq/router]: https://wq.io/docs/router-js
-[@wq/material]: https://github.com/wq/wq.app/tree/master/packages/material
-[wq collectjson]: https://wq.io/docs/collectjson
+[wq.app]: https://wq.io/wq.app/
+[@wq/app]: https://wq.io/@wq/app
+[@wq/router]: https://wq.io/@wq/router
+[@wq/material]: https://wq.io/@wq/material
+[wq collectjson]: https://wq.io/wq.build/collectjson
