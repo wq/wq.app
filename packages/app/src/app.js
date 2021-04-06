@@ -99,7 +99,7 @@ app.init = function (config) {
     app.spin = {
         start: (msg, duration, opts) => spinner.start(msg, duration, opts),
         forSeconds: duration => spinner.start(null, duration),
-        stop: () => spinner.stop()
+        stop: msg => spinner.stop(msg)
     };
 
     // Outbox (wq/outbox.js) configuration
@@ -300,12 +300,19 @@ app.use = function (plugin) {
     }
 };
 
-app.prefetchAll = function () {
-    return Promise.all(
+app.prefetchAll = async function (message) {
+    if (message) {
+        app.spin.start(message);
+    }
+    const result = await Promise.all(
         Object.keys(app.models).map(function (name) {
             return app.models[name].prefetch();
         })
     );
+    if (message) {
+        app.spin.stop(message);
+    }
+    return result;
 };
 
 app.jqmInit = function () {

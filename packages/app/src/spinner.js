@@ -21,7 +21,7 @@ export default {
                 type: 'alert'
             }
         }),
-        stop: () => ({ type: SPIN_STOP })
+        stop: message => ({ type: SPIN_STOP, payload: { message } })
     },
     thunks: {
         SPIN_DURATION: async (dispatch, getState, bag) => {
@@ -39,19 +39,34 @@ export default {
                 await new Promise(resolve =>
                     setTimeout(resolve, duration * 1000)
                 );
-                dispatch({ type: SPIN_STOP });
+                dispatch({ type: SPIN_STOP, payload: { message } });
             }
         }
     },
-    reducer(context = {}, action) {
+    reducer(state, action) {
+        if (action.type !== SPIN_START && action.type !== SPIN_STOP) {
+            return state || { active: false };
+        }
+        const message = action.payload.message || '',
+            messages = (state.messages || []).filter(msg => msg != message);
+
         if (action.type === SPIN_START) {
-            context = {
+            messages.push(message);
+            return {
                 active: true,
-                ...action.payload
+                type: action.payload.type,
+                message,
+                messages
             };
         } else if (action.type === SPIN_STOP) {
-            context = {};
+            if (messages.length > 0) {
+                return {
+                    ...state,
+                    messages
+                };
+            } else {
+                return { active: false };
+            }
         }
-        return context;
     }
 };
