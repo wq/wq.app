@@ -1,7 +1,4 @@
-@wq/app
-======
-
-[@wq/app][docs]
+[![@wq/app][logo]][docs]
 
 **@wq/app** provides a configuration-driven JavaScript application controller to facilitate the creation of complete mobile web apps for viewing and submitting field data.   @wq/app is the highest-level module in [wq.app], and brings together a number of lower-level modules and wq conventions into an integrated API.  @wq/app is primarily intended for use as a client for [wq.db], but can be customized for use with any REST service.
 
@@ -28,6 +25,7 @@ The specific concepts leveraged by @wq/app include:
 &bull;
 [**Methods**][methods]
 
+[logo]: https://wq.io/images/@wq/app.svg
 [docs]: https://wq.io/@wq/app
 [installation]: https://wq.io/@wq/app#installation
 [project-layout]: https://wq.io/@wq/app#project-layout

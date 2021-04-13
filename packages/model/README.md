@@ -1,7 +1,4 @@
-@wq/model
-========
-
-[@wq/model][docs]
+[![@wq/model][logo]][docs]
 
 **@wq/model** is a [wq.app] module providing a simple API for working with lists, or collections of similar objects.  It integrates with [@wq/app] to load the [ORM configuration], and uses [@wq/store] to retrieve the underlying JSON data from e.g. a [wq.db REST API][wq.db].  @wq/model is based on [Redux-ORM] and provides similar querying capabilities, while also supporting asyncronous APIs for paginating through data from the server.
 
@@ -15,6 +12,7 @@
 &bull;
 [Methods][methods]
 
+[logo]: https://wq.io/images/@wq/model.svg
 [docs]: https://wq.io/@wq/model
 [installation]: https://wq.io/@wq/model#installation
 [api]: https://wq.io/@wq/model#api

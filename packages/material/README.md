@@ -1,7 +1,4 @@
-@wq/material
-========
-
-[@wq/material][docs]
+[![@wq/material][logo]][docs]
 
 **@wq/material** provides a complete set of layout, navigation, and form components for use with the [@wq/react] renderer for [@wq/app].  All provided components work in [React] web environments (via [Material UI]), as well as in [React Native] and [Expo] (via [React Native Paper]).  @wq/material provides a consistent API in all three environments, reducing the need for project-specific ".native.js" implementations.
 
@@ -17,6 +14,7 @@
 &bull;
 [Inputs][inputs]
 
+[logo]: https://wq.io/images/@wq/material.svg
 [docs]: https://wq.io/@wq/material
 [installation]: https://wq.io/@wq/material#installation
 [api]: https://wq.io/@wq/material#api

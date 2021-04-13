@@ -10,8 +10,8 @@ export default {
 
     config: {
         theme: {
-            primary: '#550099',
-            secondary: '#0dccb1'
+            primary: '#7500ae',
+            secondary: '#0088bd'
         },
         inputFormat: {
             date: 'yyyy-MM-dd',

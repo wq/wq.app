@@ -1,7 +1,4 @@
-@wq/outbox
-========
-
-[@wq/outbox][docs]
+[![@wq/outbox][logo]][docs]
 
 **@wq/outbox** is a [wq.app] module providing an offline-cabable "outbox" of unsynced form entries for submission to a web service.  @wq/outbox integrates with [@wq/app] to parse form submissions, [@wq/store] to handle offline storage, and with [@wq/model] for managing collections of editable objects.  @wq/outbox is based on [Redux Offline], and leverages its strategies for detecting network state and retrying failed submissions.  @wq/outbox also robustly stores photos submitted with a form until a connection is available.
 
@@ -19,6 +16,7 @@
 &bull;
 [**Methods**][methods]
 
+[logo]: https://wq.io/images/@wq/outbox.svg
 [docs]: https://wq.io/@wq/outbox
 [installation]: https://wq.io/@wq/outbox#installation
 [api]: https://wq.io/@wq/outbox#api

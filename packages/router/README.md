@@ -1,7 +1,4 @@
-@wq/router
-========
-
-[@wq/router][docs]
+[![@wq/router][logo]][docs]
 
 **@wq/router** is a [wq.app] module that captures URL changes and "responds" with locally-rendered HTML pages.  @wq/router is primarily used with [@wq/app], a higher-level module that automatically registers the appropriate routes via the [wq configuration object][config].  @wq/router also supports direct route registration for routes that do not fit into @wq/app's conventions.  @wq/router is based on [Redux-First Router] and leverages similar concepts.
 
@@ -19,6 +16,7 @@
 &bull;
 [**Methods**][methods]
 
+[logo]: https://wq.io/images/@wq/router.svg
 [docs]: https://wq.io/@wq/router
 [installation]: https://wq.io/@wq/router#installation
 [api]: https://wq.io/@wq/router#api

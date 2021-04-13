@@ -1,7 +1,4 @@
-@wq/map
-======
-
-[@wq/map][docs]
+[![@wq/map][logo]][docs]
 
 **@wq/map** is a plugin for [@wq/app] that adds mapping capabilities.  @wq/map can leverage the [wq configuration object][config] to generate interactive maps for pages rendered via @wq/app.  The generated maps can automatically download and display GeoJSON data rendered by [wq.db's REST API][wq.db] or any third party service.
 
@@ -19,6 +16,7 @@
 &bull;
 [Hooks][hooks]
 
+[logo]: https://wq.io/images/@wq/map.svg
 [docs]: https://wq.io/@wq/map
 [installation]: https://wq.io/@wq/map#installation
 [api]: https://wq.io/@wq/map#api

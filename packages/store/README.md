@@ -1,7 +1,4 @@
-@wq/store
-========
-
-[@wq/store][docs]
+[![@wq/store][logo]][docs]
 
 **@wq/store** is a [wq.app] module providing a persistent storage API for retrieving and querying JSON data from a web service via AJAX.  @wq/store is used internally by [@wq/app] to store model data (via [@wq/model]) and application configuration.  @wq/store relies extensively on [Redux] to manage state, with [Redux Persist] and [localForage] to handle the work of storing data offline in IndexedDB.
 
@@ -21,6 +18,7 @@
 &bull;
 [**Methods**][methods]
 
+[logo]: https://wq.io/images/@wq/store.svg
 [docs]: https://wq.io/@wq/store
 [installation]: https://wq.io/@wq/store#installation
 [api]: https://wq.io/@wq/store#api
