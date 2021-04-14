@@ -2,4 +2,6 @@
 /locate.js
 /mapserv.js
 /components/
+/basemaps/
+/overlays/
 /__tests__/

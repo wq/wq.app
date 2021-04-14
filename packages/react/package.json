@@ -1,6 +1,6 @@
 {
     "name": "@wq/react",
-    "version": "1.3.0-beta.0",
+    "version": "1.3.0-beta.1",
     "description": "React renderer for use with @wq/app",
     "type": "module",
     "main": "index.js",
@@ -28,7 +28,7 @@
     },
     "homepage": "https://wq.io/@wq/react",
     "dependencies": {
-        "@wq/model": "^1.3.0-alpha.3",
+        "@wq/model": "^1.3.0-beta.1",
         "formik": "^2.1.5",
         "param-case": "^3.0.3",
         "pascal-case": "^3.1.1",
@@ -41,8 +41,8 @@
         "@react-native-community/masked-view": "^0.1.10"
     },
     "devDependencies": {
-        "@wq/router": "^1.3.0-alpha.2",
-        "@wq/store": "^1.3.0-alpha.2",
+        "@wq/router": "^1.3.0-beta.1",
+        "@wq/store": "^1.3.0-beta.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-test-renderer": "^16.13.1"
