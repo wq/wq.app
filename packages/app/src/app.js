@@ -59,6 +59,9 @@ app.init = function (config) {
         };
     }
     config.router.getTemplateName = name => name.split(':')[0];
+    if (config.site_title && !config.router.site_title) {
+        config.router.site_title = config.site_title;
+    }
 
     // Store (wq/store.js) configuration
     if (!config.store) {

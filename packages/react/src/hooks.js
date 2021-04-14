@@ -7,7 +7,6 @@ import {
     selectLocationState
 } from 'redux-first-router';
 import { paramCase } from 'param-case';
-import { capitalCase } from 'capital-case';
 import { useHtmlInput } from './inputs/Input';
 
 const isAction = path => path && path.type;
@@ -63,24 +62,9 @@ export function useRouteInfo(routeName) {
         routeInfos = useSelector(state => state.routeInfo),
         routeInfo = routeInfos && routeInfos[routeName || currentRoute],
         context = useRenderContext(routeName),
-        { router_info: ctxRouteInfo } = context;
-    if (routeInfo) {
-        if (
-            !ctxRouteInfo ||
-            ['name', 'mode', 'variant', 'item_id'].some(
-                key => ctxRouteInfo[key] != routeInfo[key]
-            )
-        ) {
-            return {
-                ...routeInfo,
-                pending: true
-            };
-        } else {
-            return ctxRouteInfo;
-        }
-    } else {
-        return { pending: true };
-    }
+        { getRouteInfo } = useApp().router;
+
+    return getRouteInfo(context, routeInfo);
 }
 
 export function useSiteTitle() {
@@ -91,26 +75,15 @@ export function useSiteTitle() {
 
 export function useContextTitle() {
     const context = useRenderContext(),
-        routeInfo = useRouteInfo();
+        routeInfo = useRouteInfo(),
+        { getContextTitle } = useApp().router;
 
-    var title;
-    if (routeInfo && !routeInfo.pending) {
-        title = context.title || context.label;
-    }
-
-    if (!title && routeInfo) {
-        title = getRouteTitle(routeInfo);
-    }
-
-    if (!title) {
-        title = 'Loading...';
-    }
-
-    return title;
+    return getContextTitle(context, routeInfo);
 }
 
 export function useRouteTitle(routeName) {
     const app = useApp(),
+        { getRouteTitle } = app.router,
         config = useConfig();
 
     function routeTitle(routeName) {
@@ -130,34 +103,6 @@ export function useRouteTitle(routeName) {
     } else {
         return routeTitle;
     }
-}
-
-function getRouteTitle(routeInfo) {
-    const { page_config, mode, variant } = routeInfo,
-        verbose_name = page_config.verbose_name || page_config.name,
-        verbose_name_plural =
-            page_config.verbose_name_plural ||
-            page_config.url ||
-            `${verbose_name}s`;
-
-    let title;
-    if (mode === 'list' && verbose_name === 'outbox') {
-        title = 'outbox';
-    } else if (mode === 'list') {
-        title = verbose_name_plural;
-    } else if (mode === 'edit') {
-        if (variant === 'new') {
-            title = `New ${verbose_name}`;
-        } else {
-            title = `Edit ${verbose_name}`;
-        }
-    } else if (mode && mode !== 'detail') {
-        title = `${verbose_name} - ${mode}`;
-    } else {
-        title = verbose_name;
-    }
-
-    return capitalCase(title);
 }
 
 export function useReverse() {
@@ -205,7 +150,8 @@ export function useBreadcrumbs() {
             parent_conf
         } = useRouteInfo(),
         reverse = useReverse(),
-        index = useIndexRoute();
+        index = useIndexRoute(),
+        { getRouteTitle } = useApp().router;
 
     if (name === index) {
         return null;

@@ -1,5 +1,6 @@
 import { connectRoutes, push, NOT_FOUND, ADD_ROUTES } from 'redux-first-router';
 import queryString from 'query-string';
+import { capitalCase } from 'capital-case';
 import { getStore } from '@wq/store';
 
 const HTML = '@@HTML',
@@ -282,6 +283,14 @@ router.render = function (context, refresh) {
             _refreshCount: refresh
         };
     }
+
+    const { site_title } = router.config;
+    let title = router.getContextTitle(context, context.router_info);
+    if (site_title && title !== site_title) {
+        title = `${title} - ${site_title}`;
+    }
+    document.title = title;
+
     return router.store.dispatch({
         type: RENDER,
         payload: context
@@ -328,6 +337,79 @@ router.base_url = '';
 
 router.addRouteInfo = function (fn) {
     router.routeInfoFn.push(fn);
+};
+
+router.getRouteInfo = function (context, routeInfo) {
+    const { router_info: ctxRouteInfo } = context;
+    if (routeInfo) {
+        if (
+            !ctxRouteInfo ||
+            ['name', 'mode', 'variant', 'item_id'].some(
+                key => ctxRouteInfo[key] != routeInfo[key]
+            )
+        ) {
+            return {
+                ...routeInfo,
+                pending: true
+            };
+        } else {
+            return ctxRouteInfo;
+        }
+    } else {
+        return { pending: true };
+    }
+};
+
+router.getContextTitle = function (context, routeInfo) {
+    var title;
+    if (routeInfo && !routeInfo.pending) {
+        title = context.title || context.label;
+    }
+
+    if (!title && routeInfo) {
+        title = router.getRouteTitle(routeInfo);
+    }
+
+    if (!title) {
+        title = 'Loading...';
+    }
+
+    return title;
+};
+
+router.getRouteTitle = function (routeInfo) {
+    const { page_config = {}, mode, variant } = routeInfo,
+        verbose_name =
+            page_config.verbose_name || page_config.name || routeInfo.name,
+        verbose_name_plural =
+            page_config.verbose_name_plural ||
+            page_config.url ||
+            `${verbose_name}s`;
+
+    let title,
+        prefix = '';
+    if (mode === 'list' && verbose_name === 'outbox') {
+        title = 'outbox';
+    } else if (mode === 'list') {
+        title = verbose_name_plural;
+    } else if (mode === 'edit') {
+        title = verbose_name;
+        if (variant === 'new') {
+            prefix = 'New ';
+        } else {
+            prefix = 'Edit ';
+        }
+    } else if (mode && mode !== 'detail') {
+        title = `${verbose_name} - ${mode}`;
+    } else {
+        title = verbose_name;
+    }
+
+    if (title === title.toLowerCase()) {
+        title = capitalCase(title);
+    }
+
+    return prefix + title;
 };
 
 function _normalizePath(path) {

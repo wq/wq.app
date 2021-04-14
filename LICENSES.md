@@ -83,7 +83,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/capital-case#readme">capital-case</a> 1.0.3</b></summary>
+<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/capital-case#readme">capital-case</a> 1.0.4</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1011,7 +1011,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/lower-case#readme">lower-case</a> 2.0.1</b></summary>
+<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/lower-case#readme">lower-case</a> 2.0.2</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1401,7 +1401,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/no-case#readme">no-case</a> 3.0.3</b></summary>
+<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/no-case#readme">no-case</a> 3.0.4</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -2255,7 +2255,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://www.typescriptlang.org/">tslib</a> 1.13.0</b> <i>(0BSD)</i></summary>
+<details><summary><b><a href="https://www.typescriptlang.org/">tslib</a> 2.2.0</b> <i>(0BSD)</i></summary>
 
 > Copyright (c) Microsoft Corporation.
 > 
@@ -2375,7 +2375,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/upper-case-first#readme">upper-case-first</a> 2.0.1</b></summary>
+<details><summary><b><a href="https://github.com/blakeembrey/change-case/tree/master/packages/upper-case-first#readme">upper-case-first</a> 2.0.2</b></summary>
 
 > The MIT License (MIT)
 > 

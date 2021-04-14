@@ -28,6 +28,7 @@
     "homepage": "https://wq.io/@wq/router",
     "dependencies": {
         "@wq/store": "^1.3.0-alpha.2",
+        "capital-case": "^1.0.3",
         "query-string": "^6.13.1",
         "redux-first-router": "^2.1.5"
     }
