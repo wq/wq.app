@@ -1,106 +1,67 @@
-[![wq.app](https://wq.io/images/wq.app.svg)](https://wq.io/wq.app/)
+[![wq.app][logo]][docs]
 
-[wq.app](https://wq.io/wq.app/) is a suite of JavaScript modules created to facilitate the rapid deployment of offline-cabable HTML5 mobile and desktop data collection apps.  Potential use cases include **surveys**, **geographic data capture & management**, and **crowdsourcing**/**citizen science**.  wq.app is the client component of the [wq framework], and can be used with a [wq.db] server or adapted for use with any API.
+[**wq.app**][docs] is a suite of JavaScript modules created to facilitate the rapid deployment of offline-capable mobile and desktop data collection apps.  Potential use cases include **surveys**, **geographic data capture & management**, and **crowdsourcing**/**citizen science**.  wq.app is the client component of the [wq framework], and can be used with a [wq.db] server or adapted for use with any API.
 
 [![Latest PyPI Release](https://img.shields.io/pypi/v/wq.app.svg)](https://pypi.org/project/wq.app)
 [![Release Notes](https://img.shields.io/github/release/wq/wq.app.svg)](https://github.com/wq/wq.app/releases)
-[![Documentation](https://img.shields.io/badge/Docs-1.2-blue.svg)](https://wq.io/wq.app/)
+[![Documentation](https://img.shields.io/badge/Docs-1.3-blue.svg)][docs]
 [![License](https://img.shields.io/pypi/l/wq.app.svg)](https://wq.io/license)
 [![GitHub Stars](https://img.shields.io/github/stars/wq/wq.app.svg)](https://github.com/wq/wq.app/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/wq/wq.app.svg)](https://github.com/wq/wq.app/network)
 [![GitHub Issues](https://img.shields.io/github/issues/wq/wq.app.svg)](https://github.com/wq/wq.app/issues)
 
-#### Latest Build
-
 [![Package Tests](https://github.com/wq/wq.app/actions/workflows/test.yml/badge.svg)](https://github.com/wq/wq.app/actions/workflows/test.yml)
 
-# Getting Started
+### [Documentation][docs]
 
-wq.app is available via both npm (as [@wq/app](https://npmjs.com/package/@wq/app)) and PyPI (as [wq.app](https://pypi.org/project/wq.app)).  To facilitate rapid deployment with [wq.db] and Django, the wq.app Python package comes with pre-bundled builds of @wq/app's core dependencies and recommended plugins.
+[**Installation**][installation]
 
-## Python
-```bash
-# Recommended: create virtual environment
-# python3 -m venv venv
-# . venv/bin/activate
+[**API**][api]
+<br>
+[@wq/app]
+&bull;
+[@wq/store]
+&bull;
+[@wq/model]
+&bull;
+[@wq/router]
+&bull;
+[@wq/outbox]
 
-# Install entire wq suite (recommended)
-python3 -m pip install wq
+[**Plugins**][plugins]
+<br>
+[@wq/react]
+&bull;
+[@wq/material]
+&bull;
+[@wq/map]
+&bull;
+[@wq/map-gl]
 
-# Install only wq.app
-python3 -m pip install wq.app
-```
+**Legacy Plugins**
+<br>
+[@wq/jquery-mobile]
+&bull;
+[@wq/leaflet]
 
-## Node
-```bash
-# Install @wq/app and recommended plugins
-npm install wq
+[logo]: https://wq.io/images/wq.app.svg
+[docs]: https://wq.io/wq.app/
 
-# Install only @wq/app core libraries
-npm install @wq/app
-```
+[installation]: https://wq.io/wq.app/#installation
+[api]: https://wq.io/wq.app/#api
+[@wq/app]: https://wq.io/@wq/app
+[@wq/store]: https://wq.io/@wq/store
+[@wq/model]: https://wq.io/@wq/model
+[@wq/router]: https://wq.io/@wq/router
+[@wq/outbox]: https://wq.io/@wq/outbox
+[plugins]: https://wq.io/plugins/
+[@wq/react]: https://wq.io/@wq/react
+[@wq/material]: https://wq.io/@wq/material
+[@wq/map]: https://wq.io/@wq/map
+[@wq/map-gl]: https://wq.io/@wq/map-gl
 
-See [the documentation][setup] for more information.
+[@wq/jquery-mobile]: https://github.com/wq/wq.app/tree/main/packages/jquery-mobile
+[@wq/leaflet]: https://github.com/wq/wq.app/tree/main/packages/leaflet
 
-# Modules
-
-wq.app provides a complete suite of JavaScript modules for offline GIS data collection and management.  These include the core @wq/app package and its dependencies, as well as plugins for UI renderers and map engines.  See the notes in [Getting Started][setup] for more information about setting up a project layout that utilizes wq.app and/or the @wq/* JavaScript libraries.
-
-## Core Stack
-
-name | description
---|--
-[@wq/app] | High-level application controller and configuration-driven CRUD client
-[@wq/store] | Redux-based store with pre-configured offline persistence
-[@wq/router] | Responds to URL changes with local and/or server data
-[@wq/model] | Provides a client-side ORM for collections retrieved from a REST API (such as [wq.db])
-[@wq/outbox] | Saves form submissions while offline and syncs to the server later
-
-## Plugins
-### UI Renderers
-
-As of wq.app 1.3, UI rendering is handled via plugins, with two main alternative renderers available.  This is part of the [roadmap for wq.app 2.0](https://github.com/wq/wq.app/issues/111).
-
-module | description
---|--
-[@wq/react]+[@wq/material] | New Material Design renderer based on [React] and [React Native]
-[@wq/jquery-mobile] | Legacy renderer based on [jQuery Mobile] and [Mustache.js], used in wq.app 1.2 and all earlier versions
-
-When installing @wq/app directly from NPM, one of the two renderers should be installed and registered explicitly.  When using the wq.app PyPI package, a default renderer will be provided based on the version of [wq start][wq.start] used to create the project.  (New ESM-based projects will default to the @wq/material renderer, while older AMD/RequireJS projects will default to the @wq/jquery-mobile renderer.)
-
-### Map Engines
-
-wq.app also provides optional map plugins for projects needing interactive GIS capabilities such as GPS point collection.  In wq.app 1.3, there are two alternative map engines available.
-
-module | description
---|--
-[@wq/map]+[@wq/map-gl] | [Mapbox GL JS] integration for web and Mapbox Maps SDK for [Android][mapbox-android] & [iOS][mapbox-ios].
-[@wq/map]+[@wq/leaflet] | [Leaflet] integration (web only).  Compatible with @wq/map 1.2 and earlier
-
-[wq framework]: https://wq.io
-[wq.db]: https://wq.io/wq.db
-[wq.start]: https://wq.io/wq.start
-[setup]: https://wq.io/docs/setup
- 
-[React]: https://reactjs.org/
-[React Native]: https://reactnative.dev/
-[jQuery Mobile]: http://jquerymobile.com
-[Mustache.js]: https://mustache.github.com/
-[Leaflet]: http://leafletjs.com
-[Mapbox GL JS]: https://docs.mapbox.com/mapbox-gl-js/
-[mapbox-android]: https://docs.mapbox.com/android/maps/overview/
-[mapbox-ios]: https://docs.mapbox.com/ios-sdk/maps/overview/
- 
-[@wq/app]: https://wq.io/docs/app-js
-[@wq/model]: https://wq.io/docs/model-js
-[@wq/outbox]: https://wq.io/docs/outbox-js 
-[@wq/store]: https://wq.io/docs/store-js 
-[@wq/router]: https://wq.io/docs/router-js 
-[@wq/map]: https://wq.io/docs/map-js
-
-[@wq/react]: https://github.com/wq/wq.app/tree/master/packages/react
-[@wq/material]: https://github.com/wq/wq.app/tree/master/packages/material
-[@wq/jquery-mobile]: https://github.com/wq/wq.app/tree/master/packages/jquery-mobile
-[@wq/map]: https://github.com/wq/wq.app/tree/master/packages/map
-[@wq/map-gl]: https://github.com/wq/wq.app/tree/master/packages/map-gl
-[@wq/leaflet]: https://github.com/wq/wq.app/tree/master/packages/leaflet
+[wq framework]: https://wq.io/
+[wq.db]: https://wq.io/wq.db/
