@@ -1,6 +1,10 @@
 import React from 'react';
-import { ErrorMessage } from 'formik';
+import { useField } from 'formik';
 
 export default function FormError(props) {
-    return <ErrorMessage name="__other__" {...props} />;
+    const [, { error }] = useField('__other__');
+    if (!error) {
+        return null;
+    }
+    return error;
 }
