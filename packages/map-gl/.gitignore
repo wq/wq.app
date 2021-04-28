@@ -1,4 +1,6 @@
 /index.js
 /util.js
 /components/
+/basemaps/
+/overlays/
 /__tests__/

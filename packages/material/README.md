@@ -19,12 +19,13 @@
 [installation]: https://wq.io/@wq/material#installation
 [api]: https://wq.io/@wq/material#api
 [components]: https://wq.io/components/
-[icons]: https://wq.io/icons/
+[icons]: https://wq.io/icons
 [inputs]: https://wq.io/inputs/
 
 [@wq/app]: https://wq.io/@wq/app
 [@wq/react]: https://wq.io/@wq/react
 
+[React]: https://reactjs.org/
 [React Native]: https://reactnative.dev/
 [Expo]: https://expo.io/
 [Material UI]: https://material-ui.com/
