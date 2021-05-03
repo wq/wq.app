@@ -1,5 +1,13 @@
 import React from 'react';
+import { useComponents } from '../hooks';
 
 export default function Footer() {
-    return <></>;
+    const { FooterContent } = useComponents();
+    return (
+        <center>
+            <small>
+                <FooterContent />
+            </small>
+        </center>
+    );
 }

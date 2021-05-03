@@ -2,6 +2,7 @@ import Container from './Container';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
+import FooterContent from './FooterContent';
 import View from './View';
 import ScrollView from './ScrollView';
 import HorizontalView from './HorizontalView';
@@ -52,6 +53,7 @@ export {
     Header,
     Main,
     Footer,
+    FooterContent,
     View,
     ScrollView,
     HorizontalView,
