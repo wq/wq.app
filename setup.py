@@ -5,7 +5,7 @@ import subprocess
 
 
 LONG_DESCRIPTION = """
-Offline-capable HTML5 web and hybrid apps for citizen science field data collection.
+Offline-capable web/native apps for mobile surveys and field data collection.
 """
 
 
@@ -105,6 +105,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Text Processing :: Markup :: HTML',
         'Topic :: Scientific/Engineering :: GIS',
