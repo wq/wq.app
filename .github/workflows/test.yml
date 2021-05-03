@@ -56,7 +56,7 @@ jobs:
           matrix.package != 'jquery-mobile' &&
           matrix.package != 'leaflet'
       with:
-         keep: 0
+         keep: 5
          names: ${{ matrix.package }}
     - name: Publish to Github Packages
       if: |
