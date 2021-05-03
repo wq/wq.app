@@ -122,11 +122,11 @@ setup(
         'build_py': BuildJS,
     },
     project_urls={
-        'Homepage': 'https://wq.io/wq.app',
-        'Documentation': 'https://wq.io/docs/',
+        'Homepage': 'https://wq.io/wq.app/',
+        'Documentation': 'https://wq.io/',
         'Source': 'https://github.com/wq/wq.app',
         'Release Notes': 'https://github.com/wq/wq.app/releases',
         'Issues': 'https://github.com/wq/wq.app/issues',
-        'CI': 'https://travis-ci.org/wq/wq.app',
+        'CI': 'https://github.com/wq/wq.app/actions/workflows/test.yml',
     },
 )
