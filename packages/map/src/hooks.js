@@ -110,13 +110,13 @@ export function routeMapConf(config, routeInfo, context = {}) {
         };
         if (!mode || mode === 'list') {
             Object.assign(defaultLayer, {
-                url: '{{rt}}/{{{url}}}.geojson',
+                url: '{{{rt}}}/{{{url}}}.geojson',
                 popup: page,
                 cluster: true
             });
         } else {
             Object.assign(defaultLayer, {
-                url: '{{rt}}/' + mapconf.url + '/{{{id}}}.geojson',
+                url: '{{{rt}}}/' + mapconf.url + '/{{{id}}}.geojson',
                 popup: page
             });
         }
@@ -166,7 +166,9 @@ export function useGeoJSON(url, data) {
         [geojson, setGeojson] = useState();
 
     if (!(url.indexOf('/') === 0 || url.indexOf('http') === 0)) {
-        console.warn(new Error(`Use "{{rt}}/${url}" instead of relative URL`));
+        console.warn(
+            new Error(`Use "{{{rt}}}/${url}" instead of relative URL`)
+        );
         url = app.service + '/' + url;
     }
 
