@@ -40,3 +40,18 @@ export default {
         Tile: TileOverlay
     }
 };
+
+export {
+    Map,
+    MapInteraction,
+    Legend,
+    BasemapToggle,
+    OverlayToggle,
+    VectorTile,
+    Tile,
+    Geojson,
+    Highlight,
+    Draw,
+    VectorTileOverlay,
+    TileOverlay
+};
