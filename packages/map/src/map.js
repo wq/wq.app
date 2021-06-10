@@ -108,6 +108,7 @@ const map = {
         geoshape: Geo
     },
     config: {
+        maps: {}, // Auto-populated from app.config.pages where map == true
         bounds: [
             [-4, -4],
             [4, 4]
@@ -120,13 +121,15 @@ const map = {
             maxZoom: 13,
             animate: true
         },
+        basemaps: _defaultBasemaps()
+    },
 
+    registry: {
         basemaps: {
             Tile({ url }) {
                 return `Tile at ${url}`;
             }
         },
-
         overlays: {
             Geojson({ url, data }) {
                 if (data) {
@@ -141,10 +144,6 @@ const map = {
             Draw({ type, data }) {
                 return `Draw ${data ? data.type : type}`;
             }
-        },
-
-        maps: {
-            basemaps: _defaultBasemaps()
         }
     }
 };
@@ -155,10 +154,10 @@ map.init = function (config) {
 
     Object.values(app.plugins).forEach(plugin => {
         if (plugin.basemaps) {
-            Object.assign(this.config.basemaps, plugin.basemaps);
+            Object.assign(this.registry.basemaps, plugin.basemaps);
         }
         if (plugin.overlays) {
-            Object.assign(this.config.overlays, plugin.overlays);
+            Object.assign(this.registry.overlays, plugin.overlays);
         }
         if (plugin.geocoder) {
             this.config.geocoder = address => plugin.geocoder(address);
@@ -172,12 +171,12 @@ map.init = function (config) {
     // FIXME: loadDraw();
 
     if (config) {
-        ['basemaps', 'overlays', 'maps'].forEach(key => {
-            if (config[key]) {
-                config[key] = { ...this.config[key], ...config[key] };
-            }
-        });
         Object.assign(this.config, config);
+
+        if (config.maps && config.maps.basemaps) {
+            // Compatibility with 1.3 alpha/beta; remove in 2.0
+            this.config.basemaps = config.maps.basemaps;
+        }
     }
 
     // Define map configuration for all app pages with map=True

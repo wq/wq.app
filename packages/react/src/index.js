@@ -17,7 +17,10 @@ export default {
     type: 'renderer',
 
     config: {
-        messages: { ...messages },
+        messages: { ...messages }
+    },
+
+    registry: {
         components: {
             App,
             ...components
@@ -36,24 +39,24 @@ export default {
                 Object.assign(this.config.messages, plugin.messages);
             }
             if (plugin.components) {
-                Object.assign(this.config.components, plugin.components);
+                Object.assign(this.registry.components, plugin.components);
             }
             if (plugin.inputs) {
-                Object.assign(this.config.inputs, plugin.inputs);
+                Object.assign(this.registry.inputs, plugin.inputs);
             }
             if (plugin.icons) {
-                Object.assign(this.config.icons, plugin.icons);
+                Object.assign(this.registry.icons, plugin.icons);
             }
             if (plugin.views) {
-                Object.assign(this.config.views, plugin.views);
+                Object.assign(this.registry.views, plugin.views);
             }
         });
         init.call(this);
     },
 
     getRootComponent() {
-        const { app, config } = this,
-            { components } = config,
+        const { app, registry } = this,
+            { components } = registry,
             { App } = components;
         const AppRoot = () => (
             <StoreProvider store={this.app.store._store}>
@@ -78,7 +81,8 @@ export default {
                 ...app,
                 plugins: { ...app.plugins }
             },
-            config: {
+            config: {},
+            registry: {
                 components: {},
                 inputs: {},
                 icons: {},
@@ -91,7 +95,7 @@ export default {
         this.init.call(tempPlugin);
 
         tempPlugin.app.plugins.react = tempPlugin;
-        tempPlugin.config.components.App = component;
+        tempPlugin.registry.components.App = component;
 
         return {
             start: () => this.start.call(tempPlugin),

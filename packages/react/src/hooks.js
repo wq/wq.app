@@ -345,8 +345,8 @@ export function usePlugin(name) {
 
 export function usePluginComponentMap(pluginName, mapName) {
     const plugin = usePlugin(pluginName) || {},
-        { config = {} } = plugin,
-        { [mapName]: componentMap = {} } = config;
+        { registry = {} } = plugin,
+        { [mapName]: componentMap = {} } = registry;
     Object.entries(componentMap).forEach(([key, val]) => {
         componentMap[paramCase(key)] = val;
     });

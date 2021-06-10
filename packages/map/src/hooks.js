@@ -77,7 +77,7 @@ export function routeMapConf(config, routeInfo, context = {}) {
     var mapconf = {
         ...(conf.defaults.maps[mapname] || {}),
         ...((conf[mode] || { maps: {} }).maps[mapname] || {}),
-        basemaps: config.maps.basemaps.map(checkGroupLayers),
+        basemaps: config.basemaps.map(checkGroupLayers),
         bounds: config.bounds
     };
 
