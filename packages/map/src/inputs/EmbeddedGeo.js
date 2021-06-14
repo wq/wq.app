@@ -1,7 +1,7 @@
 import React from 'react';
 import { useComponents } from '@wq/react';
 import { useOverlayComponents } from '../hooks';
-import { TYPE_MAP, flatten, useFeatureCollection } from './Geo';
+import { TYPE_MAP, asGeometry, useFeatureCollection } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function EmbeddedGeo({ type, value, setValue }) {
@@ -11,7 +11,7 @@ export default function EmbeddedGeo({ type, value, setValue }) {
         geojson = useFeatureCollection(value);
 
     function handleChange(geojson) {
-        setValue(flatten(geojson));
+        setValue(asGeometry(geojson));
     }
 
     return (

@@ -4,6 +4,7 @@ import AutoOverlay from './AutoOverlay';
 import StickyMap from './StickyMap';
 import Map from './Map';
 import Legend, { BasemapToggle, OverlayToggle } from './Legend';
+import GeoTools from './GeoTools';
 
 export {
     AutoMap,
@@ -13,5 +14,6 @@ export {
     Map,
     Legend,
     BasemapToggle,
-    OverlayToggle
+    OverlayToggle,
+    GeoTools
 };

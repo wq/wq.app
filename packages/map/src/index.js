@@ -4,10 +4,21 @@ import {
     useOverlayComponents,
     useMapState,
     useMapInstance,
-    useGeoJSON
+    useGeoJSON,
+    useGeometry,
+    useFeatureCollection,
+    asGeometry,
+    asFeatureCollection
 } from './hooks';
-import { StickyMap } from './components/index';
-import { EmbeddedGeo } from './inputs/index';
+import {
+    AutoMap,
+    AutoBasemap,
+    AutoOverlay,
+    StickyMap,
+    GeoTools
+} from './components/index';
+import { Geo, EmbeddedGeo } from './inputs/index';
+import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
 
 export default map;
 
@@ -17,6 +28,19 @@ export {
     useMapState,
     useMapInstance,
     useGeoJSON,
+    useGeometry,
+    useFeatureCollection,
+    asGeometry,
+    asFeatureCollection,
+    AutoMap,
+    AutoBasemap,
+    AutoOverlay,
     StickyMap,
-    EmbeddedGeo
+    GeoTools,
+    Geo,
+    EmbeddedGeo,
+    GeoHelp,
+    GeoLocate,
+    GeoCode,
+    GeoCoords
 };

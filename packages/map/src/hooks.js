@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useField } from 'formik';
 import {
     useRouteInfo,
     usePlugin,
@@ -9,12 +10,67 @@ import {
 } from '@wq/react';
 import Mustache from 'mustache';
 
+export const TYPE_MAP = {
+    geopoint: 'point',
+    geotrace: 'line_string',
+    geoshape: 'polygon'
+};
+
 export function useBasemapComponents() {
     return usePluginComponentMap('map', 'basemaps');
 }
 
 export function useOverlayComponents() {
     return usePluginComponentMap('map', 'overlays');
+}
+
+export function useGeoTools(name, type) {
+    const tools = usePluginComponentMap('map', 'geotools', true),
+        toggleName = `${name}_method`,
+        { setBounds } = usePlugin('map'),
+        [, { value }, { setValue }] = useField(name),
+        [, { value: activeTool }] = useField(toggleName);
+
+    const DefaultTool =
+            Object.values(tools).find(tool => tool.toolDefault) || (() => null),
+        ActiveTool = tools[activeTool] || DefaultTool;
+
+    const setLocation = useCallback(
+        ({ latitude, longitude, zoom = true, store = true }) => {
+            if (store && type === 'geopoint') {
+                setValue({
+                    type: 'Point',
+                    coordinates: [longitude, latitude]
+                });
+            }
+
+            if (zoom) {
+                setBounds([
+                    [longitude - 0.0005, latitude - 0.0005],
+                    [longitude + 0.0005, latitude + 0.0005]
+                ]);
+            }
+        }
+    );
+
+    return useMemo(
+        () => ({
+            toggleProps: {
+                name: toggleName,
+                choices: Object.entries(tools)
+                    .filter(([, Tool]) => Tool.toolLabel)
+                    .map(([key, Tool]) => ({
+                        name: key,
+                        label: Tool.toolLabel
+                    }))
+            },
+            setLocation,
+            setBounds,
+            ActiveTool,
+            value
+        }),
+        [toggleName, tools, setLocation, ActiveTool, value]
+    );
 }
 
 // Load map configuration for the given page
@@ -202,4 +258,95 @@ export function useGeoJSON(url, data) {
     }, [url, data, app]);
 
     return geojson;
+}
+
+export function useGeometry(value, maxGeometries) {
+    return useMemo(() => {
+        return asGeometry(value, maxGeometries);
+    }, [value]);
+}
+
+export function useFeatureCollection(value) {
+    return useMemo(() => {
+        return asFeatureCollection(value);
+    }, [value]);
+}
+
+export function asGeometry(geojson, maxGeometries) {
+    var geoms = [];
+    if (geojson.type === 'FeatureCollection') {
+        geojson.features.forEach(function (feature) {
+            addGeometry(feature.geometry);
+        });
+    } else if (geojson.type === 'Feature') {
+        addGeometry(geojson.geometry);
+    } else {
+        addGeometry(geojson);
+    }
+
+    if (geoms.length == 0) {
+        return null;
+    } else if (geoms.length == 1) {
+        return geoms[0];
+    } else if (maxGeometries === 1) {
+        return geoms[geoms.length - 1];
+    } else if (maxGeometries && geoms.length > maxGeometries) {
+        return {
+            type: 'GeometryCollection',
+            geometries: geoms.slice(-maxGeometries)
+        };
+    } else {
+        return {
+            type: 'GeometryCollection',
+            geometries: geoms
+        };
+    }
+
+    function addGeometry(geometry) {
+        if (geometry.type == 'GeometryCollection') {
+            geometry.geometries.forEach(addGeometry);
+        } else {
+            geoms.push(geometry);
+        }
+    }
+}
+
+export function asFeatureCollection(geojson) {
+    if (typeof geojson === 'string') {
+        try {
+            geojson = JSON.parse(geojson);
+        } catch (e) {
+            geojson = null;
+        }
+    }
+    if (!geojson || !geojson.type) {
+        return geojson;
+    }
+    const geometry = asGeometry(geojson);
+
+    if (!geometry) {
+        return null;
+    }
+
+    let features;
+    if (geometry.type === 'GeometryCollection') {
+        features = geometry.geometries.map(geometry => ({
+            type: 'Feature',
+            properties: {},
+            geometry
+        }));
+    } else {
+        features = [
+            {
+                type: 'Feature',
+                properties: {},
+                geometry
+            }
+        ];
+    }
+
+    return {
+        type: 'FeatureCollection',
+        features
+    };
 }

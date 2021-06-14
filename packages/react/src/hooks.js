@@ -343,14 +343,16 @@ export function usePlugin(name) {
     return plugins[name];
 }
 
-export function usePluginComponentMap(pluginName, mapName) {
+export function usePluginComponentMap(pluginName, mapName, paramCaseOnly) {
     const plugin = usePlugin(pluginName) || {},
         { registry = {} } = plugin,
         { [mapName]: componentMap = {} } = registry;
+
+    const result = paramCaseOnly ? {} : componentMap;
     Object.entries(componentMap).forEach(([key, val]) => {
-        componentMap[paramCase(key)] = val;
+        result[paramCase(key)] = val;
     });
-    return componentMap;
+    return result;
 }
 
 export function usePluginState(name) {

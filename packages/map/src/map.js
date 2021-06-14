@@ -6,9 +6,11 @@ import {
     Map,
     Legend,
     BasemapToggle,
-    OverlayToggle
+    OverlayToggle,
+    GeoTools
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
+import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
 import reducer, {
     MAP_READY,
     MAP_SHOW_OVERLAY,
@@ -99,7 +101,8 @@ const map = {
         MapInteraction: () => null,
         Legend,
         BasemapToggle,
-        OverlayToggle
+        OverlayToggle,
+        GeoTools
     },
     inputs: {
         Geo,
@@ -144,6 +147,12 @@ const map = {
             Draw({ type, data }) {
                 return `Draw ${data ? data.type : type}`;
             }
+        },
+        geotools: {
+            GeoHelp,
+            GeoLocate,
+            GeoCode,
+            GeoCoords
         }
     }
 };
@@ -159,6 +168,9 @@ map.init = function (config) {
         if (plugin.overlays) {
             Object.assign(this.registry.overlays, plugin.overlays);
         }
+        if (plugin.geotools) {
+            Object.assign(this.registry.geotools, plugin.geotools);
+        }
         if (plugin.geocoder) {
             this.config.geocoder = address => plugin.geocoder(address);
         }
@@ -167,6 +179,13 @@ map.init = function (config) {
                 plugin.geocoderAddress(values);
         }
     });
+
+    if (!this.config.geocoder) {
+        // No geocoder; disable default GeoCode unless it has been overridden
+        if (this.registry.geotools.GeoCode === GeoCode) {
+            delete this.registry.geotools.GeoCode;
+        }
+    }
 
     // FIXME: loadDraw();
 
