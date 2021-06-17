@@ -18,7 +18,10 @@ const CREATE = 'CREATE',
     UPDATE = 'UPDATE',
     SUCCESS = 'SUCCESS',
     DELETE = 'DELETE',
-    OVERWRITE = 'OVERWRITE';
+    OVERWRITE = 'OVERWRITE',
+    ALWAYS = true,
+    NEVER = false,
+    IF_NOT_EXIST = 'IF_NOT_EXIST';
 
 class ORMWithReducer extends ORM {
     constructor(store) {
@@ -266,7 +269,7 @@ model.cacheOpts = {
     // First page (e.g. 50 records) is stored locally; subsequent pages can be
     // loaded from server.
     first_page: {
-        server: true,
+        server: ALWAYS,
         client: true,
         page: 1,
         reversed: true
@@ -275,7 +278,7 @@ model.cacheOpts = {
     // All data is prefetched and stored locally, no subsequent requests are
     // necessary.
     all: {
-        server: false,
+        server: NEVER,
         client: true,
         page: 0,
         reversed: false
@@ -283,7 +286,15 @@ model.cacheOpts = {
 
     // "Important" data is cached; other data can be accessed via pagination.
     filter: {
-        server: true,
+        server: ALWAYS,
+        client: true,
+        page: 0,
+        reversed: true
+    },
+
+    // Start with filtered/empty list; store responses to subsequent requests
+    autoupdate: {
+        server: IF_NOT_EXIST,
         client: true,
         page: 0,
         reversed: true
@@ -291,7 +302,7 @@ model.cacheOpts = {
 
     // No data is cached locally; all data require a network request.
     none: {
-        server: true,
+        server: ALWAYS,
         client: false,
         page: 0,
         reversed: false
@@ -559,10 +570,16 @@ class Model {
         } else if (
             value !== undefined &&
             !localOnly &&
-            this.opts.server &&
+            this.opts.server !== NEVER &&
             this.config.url
         ) {
-            return await this.store.fetch('/' + this.config.url + '/' + value);
+            const result = await this.store.fetch(
+                '/' + this.config.url + '/' + value
+            );
+            if (result && result.id && this.opts.server === IF_NOT_EXIST) {
+                await this.update([result]);
+            }
+            return result;
         } else {
             return null;
         }
@@ -607,7 +624,7 @@ class Model {
 
         // If partial list, we can never be 100% sure all filter matches are
         // stored locally. In that case, run query on server.
-        if (!localOnly && this.opts.server && this.config.url) {
+        if (!localOnly && this.opts.server === ALWAYS && this.config.url) {
             // FIXME: won't work as expected if any == true
             const result = await this.store.fetch({
                 url: this.config.url,
@@ -666,6 +683,15 @@ class Model {
                     return match;
                 });
             }
+        }
+        if (
+            !qs.count() &&
+            !localOnly &&
+            this.opts.server === IF_NOT_EXIST &&
+            this.config.url
+        ) {
+            await this.fetchUpdate(filter);
+            return this.filterPage(filter, any, true);
         }
         return this._processData(
             qs.toModelArray().map(instance => this._withNested(instance))
