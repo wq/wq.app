@@ -782,6 +782,7 @@ class Model {
         return (
             this.functions[attr] ||
             isPotentialBoolean(comp) ||
+            isPotentialNumber(comp) ||
             Array.isArray(comp)
         );
     }
@@ -833,6 +834,10 @@ function toBoolean(value) {
 
 function isPotentialBoolean(value) {
     return isRawBoolean(toBoolean(value));
+}
+
+function isPotentialNumber(value) {
+    return typeof value !== 'number' && !Number.isNaN(+value);
 }
 
 model.Model = Model;
