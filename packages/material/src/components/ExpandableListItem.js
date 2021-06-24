@@ -3,11 +3,23 @@ import { useComponents } from '@wq/react';
 import Collapse from '@material-ui/core/Collapse';
 import PropTypes from 'prop-types';
 
-export default function ExpandableListItem({ children, ...rest }) {
+export default function ExpandableListItem({
+    children,
+    open,
+    onToggle,
+    ...rest
+}) {
     const [summary, ...details] = React.Children.toArray(children),
-        [open, setOpen] = useState(false),
-        toggleOpen = () => setOpen(!open),
+        [internalOpen, setOpen] = useState(false),
         { ListItem, IconButton } = useComponents();
+
+    let toggleOpen;
+    if (open === false || open || onToggle) {
+        toggleOpen = () => onToggle(!open);
+    } else {
+        open = internalOpen;
+        toggleOpen = () => setOpen(!open);
+    }
 
     return (
         <>
