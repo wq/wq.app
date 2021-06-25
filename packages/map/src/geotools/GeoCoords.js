@@ -8,10 +8,10 @@ export default function GeoCoords({ name, value, type, setLocation }) {
         { Input } = useInputComponents(),
         longitudeName = `${name}_longitude`,
         latitudeName = `${name}_latitude`,
-        [, { value: latitude }, { setValue: setLongitude }] = useField(
+        [, { value: longitude }, { setValue: setLongitude }] = useField(
             longitudeName
         ),
-        [, { value: longitude }, { setValue: setLatitude }] = useField(
+        [, { value: latitude }, { setValue: setLatitude }] = useField(
             latitudeName
         );
 

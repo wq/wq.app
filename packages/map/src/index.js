@@ -2,6 +2,7 @@ import map from './map';
 import {
     useBasemapComponents,
     useOverlayComponents,
+    useGeoTools,
     useMapState,
     useMapInstance,
     useGeoJSON,
@@ -25,6 +26,7 @@ export default map;
 export {
     useBasemapComponents,
     useOverlayComponents,
+    useGeoTools,
     useMapState,
     useMapInstance,
     useGeoJSON,
