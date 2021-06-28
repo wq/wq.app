@@ -457,10 +457,13 @@ class Model {
         return this.getQuerySet();
     }
 
-    async getPage(page_num) {
+    async getPage(page_num, limit) {
         var query = { ...this.query };
         if (page_num !== null) {
             query.page = page_num;
+        }
+        if (limit) {
+            query.limit = limit;
         }
 
         const result = await this.store.fetch(query);
@@ -533,18 +536,18 @@ class Model {
     }
 
     // Load data for the given page number
-    async page(page_num) {
+    async page(page_num, limit) {
         if (!this.config.url) {
             if (page_num > this.opts.page) {
                 throw new Error('No URL, cannot retrieve page ' + page_num);
             }
         }
-        if (page_num <= this.opts.page) {
+        if (page_num <= this.opts.page && !limit) {
             // Store data locally
             return this.load();
         } else {
             // Fetch on demand but don't store
-            return this.getPage(page_num);
+            return this.getPage(page_num, limit);
         }
     }
 

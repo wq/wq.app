@@ -725,6 +725,7 @@ async function _displayList(ctx, parentInfo) {
         conf = _getConf(page),
         model = app.models[page];
     var pnum = model.opts.page,
+        limit = null,
         next = null,
         prev = null,
         filter;
@@ -732,9 +733,12 @@ async function _displayList(ctx, parentInfo) {
         if (params && params.page) {
             pnum = params.page;
         }
+        if (params && params.limit) {
+            limit = params.limit;
+        }
         filter = {};
         for (var key in params || {}) {
-            if (key != 'page') {
+            if (key != 'page' && key != 'limit') {
                 filter[key] = params[key];
             }
         }
@@ -763,6 +767,9 @@ async function _displayList(ctx, parentInfo) {
         }
     } else if (filter && pnum > model.opts.page) {
         filter.page = pnum;
+        if (limit) {
+            filter.limit = limit;
+        }
     }
 
     if (!pnum && (!model.opts.client || filter)) {
@@ -776,7 +783,7 @@ async function _displayList(ctx, parentInfo) {
         if (filter) {
             return model.filterPage(filter);
         } else if (pnum > model.opts.page) {
-            return model.page(pnum);
+            return model.page(pnum, limit);
         } else {
             return model.load();
         }
