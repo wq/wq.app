@@ -2,6 +2,8 @@ import { routeMapConf } from './hooks';
 
 const RENDER = 'RENDER';
 export const MAP_READY = 'MAP_READY',
+    MAP_SET_STICKY_PROPS = 'MAP_SET_STICKY_PROPS',
+    MAP_SET_STICKY_ID = 'MAP_SET_STICKY_ID',
     MAP_SHOW_OVERLAY = 'MAP_SHOW_OVERLAY',
     MAP_HIDE_OVERLAY = 'MAP_HIDE_OVERLAY',
     MAP_SET_BASEMAP = 'MAP_SET_BASEMAP',
@@ -51,6 +53,10 @@ export default function reducer(state = {}, action, config) {
         }
         case MAP_READY:
             return reduceMapState({ ...state, instance: action.payload });
+        case MAP_SET_STICKY_PROPS:
+            return reduceMapState(state, { props: action.payload });
+        case MAP_SET_STICKY_ID:
+            return { ...state, stickyMapId: action.payload };
         case MAP_SHOW_OVERLAY:
             return {
                 ...state,
@@ -267,7 +273,7 @@ function checkEmpty(geojson) {
     }
 }
 
-function reduceMapState(state) {
+function reduceMapState(state, stickyState) {
     const { mapId, instance, highlight } = state;
     if (mapId) {
         const stickyMaps = state.stickyMaps || {};
@@ -275,7 +281,7 @@ function reduceMapState(state) {
             ...state,
             stickyMaps: {
                 ...stickyMaps,
-                [mapId]: { instance, highlight }
+                [mapId]: { instance, highlight, ...stickyState }
             }
         };
     } else {

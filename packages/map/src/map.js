@@ -3,6 +3,7 @@ import {
     AutoBasemap,
     AutoOverlay,
     StickyMap,
+    OffscreenMaps,
     Map,
     Legend,
     BasemapToggle,
@@ -11,8 +12,11 @@ import {
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
+import { DefaultList, DefaultDetail } from './views/index';
 import reducer, {
     MAP_READY,
+    MAP_SET_STICKY_PROPS,
+    MAP_SET_STICKY_ID,
     MAP_SHOW_OVERLAY,
     MAP_HIDE_OVERLAY,
     MAP_SET_BASEMAP,
@@ -36,6 +40,18 @@ const map = {
             return {
                 type: MAP_READY,
                 payload: instance
+            };
+        },
+        setStickyProps(props) {
+            return {
+                type: MAP_SET_STICKY_PROPS,
+                payload: props
+            };
+        },
+        setStickyMapId(id) {
+            return {
+                type: MAP_SET_STICKY_ID,
+                payload: id
             };
         },
         setBasemap(name) {
@@ -97,6 +113,7 @@ const map = {
         AutoBasemap,
         AutoOverlay,
         StickyMap,
+        OffscreenMaps,
         Map,
         MapInteraction: () => null,
         Legend,
@@ -110,6 +127,7 @@ const map = {
         geotrace: Geo,
         geoshape: Geo
     },
+    views: { DefaultList, DefaultDetail },
     config: {
         maps: {}, // Auto-populated from app.config.pages where map == true
         bounds: [
@@ -274,14 +292,7 @@ map.init = function (config) {
 };
 
 // Plugin API
-map.runComponent = function ({ page, mode }) {
-    var mapconf = map.config.maps[page];
-    if (mapconf && mode !== 'edit' && !mapconf.mapId) {
-        return 'AutoMap';
-    } else {
-        return null;
-    }
-};
+map.runComponent = 'OffscreenMaps';
 
 // FIXME: Drop this function in 2.0
 map.run = function ($page, routeInfo) {

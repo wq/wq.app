@@ -62,13 +62,19 @@ function AppLayout({ showHeader }) {
 
     const View = views[name];
     if (!View) {
-        return <Container>{`Missing ${name} view!`}</Container>;
+        return (
+            <Container>
+                {`Missing ${name} view!`}
+                <Spinner />
+            </Container>
+        );
     }
 
     if (View.fullscreen) {
         return (
             <Container>
                 <View />
+                <PluginContent />
                 <Spinner />
             </Container>
         );
@@ -78,7 +84,7 @@ function AppLayout({ showHeader }) {
                 {showHeader && <Header />}
                 <Main>
                     <View />
-                    {!routeInfo.pending && <PluginContent />}
+                    <PluginContent />
                 </Main>
                 <Footer />
                 <Spinner />

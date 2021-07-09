@@ -11,8 +11,21 @@ import { useHtmlInput } from './inputs/Input';
 
 const isAction = path => path && path.type;
 
+const selectors = {};
+
+function getSelector(name) {
+    if (!selectors[name]) {
+        selectors[name] = state => state[name];
+    }
+    return selectors[name];
+}
+
+function selectRoutesMap(state) {
+    return selectLocationState(state).routesMap;
+}
+
 export function useRoutesMap() {
-    return useSelector(state => selectLocationState(state).routesMap);
+    const locationState = useSelector(selectRoutesMap);
 }
 
 export function toNavAction(path, routesMap) {
@@ -52,14 +65,14 @@ function useCurrentRoute() {
 }
 
 export function useRenderContext(routeName) {
-    const context = useSelector(state => state.context),
+    const context = useSelector(getSelector('context')),
         currentRoute = useCurrentRoute();
     return (context && context[routeName || currentRoute]) || {};
 }
 
 export function useRouteInfo(routeName) {
     const currentRoute = useCurrentRoute(),
-        routeInfos = useSelector(state => state.routeInfo),
+        routeInfos = useSelector(getSelector('routeInfo')),
         routeInfo = routeInfos && routeInfos[routeName || currentRoute],
         context = useRenderContext(routeName),
         { getRouteInfo } = useApp().router;
@@ -212,7 +225,7 @@ export function useSitemap() {
 }
 
 export function useSpinner() {
-    const spinner = useSelector(state => state.spinner);
+    const spinner = useSelector(getSelector('spinner'));
     return spinner;
 }
 
@@ -295,8 +308,12 @@ export function useModel(name, filter) {
     return useSelector(selector);
 }
 
+function selectOutbox(state) {
+    return state.offline.outbox;
+}
+
 export function useOutbox() {
-    const outbox = useSelector(state => state.offline.outbox) || [],
+    const outbox = useSelector(selectOutbox) || [],
         {
             outbox: { parseOutbox }
         } = useApp();
@@ -357,7 +374,7 @@ export function usePluginComponentMap(pluginName, mapName, paramCaseOnly) {
 
 export function usePluginState(name) {
     const plugin = usePlugin(name),
-        pluginState = useSelector(state => state[name]);
+        pluginState = useSelector(getSelector(name));
 
     if (plugin) {
         return pluginState;
@@ -368,7 +385,7 @@ export function usePluginState(name) {
 
 export function usePluginReducer(name) {
     const plugin = usePlugin(name),
-        pluginState = useSelector(state => state[name]);
+        pluginState = useSelector(getSelector(name));
 
     if (plugin) {
         return [pluginState, plugin];
@@ -379,16 +396,15 @@ export function usePluginReducer(name) {
 
 export function usePluginContent() {
     const app = useApp(),
-        components = useComponents(),
-        routeInfo = useRouteInfo();
+        components = useComponents();
 
     const content = useMemo(
         () =>
-            app
-                .callPlugins('runComponent', [routeInfo])
+            Object.values(app.plugins)
+                .map(plugin => plugin.runComponent)
                 .map(name => (name ? components[name] : null))
                 .filter(component => !!component),
-        [routeInfo]
+        [app]
     );
 
     return useCallback(

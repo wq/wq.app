@@ -42,7 +42,7 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
     }
 
     const SubformArray = useCallback(
-        ({ form: formikContext, push, pop }) => {
+        ({ form: formikContext, push, remove, pop }) => {
             const { values } = formikContext,
                 list = getIn(values, name) || [];
 
@@ -51,7 +51,8 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
                 push(row);
             }
 
-            const removeLastRow = pop;
+            const removeRow = remove,
+                removeLastRow = pop;
 
             return (
                 <FieldsetArray
@@ -59,6 +60,7 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
                     label={label}
                     subform={subform}
                     addRow={addRow}
+                    removeRow={removeRow}
                     removeLastRow={removeLastRow}
                     {...rest}
                 >

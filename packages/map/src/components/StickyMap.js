@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useComponents } from '@wq/react';
-import { useMapState } from '../hooks';
+import React, { useEffect } from 'react';
+import { useComponents, usePluginReducer } from '@wq/react';
 import PropTypes from 'prop-types';
+import { Reparentable, moveOffscreen } from './OffscreenMaps';
 
 export default function StickyMap({
     mapId,
@@ -9,36 +9,60 @@ export default function StickyMap({
     invisibleStyle,
     children
 }) {
-    const state = useMapState(),
-        { AutoMap } = useComponents(),
-        [stickyState, setStickyState] = useState(null),
-        visible = state && mapId && state.mapId === mapId;
+    const [mapState, { setStickyProps }] = usePluginReducer('map'),
+        { stickyMapId, stickyMaps } = mapState,
+        currentProps =
+            stickyMaps && stickyMaps[mapId] && stickyMaps[mapId].props,
+        { AutoMap } = useComponents();
 
     useEffect(() => {
-        if (visible) {
-            setStickyState(state);
+        if (mapState.mapId !== mapId) {
+            return;
         }
-    }, [visible, state]);
 
-    if (!stickyState) {
-        return null;
-    }
+        const nextState = {};
+        Object.keys(mapState).forEach(key => {
+            if (key === 'stickyMapId' || key === 'stickyMaps') {
+                return;
+            }
+            nextState[key] = mapState[key];
+        });
 
-    if (!visible) {
-        containerStyle = {
-            ...containerStyle,
-            position: 'absolute',
-            top: '-2000px',
-            width: '100vw',
-            height: 'calc(100vh - 120px)',
-            ...invisibleStyle
+        if (
+            currentProps &&
+            currentProps.containerStyle === containerStyle &&
+            currentProps.invisibleStyle === invisibleStyle &&
+            Object.keys(nextState).every(
+                key => nextState[key] === currentProps.state[key]
+            )
+        ) {
+            return;
+        }
+
+        setStickyProps({
+            containerStyle,
+            invisibleStyle,
+            state: nextState
+        });
+    }, [
+        mapId,
+        mapState,
+        currentProps,
+        containerStyle,
+        invisibleStyle,
+        children
+    ]);
+
+    useEffect(() => {
+        return () => {
+            moveOffscreen(mapId);
         };
-    }
+    }, [mapId]);
 
     return (
-        <AutoMap containerStyle={containerStyle} state={stickyState}>
-            {children}
-        </AutoMap>
+        <Reparentable id={mapId}>
+            {mapId === stickyMapId && <AutoMap key={mapId} {...currentProps} />}
+        </Reparentable>
     );
 }
 

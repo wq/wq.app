@@ -16,10 +16,12 @@ import {
     AutoBasemap,
     AutoOverlay,
     StickyMap,
+    OffscreenMaps,
     GeoTools
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
+import { DefaultList, DefaultDetail } from './views/index';
 
 export default map;
 
@@ -38,11 +40,14 @@ export {
     AutoBasemap,
     AutoOverlay,
     StickyMap,
+    OffscreenMaps,
     GeoTools,
     Geo,
     EmbeddedGeo,
     GeoHelp,
     GeoLocate,
     GeoCode,
-    GeoCoords
+    GeoCoords,
+    DefaultList,
+    DefaultDetail
 };
