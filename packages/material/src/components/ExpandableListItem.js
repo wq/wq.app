@@ -44,5 +44,7 @@ export default function ExpandableListItem({
 }
 
 ExpandableListItem.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    open: PropTypes.bool,
+    onToggle: PropTypes.func
 };

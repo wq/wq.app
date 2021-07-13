@@ -25,7 +25,7 @@ function selectRoutesMap(state) {
 }
 
 export function useRoutesMap() {
-    const locationState = useSelector(selectRoutesMap);
+    return useSelector(selectRoutesMap);
 }
 
 export function toNavAction(path, routesMap) {
