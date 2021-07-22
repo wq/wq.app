@@ -15,6 +15,15 @@ const HTML = '@@HTML',
         [LAST]: true
     };
 
+const defaultQuerySerializer = {
+    parse(str) {
+        return queryString.parse(str, { arrayFormat: 'comma' });
+    },
+    stringify(obj) {
+        return queryString.stringify(obj, { arrayFormat: 'comma' });
+    }
+};
+
 // Exported module object
 var router = {
     config: {
@@ -22,7 +31,7 @@ var router = {
         tmpl404: 404,
         debug: false,
         getTemplateName: name => name,
-        querySerializer: queryString
+        querySerializer: defaultQuerySerializer
     },
     routesMap: {},
     routeInfoFn: [],

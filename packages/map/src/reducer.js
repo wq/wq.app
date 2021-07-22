@@ -25,9 +25,13 @@ export default function reducer(state = {}, action, config) {
             if (routeInfo === _lastRouteInfo) {
                 return state;
             } else {
+                const isSameView =
+                    _lastRouteInfo &&
+                    routeInfo.template &&
+                    routeInfo.template === _lastRouteInfo.template;
                 _lastRouteInfo = routeInfo;
                 let nextState = {};
-                const { stickyMaps } = state;
+                const { stickyMaps, stickyMapId } = state;
                 if (!conf) {
                     nextState = { stickyMaps };
                 } else {
@@ -42,11 +46,16 @@ export default function reducer(state = {}, action, config) {
                         highlight,
                         instance,
                         mapId,
+                        stickyMapId:
+                            isSameView && stickyMapId === mapId ? mapId : null,
                         stickyMaps
                     };
                 }
                 if (!nextState.stickyMaps) {
                     delete nextState.stickyMaps;
+                }
+                if (!nextState.stickyMapId) {
+                    delete nextState.stickyMapId;
                 }
                 return nextState;
             }

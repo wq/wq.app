@@ -1444,6 +1444,10 @@ function _getBaseConf(page) {
 
 function _getConf(page, silentFail, baseConf) {
     var conf = (baseConf ? app.config : app.wq_config).pages[page];
+    if (!conf && !baseConf) {
+        return _getConf(page, silentFail, true);
+    }
+
     if (!conf) {
         if (silentFail) {
             return;
