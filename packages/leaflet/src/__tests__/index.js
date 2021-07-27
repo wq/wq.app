@@ -1,5 +1,6 @@
-import map, { EmbeddedGeo } from '@wq/map';
-import leaflet from '../index';
+import map, { AutoMap, EmbeddedGeo } from '@wq/map';
+import { Geojson, Draw } from '../overlays/index';
+import leaflet, { Map } from '../index';
 import renderTest, { nextTick } from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
@@ -86,9 +87,6 @@ function setRouteInfo(routeInfo, context = {}) {
 }
 
 test('list map', async () => {
-    const { AutoMap } = map.components,
-        { Geojson } = map.config.overlays;
-
     setRouteInfo({
         page: 'item',
         mode: 'list'
@@ -118,12 +116,10 @@ test('list map', async () => {
 });
 
 test('edit map (leaflet.draw)', async () => {
-    const { Map } = leaflet.components,
-        { Draw } = map.config.overlays,
-        point = {
-            type: 'Point',
-            coordinates: [45, -95]
-        };
+    const point = {
+        type: 'Point',
+        coordinates: [45, -95]
+    };
 
     setRouteInfo(
         {

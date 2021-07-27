@@ -1,10 +1,13 @@
 import map from '../map';
 import { routeMapConf } from '../hooks';
+import { AutoMap } from '../components';
 import { EmbeddedGeo } from '../inputs';
 import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
 import { createStore, combineReducers, bindActionCreators } from 'redux';
+
+const { Geojson, Draw, Highlight } = map.registry.overlays;
 
 const store = createStore(
     combineReducers({
@@ -205,9 +208,6 @@ test('manual map config for other pages', () => {
 });
 
 test('list map', async () => {
-    const { AutoMap } = map.components,
-        { Geojson } = map.config.overlays;
-
     setRouteInfo({
         page: 'item',
         mode: 'list'
@@ -228,11 +228,10 @@ test('list map', async () => {
 });
 
 test('edit map', async () => {
-    const { Draw } = map.config.overlays,
-        point = {
-            type: 'Point',
-            coordinates: [45, -95]
-        };
+    const point = {
+        type: 'Point',
+        coordinates: [45, -95]
+    };
 
     setRouteInfo(
         {
@@ -271,9 +270,6 @@ test('edit map', async () => {
 });
 
 test('special layer types', async () => {
-    const { AutoMap } = map.components,
-        { Geojson } = map.config.overlays;
-
     setRouteInfo({
         page: 'special'
     });
@@ -389,9 +385,6 @@ test('toggle layers', async () => {
 });
 
 test('highlight layer', async () => {
-    const { AutoMap } = map.components,
-        { Highlight } = map.config.overlays;
-
     setRouteInfo({
         page: 'multilayer'
     });

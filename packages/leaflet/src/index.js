@@ -56,3 +56,14 @@ export default {
         Draw
     }
 };
+
+export {
+    Map,
+    Legend,
+    BasemapToggle,
+    OverlayToggle,
+    Tile,
+    Geojson,
+    Highlight,
+    Draw
+};
