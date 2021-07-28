@@ -4,13 +4,10 @@ import { useGeoTools } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function GeoTools({ name, type }) {
-    const {
-            toggleProps,
-            setLocation,
-            setBounds,
-            ActiveTool,
-            value
-        } = useGeoTools(name, type),
+    const { toggleProps, setLocation, ActiveTool, value } = useGeoTools(
+            name,
+            type
+        ),
         { View } = useComponents(),
         { Toggle } = useInputComponents();
 
@@ -30,7 +27,6 @@ export default function GeoTools({ name, type }) {
                 value={value}
                 type={type}
                 setLocation={setLocation}
-                setBounds={setBounds}
             />
         </View>
     );

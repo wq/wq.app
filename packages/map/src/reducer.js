@@ -11,8 +11,7 @@ export const MAP_READY = 'MAP_READY',
     MAP_ADD_HIGHLIGHT = 'MAP_ADD_HIGHLIGHT',
     MAP_TOGGLE_HIGHLIGHT = 'MAP_TOGGLE_HIGHLIGHT',
     MAP_REMOVE_HIGHLIGHT = 'MAP_REMOVE_HIGHLIGHT',
-    MAP_CLEAR_HIGHLIGHT = 'MAP_CLEAR_HIGHLIGHT',
-    MAP_SET_BOUNDS = 'MAP_SET_BOUNDS';
+    MAP_CLEAR_HIGHLIGHT = 'MAP_CLEAR_HIGHLIGHT';
 
 var _lastRouteInfo = null;
 
@@ -36,15 +35,16 @@ export default function reducer(state = {}, action, config) {
                     nextState = { stickyMaps };
                 } else {
                     const { mapId } = conf,
-                        { highlight = null, instance = null } =
+                        { highlight = null, instance = null, instances = {} } =
                             (mapId && stickyMaps && stickyMaps[mapId]) || {};
                     nextState = {
                         basemaps: reduceBasemaps(state.basemaps, conf.basemaps),
                         overlays: reduceOverlays(state.overlays, conf.layers),
-                        bounds: conf.bounds,
+                        initBounds: conf.bounds,
                         mapProps: conf.mapProps,
                         highlight,
                         instance,
+                        instances,
                         mapId,
                         stickyMapId:
                             isSameView && stickyMapId === mapId ? mapId : null,
@@ -60,8 +60,17 @@ export default function reducer(state = {}, action, config) {
                 return nextState;
             }
         }
-        case MAP_READY:
-            return reduceMapState({ ...state, instance: action.payload });
+        case MAP_READY: {
+            const { name, instance } = action.payload;
+            if (name) {
+                return reduceMapState({
+                    ...state,
+                    instances: { ...state.instances, [name]: instance }
+                });
+            } else {
+                return reduceMapState({ ...state, instance });
+            }
+        }
         case MAP_SET_STICKY_PROPS:
             return reduceMapState(state, { props: action.payload });
         case MAP_SET_STICKY_ID:
@@ -192,11 +201,6 @@ export default function reducer(state = {}, action, config) {
                     highlight: null
                 });
             }
-        case MAP_SET_BOUNDS:
-            return {
-                ...state,
-                bounds: action.payload
-            };
         default:
             return state;
     }
@@ -283,14 +287,14 @@ function checkEmpty(geojson) {
 }
 
 function reduceMapState(state, stickyState) {
-    const { mapId, instance, highlight } = state;
+    const { mapId, instance, instances, highlight } = state;
     if (mapId) {
         const stickyMaps = state.stickyMaps || {};
         return {
             ...state,
             stickyMaps: {
                 ...stickyMaps,
-                [mapId]: { instance, highlight, ...stickyState }
+                [mapId]: { instance, instances, highlight, ...stickyState }
             }
         };
     } else {

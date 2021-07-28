@@ -54,6 +54,14 @@ export default {
         Geojson,
         Highlight,
         Draw
+    },
+    zoomToLocation(instance, geometry) {
+        if (geometry.type === 'Point') {
+            const [longitude, latitude] = geometry.coordinates;
+            instance.flyTo([latitude, longitude], 18);
+        } else {
+            //FIXME
+        }
     }
 };
 

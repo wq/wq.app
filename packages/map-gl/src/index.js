@@ -19,7 +19,7 @@ import {
 } from './overlays/index';
 
 export default {
-    name: 'mapbox',
+    name: 'map-gl',
     dependencies: [map],
     components: {
         Map,
@@ -38,6 +38,16 @@ export default {
         Draw,
         VectorTile: VectorTileOverlay,
         Tile: TileOverlay
+    },
+    zoomToLocation(instance, geometry) {
+        if (geometry.type == 'Point') {
+            instance.flyTo({
+                center: geometry.coordinates,
+                zoom: 18
+            });
+        } else {
+            // FIXME
+        }
     }
 };
 

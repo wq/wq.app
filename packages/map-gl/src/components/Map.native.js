@@ -4,7 +4,13 @@ import PropTypes from 'prop-types';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { findBasemapStyle } from '../util';
 
-export default function Map({ bounds, children, mapProps, containerStyle }) {
+export default function Map({
+    name,
+    initBounds,
+    children,
+    mapProps,
+    containerStyle
+}) {
     const {
         accessToken = null,
         dragRotate: rotateEnabled,
@@ -16,9 +22,9 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
 
     const { ready } = usePlugin('map'),
         fitBounds = useMemo(() => {
-            const [[xmin, ymin], [xmax, ymax]] = bounds;
+            const [[xmin, ymin], [xmax, ymax]] = initBounds;
             return { sw: [xmin, ymin], ne: [xmax, ymax] };
-        }, [bounds]),
+        }, [initBounds]),
         style = findBasemapStyle(children);
 
     const mapRef = React.useRef(),
@@ -28,7 +34,7 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
                 ref.camera = cameraRef.current;
             }
             if (ref) {
-                ready(ref);
+                ready(ref, name);
             }
         }, []),
         cameraRef = React.useRef(),
@@ -66,7 +72,8 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
 }
 
 Map.propTypes = {
-    bounds: PropTypes.array,
+    name: PropTypes.string,
+    initBounds: PropTypes.array,
     children: PropTypes.node,
     mapProps: PropTypes.object,
     containerStyle: PropTypes.object

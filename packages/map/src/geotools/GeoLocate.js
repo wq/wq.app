@@ -3,7 +3,7 @@ import { useComponents } from '@wq/react';
 import { useField } from 'formik';
 import PropTypes from 'prop-types';
 
-export default function GeoLocate({ name, setLocation }) {
+export default function GeoLocate({ name, type, setLocation }) {
     const { Button, Typography } = useComponents(),
         [gpsStatus, setGpsStatus] = useState(''),
         [gpsWatch, setGpsWatch] = useState(''),
@@ -34,7 +34,12 @@ export default function GeoLocate({ name, setLocation }) {
         const lat = +evt.coords.latitude.toFixed(6),
             lng = +evt.coords.longitude.toFixed(6),
             acc = +evt.coords.accuracy.toFixed(3);
-        setLocation({ longitude: lng, latitude: lat, zoom: true, save: true });
+        setLocation({
+            longitude: lng,
+            latitude: lat,
+            zoom: true,
+            save: type === 'geopoint'
+        });
         setAccuracy(acc);
 
         const latFmt = lat > 0 ? lat + '°N' : -lat + '°S',
@@ -95,5 +100,6 @@ GeoLocate.toolLabel = 'Current';
 
 GeoLocate.propTypes = {
     name: PropTypes.string,
+    type: PropTypes.string,
     setLocation: PropTypes.func
 };

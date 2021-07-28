@@ -40,7 +40,7 @@ export default function GeoCoords({ name, value, type, setLocation }) {
             longitude,
             latitude,
             zoom: true,
-            save: true
+            save: type === 'geopoint'
         });
     }
 

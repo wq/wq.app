@@ -39,7 +39,7 @@ export default function Geo({
     return (
         <Fieldset label={label}>
             <GeoTools name={name} type={type} />
-            <AutoMap containerStyle={{ minHeight: 400 }}>
+            <AutoMap name={name} containerStyle={{ minHeight: 400 }}>
                 <Draw
                     type={drawType}
                     required={required}

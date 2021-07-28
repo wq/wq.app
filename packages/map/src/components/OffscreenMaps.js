@@ -55,6 +55,7 @@ export default function OffscreenMaps() {
                         mapId,
                         {
                             props: {
+                                name,
                                 containerStyle,
                                 invisibleStyle,
                                 state
@@ -65,6 +66,7 @@ export default function OffscreenMaps() {
                         state && (
                             <AutoMap
                                 key={mapId}
+                                name={name}
                                 state={state}
                                 containerStyle={{
                                     ...containerStyle,

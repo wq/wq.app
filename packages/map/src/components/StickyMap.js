@@ -5,6 +5,7 @@ import { Reparentable, moveOffscreen } from './OffscreenMaps';
 
 export default function StickyMap({
     mapId,
+    name,
     containerStyle,
     invisibleStyle,
     children
@@ -30,6 +31,7 @@ export default function StickyMap({
 
         if (
             currentProps &&
+            currentProps.name === name &&
             currentProps.containerStyle === containerStyle &&
             currentProps.invisibleStyle === invisibleStyle &&
             Object.keys(nextState).every(
@@ -40,6 +42,7 @@ export default function StickyMap({
         }
 
         setStickyProps({
+            name,
             containerStyle,
             invisibleStyle,
             state: nextState
@@ -48,6 +51,7 @@ export default function StickyMap({
         mapId,
         mapState,
         currentProps,
+        name,
         containerStyle,
         invisibleStyle,
         children
@@ -68,6 +72,7 @@ export default function StickyMap({
 
 StickyMap.propTypes = {
     mapId: PropTypes.string,
+    name: PropTypes.string,
     containerStyle: PropTypes.object,
     invisibleStyle: PropTypes.object,
     children: PropTypes.node

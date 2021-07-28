@@ -25,9 +25,11 @@ export function useOverlayComponents() {
 }
 
 export function useGeoTools(name, type) {
-    const tools = usePluginComponentMap('map', 'geotools', true),
+    const { zoomToLocation } = usePlugin('map').config,
+        tools = usePluginComponentMap('map', 'geotools', true),
         toggleName = `${name}_method`,
-        { setBounds } = usePlugin('map'),
+        mapState = useMapState(),
+        instance = useMapInstance(name),
         [, { value }, { setValue }] = useField(name),
         [, { value: activeTool }] = useField(toggleName);
 
@@ -36,21 +38,34 @@ export function useGeoTools(name, type) {
         ActiveTool = tools[activeTool] || DefaultTool;
 
     const setLocation = useCallback(
-        ({ latitude, longitude, zoom = true, store = true }) => {
-            if (store && type === 'geopoint') {
-                setValue({
+        ({
+            geometry = null,
+            latitude = 0,
+            longitude = 0,
+            zoom = true,
+            save = false
+        }) => {
+            if (!geometry) {
+                geometry = {
                     type: 'Point',
                     coordinates: [longitude, latitude]
-                });
+                };
             }
 
-            if (zoom) {
-                setBounds([
-                    [longitude - 0.0005, latitude - 0.0005],
-                    [longitude + 0.0005, latitude + 0.0005]
-                ]);
+            if (save) {
+                setValue(geometry);
             }
-        }
+
+            if (zoom && zoomToLocation) {
+                zoomToLocation(instance, geometry, {
+                    name,
+                    type,
+                    activeTool,
+                    mapState
+                });
+            }
+        },
+        [instance]
     );
 
     return useMemo(
@@ -65,7 +80,6 @@ export function useGeoTools(name, type) {
                     }))
             },
             setLocation,
-            setBounds,
             ActiveTool,
             value
         }),
@@ -91,10 +105,14 @@ export function useMapState() {
     }
 }
 
-export function useMapInstance() {
+export function useMapInstance(name = null) {
     const mapState = useMapState();
     if (mapState) {
-        return mapState.instance;
+        if (name) {
+            return mapState.instances[name];
+        } else {
+            return mapState.instance;
+        }
     } else {
         return null;
     }

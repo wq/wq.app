@@ -3,7 +3,7 @@ import { useComponents } from '@wq/react';
 import { useMapState, useOverlayComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
-export default function AutoMap({ containerStyle, state, children }) {
+export default function AutoMap({ name, containerStyle, state, children }) {
     const mapState = useMapState(),
         {
             Map,
@@ -24,15 +24,16 @@ export default function AutoMap({ containerStyle, state, children }) {
         return null;
     }
 
-    const { basemaps, overlays, bounds, mapProps, highlight } = state;
+    const { basemaps, overlays, initBounds, mapProps, highlight } = state;
 
     return (
         <Map
-            bounds={bounds}
+            name={name}
+            initBounds={initBounds}
             mapProps={mapProps}
             containerStyle={containerStyle}
         >
-            <MapInteraction />
+            <MapInteraction name={name} />
             <Legend>
                 {basemaps.map((conf, i) => (
                     <BasemapToggle
@@ -60,6 +61,7 @@ export default function AutoMap({ containerStyle, state, children }) {
 }
 
 AutoMap.propTypes = {
+    name: PropTypes.string,
     containerStyle: PropTypes.object,
     state: PropTypes.object,
     children: PropTypes.node

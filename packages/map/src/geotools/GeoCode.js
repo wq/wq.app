@@ -3,7 +3,7 @@ import { useComponents, useInputComponents, usePlugin } from '@wq/react';
 import { useField, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 
-export default function GeoCode({ name, setLocation }) {
+export default function GeoCode({ name, type, setLocation }) {
     const { IconButton } = useComponents(),
         { Input } = useInputComponents(),
         [
@@ -30,7 +30,7 @@ export default function GeoCode({ name, setLocation }) {
                     latitude: geometry.coordinates[1],
                     longitude: geometry.coordinates[0],
                     zoom: true,
-                    save: true
+                    save: type === 'geopoint'
                 });
                 setGeocodeStatus(label || 'Location found!');
             } else {
@@ -67,5 +67,6 @@ GeoCode.toolLabel = 'Address';
 
 GeoCode.propTypes = {
     name: PropTypes.string,
+    type: PropTypes.string,
     setLocation: PropTypes.func
 };

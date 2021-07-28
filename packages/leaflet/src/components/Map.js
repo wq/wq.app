@@ -3,26 +3,32 @@ import { usePlugin } from '@wq/react';
 import PropTypes from 'prop-types';
 import { Map as LMap, useLeaflet } from 'react-leaflet';
 
-function Ready() {
+function Ready({ name }) {
     const { ready } = usePlugin('map') || {},
         { map } = useLeaflet();
     useEffect(() => {
-        ready && map && ready(map);
+        ready && map && ready(map, name);
     }, [ready, map]);
     return null;
 }
 
-export default function Map({ bounds, children, mapProps, containerStyle }) {
+export default function Map({
+    name,
+    initBounds,
+    children,
+    mapProps,
+    containerStyle
+}) {
     const fitBounds = useMemo(() => {
-        if (!bounds) {
-            return bounds;
+        if (!initBounds) {
+            return initBounds;
         }
-        const [[xmin, ymin], [xmax, ymax]] = bounds;
+        const [[xmin, ymin], [xmax, ymax]] = initBounds;
         return [
             [ymin, xmin],
             [ymax, xmax]
         ];
-    }, [bounds]);
+    }, [initBounds]);
     const style = {
         flex: '1',
         minHeight: 200,
@@ -31,14 +37,15 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
     const maxZoom = (mapProps && mapProps.maxZoom) || 18;
     return (
         <LMap bounds={fitBounds} style={style} maxZoom={maxZoom} {...mapProps}>
-            <Ready />
+            <Ready name={name} />
             {children}
         </LMap>
     );
 }
 
 Map.propTypes = {
-    bounds: PropTypes.array,
+    name: PropTypes.string,
+    initBounds: PropTypes.array,
     children: PropTypes.node,
     mapProps: PropTypes.object,
     containerStyle: PropTypes.object

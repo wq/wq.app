@@ -24,8 +24,7 @@ import reducer, {
     MAP_ADD_HIGHLIGHT,
     MAP_TOGGLE_HIGHLIGHT,
     MAP_REMOVE_HIGHLIGHT,
-    MAP_CLEAR_HIGHLIGHT,
-    MAP_SET_BOUNDS
+    MAP_CLEAR_HIGHLIGHT
 } from './reducer';
 import reactRenderer from '@wq/react';
 
@@ -36,10 +35,10 @@ const map = {
         return reducer(state, action, this.config);
     },
     actions: {
-        ready(instance) {
+        ready(instance, name = null) {
             return {
                 type: MAP_READY,
-                payload: instance
+                payload: { instance, name }
             };
         },
         setStickyProps(props) {
@@ -99,12 +98,6 @@ const map = {
         clearHighlight() {
             return {
                 type: MAP_CLEAR_HIGHLIGHT
-            };
-        },
-        setBounds(bounds) {
-            return {
-                type: MAP_SET_BOUNDS,
-                payload: bounds
             };
         }
     },
@@ -195,6 +188,10 @@ map.init = function (config) {
         if (plugin.geocoderAddress) {
             this.config.geocoderAddress = values =>
                 plugin.geocoderAddress(values);
+        }
+        if (plugin.zoomToLocation) {
+            this.config.zoomToLocation = (instance, geometry, meta) =>
+                plugin.zoomToLocation(instance, geometry, meta);
         }
     });
 
