@@ -333,14 +333,15 @@ test('toggle layers', async () => {
                 active: false
             }
         ],
-        bounds: [
+        initBounds: [
             [-4, -4],
             [4, 4]
         ],
         mapProps: undefined,
         mapId: undefined,
         highlight: null,
-        instance: null
+        instance: null,
+        instances: {}
     });
 
     map.setBasemap('Basemap 2');
