@@ -1249,9 +1249,6 @@ function _addLookups(page, context, editable) {
 // Preset list of choices
 function _choice_label_lookup(name, choices) {
     function choiceLabel() {
-        if (!this[name]) {
-            return;
-        }
         var label;
         choices.forEach(function (choice) {
             if (choice.name == this[name]) {
