@@ -79,10 +79,21 @@ app.init = function (config) {
             config.store.ajax = plugin.ajax.bind(plugin);
         }
         if (plugin.reducer) {
+            let persist = false,
+                restore = null;
+            if (typeof plugin.persist === 'function') {
+                persist = plugin.persist.bind(plugin);
+                restore = plugin.restore
+                    ? plugin.restore.bind(plugin)
+                    : state => state;
+            } else if (plugin.persist) {
+                persist = true;
+            }
             ds.addReducer(
                 name,
                 (state, action) => plugin.reducer(state, action),
-                plugin.persist || false
+                persist,
+                restore
             );
         }
         if (plugin.actions) {

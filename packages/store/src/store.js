@@ -157,25 +157,25 @@ class Store {
         return this._store.getState();
     }
 
-    addReducer(name, reducer, persist, deserialize) {
+    addReducer(name, reducer, persist, restore) {
         this._reducers[name] = reducer;
         if (persist) {
-            this.persistKey(name, persist, deserialize);
+            this.persistKey(name, persist, restore);
         }
     }
 
-    addEnhanceReducer(name, enhanceReducer, persist, deserialize) {
+    addEnhanceReducer(name, enhanceReducer, persist, restore) {
         this._enhanceReducers.push(enhanceReducer);
         if (persist) {
-            this.persistKey(name, persist, deserialize);
+            this.persistKey(name, persist, restore);
         }
     }
 
-    persistKey(name, serialize, deserialize) {
+    persistKey(name, persist, restore) {
         this._persistKeys.push(name);
-        if (serialize && deserialize) {
+        if (persist && restore) {
             this._transforms.push(
-                createTransform(serialize, deserialize, { whitelist: [name] })
+                createTransform(persist, restore, { whitelist: [name] })
             );
         }
     }

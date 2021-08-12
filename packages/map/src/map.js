@@ -34,6 +34,20 @@ const map = {
     reducer(state, action) {
         return reducer(state, action, this.config);
     },
+    persist({ activeBasemap, activeOverlays }) {
+        return { activeBasemap, activeOverlays };
+    },
+    restore({ activeBasemap, activeOverlays }) {
+        Object.keys(activeOverlays || {}).forEach(key => {
+            if (!this.config.allOverlays[key]) {
+                delete activeOverlays[key];
+            }
+        });
+        return {
+            activeBasemap,
+            activeOverlays
+        };
+    },
     actions: {
         ready(instance, name = null) {
             return {
@@ -214,7 +228,9 @@ map.init = function (config) {
     }
 
     // Define map configuration for all app pages with map=True
-    Object.keys(app.config.pages).forEach(function (page) {
+    this.config.allOverlays = {};
+
+    Object.keys(app.config.pages).forEach(page => {
         var pconf = app.config.pages[page],
             mconf = pconf.map;
 
@@ -242,7 +258,7 @@ map.init = function (config) {
         };
 
         // Initialize map configurations for each page display mode
-        mconf.forEach(function (conf) {
+        mconf.forEach(conf => {
             var mode = conf.mode || 'defaults',
                 map = conf.map || 'main';
             if (mode === 'all') {
@@ -254,6 +270,11 @@ map.init = function (config) {
                 };
             }
             mapconf[mode].maps[map] = conf;
+            if (conf.layers) {
+                conf.layers.forEach(
+                    layer => (this.config.allOverlays[layer.name] = true)
+                );
+            }
         });
 
         // Ensure map configurations exist for all list page modes
@@ -263,7 +284,7 @@ map.init = function (config) {
         } else if (pconf.list) {
             modes = ['list', 'detail', 'edit'];
         }
-        modes.forEach(function (mode) {
+        modes.forEach(mode => {
             if (mapconf[mode]) {
                 if (
                     mapconf[mode].maps &&

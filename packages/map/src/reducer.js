@@ -30,16 +30,29 @@ export default function reducer(state = {}, action, config) {
                     routeInfo.template === _lastRouteInfo.template;
                 _lastRouteInfo = routeInfo;
                 let nextState = {};
-                const { stickyMaps, stickyMapId } = state;
+                const {
+                    stickyMaps,
+                    stickyMapId,
+                    activeBasemap,
+                    activeOverlays
+                } = state;
                 if (!conf) {
-                    nextState = { stickyMaps };
+                    nextState = { stickyMaps, activeBasemap, activeOverlays };
                 } else {
                     const { mapId } = conf,
                         { highlight = null, instance = null, instances = {} } =
                             (mapId && stickyMaps && stickyMaps[mapId]) || {};
                     nextState = {
-                        basemaps: reduceBasemaps(state.basemaps, conf.basemaps),
-                        overlays: reduceOverlays(state.overlays, conf.layers),
+                        basemaps: reduceBasemaps(
+                            state.basemaps,
+                            conf.basemaps,
+                            activeBasemap
+                        ),
+                        overlays: reduceOverlays(
+                            state.overlays,
+                            conf.layers,
+                            activeOverlays
+                        ),
                         initBounds: conf.bounds,
                         mapProps: conf.mapProps,
                         highlight,
@@ -48,15 +61,21 @@ export default function reducer(state = {}, action, config) {
                         mapId,
                         stickyMapId:
                             isSameView && stickyMapId === mapId ? mapId : null,
-                        stickyMaps
+                        stickyMaps,
+                        activeBasemap,
+                        activeOverlays
                     };
                 }
-                if (!nextState.stickyMaps) {
-                    delete nextState.stickyMaps;
-                }
-                if (!nextState.stickyMapId) {
-                    delete nextState.stickyMapId;
-                }
+                [
+                    'stickyMaps',
+                    'stickyMapId',
+                    'activeBasemap',
+                    'activeOverlays'
+                ].forEach(key => {
+                    if (!nextState[key]) {
+                        delete nextState[key];
+                    }
+                });
                 return nextState;
             }
         }
@@ -78,6 +97,10 @@ export default function reducer(state = {}, action, config) {
         case MAP_SHOW_OVERLAY:
             return {
                 ...state,
+                activeOverlays: {
+                    ...state.activeOverlays,
+                    [action.payload]: true
+                },
                 overlays:
                     state.overlays &&
                     state.overlays.map(overlay => {
@@ -91,6 +114,10 @@ export default function reducer(state = {}, action, config) {
         case MAP_HIDE_OVERLAY:
             return {
                 ...state,
+                activeOverlays: {
+                    ...state.activeOverlays,
+                    [action.payload]: false
+                },
                 overlays:
                     state.overlays &&
                     state.overlays.map(overlay => {
@@ -104,6 +131,7 @@ export default function reducer(state = {}, action, config) {
         case MAP_SET_BASEMAP:
             return {
                 ...state,
+                activeBasemap: action.payload,
                 basemaps:
                     state.basemaps &&
                     state.basemaps.map(basemap => {
@@ -206,26 +234,23 @@ export default function reducer(state = {}, action, config) {
     }
 }
 
-function reduceBasemaps(lastBasemaps, nextBasemaps) {
+function reduceBasemaps(lastBasemaps, nextBasemaps, activeBasemap) {
     if (!nextBasemaps || nextBasemaps.length === 0) {
         return;
     }
-    const activeBasemap = (lastBasemaps || []).filter(
-            basemap => basemap.active
-        )[0],
-        basemaps = nextBasemaps.map(basemap => {
-            if (activeBasemap && activeBasemap.name === basemap.name) {
-                return {
-                    ...basemap,
-                    active: true
-                };
-            } else {
-                return {
-                    ...basemap,
-                    active: false
-                };
-            }
-        });
+    const basemaps = nextBasemaps.map(basemap => {
+        if (activeBasemap && activeBasemap === basemap.name) {
+            return {
+                ...basemap,
+                active: true
+            };
+        } else {
+            return {
+                ...basemap,
+                active: false
+            };
+        }
+    });
     if (!basemaps.some(basemap => basemap.active)) {
         basemaps[0].active = true;
     }
@@ -236,16 +261,12 @@ function reduceBasemaps(lastBasemaps, nextBasemaps) {
     }
 }
 
-function reduceOverlays(lastOverlays, nextOverlays) {
+function reduceOverlays(lastOverlays, nextOverlays, activeOverlays) {
     if (!nextOverlays || nextOverlays.length === 0) {
         return [];
     }
-    const lastActive = {};
-    (lastOverlays || []).forEach(overlay => {
-        lastActive[overlay.name] = overlay.active;
-    });
     const overlays = nextOverlays.map(overlay => {
-        if (lastActive[overlay.name]) {
+        if (activeOverlays && activeOverlays[overlay.name]) {
             return {
                 ...overlay,
                 active: true
