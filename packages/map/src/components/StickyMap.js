@@ -45,7 +45,8 @@ export default function StickyMap({
             name,
             containerStyle,
             invisibleStyle,
-            state: nextState
+            state: nextState,
+            children
         });
     }, [
         mapId,

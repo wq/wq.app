@@ -58,7 +58,8 @@ export default function OffscreenMaps() {
                                 name,
                                 containerStyle,
                                 invisibleStyle,
-                                state
+                                state,
+                                children
                             } = {}
                         }
                     ]) =>
@@ -73,7 +74,9 @@ export default function OffscreenMaps() {
                                     ...INVISIBLE_STYLE,
                                     ...invisibleStyle
                                 }}
-                            />
+                            >
+                                {children}
+                            </AutoMap>
                         )
                 )}
             </Reparentable>
