@@ -58,6 +58,8 @@ export default function Form({
         }
 
         setSubmitting(false);
+
+        return item;
     }
 
     const errors = parseApiError(error, data);
