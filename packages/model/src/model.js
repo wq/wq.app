@@ -743,7 +743,7 @@ class Model {
 
     // Prefetch list
     async prefetch() {
-        const data = await this.getPage(null);
+        const data = this.opts.client ? await this.getPage(null) : [];
         return this.overwrite(data);
     }
 
