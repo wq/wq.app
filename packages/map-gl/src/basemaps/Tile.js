@@ -3,7 +3,7 @@ export default function Tile() {
     return null;
 }
 
-Tile.asBasemapStyle = basemap => {
+export function asBasemapStyle(basemap) {
     const urls = [];
     if (basemap.url.match('{s}')) {
         (basemap.subdomains || ['a', 'b', 'c']).forEach(s =>
@@ -29,4 +29,6 @@ Tile.asBasemapStyle = basemap => {
             }
         ]
     };
-};
+}
+
+Tile.asBasemapStyle = asBasemapStyle;

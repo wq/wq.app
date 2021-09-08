@@ -3,4 +3,8 @@ export default function VectorTile() {
     return null;
 }
 
-VectorTile.asBasemapStyle = basemap => basemap.url;
+export function asBasemapStyle(basemap) {
+    return basemap.style || basemap.url;
+}
+
+VectorTile.asBasemapStyle = asBasemapStyle;

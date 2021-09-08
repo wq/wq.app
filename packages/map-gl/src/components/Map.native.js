@@ -25,8 +25,9 @@ export default function Map({
             const [[xmin, ymin], [xmax, ymax]] = initBounds;
             return { sw: [xmin, ymin], ne: [xmax, ymax] };
         }, [initBounds]),
-        style = findBasemapStyle(children);
-
+        style = findBasemapStyle(children),
+        styleURL = typeof style === 'string' ? style : null,
+        styleJSON = typeof style === 'string' ? null : JSON.stringify(style);
     const mapRef = React.useRef(),
         setMapRef = React.useCallback(ref => {
             mapRef.current = ref;
@@ -53,7 +54,8 @@ export default function Map({
 
     return (
         <MapboxGL.MapView
-            styleURL={style}
+            styleURL={styleURL}
+            styleJSON={styleJSON}
             ref={setMapRef}
             rotateEnabled={rotateEnabled}
             pitchEnabled={pitchEnabled}

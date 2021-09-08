@@ -120,7 +120,7 @@ export default {
         return this.userInfo(ctx);
     },
 
-    userInfo(ctx) {
+    userInfo(ctx={}) {
         const { user, config, csrftoken } = this.getState(),
             pageConf = (ctx.router_info && ctx.router_info.page_config) || {},
             wqPageConf =

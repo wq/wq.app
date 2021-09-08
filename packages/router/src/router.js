@@ -298,7 +298,7 @@ router.render = function (context, refresh) {
     if (site_title && title !== site_title) {
         title = `${title} - ${site_title}`;
     }
-    document.title = title;
+    if (window.document) window.document.title = title;
 
     return router.store.dispatch({
         type: RENDER,

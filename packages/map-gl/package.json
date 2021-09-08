@@ -39,7 +39,7 @@
         "react-mapbox-gl-draw": "^2.0.4"
     },
     "peerDependencies": {
-        "@react-native-mapbox-gl/maps": "^8.1.0-rc.2"
+        "@react-native-mapbox-gl/maps": "^8.3.0"
     },
     "devDependencies": {
         "@wq/model": "^1.3.0-beta.1",
