@@ -20,3 +20,14 @@ export function findBasemapStyle(children) {
     });
     return style;
 }
+
+export function zoomToLocation(instance, geometry) {
+    if (geometry.type == 'Point') {
+        instance.flyTo({
+            center: geometry.coordinates,
+            zoom: 18
+        });
+    } else {
+        // FIXME
+    }
+}

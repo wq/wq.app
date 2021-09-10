@@ -18,6 +18,8 @@ import {
     Tile as TileOverlay
 } from './overlays/index';
 
+import { zoomToLocation } from './util';
+
 export default {
     name: 'map-gl',
     dependencies: [map],
@@ -39,16 +41,7 @@ export default {
         VectorTile: VectorTileOverlay,
         Tile: TileOverlay
     },
-    zoomToLocation(instance, geometry) {
-        if (geometry.type == 'Point') {
-            instance.flyTo({
-                center: geometry.coordinates,
-                zoom: 18
-            });
-        } else {
-            // FIXME
-        }
-    }
+    zoomToLocation
 };
 
 export {

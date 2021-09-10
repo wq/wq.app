@@ -1,6 +1,7 @@
 import React from 'react';
 import { useComponents, useMessages } from '@wq/react';
 import { TYPE_MAP } from '../hooks';
+import GeoHelpIcon from './GeoHelpIcon';
 import PropTypes from 'prop-types';
 
 export default function GeoHelp({ value, type }) {
@@ -16,24 +17,10 @@ export default function GeoHelp({ value, type }) {
                 message.push(part);
                 return;
             }
-            const [iconName, ...rest] = part.split('}'),
-                iconClass = getIconClass(iconName, drawType);
-            if (iconClass) {
-                message.push(
-                    <span
-                        className={iconClass}
-                        style={{
-                            display: 'inline-block',
-                            width: 18,
-                            height: 18,
-                            verticalAlign: 'middle'
-                        }}
-                    />
-                );
-                message.push(rest.join('}'));
-            } else {
-                message.push(part);
-            }
+            const [iconName, ...rest] = part.split('}');
+
+            message.push(<GeoHelpIcon name={iconName} type={drawType} />);
+            message.push(rest.join('}'));
         });
     }
     return (
@@ -53,26 +40,3 @@ GeoHelp.propTypes = {
     value: PropTypes.object,
     type: PropTypes.string
 };
-
-const SHAPES = ['point', 'line', 'polygon'],
-    ICONS = SHAPES.map(shape => `${shape.toUpperCase()}_ICON`);
-
-function getIconClass(iconName, drawType) {
-    let shape = null;
-
-    if (iconName === 'TOOL_ICON') {
-        if (drawType === 'line_string') {
-            shape = 'line';
-        } else if (SHAPES.includes(drawType)) {
-            shape = drawType;
-        }
-    } else if (ICONS.includes(iconName)) {
-        shape = SHAPES[ICONS.indexOf(iconName)];
-    }
-
-    if (shape) {
-        return `mapbox-gl-draw_${shape}`;
-    } else {
-        return null;
-    }
-}

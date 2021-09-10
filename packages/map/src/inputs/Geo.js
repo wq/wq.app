@@ -41,6 +41,7 @@ export default function Geo({
             <GeoTools name={name} type={type} />
             <AutoMap name={name} containerStyle={{ minHeight: 400 }}>
                 <Draw
+                    name={name}
                     type={drawType}
                     required={required}
                     data={geojson}

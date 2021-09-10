@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useComponents } from '@wq/react';
 import { useField } from 'formik';
+import geolocation from './geolocation';
 import PropTypes from 'prop-types';
 
 export default function GeoLocate({ name, type, setLocation }) {
@@ -9,22 +10,18 @@ export default function GeoLocate({ name, type, setLocation }) {
         [gpsWatch, setGpsWatch] = useState(''),
         [, , { setValue: setAccuracy }] = useField(`${name}_accuracy`);
 
-    function startGps() {
+    async function startGps() {
         if (gpsWatch) {
             return;
         }
-        if (!('geolocation' in navigator)) {
+        if (!geolocation.supported) {
             setGpsStatus('Geolocation not supported');
             return;
         }
-        const watchId = navigator.geolocation.watchPosition(
-            onPosition,
-            onError,
-            {
-                enableHighAccuracy: true,
-                timeout: 60 * 1000
-            }
-        );
+        const watchId = await geolocation.watchPosition(onPosition, onError, {
+            enableHighAccuracy: true,
+            timeout: 60 * 1000
+        });
 
         setGpsWatch(watchId);
         setGpsStatus('Determining location...');
@@ -60,7 +57,7 @@ export default function GeoLocate({ name, type, setLocation }) {
 
     function stopGps() {
         if (gpsWatch) {
-            navigator.geolocation.clearWatch(gpsWatch);
+            geolocation.clearWatch(gpsWatch);
         }
         setGpsWatch(null);
     }

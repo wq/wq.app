@@ -31,10 +31,13 @@ export function useGeoTools(name, type) {
         mapState = useMapState(),
         instance = useMapInstance(name),
         [, { value }, { setValue }] = useField(name),
-        [, { value: activeTool }] = useField(toggleName);
+        [, { value: activeTool }, { setValue: setActiveTool }] = useField(
+            toggleName
+        );
 
-    const DefaultTool =
-            Object.values(tools).find(tool => tool.toolDefault) || (() => null),
+    const [defaultTool, DefaultTool] =
+            Object.entries(tools).find(([, Tool]) => Tool.toolDefault) ||
+            (null, () => null),
         ActiveTool = tools[activeTool] || DefaultTool;
 
     const setLocation = useCallback(
@@ -67,6 +70,17 @@ export function useGeoTools(name, type) {
         },
         [instance]
     );
+
+    useEffect(() => {
+        if (
+            !activeTool &&
+            defaultTool &&
+            ActiveTool == DefaultTool &&
+            DefaultTool.toolLabel
+        ) {
+            setActiveTool(defaultTool);
+        }
+    }, [activeTool, ActiveTool]);
 
     return useMemo(
         () => ({

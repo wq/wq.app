@@ -14,7 +14,7 @@ export default function Map({
     const {
         accessToken = null,
         dragRotate: rotateEnabled,
-        pitchWithRotate: pitchEnabled = mapProps.dragRotate
+        pitchWithRotate: pitchEnabled = mapProps && mapProps.dragRotate
     } = mapProps || {};
     useEffect(() => {
         MapboxGL.setAccessToken(accessToken);

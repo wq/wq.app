@@ -12,7 +12,7 @@
         "prettier": "prettier",
         "prettier-all": "prettier --write .",
         "eslint": "eslint",
-        "lint": "eslint *.js packages/*/{,src/,src/*/,src/*/*/}*.js"
+        "lint": "eslint *.js packages/*/{,src/,src/*/}*.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.10.5",
