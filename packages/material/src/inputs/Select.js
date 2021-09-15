@@ -4,6 +4,7 @@ import { Select as FMuiSelect } from 'formik-material-ui';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import PropTypes from 'prop-types';
@@ -25,6 +26,7 @@ export default function Select({
     choices,
     label,
     required,
+    placeholder,
     renderValue,
     ...rest
 }) {
@@ -36,6 +38,9 @@ export default function Select({
     if (multiple && !renderValue) {
         renderValue = sel => sel.map(getLabel).join(', ');
     }
+    if (placeholder && !renderValue) {
+        renderValue = sel => getLabel(sel) || sel || placeholder;
+    }
 
     const getLabel = useMemo(() => {
         const labels = {};
@@ -43,6 +48,22 @@ export default function Select({
             labels[name] = label;
         });
         return name => labels[name];
+    }, [choices]);
+
+    const choiceGroups = useMemo(() => {
+        if (!choices.some(choice => choice.group)) {
+            return choices;
+        }
+        let lastGroup,
+            choiceGroups = [];
+        choices.forEach(choice => {
+            if (choice.group && choice.group != lastGroup) {
+                choiceGroups.push({ name: '__group__', label: choice.group });
+                lastGroup = choice.group;
+            }
+            choiceGroups.push(choice);
+        });
+        return choiceGroups;
     }, [choices]);
 
     return (
@@ -59,6 +80,7 @@ export default function Select({
                 multiple={multiple}
                 required={required}
                 renderValue={renderValue}
+                displayEmpty={!!placeholder}
                 {...rest}
             >
                 {!multiple && (
@@ -66,14 +88,21 @@ export default function Select({
                         {required ? 'Select one...' : '(No Selection)'}
                     </MenuItem>
                 )}
-                {choices.map(({ name, label }) => (
-                    <MenuItem key={name} value={name}>
-                        {multiple && (
-                            <ContextCheckbox value={name} field={fieldName} />
-                        )}
-                        <ListItemText primary={label} />
-                    </MenuItem>
-                ))}
+                {choiceGroups.map(({ name, label }) =>
+                    name === '__group__' ? (
+                        <ListSubheader>{label}</ListSubheader>
+                    ) : (
+                        <MenuItem key={name} value={name}>
+                            {multiple && (
+                                <ContextCheckbox
+                                    value={name}
+                                    field={fieldName}
+                                />
+                            )}
+                            <ListItemText primary={label} />
+                        </MenuItem>
+                    )
+                )}
             </Field>
             <HelperText name={fieldName} hint={hint} />
         </FormControl>
@@ -83,6 +112,7 @@ export default function Select({
 Select.propTypes = {
     choices: PropTypes.arrayOf(PropTypes.object),
     label: PropTypes.string,
+    placeholder: PropTypes.string,
     required: PropTypes.bool,
     renderValue: PropTypes.func
 };

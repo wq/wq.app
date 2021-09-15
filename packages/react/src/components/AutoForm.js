@@ -21,6 +21,7 @@ export default function AutoForm({
         Form,
         FormError,
         HorizontalView,
+        View,
         CancelButton,
         SubmitButton
     } = useComponents();
@@ -42,21 +43,23 @@ export default function AutoForm({
             backgroundSync={backgroundSync}
             outboxId={outboxId}
         >
+            {children}
             {(form || []).map(({ name, children: subform, ...rest }) => (
                 <AutoInput key={name} name={name} subform={subform} {...rest} />
             ))}
             <FormError />
             <HorizontalView>
-                {cancel && (
+                {cancel ? (
                     <CancelButton to={cancel}>
                         <Message id="CANCEL" />
                     </CancelButton>
+                ) : (
+                    <View />
                 )}
                 <SubmitButton>
                     <Message id="SUBMIT" />
                 </SubmitButton>
             </HorizontalView>
-            {children}
         </Form>
     );
 }
