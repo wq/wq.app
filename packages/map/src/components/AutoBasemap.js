@@ -31,3 +31,4 @@ export default function AutoBasemap({ type, ...conf }) {
 AutoBasemap.propTypes = {
     type: PropTypes.string.isRequired
 };
+AutoBasemap.isAutoBasemap = true;

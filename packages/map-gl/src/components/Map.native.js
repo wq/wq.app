@@ -27,7 +27,8 @@ export default function Map({
         }, [initBounds]),
         style = findBasemapStyle(children),
         styleURL = typeof style === 'string' ? style : null,
-        styleJSON = typeof style === 'string' ? null : JSON.stringify(style);
+        styleJSON =
+            !style || typeof style === 'string' ? null : JSON.stringify(style);
     const mapRef = React.useRef(),
         setMapRef = React.useCallback(ref => {
             mapRef.current = ref;

@@ -8,7 +8,7 @@ export function findBasemapStyle(children) {
         }
         const { active, children } = child.props;
         let { type } = child;
-        if (type && type.name === 'AutoBasemap') {
+        if (type && type.isAutoBasemap) {
             type = type(child.props).type;
         }
         if (active && type && type.asBasemapStyle) {

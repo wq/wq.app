@@ -14,6 +14,7 @@ import {
     Geojson,
     Highlight,
     Draw,
+    Accuracy,
     VectorTile as VectorTileOverlay,
     Tile as TileOverlay
 } from './overlays/index';
@@ -38,6 +39,7 @@ export default {
         Geojson,
         Highlight,
         Draw,
+        Accuracy,
         VectorTile: VectorTileOverlay,
         Tile: TileOverlay
     },
@@ -55,6 +57,7 @@ export {
     Geojson,
     Highlight,
     Draw,
+    Accuracy,
     VectorTileOverlay,
     TileOverlay
 };

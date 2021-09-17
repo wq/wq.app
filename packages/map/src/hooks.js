@@ -31,6 +31,7 @@ export function useGeoTools(name, type) {
         mapState = useMapState(),
         instance = useMapInstance(name),
         [, { value }, { setValue }] = useField(name),
+        [, , { setValue: setAccuracy }] = useField(`${name}_accuracy`),
         [, { value: activeTool }, { setValue: setActiveTool }] = useField(
             toggleName
         );
@@ -45,6 +46,7 @@ export function useGeoTools(name, type) {
             geometry = null,
             latitude = 0,
             longitude = 0,
+            accuracy = null,
             zoom = true,
             save = false
         }) => {
@@ -57,6 +59,7 @@ export function useGeoTools(name, type) {
 
             if (save) {
                 setValue(geometry);
+                setAccuracy(accuracy);
             }
 
             if (zoom && zoomToLocation) {

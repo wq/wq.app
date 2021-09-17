@@ -58,7 +58,7 @@ export default function GeoCoords({ name, value, type, setLocation }) {
                 InputLabelProps={{
                     shrink: true
                 }}
-                style={{ marginRight: 4 }}
+                style={{ marginRight: 4, flex: 1 }}
             />
             <Input
                 name={name + '_longitude'}
@@ -72,7 +72,7 @@ export default function GeoCoords({ name, value, type, setLocation }) {
                 InputLabelProps={{
                     shrink: true
                 }}
-                style={{ marginLeft: 4 }}
+                style={{ marginLeft: 4, flex: 1 }}
             />
             <IconButton
                 onClick={saveLatLong}

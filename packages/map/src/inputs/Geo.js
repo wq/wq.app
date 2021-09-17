@@ -24,8 +24,11 @@ export default function Geo({
             GeoTools
         } = useComponents(),
         { HelperText } = useInputComponents(),
-        { Draw } = useOverlayComponents(),
+        { Draw, Accuracy } = useOverlayComponents(),
         [, { value }, { setValue }] = useField(name),
+        [, { value: accuracy }, { setValue: setAccuracy }] = useField(
+            `${name}_accuracy`
+        ),
         maxGeometries = 1; // FIXME;
 
     const geojson = useFeatureCollection(value),
@@ -34,12 +37,16 @@ export default function Geo({
 
     function handleChange(geojson) {
         setValue(asGeometry(geojson, maxGeometries));
+        if (accuracy) {
+            setAccuracy(null);
+        }
     }
 
     return (
         <Fieldset label={label}>
             <GeoTools name={name} type={type} />
             <AutoMap name={name} containerStyle={{ minHeight: 400 }}>
+                <Accuracy accuracy={accuracy} data={geojson} />
                 <Draw
                     name={name}
                     type={drawType}

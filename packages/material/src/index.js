@@ -40,3 +40,4 @@ export default {
 export { App };
 export * from './components/index';
 export * from './inputs/index';
+export * from './hooks';

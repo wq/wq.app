@@ -1,7 +1,7 @@
 import map from '@wq/map';
 import { Map, Legend, BasemapToggle, OverlayToggle } from './components/index';
 import { Tile } from './basemaps/index';
-import { Geojson, Highlight, Draw } from './overlays/index';
+import { Geojson, Highlight, Draw, Accuracy } from './overlays/index';
 import { LayerGroup as Group } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -53,7 +53,8 @@ export default {
         Empty: Group,
         Geojson,
         Highlight,
-        Draw
+        Draw,
+        Accuracy
     },
     zoomToLocation(instance, geometry) {
         if (geometry.type === 'Point') {
@@ -73,5 +74,6 @@ export {
     Tile,
     Geojson,
     Highlight,
-    Draw
+    Draw,
+    Accuracy
 };

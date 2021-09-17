@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useComponents } from '@wq/react';
-import { useField } from 'formik';
 import geolocation from './geolocation';
 import PropTypes from 'prop-types';
 
-export default function GeoLocate({ name, type, setLocation }) {
+export default function GeoLocate({ type, setLocation }) {
     const { Button, Typography } = useComponents(),
         [gpsStatus, setGpsStatus] = useState(''),
-        [gpsWatch, setGpsWatch] = useState(''),
-        [, , { setValue: setAccuracy }] = useField(`${name}_accuracy`);
+        gpsWatch = useRef();
 
     async function startGps() {
-        if (gpsWatch) {
+        if (gpsWatch.current) {
             return;
         }
         if (!geolocation.supported) {
@@ -23,7 +21,7 @@ export default function GeoLocate({ name, type, setLocation }) {
             timeout: 60 * 1000
         });
 
-        setGpsWatch(watchId);
+        gpsWatch.current = watchId;
         setGpsStatus('Determining location...');
     }
 
@@ -34,10 +32,10 @@ export default function GeoLocate({ name, type, setLocation }) {
         setLocation({
             longitude: lng,
             latitude: lat,
+            accuracy: acc,
             zoom: true,
             save: type === 'geopoint'
         });
-        setAccuracy(acc);
 
         const latFmt = lat > 0 ? lat + '°N' : -lat + '°S',
             lngFmt = lng > 0 ? lng + '°E' : -lng + '°W',
@@ -56,17 +54,22 @@ export default function GeoLocate({ name, type, setLocation }) {
     }
 
     function stopGps() {
-        if (gpsWatch) {
-            geolocation.clearWatch(gpsWatch);
+        if (gpsWatch.current) {
+            geolocation.clearWatch(gpsWatch.current);
         }
-        setGpsWatch(null);
+        gpsWatch.current = null;
+    }
+
+    function resetGps() {
+        stopGps();
+        setGpsStatus('');
     }
 
     useEffect(() => {
         return () => stopGps();
     }, []);
 
-    const gpsActive = !!gpsWatch;
+    const gpsActive = !!gpsWatch.current;
 
     return (
         <>
@@ -85,7 +88,7 @@ export default function GeoLocate({ name, type, setLocation }) {
                 style={{ minWidth: 140 }}
                 variant={gpsActive ? 'contained' : 'outlined'}
                 color="secondary"
-                onClick={gpsActive ? stopGps : startGps}
+                onClick={gpsActive ? resetGps : startGps}
             >
                 {gpsActive ? 'Stop GPS' : 'Start GPS'}
             </Button>
@@ -96,7 +99,6 @@ export default function GeoLocate({ name, type, setLocation }) {
 GeoLocate.toolLabel = 'Current';
 
 GeoLocate.propTypes = {
-    name: PropTypes.string,
     type: PropTypes.string,
     setLocation: PropTypes.func
 };
