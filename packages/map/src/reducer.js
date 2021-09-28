@@ -26,8 +26,9 @@ export default function reducer(state = {}, action, config) {
             } else {
                 const isSameView =
                     _lastRouteInfo &&
-                    routeInfo.template &&
-                    routeInfo.template === _lastRouteInfo.template;
+                    ['name', 'mode', 'variant', 'item_id'].every(
+                        key => routeInfo[key] == _lastRouteInfo[key]
+                    );
                 _lastRouteInfo = routeInfo;
                 let nextState = {};
                 const {

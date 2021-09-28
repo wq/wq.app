@@ -523,12 +523,35 @@ const syncUpdateUrl = {
     onsync(obitem) {
         const context = router.getContext() || {},
             { router_info: routeInfo = {} } = context,
-            { full_path, item_id, parent_id } = routeInfo,
+            {
+                page,
+                mode,
+                outbox_id: routeOutboxId,
+                base_url,
+                page_config,
+                full_path,
+                item_id,
+                parent_id
+            } = routeInfo,
             { id: outboxId, result } = obitem || {},
             { id: resultId } = result || {},
             outboxSlug = `outbox-${outboxId}`;
 
-        if (resultId && (item_id === outboxSlug || parent_id === outboxSlug)) {
+        if (!resultId) {
+            return;
+        }
+        if (
+            routeOutboxId === outboxId &&
+            page === 'outbox' &&
+            page_config &&
+            page_config.url
+        ) {
+            const modePath = mode === 'detail' ? '' : `/${mode}`;
+            router.push(
+                `${base_url}/${page_config.url}/${resultId}${modePath}`
+            );
+        }
+        if (item_id === outboxSlug || parent_id === outboxSlug) {
             router.push(full_path.replace(outboxSlug, resultId));
         }
     }
@@ -624,7 +647,7 @@ function _joinRoute(page, mode, variant) {
 
 function _extendRouteInfo(routeInfo) {
     const routeName = routeInfo.name,
-        itemid = routeInfo.slugs.slug || null;
+        itemid = (page !== 'outbox' && routeInfo.slugs.slug) || null;
     var [page, mode, variant] = app.splitRoute(routeName),
         conf = _getConf(page, true, true),
         pageid = null;
@@ -991,6 +1014,7 @@ async function _renderOutboxItem(ctx) {
     }
     var context = {
         outbox_id: item.id,
+        label: item.label,
         error: item.error,
         router_info: {
             ...routeInfo,
