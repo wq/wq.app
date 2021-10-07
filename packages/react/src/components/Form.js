@@ -14,14 +14,19 @@ export default function Form({
     modelConf,
     data = {},
     error,
+    FormRoot,
     children
 }) {
     const app = useApp(),
         validate = useValidate(),
-        { FormRoot } = useComponents();
+        { FormRoot: DefaultRoot } = useComponents();
 
     if (backgroundSync === undefined) {
         backgroundSync = app.config.backgroundSync;
+    }
+
+    if (!FormRoot) {
+        FormRoot = DefaultRoot;
     }
 
     async function handleSubmit(
@@ -91,6 +96,7 @@ Form.propTypes = {
     modelConf: PropTypes.object,
     data: PropTypes.object,
     error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    FormRoot: PropTypes.func,
     children: PropTypes.node
 };
 

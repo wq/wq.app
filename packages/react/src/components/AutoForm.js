@@ -13,6 +13,7 @@ export default function AutoForm({
     modelConf,
     data,
     error,
+    FormRoot,
     children
 }) {
     const {
@@ -42,6 +43,7 @@ export default function AutoForm({
             storage={storage}
             backgroundSync={backgroundSync}
             outboxId={outboxId}
+            FormRoot={FormRoot}
         >
             {children}
             {(form || []).map(({ name, children: subform, ...rest }) => (
@@ -75,6 +77,7 @@ AutoForm.propTypes = {
     modelConf: PropTypes.object,
     data: PropTypes.object,
     error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    FormRoot: PropTypes.func,
     children: PropTypes.node
 };
 
