@@ -87,10 +87,11 @@ export default [
                 // Avoid loading esri-leaflet
                 "import { Tile } from './basemaps/index'":
                     "import Tile from './basemaps/Tile'",
-                "import { Geojson, Highlight, Draw } from './overlays/index'":
+                "import { Geojson, Highlight, Draw, Accuracy } from './overlays/index'":
                     "import Geojson from './overlays/Geojson'\n" +
                     "import Highlight from './overlays/Highlight'\n" +
-                    "import Draw from './overlays/Draw'\n"
+                    "import Draw from './overlays/Draw'\n" +
+                    "import Accuracy from './overlays/Accuracy'\n"
             }),
             { resolveId },
             wqDeps('.'),
