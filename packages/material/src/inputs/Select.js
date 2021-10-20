@@ -28,6 +28,7 @@ export default function Select({
     required,
     placeholder,
     renderValue,
+    InputLabelProps,
     ...rest
 }) {
     const { name: fieldName, type, hint } = rest,
@@ -72,6 +73,7 @@ export default function Select({
                 htmlFor={fieldName}
                 required={required}
                 error={showError}
+                {...InputLabelProps}
             >
                 {label}
             </InputLabel>
@@ -114,5 +116,6 @@ Select.propTypes = {
     label: PropTypes.string,
     placeholder: PropTypes.string,
     required: PropTypes.bool,
-    renderValue: PropTypes.func
+    renderValue: PropTypes.func,
+    InputLabelProps: PropTypes.object
 };
