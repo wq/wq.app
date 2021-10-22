@@ -7,9 +7,9 @@ import PropTypes from 'prop-types';
 import { format, parse } from './date-utils';
 
 const displayFormat = {
-    date: value => value.toLocaleDateString(),
-    time: value => value.toLocaleTimeString(),
-    datetime: value => value.toLocaleString()
+    date: value => parse.date(value).toLocaleDateString(),
+    time: value => parse.time(value).toLocaleTimeString(),
+    datetime: value => parse.datetime(value).toLocaleString()
 };
 
 export default function DateTime({ name, type, label }) {
