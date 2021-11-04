@@ -13,12 +13,22 @@ const geolocation = {
         return navigator.geolocation.watchPosition(
             onPosition,
             onError,
-            options
+            convertOptions(options)
         );
     },
     clearWatch(watchId) {
         return navigator.geolocation.clearWatch(watchId);
     }
 };
+
+function convertOptions(options) {
+    if (options.enableHighAccuracy) {
+        return {
+            accuracy: Location.Accuracy.BestForNavigation
+        };
+    } else {
+        return {};
+    }
+}
 
 export default geolocation;

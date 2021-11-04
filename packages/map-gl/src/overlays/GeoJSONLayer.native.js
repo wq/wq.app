@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Style } from '@react-native-mapbox-gl/maps';
+import { ShapeSource, Style } from '@react-native-mapbox-gl/maps';
 import PropTypes from 'prop-types';
 
 const types = ['symbol', 'line', 'fill', 'circle'];
@@ -22,22 +22,24 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
         circleLayout,
         circlePaint
     } = rest;
-    const style = useMemo(() => {
-        return {
-            sources: {
-                [id]: {
-                    type: 'geojson',
-                    data
-                }
-            },
-            layers: types.map(type => ({
-                id: `${id}-${type}`,
-                source: id,
-                type,
-                paint: rest[`${type}Paint`] || {},
-                layout: rest[`${type}Layout`] || {}
-            }))
+    const [sourceProps, style] = useMemo(() => {
+        const sourceProps = {
+            id
         };
+        if (typeof data === 'string') {
+            sourceProps.url = data;
+        } else {
+            sourceProps.shape = data;
+        }
+        const layers = types.map(type => ({
+            id: `${id}-${type}`,
+            source: id,
+            type,
+            paint: rest[`${type}Paint`] || {},
+            layout: rest[`${type}Layout`] || {}
+        }));
+
+        return [sourceProps, { layers }];
     }, [
         id,
         before,
@@ -52,7 +54,11 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
         circlePaint
     ]);
 
-    return <Style json={style} />;
+    return (
+        <ShapeSource {...sourceProps}>
+            <Style json={style} />
+        </ShapeSource>
+    );
 }
 
 GeoJSONLayer.propTypes = {

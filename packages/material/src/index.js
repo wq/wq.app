@@ -3,6 +3,7 @@ import App from './App';
 import * as components from './components/index';
 import * as inputs from './inputs/index';
 import * as icons from './icons';
+import { format, parse } from './inputs/date-utils';
 
 export default {
     name: 'material',
@@ -41,3 +42,4 @@ export { App };
 export * from './components/index';
 export * from './inputs/index';
 export * from './hooks';
+export { format, parse };

@@ -1499,9 +1499,9 @@ function _getConf(page, silentFail, baseConf) {
 function _getConfByUrl(url, silentFail) {
     var parts = url.split('/');
     var conf;
-    for (var p in app.wq_config.pages) {
-        if (app.wq_config.pages[p].url == parts[0]) {
-            conf = app.wq_config.pages[p];
+    for (var p in app.config.pages) {
+        if (app.config.pages[p].url == parts[0]) {
+            conf = app.config.pages[p];
         }
     }
     if (!conf) {
