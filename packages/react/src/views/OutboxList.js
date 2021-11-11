@@ -4,7 +4,7 @@ import {
     useReverse,
     useRouteTitle,
     useComponents,
-    useUnsynced
+    useOutbox
 } from '../hooks';
 import PropTypes from 'prop-types';
 
@@ -12,7 +12,10 @@ export default function OutboxList({ modelConf }) {
     const app = useApp(),
         reverse = useReverse(),
         routeTitle = useRouteTitle(),
-        items = useUnsynced(modelConf),
+        allItems = useOutbox(),
+        items = modelConf
+            ? app.outbox.filterUnsynced(allItems, modelConf)
+            : allItems,
         {
             Message,
             List,
@@ -25,6 +28,15 @@ export default function OutboxList({ modelConf }) {
         } = useComponents();
 
     const empty = !items.length;
+
+    function getLink(item) {
+        if (item.synced) {
+            // TODO: Link to model detail or edit page?
+            return null;
+        } else {
+            return reverse('outbox_edit', item.id);
+        }
+    }
 
     function getIcon(item) {
         if (item.synced) {
@@ -69,16 +81,20 @@ export default function OutboxList({ modelConf }) {
                         <Message id="OUTBOX_IS_EMPTY" />
                     </ListItem>
                 )}
-                {items.map(item => (
-                    <ListItemLink
-                        key={item.id}
-                        to={reverse('outbox_edit', item.id)}
-                        icon={getIcon(item)}
-                        description={<Message id={getStatus(item)} />}
-                    >
-                        {getTitle(item)}
-                    </ListItemLink>
-                ))}
+                {items.map(item => {
+                    const link = getLink(item),
+                        ListItemOrLink = link ? ListItemLink : ListItem;
+                    return (
+                        <ListItemOrLink
+                            key={item.id}
+                            to={link}
+                            icon={getIcon(item)}
+                            description={<Message id={getStatus(item)} />}
+                        >
+                            {getTitle(item)}
+                        </ListItemOrLink>
+                    );
+                })}
             </>
         );
     }
