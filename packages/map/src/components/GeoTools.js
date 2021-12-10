@@ -22,7 +22,7 @@ export default function GeoTools({ name, type }) {
                     alignItems: 'center'
                 }}
             >
-                <View style={{ marginRight: 8 }}>
+                <View style={{ marginRight: 8, minWidth: 200 }}>
                     <Toggle {...toggleProps} />
                 </View>
                 <ActiveTool
