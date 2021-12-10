@@ -143,10 +143,22 @@ def scss(**conf):
         click.echo("%s compiled from %s/%s.scss" % (path, conf['indir'], name))
 
 
+class path_or_dict:
+    def __init__(self, value):
+        self.value = value
+        if isinstance(value, dict):
+            self.is_dict = True
+        else:
+            self.is_dict = False
+            assert isinstance(value, str)
+
+
 @wq.command()
 @click.option('--template', help="Path to template")
-@click.option('--partials', help="Path to partials")
-@click.option('--context', help="Path to context (JSON or YAML)")
+@click.option('--partials', help="Path to partials",
+              type=path_or_dict)
+@click.option('--context', help="Path to context (JSON or YAML)",
+              type=path_or_dict)
 @click.option(
     '--output', type=click.Path(), default="output.html",
     help="Output filename"
@@ -191,18 +203,22 @@ def mustache(**conf):
         except IOError as e:
             raise click.FileError(template, hint=str(e))
 
-    context = conf["context"] or {}
-    if not isinstance(context, dict):
-        if context.startswith('{'):
-            context = json.loads(context)
+    context_arg = conf["context"] or path_or_dict({})
+    if context_arg.is_dict:
+        context = context_arg.value
+    else:
+        if context_arg.value.startswith('{'):
+            context = json.loads(context_arg.value)
         else:
-            path = context
+            path = context_arg.value
             context = readfiles(path, "yaml", "yml")
             context.update(**readfiles(path, "json"))
 
-    partials = conf['partials'] or {}
-    if not isinstance(partials, dict):
-        partials = readfiles(partials, "html")
+    partials_arg = conf['partials'] or path_or_dict({})
+    if partials_arg.is_dict:
+        partials = partials_arg.value
+    else:
+        partials = readfiles(partials_arg.value, "html")
 
     click.echo("Generating %s from %s" % (conf['output'], conf['template']))
     renderer = pystache.Renderer(partials=partials)
