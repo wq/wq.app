@@ -91,7 +91,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install wheel
         python -m pip install git+https://github.com/wq/wq.build.git
-        python -m pip install https://github.com/PennyDreadfulMTG/pystache/releases/download/v0.6.0/pystache-0.6.0-py3-none-any.whl
     - name: Build Python Wheel
       run: |
         python setup.py bdist_wheel
