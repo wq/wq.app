@@ -41,8 +41,11 @@ export default function reducer(state = {}, action, config) {
                     nextState = { stickyMaps, activeBasemap, activeOverlays };
                 } else {
                     const { mapId } = conf,
-                        { highlight = null, instance = null, instances = {} } =
-                            (mapId && stickyMaps && stickyMaps[mapId]) || {};
+                        {
+                            highlight = null,
+                            instance = (isSameView && state.instance) || null,
+                            instances = (isSameView && state.instances) || {}
+                        } = (mapId && stickyMaps && stickyMaps[mapId]) || {};
                     nextState = {
                         basemaps: reduceBasemaps(
                             state.basemaps,
