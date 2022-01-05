@@ -1,7 +1,7 @@
 import jQuery from 'jquery';
 import Mustache from 'mustache';
-import jqmInit from '../vendor/jquery-mobile';
-import photos from './photos';
+import jqmInit from '../vendor/jquery-mobile.js';
+import photos from './photos.js';
 
 const HTML = '@@HTML', // @wq/router
     RENDER = 'RENDER', // @wq/router

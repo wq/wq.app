@@ -21,7 +21,7 @@ resolveMerge.resolveId = (defaultResolveId => {
 export default [
     // AMD (for wq.app Python package)
     {
-        input: 'packages/store/index.js',
+        input: 'packages/store/src/index.js',
         external: ['redux', 'redux-logger', 'redux-persist', 'localforage'],
         plugins: [
             ignore(['whatwg-fetch']),

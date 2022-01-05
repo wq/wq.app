@@ -2,8 +2,8 @@ import ds from '@wq/store';
 import modelModule from '@wq/model';
 import outbox from '@wq/outbox';
 import router from '@wq/router';
-import spinner from './spinner';
-import auth from './auth';
+import spinner from './spinner.js';
+import auth from './auth.js';
 import Mustache from 'mustache';
 import deepcopy from 'deepcopy';
 

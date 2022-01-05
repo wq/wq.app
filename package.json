@@ -7,7 +7,7 @@
         "jest": "jest --verbose",
         "rollup": "rollup",
         "rollup-all": "lerna run rollup",
-        "babel": "babel --env-name build --ignore **/__tests__/**,**/*.native.js",
+        "babel": "babel --env-name build --ignore **/__tests__/**,**/*.native.js,**/*.expo.js",
         "precise-commits": "precise-commits",
         "prettier": "prettier",
         "prettier-all": "prettier --write .",
