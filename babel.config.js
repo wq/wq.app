@@ -8,7 +8,7 @@ module.exports = {
             ]
         },
         build: {
-            plugins: ['babel-plugin-add-import-extension']
+            plugins: ['./update-esm-imports']
         }
     }
 };
