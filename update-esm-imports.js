@@ -39,6 +39,7 @@ module.exports = function () {
 };
 
 const MAPPINGS = [
+    { prefix: '@material-ui/core/styles/makeStyles', extension: '.js'},
     { prefix: '@material-ui/core/', extension: '/index.js' },
     { prefix: '@material-ui/icons/', extension: '.js' },
     { prefix: '@material-ui/lab/', extension: '/index.js' },
