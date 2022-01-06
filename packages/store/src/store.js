@@ -88,7 +88,7 @@ class Store {
                     self['debug' + level] = true;
                 }
             }
-            self.addMiddleware(logger);
+            self.addMiddleware(logger.default || logger);
         }
 
         var storeReady;
@@ -108,7 +108,7 @@ class Store {
         const persistConfig = {
             key: 'root',
             storage: this.lf,
-            stateReconciler: autoMergeLevel2,
+            stateReconciler: autoMergeLevel2.default || autoMergeLevel2,
             serialize,
             deserialize,
             transforms: this._transforms,
