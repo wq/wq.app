@@ -414,7 +414,7 @@ router.getRouteTitle = function (routeInfo) {
         title = verbose_name;
     }
 
-    if (title === title.toLowerCase()) {
+    if (title && title === title.toLowerCase()) {
         title = capitalCase(title);
     }
 

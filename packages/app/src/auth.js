@@ -122,7 +122,8 @@ export default {
 
     userInfo(ctx = {}) {
         const { user, config, csrftoken } = this.getState(),
-            pageConf = (ctx.router_info && ctx.router_info.page_config) || {},
+            pageConf =
+                (ctx && ctx.router_info && ctx.router_info.page_config) || {},
             wqPageConf =
                 (config && config.pages && config.pages[pageConf.name]) || {};
         return {
@@ -132,7 +133,7 @@ export default {
             wq_config: config,
             csrf_token: csrftoken,
             router_info: {
-                ...ctx.router_info,
+                ...(ctx && ctx.router_info),
                 page_config: {
                     ...pageConf,
                     can_view: wqPageConf.can_view !== false,
@@ -148,13 +149,15 @@ export default {
         await this.refreshCSRFToken();
         const app = this.app,
             context = app.router.getContext();
-        app.router.render(
-            {
-                ...context,
-                ...this.userInfo(context)
-            },
-            true
-        );
+        if (context) {
+            app.router.render(
+                {
+                    ...context,
+                    ...this.userInfo(context)
+                },
+                true
+            );
+        }
         // FIXME: Better way to do this?
         app.spin.start();
         await app.prefetchAll();
