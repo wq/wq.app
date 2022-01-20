@@ -123,6 +123,7 @@ const map = {
         OffscreenMaps,
         Map,
         MapInteraction: () => null,
+        MapAutoZoom: () => null,
         Legend,
         BasemapToggle,
         OverlayToggle,
@@ -143,7 +144,6 @@ const map = {
         ],
         autoZoom: {
             wait: 0.5, // How long to wait before triggering autoZoom
-            sticky: true, // Start new maps in same location as old maps
 
             // Settings for fitBounds
             maxZoom: 13,

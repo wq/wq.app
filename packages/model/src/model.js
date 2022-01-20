@@ -609,10 +609,13 @@ class Model {
     async filterPage(filter, any, localOnly) {
         // Ignore fields that are not explicitly registered
         // (e.g. for use with list views that have custom URL params)
-        const filterFields = this.filterFields();
+        const filterFields = this.filterFields(),
+            pagination = {};
         Object.keys(filter).forEach(field => {
             if (!filterFields.includes(field)) {
-                if (!(this.config.filter_ignore || []).includes(field)) {
+                if (field === 'page' || field === 'limit') {
+                    pagination[field] = filter[field];
+                } else if (!(this.config.filter_ignore || []).includes(field)) {
                     console.warn(
                         `Ignoring unrecognized field "${field}"` +
                             ` while filtering ${this.name} list.` +
@@ -631,7 +634,8 @@ class Model {
             // FIXME: won't work as expected if any == true
             const result = await this.store.fetch({
                 url: this.config.url,
-                ...filter
+                ...filter,
+                ...pagination
             });
             return this._processData(result);
         }

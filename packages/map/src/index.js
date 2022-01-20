@@ -9,7 +9,8 @@ import {
     useGeometry,
     useFeatureCollection,
     asGeometry,
-    asFeatureCollection
+    asFeatureCollection,
+    computeBounds
 } from './hooks';
 import {
     AutoMap,
@@ -36,6 +37,7 @@ export {
     useFeatureCollection,
     asGeometry,
     asFeatureCollection,
+    computeBounds,
     AutoMap,
     AutoBasemap,
     AutoOverlay,

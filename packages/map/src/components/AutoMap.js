@@ -3,11 +3,18 @@ import { useComponents } from '@wq/react';
 import { useMapState, useOverlayComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
-export default function AutoMap({ name, containerStyle, state, children }) {
+export default function AutoMap({
+    name,
+    containerStyle,
+    context,
+    state,
+    children
+}) {
     const mapState = useMapState(),
         {
             Map,
             MapInteraction,
+            MapAutoZoom,
             AutoBasemap,
             AutoOverlay,
             Legend,
@@ -24,7 +31,14 @@ export default function AutoMap({ name, containerStyle, state, children }) {
         return null;
     }
 
-    const { basemaps, overlays, initBounds, mapProps, highlight } = state;
+    const {
+        basemaps,
+        overlays,
+        initBounds,
+        mapProps,
+        autoZoom,
+        highlight
+    } = state;
 
     return (
         <Map
@@ -34,6 +48,9 @@ export default function AutoMap({ name, containerStyle, state, children }) {
             containerStyle={containerStyle}
         >
             <MapInteraction name={name} />
+            {!!autoZoom && (
+                <MapAutoZoom name={name} context={context} {...autoZoom} />
+            )}
             <Legend>
                 {basemaps.map((conf, i) => (
                     <BasemapToggle
@@ -50,7 +67,7 @@ export default function AutoMap({ name, containerStyle, state, children }) {
                         name={conf.name}
                         active={conf.active}
                     >
-                        <AutoOverlay {...conf} />
+                        <AutoOverlay {...conf} context={context} />
                     </OverlayToggle>
                 ))}
             </Legend>
@@ -63,6 +80,7 @@ export default function AutoMap({ name, containerStyle, state, children }) {
 AutoMap.propTypes = {
     name: PropTypes.string,
     containerStyle: PropTypes.object,
+    context: PropTypes.object,
     state: PropTypes.object,
     children: PropTypes.node
 };

@@ -286,24 +286,27 @@ export function useModel(name, filter) {
         throw new Error(`Unknown model name ${name}`);
     }
 
-    let selector;
-    if (
-        typeof filter === 'function' ||
-        (typeof filter === 'object' && !Array.isArray(filter))
-    ) {
-        // Filter by query
-        selector = createSelector(model.orm, session =>
-            model.getQuerySet(session).filter(filter).toRefArray()
-        );
-    } else if (filter) {
-        // Filter by id (default ModelSelectorSpec behavior)
-        selector = state => createSelector(model.orm[name])(state, filter);
-    } else {
-        // All objects (use getQuerySet() to leverage config.ordering)
-        selector = createSelector(model.orm, session =>
-            model.getQuerySet(session).toRefArray()
-        );
-    }
+    const selector = useMemo(() => {
+        let selector;
+        if (
+            typeof filter === 'function' ||
+            (typeof filter === 'object' && !Array.isArray(filter))
+        ) {
+            // Filter by query
+            selector = createSelector(model.orm, session =>
+                model.getQuerySet(session).filter(filter).toRefArray()
+            );
+        } else if (filter) {
+            // Filter by id (default ModelSelectorSpec behavior)
+            selector = state => createSelector(model.orm[name])(state, filter);
+        } else {
+            // All objects (use getQuerySet() to leverage config.ordering)
+            selector = createSelector(model.orm, session =>
+                model.getQuerySet(session).toRefArray()
+            );
+        }
+        return selector;
+    }, [model, filter]);
 
     return useSelector(selector);
 }
@@ -313,11 +316,17 @@ function selectOutbox(state) {
 }
 
 export function useOutbox() {
-    const outbox = useSelector(selectOutbox) || [],
+    const outbox = useSelector(selectOutbox),
         {
             outbox: { parseOutbox }
         } = useApp();
-    return parseOutbox(outbox);
+    return useMemo(() => {
+        if (outbox) {
+            return parseOutbox(outbox);
+        } else {
+            return [];
+        }
+    }, [outbox, parseOutbox]);
 }
 
 export function useUnsynced(modelConf) {
@@ -325,34 +334,40 @@ export function useUnsynced(modelConf) {
         {
             outbox: { filterUnsynced }
         } = useApp();
-    return filterUnsynced(outbox, modelConf);
+    return useMemo(() => {
+        return filterUnsynced(outbox, modelConf);
+    }, [outbox, modelConf]);
 }
 
-export function useList() {
-    const { list: contextList = [], show_unsynced } = useRenderContext(),
-        { page_config } = useRouteInfo(),
+export function useList(routeName) {
+    const { list: contextList, show_unsynced } = useRenderContext(routeName),
+        { page_config } = useRouteInfo(routeName),
         modelList = useModel(page_config.page),
         unsynced = useUnsynced(page_config);
 
-    let list;
-    if (show_unsynced) {
-        // Context list should generally already equal model list, unless
-        // there has been a sync or other model update since last RENDER.
-        const seen = {};
-        modelList.forEach(row => (seen[row.id] = true));
-        list = modelList.concat(contextList.filter(row => !seen[row.id]));
-    } else {
-        // Context list probably came directly from server, ignore local model
-        list = contextList;
-    }
-    const empty = !list || !list.length;
+    return useMemo(() => {
+        let list;
+        if (show_unsynced) {
+            // Context list should generally already equal model list, unless
+            // there has been a sync or other model update since last RENDER.
+            const seen = {};
+            modelList.forEach(row => (seen[row.id] = true));
+            list = modelList.concat(
+                (contextList || []).filter(row => !seen[row.id])
+            );
+        } else {
+            // Context list probably came directly from server, ignore local model
+            list = contextList || [];
+        }
+        const empty = !list || !list.length;
 
-    return {
-        page_config,
-        list,
-        unsynced: show_unsynced ? unsynced : [],
-        empty
-    };
+        return {
+            page_config,
+            list,
+            unsynced: show_unsynced ? unsynced : [],
+            empty
+        };
+    }, [contextList, show_unsynced, page_config, modelList, unsynced]);
 }
 
 export function usePlugin(name) {

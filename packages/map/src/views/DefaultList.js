@@ -1,24 +1,25 @@
 import React from 'react';
 import { useMapState } from '../hooks';
-import { DefaultList, useComponents } from '@wq/react';
+import { DefaultList, useComponents, useList } from '@wq/react';
 
 export default function DefaultListWithMap() {
     const mapState = useMapState(),
-        { AutoMap, StickyMap } = useComponents();
+        { AutoMap, StickyMap } = useComponents(),
+        context = useList();
     if (mapState) {
         const { mapId } = mapState;
         if (mapId) {
             return (
                 <>
                     <DefaultList />
-                    <StickyMap mapId={mapId} />
+                    <StickyMap mapId={mapId} context={context} />
                 </>
             );
         } else {
             return (
                 <>
                     <DefaultList />
-                    <AutoMap />
+                    <AutoMap context={context} />
                 </>
             );
         }

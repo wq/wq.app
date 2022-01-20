@@ -11,6 +11,31 @@
             "list": true,
             "url": "itemtypes"
         },
+        "itemmulti": {
+            "form": [
+                {
+                    "type": "string",
+                    "name": "name"
+                },
+                {
+                    "type": "repeat",
+                    "name": "observations",
+                    "children": [
+                        {
+                            "type": "string",
+                            "name": "notes"
+                        },
+                        {
+                            "type": "geopoint",
+                            "name": "location"
+                        }
+                    ]
+                }
+            ],
+            "list": true,
+            "map": true,
+            "url": "items"
+        },
         "listmap1": {
             "form": [],
             "list": true,

@@ -55,9 +55,11 @@ export default function reducer(state = {}, action, config) {
                         overlays: reduceOverlays(
                             state.overlays,
                             conf.layers,
-                            activeOverlays
+                            activeOverlays,
+                            isSameView
                         ),
                         initBounds: conf.bounds,
+                        autoZoom: conf.autoZoom,
                         mapProps: conf.mapProps,
                         highlight,
                         instance,
@@ -265,7 +267,12 @@ function reduceBasemaps(lastBasemaps, nextBasemaps, activeBasemap) {
     }
 }
 
-function reduceOverlays(lastOverlays, nextOverlays, activeOverlays) {
+function reduceOverlays(
+    lastOverlays,
+    nextOverlays,
+    activeOverlays,
+    isSameView
+) {
     if (!nextOverlays || nextOverlays.length === 0) {
         return [];
     }
@@ -286,7 +293,7 @@ function reduceOverlays(lastOverlays, nextOverlays, activeOverlays) {
             };
         }
     });
-    if (sameLayers(overlays, lastOverlays)) {
+    if (isSameView && sameLayers(overlays, lastOverlays)) {
         return lastOverlays;
     } else {
         return overlays;

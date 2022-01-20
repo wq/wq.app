@@ -1,5 +1,10 @@
+import React from 'react';
 import map from '../map';
-import { routeMapConf } from '../hooks';
+import {
+    routeMapConf,
+    contextFeature,
+    contextFeatureCollection
+} from '../hooks';
 import { AutoMap } from '../components';
 import { EmbeddedGeo } from '../inputs';
 import renderTest from '@wq/react/test';
@@ -69,7 +74,14 @@ function routeWithPath(routeInfo) {
     } else if (mode) {
         path = `${path}/${item_id}/${mode}`;
     }
-    return { page, mode, item_id, outbox_id, path };
+    return {
+        page,
+        mode,
+        item_id,
+        outbox_id,
+        path,
+        page_config: routeConfig.pages[page]
+    };
 }
 
 function setRouteInfo(routeInfo, context = {}) {
@@ -93,7 +105,7 @@ test('auto map config for list pages', () => {
             type: 'geojson',
             name: 'item',
             active: true,
-            url: '/items.geojson',
+            data: ['context_feature_collection', 'geometry'],
             popup: 'item',
             cluster: true
         }
@@ -110,7 +122,7 @@ test('auto map config for list pages', () => {
             name: 'item',
             active: true,
             popup: 'item',
-            url: '/items/one.geojson'
+            data: ['context_feature', 'geometry']
         }
     ]);
     expect(
@@ -120,6 +132,152 @@ test('auto map config for list pages', () => {
             item_id: 'one'
         })
     ).toEqual([]);
+    expect(
+        getLayerConfs({
+            page: 'itemmulti',
+            mode: 'list'
+        })
+    ).toEqual([
+        {
+            type: 'geojson',
+            name: 'itemmulti - location',
+            active: true,
+            popup: 'itemmulti',
+            cluster: true,
+            data: ['context_feature_collection', 'observations[].location']
+        }
+    ]);
+});
+
+test('context geojson fields', () => {
+    expect(
+        contextFeatureCollection(
+            {
+                list: [
+                    {
+                        id: 'one',
+                        geometry: { type: 'Point', coordinates: [0, 0] }
+                    }
+                ]
+            },
+            'geometry'
+        )
+    ).toEqual({
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                id: 'one',
+                geometry: { type: 'Point', coordinates: [0, 0] },
+                properties: {
+                    id: 'one',
+                    geometry: { type: 'Point', coordinates: [0, 0] }
+                }
+            }
+        ]
+    });
+
+    expect(
+        contextFeature(
+            {
+                id: 'one',
+                geometry: { type: 'Point', coordinates: [0, 0] }
+            },
+            'geometry'
+        )
+    ).toEqual({
+        type: 'Feature',
+        id: 'one',
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: {
+            id: 'one',
+            geometry: { type: 'Point', coordinates: [0, 0] }
+        }
+    });
+
+    expect(
+        contextFeatureCollection(
+            {
+                list: [
+                    {
+                        id: 1,
+                        general: {
+                            name: 'Test 1',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [0, 0]
+                            }
+                        }
+                    }
+                ]
+            },
+            'general.geometry'
+        )
+    ).toEqual({
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                id: 1,
+                geometry: { type: 'Point', coordinates: [0, 0] },
+                properties: {
+                    id: 1,
+                    general: {
+                        name: 'Test 1',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [0, 0]
+                        }
+                    }
+                }
+            }
+        ]
+    });
+
+    const itemWithObservations = {
+        id: 1,
+        name: 'Test 1',
+        observations: [
+            {
+                notes: 'Observation 1',
+                location: {
+                    type: 'Point',
+                    coordinates: [0, 0]
+                }
+            },
+            {
+                notes: 'Observation 2',
+                location: {
+                    type: 'Point',
+                    coordinates: [1, 1]
+                }
+            }
+        ]
+    };
+    expect(
+        contextFeatureCollection(
+            {
+                list: [itemWithObservations]
+            },
+            'observations[].location'
+        )
+    ).toEqual({
+        type: 'FeatureCollection',
+        features: [
+            {
+                type: 'Feature',
+                id: 1,
+                geometry: {
+                    type: 'GeometryCollection',
+                    geometries: [
+                        { type: 'Point', coordinates: [0, 0] },
+                        { type: 'Point', coordinates: [1, 1] }
+                    ]
+                },
+                properties: itemWithObservations
+            }
+        ]
+    });
 });
 
 const expectedLayers = [
@@ -208,18 +366,42 @@ test('manual map config for other pages', () => {
 });
 
 test('list map', async () => {
-    setRouteInfo({
-        page: 'item',
-        mode: 'list'
-    });
+    const context = {
+        list: [
+            {
+                id: 'one',
+                geometry: { type: 'Point', coordinates: [0, 0] }
+            }
+        ]
+    };
+    setRouteInfo(
+        {
+            page: 'item',
+            mode: 'list'
+        },
+        context
+    );
 
-    const result = renderTest(AutoMap, mockApp),
+    const result = renderTest(() => <AutoMap context={context} />, mockApp),
         overlay = result.root.findByType(Geojson);
 
     expect(overlay.props).toEqual({
         name: 'item',
         popup: 'item',
-        url: '/items.geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    id: 'one',
+                    geometry: { type: 'Point', coordinates: [0, 0] },
+                    properties: {
+                        id: 'one',
+                        geometry: { type: 'Point', coordinates: [0, 0] }
+                    }
+                }
+            ]
+        },
         cluster: true,
         active: true
     });
@@ -337,6 +519,11 @@ test('toggle layers', async () => {
             [-4, -4],
             [4, 4]
         ],
+        autoZoom: {
+            wait: 0.5,
+            maxZoom: 13,
+            animate: true
+        },
         mapProps: undefined,
         mapId: undefined,
         highlight: null,

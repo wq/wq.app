@@ -46,7 +46,11 @@ export default function Geo({
     return (
         <Fieldset label={label}>
             <GeoTools name={name} type={type} />
-            <AutoMap name={name} containerStyle={{ minHeight: 400 }}>
+            <AutoMap
+                name={name}
+                containerStyle={{ minHeight: 400 }}
+                context={emptyContext}
+            >
                 {children}
                 <Accuracy accuracy={accuracy} data={geojson} />
                 <Draw
@@ -71,3 +75,5 @@ Geo.propTypes = {
     inset: PropTypes.boolean,
     children: PropTypes.node
 };
+
+const emptyContext = {};

@@ -3,6 +3,7 @@ import map from '@wq/map';
 import {
     Map,
     MapInteraction,
+    MapAutoZoom,
     Legend,
     BasemapToggle,
     OverlayToggle
@@ -27,6 +28,7 @@ export default {
     components: {
         Map,
         MapInteraction,
+        MapAutoZoom,
         Legend,
         BasemapToggle,
         OverlayToggle
@@ -49,6 +51,7 @@ export default {
 export {
     Map,
     MapInteraction,
+    MapAutoZoom,
     Legend,
     BasemapToggle,
     OverlayToggle,

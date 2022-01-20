@@ -3,7 +3,13 @@ import { useComponents, usePluginReducer } from '@wq/react';
 import PropTypes from 'prop-types';
 import { Reparentable, moveOffscreen } from './OffscreenMaps';
 
-export default function StickyMap({ mapId, name, containerStyle, children }) {
+export default function StickyMap({
+    mapId,
+    name,
+    containerStyle,
+    context,
+    children
+}) {
     const [mapState, { setStickyProps }] = usePluginReducer('map'),
         { stickyMapId, stickyMaps } = mapState,
         currentProps =
@@ -27,6 +33,7 @@ export default function StickyMap({ mapId, name, containerStyle, children }) {
             currentProps &&
             currentProps.name === name &&
             currentProps.containerStyle === containerStyle &&
+            currentProps.context === context &&
             Object.keys(nextState).every(
                 key => nextState[key] === currentProps.state[key]
             )
@@ -37,10 +44,19 @@ export default function StickyMap({ mapId, name, containerStyle, children }) {
         setStickyProps({
             name,
             containerStyle,
+            context,
             state: nextState,
             children
         });
-    }, [mapId, mapState, currentProps, name, containerStyle, children]);
+    }, [
+        mapId,
+        mapState,
+        currentProps,
+        name,
+        containerStyle,
+        context,
+        children
+    ]);
 
     useEffect(() => {
         return () => {
@@ -59,5 +75,6 @@ StickyMap.propTypes = {
     mapId: PropTypes.string,
     name: PropTypes.string,
     containerStyle: PropTypes.object,
+    context: PropTypes.object,
     children: PropTypes.node
 };

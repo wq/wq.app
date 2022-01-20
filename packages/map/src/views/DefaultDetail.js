@@ -1,24 +1,25 @@
 import React from 'react';
 import { useMapState } from '../hooks';
-import { DefaultDetail, useComponents } from '@wq/react';
+import { DefaultDetail, useComponents, useRenderContext } from '@wq/react';
 
 export default function DefaultDetailWithMap() {
     const mapState = useMapState(),
-        { AutoMap, StickyMap } = useComponents();
+        { AutoMap, StickyMap } = useComponents(),
+        context = useRenderContext();
     if (mapState) {
         const { mapId } = mapState;
         if (mapId) {
             return (
                 <>
                     <DefaultDetail />
-                    <StickyMap mapId={mapId} />
+                    <StickyMap mapId={mapId} context={context} />
                 </>
             );
         } else {
             return (
                 <>
                     <DefaultDetail />
-                    <AutoMap />
+                    <AutoMap context={context} />
                 </>
             );
         }

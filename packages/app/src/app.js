@@ -772,7 +772,7 @@ async function _displayList(ctx, parentInfo) {
         }
         filter = {};
         for (var key in params || {}) {
-            if (key != 'page' && key != 'limit') {
+            if (key != 'page') {
                 filter[key] = params[key];
             }
         }
@@ -850,7 +850,7 @@ async function _displayList(ctx, parentInfo) {
             let prevp = filter ? { ...filter } : {};
             prevp.page = +pnum - 1;
             prev = conf.url + '/?' + new URLSearchParams(prevp).toString();
-        } else if (pnum == 1 && !filter) {
+        } else if (+pnum - 1 == model.opts.page && !filter) {
             prev = conf.url + '/';
             prevIsLocal = true;
         }

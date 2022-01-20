@@ -175,6 +175,22 @@ export function routeMapConf(config, routeInfo, context = {}) {
     if (config.mapProps) {
         mapconf.mapProps = config.mapProps;
     }
+    if (typeof mapconf.autoZoom === 'undefined') {
+        mapconf.autoZoom = { ...config.autoZoom };
+    }
+    if (mapconf.autoZoom === true) {
+        mapconf.autoZoom = {};
+    }
+    if (typeof mapconf.autoZoom.wait === 'undefined') {
+        mapconf.autoZoom.wait = 0.5;
+    }
+    if (typeof mapconf.autoZoom.maxZoom === 'undefined') {
+        mapconf.autoZoom.maxZoom = 13;
+    }
+    if (typeof mapconf.autoZoom.animate === 'undefined') {
+        mapconf.autoZoom.animate = true;
+    }
+
     // Combine (rather than overwrite) defaults + mode-specific layers
     if (
         mode &&
@@ -195,23 +211,30 @@ export function routeMapConf(config, routeInfo, context = {}) {
 
     // Compute default layer configuration for wq REST API
     if (mapconf.autoLayers && mode !== 'edit') {
-        const defaultLayer = {
-            name: mapconf.name,
-            type: 'geojson'
-        };
-        if (!mode || mode === 'list') {
-            Object.assign(defaultLayer, {
-                url: '{{{rt}}}/{{{url}}}.geojson',
-                popup: page,
-                cluster: true
-            });
-        } else {
-            Object.assign(defaultLayer, {
-                url: '{{{rt}}}/' + mapconf.url + '/{{{id}}}.geojson',
-                popup: page
-            });
-        }
-        mapconf.layers.push(defaultLayer);
+        const geometryFields = getGeometryFields((page_config || {}).form);
+        geometryFields.forEach(field => {
+            let name = (page_config && page_config.label) || mapconf.name;
+            if (field.label) {
+                name += ` - ${field.label}`;
+            }
+            const defaultLayer = {
+                name,
+                type: 'geojson'
+            };
+            if (!mode || mode === 'list') {
+                Object.assign(defaultLayer, {
+                    data: ['context_feature_collection', field.name],
+                    popup: page,
+                    cluster: true
+                });
+            } else {
+                Object.assign(defaultLayer, {
+                    data: ['context_feature', field.name],
+                    popup: page
+                });
+            }
+            mapconf.layers.push(defaultLayer);
+        });
     }
     mapconf.layers = mapconf.layers.map(checkGroupLayers).map(layerconf => {
         // FIXME: recalculate
@@ -248,6 +271,115 @@ export function routeMapConf(config, routeInfo, context = {}) {
     });
 
     return mapconf;
+}
+
+function getGeometryFields(form, prefix = '') {
+    const geometryFields = [];
+    (form || []).forEach(field => {
+        if (field.type.startsWith('geo')) {
+            geometryFields.push({
+                name: prefix + field.name,
+                label: field.label || field.name
+            });
+        } else if (field.type === 'group') {
+            geometryFields.push(
+                ...getGeometryFields(
+                    field.children,
+                    (prefix = `${field.name}.`)
+                )
+            );
+        } else if (field.type === 'repeat') {
+            geometryFields.push(
+                ...getGeometryFields(
+                    field.children,
+                    (prefix = `${field.name}[].`)
+                )
+            );
+        }
+    });
+    if (geometryFields.length === 0 && !prefix) {
+        geometryFields.push({ name: 'geometry', label: '' });
+    }
+    return geometryFields;
+}
+
+export function contextFeatureCollection(context, fieldName) {
+    return {
+        type: 'FeatureCollection',
+        features: ((context && context.list) || [])
+            .map(obj => {
+                return contextFeature(obj, fieldName);
+            })
+            .filter(obj => !!obj)
+    };
+}
+
+export function contextFeature(context, fieldName) {
+    const geometry = contextGeometry(context, fieldName);
+    if (!geometry) {
+        return null;
+    }
+    return {
+        type: 'Feature',
+        id: context.id,
+        geometry,
+        properties: {
+            ...context
+        }
+    };
+}
+
+function contextGeometry(context, fieldName) {
+    const [prefix, ...rest] = fieldName.split('.');
+    if (!context) {
+        return null;
+    } else if (prefix.endsWith('[]')) {
+        const list = context[prefix.slice(0, prefix.length - 2)];
+        if (Array.isArray(list)) {
+            return {
+                type: 'GeometryCollection',
+                geometries: list.map(row =>
+                    contextGeometry(row, rest.join('.'))
+                )
+            };
+        } else {
+            return null;
+        }
+    } else {
+        const obj = context[prefix];
+        if (rest.length) {
+            return contextGeometry(obj, rest.join('.'));
+        } else if (obj && obj.type && (obj.coordinates || obj.geometries)) {
+            return obj;
+        } else {
+            return null;
+        }
+    }
+}
+
+export function useDataProps(data, context) {
+    return useMemo(() => {
+        const dataProps = {};
+        if (Array.isArray(data)) {
+            const [dataType, fieldName] = data;
+            if (dataType === 'context_feature_collection') {
+                dataProps.data = contextFeatureCollection(context, fieldName);
+            } else if (dataType === 'context_feature') {
+                dataProps.data = contextFeature(context, fieldName) || {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'GeometryCollection',
+                        geometries: []
+                    }
+                };
+            } else {
+                console.error('Unexpected data context array', data);
+            }
+        } else if (data) {
+            dataProps.data = data;
+        }
+        return dataProps;
+    }, [data, context]);
 }
 
 const _cache = {};
@@ -384,4 +516,53 @@ export function asFeatureCollection(geojson) {
         type: 'FeatureCollection',
         features
     };
+}
+
+export function computeBounds(features) {
+    let hasBounds = false,
+        minx,
+        miny,
+        maxx,
+        maxy;
+    features.forEach(feature => {
+        const geometry = feature.geometry;
+        if (geometry.type === 'GeometryCollection') {
+            geometry.geometries.forEach(addCoordinates);
+        } else {
+            addCoordinates(geometry.coordinates);
+        }
+    });
+
+    function addCoordinates(coordinates) {
+        if (!Array.isArray(coordinates)) {
+            return;
+        }
+        if (Array.isArray(coordinates[0])) {
+            coordinates.forEach(addCoordinates);
+            return;
+        }
+        const [x, y] = coordinates;
+        if (typeof x !== 'number' || typeof y !== 'number') {
+            return;
+        }
+        if (hasBounds) {
+            minx = Math.min(minx, x);
+            miny = Math.min(miny, y);
+            maxx = Math.max(maxx, x);
+            maxy = Math.max(maxy, y);
+        } else {
+            hasBounds = true;
+            minx = maxx = x;
+            miny = maxy = y;
+        }
+    }
+
+    if (hasBounds) {
+        return [
+            [minx, miny],
+            [maxx, maxy]
+        ];
+    } else {
+        return null;
+    }
 }

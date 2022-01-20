@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useOverlayComponents } from '../hooks';
+import { useOverlayComponents, useDataProps } from '../hooks';
 
-export default function AutoOverlay({ type, ...conf }) {
+export default function AutoOverlay({ type, data, context, ...conf }) {
     const overlays = useOverlayComponents(),
-        Overlay = overlays[type];
+        Overlay = overlays[type],
+        dataProps = useDataProps(data, context);
 
     if (type === 'empty') {
         return Overlay ? <Overlay active={conf.active} /> : null;
@@ -16,6 +17,7 @@ export default function AutoOverlay({ type, ...conf }) {
                     <AutoOverlay
                         key={layer.name}
                         active={conf.active}
+                        context={context}
                         {...layer}
                     />
                 ))}
@@ -26,8 +28,10 @@ export default function AutoOverlay({ type, ...conf }) {
         return null;
     }
 
-    return <Overlay {...conf} />;
+    return <Overlay {...conf} {...dataProps} />;
 }
 AutoOverlay.propTypes = {
-    type: PropTypes.string.isRequired
+    type: PropTypes.string.isRequired,
+    data: PropTypes.object,
+    context: PropTypes.object
 };

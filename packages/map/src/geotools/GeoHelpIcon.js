@@ -1,20 +1,29 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 export default function GeoHelpIcon({ name, type }) {
     const iconClass = getIconClass(name, type);
     if (!iconClass) {
         return `{${name}}`;
     }
 
-    <span
-        className={iconClass}
-        style={{
-            display: 'inline-block',
-            width: 18,
-            height: 18,
-            verticalAlign: 'middle'
-        }}
-    />;
+    return (
+        <span
+            className={iconClass}
+            style={{
+                display: 'inline-block',
+                width: 18,
+                height: 18,
+                verticalAlign: 'middle'
+            }}
+        />
+    );
 }
+
+GeoHelpIcon.propTypes = {
+    name: PropTypes.string,
+    type: PropTypes.string
+};
 
 const SHAPES = ['point', 'line', 'polygon'],
     ICONS = SHAPES.map(shape => `${shape.toUpperCase()}_ICON`);

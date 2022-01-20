@@ -6,7 +6,7 @@
     "main": "index.js",
     "react-native": "src/index.js",
     "scripts": {
-        "test": "cd ../../ && npm run jest packages/map/ -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
+        "test": "cd ../../ && npm run jest packages/map/ -- --moduleDirectories node_modules/@wq/react/node_modules node_modules/@wq/material/node_modules node_modules",
         "build": "npm run babel && npm run prettier",
         "babel": "cd ../../ && npm run babel -- packages/map/src --out-dir packages/map/",
         "prettier": "cd ../../ && npm run prettier -- --write packages/map/",
