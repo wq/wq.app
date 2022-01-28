@@ -1,5 +1,11 @@
 import map from '@wq/map';
-import { Map, Legend, BasemapToggle, OverlayToggle } from './components/index';
+import {
+    Map,
+    MapAutoZoom,
+    Legend,
+    BasemapToggle,
+    OverlayToggle
+} from './components/index';
 import { Tile } from './basemaps/index';
 import { Geojson, Highlight, Draw, Accuracy } from './overlays/index';
 import { LayerGroup as Group } from 'react-leaflet';
@@ -39,6 +45,7 @@ export default {
     },
     components: {
         Map,
+        MapAutoZoom,
         Legend,
         BasemapToggle,
         OverlayToggle

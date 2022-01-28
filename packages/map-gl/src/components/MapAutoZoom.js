@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useMapInstance, computeBounds } from '@wq/map';
 
-export default function AutoZoom({ name, context, wait, maxZoom, animate }) {
+export default function MapAutoZoom({ name, context, wait, maxZoom, animate }) {
     const map = useMapInstance(name);
 
     useEffect(() => {
@@ -14,7 +14,6 @@ export default function AutoZoom({ name, context, wait, maxZoom, animate }) {
 
         async function autoZoom() {
             map.off('idle', autoZoom);
-            map.resize();
             const sources = map.getStyle().sources,
                 allFeatures = [];
             for (const name in sources) {
@@ -53,6 +52,7 @@ export default function AutoZoom({ name, context, wait, maxZoom, animate }) {
                 const elapsed = new Date() - startTime,
                     timeout = Math.max(wait * 1000 - elapsed, 0);
                 setTimeout(() => {
+                    map.resize();
                     map.fitBounds(bounds, { padding: 32, maxZoom, animate });
                 }, timeout);
             }

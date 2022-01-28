@@ -32,6 +32,9 @@ export default function AutoOverlay({ type, data, context, ...conf }) {
 }
 AutoOverlay.propTypes = {
     type: PropTypes.string.isRequired,
-    data: PropTypes.object,
+    data: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.arrayOf(PropTypes.string)
+    ]),
     context: PropTypes.object
 };

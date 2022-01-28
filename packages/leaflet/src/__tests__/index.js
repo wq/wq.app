@@ -1,3 +1,4 @@
+import React from 'react';
 import map, { AutoMap, EmbeddedGeo } from '@wq/map';
 import { Geojson, Draw } from '../overlays/index';
 import leaflet, { Map } from '../index';
@@ -87,18 +88,84 @@ function setRouteInfo(routeInfo, context = {}) {
 }
 
 test('list map', async () => {
-    setRouteInfo({
-        page: 'item',
-        mode: 'list'
-    });
+    const context = {
+            list: [
+                {
+                    id: 'one',
+                    label: 'ONE',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [
+                            [
+                                [-93.28044891357422, 44.9771852553236],
+                                [-93.28611373901367, 44.972084916104706],
+                                [-93.27701568603516, 44.9715991458543],
+                                [-93.27220916748047, 44.9810709235921],
+                                [-93.27924728393555, 44.983985001986305],
+                                [-93.28044891357422, 44.9771852553236]
+                            ]
+                        ]
+                    }
+                },
+                {
+                    id: 'two',
+                    label: 'TWO',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [
+                            [
+                                [-93.25349807739258, 44.968927335931234],
+                                [-93.25349807739258, 44.977670978257756],
+                                [-93.24045181274414, 44.977670978257756],
+                                [-93.24045181274414, 44.968927335931234],
+                                [-93.25349807739258, 44.968927335931234]
+                            ]
+                        ]
+                    }
+                },
+                {
+                    id: 'three',
+                    label: 'THREE',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [
+                            [
+                                [-93.25950622558594, 44.98738457290511],
+                                [-93.24714660644531, 44.984592083008145],
+                                [-93.24388504028319, 44.99357613047141],
+                                [-93.25693130493164, 44.99612540094354],
+                                [-93.25950622558594, 44.98738457290511]
+                            ]
+                        ]
+                    }
+                }
+            ]
+        },
+        data = {
+            type: 'FeatureCollection',
+            features: context.list.map(obj => ({
+                type: 'Feature',
+                id: obj.id,
+                properties: obj,
+                geometry: obj.geometry
+            }))
+        };
 
-    const result = renderTest(AutoMap, mockApp),
+    setRouteInfo(
+        {
+            page: 'item',
+            mode: 'list'
+        },
+        context
+    );
+
+    const result = renderTest(() => <AutoMap context={context} />, mockApp),
         overlay = result.root.findByType(Geojson);
 
     expect(overlay.props).toEqual({
         name: 'item',
         popup: 'item',
-        url: '/items.geojson',
+        data,
         cluster: true,
         active: true
     });

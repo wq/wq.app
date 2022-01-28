@@ -388,7 +388,7 @@ export function useGeoJSON(url, data) {
     const app = useApp(),
         [geojson, setGeojson] = useState();
 
-    if (!(url.indexOf('/') === 0 || url.indexOf('http') === 0)) {
+    if (url && !(url.indexOf('/') === 0 || url.indexOf('http') === 0)) {
         console.warn(
             new Error(`Use "{{{rt}}}/${url}" instead of relative URL`)
         );

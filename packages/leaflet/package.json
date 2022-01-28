@@ -6,7 +6,7 @@
     "main": "index.js",
     "react-native": "src/index.js",
     "scripts": {
-        "test": "cd ../../ && npm run jest packages/leaflet -- --moduleDirectories node_modules/@wq/react/node_modules node_modules",
+        "test": "cd ../../ && npm run jest packages/leaflet -- --moduleDirectories node_modules/@wq/react/node_modules node_modules/@wq/material/node_modules node_modules",
         "build": "npm run babel && npm run prettier",
         "babel": "cd ../../ && npm run babel -- packages/leaflet/src --out-dir packages/leaflet/",
         "prettier": "cd ../../ && npm run prettier -- --write packages/leaflet/",
