@@ -316,7 +316,8 @@ map.runComponent = 'OffscreenMaps';
 map.run = function ($page, routeInfo) {
     var mapconf = map.config.maps[routeInfo.page],
         mode = routeInfo.mode,
-        form = routeInfo.form,
+        context = routeInfo.context,
+        form = routeInfo.page_config.form,
         maps = [];
     if (!mapconf) {
         return;
@@ -335,12 +336,12 @@ map.run = function ($page, routeInfo) {
             const fieldName = mapname === 'main' ? 'geometry' : mapname,
                 { type } = form.find(field => field.name === fieldName) || {},
                 $field = $page.find(`[name=${fieldName}]`),
-                value = routeInfo.context[fieldName],
+                value = context[fieldName],
                 setValue = data => $field.val(JSON.stringify(data));
 
             Component = EmbeddedGeo.makeComponent({ type, value, setValue });
         } else {
-            Component = AutoMap;
+            Component = AutoMap.makeComponent({ context });
         }
 
         const detach = reactRenderer.attach(Component, $div[0], this.app);

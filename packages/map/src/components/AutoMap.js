@@ -77,6 +77,14 @@ export default function AutoMap({
     );
 }
 
+AutoMap.makeComponent = props => {
+    function Component() {
+        return <AutoMap {...props} />;
+    }
+
+    return Component;
+};
+
 AutoMap.propTypes = {
     name: PropTypes.string,
     containerStyle: PropTypes.object,

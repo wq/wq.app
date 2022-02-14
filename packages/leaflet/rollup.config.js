@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
+import * as path from 'path';
 import { makeBanner, wqDeps, babelAMD, outputAMD } from '../../rollup-utils.js';
 
 const banners = {
@@ -31,7 +32,32 @@ const banners = {
         'redux-orm/src/index.js': { id: 'redux-orm', external: true }
     };
 function resolveId(id) {
+    if (id.startsWith('default-from:')) {
+        return id;
+    }
     return deps[id];
+}
+
+function load(id) {
+    if (id.startsWith('default-from:')) {
+        const file = path.resolve(id.split(':')[1]);
+        return `import mod from '${file}'; export default mod`;
+    }
+    if (id.endsWith('geotools/index.js')) {
+        return ['GeoHelp', 'GeoLocate', 'GeoCode', 'GeoCoords']
+            .map(emptyComponent)
+            .join('\n');
+    } else if (
+        id.endsWith('GeoTools.js') ||
+        id.endsWith('StickyMap.js') ||
+        id.endsWith('OffscreenMaps.js')
+    ) {
+        return emptyComponent();
+    }
+}
+function emptyComponent(name) {
+    const exp = name ? 'export' : 'export default';
+    return `${exp} function ${name || 'Empty'}() { return null; }`;
 }
 
 const replaceConf = {
@@ -66,7 +92,7 @@ const replaceConf = {
 export default [
     // AMD (for wq.app Python package)
     {
-        input: 'packages/leaflet/src/index.js',
+        input: 'default-from:packages/leaflet/src/index.js',
         external: [
             'leaflet',
             'leaflet.markercluster',
@@ -93,7 +119,7 @@ export default [
                     "import Draw from './overlays/Draw'\n" +
                     "import Accuracy from './overlays/Accuracy'\n"
             }),
-            { resolveId },
+            { resolveId, load },
             wqDeps('.'),
             babelAMD({ jsx: true }),
             resolve({
@@ -131,7 +157,7 @@ export default [
         output: outputAMD('mapserv', banners.mapserv, 'leaflet'),
         plugins: [
             replace(replaceConf),
-            { resolveId },
+            { resolveId, load },
             wqDeps('.'),
             babelAMD({ jsx: true }),
             resolve({
