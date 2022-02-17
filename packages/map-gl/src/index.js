@@ -4,6 +4,7 @@ import {
     Map,
     MapInteraction,
     MapAutoZoom,
+    MapIdentify,
     Legend,
     BasemapToggle,
     OverlayToggle
@@ -29,6 +30,7 @@ export default {
         Map,
         MapInteraction,
         MapAutoZoom,
+        MapIdentify,
         Legend,
         BasemapToggle,
         OverlayToggle
@@ -52,6 +54,7 @@ export {
     Map,
     MapInteraction,
     MapAutoZoom,
+    MapIdentify,
     Legend,
     BasemapToggle,
     OverlayToggle,

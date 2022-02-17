@@ -15,6 +15,7 @@ export default function AutoMap({
             Map,
             MapInteraction,
             MapAutoZoom,
+            MapIdentify,
             AutoBasemap,
             AutoOverlay,
             Legend,
@@ -40,6 +41,8 @@ export default function AutoMap({
         highlight
     } = state;
 
+    const identify = overlays.some(overlay => !!overlay.popup);
+
     return (
         <Map
             name={name}
@@ -51,6 +54,7 @@ export default function AutoMap({
             {!!autoZoom && (
                 <MapAutoZoom name={name} context={context} {...autoZoom} />
             )}
+            {identify && <MapIdentify name={name} context={context} />}
             <Legend>
                 {basemaps.map((conf, i) => (
                     <BasemapToggle

@@ -4,7 +4,7 @@ import { DefaultList, useComponents, useList } from '@wq/react';
 
 export default function DefaultListWithMap() {
     const mapState = useMapState(),
-        { AutoMap, StickyMap } = useComponents(),
+        { AutoMap, StickyMap, HighlightPopup } = useComponents(),
         context = useList();
     if (mapState) {
         const { mapId } = mapState;
@@ -13,6 +13,7 @@ export default function DefaultListWithMap() {
                 <>
                     <DefaultList />
                     <StickyMap mapId={mapId} context={context} />
+                    <HighlightPopup />
                 </>
             );
         } else {
@@ -20,6 +21,7 @@ export default function DefaultListWithMap() {
                 <>
                     <DefaultList />
                     <AutoMap context={context} />
+                    <HighlightPopup />
                 </>
             );
         }

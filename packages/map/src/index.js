@@ -18,6 +18,8 @@ import {
     AutoOverlay,
     StickyMap,
     OffscreenMaps,
+    HighlightPopup,
+    PropertyTable,
     GeoTools
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
@@ -43,6 +45,8 @@ export {
     AutoOverlay,
     StickyMap,
     OffscreenMaps,
+    HighlightPopup,
+    PropertyTable,
     GeoTools,
     Geo,
     EmbeddedGeo,

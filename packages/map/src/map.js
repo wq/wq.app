@@ -4,6 +4,8 @@ import {
     AutoOverlay,
     StickyMap,
     OffscreenMaps,
+    HighlightPopup,
+    PropertyTable,
     Map,
     Legend,
     BasemapToggle,
@@ -12,7 +14,7 @@ import {
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
-import { DefaultList, DefaultDetail } from './views/index';
+import { DefaultList, DefaultDetail, DefaultPopup } from './views/index';
 import reducer, {
     MAP_READY,
     MAP_SET_STICKY_PROPS,
@@ -121,9 +123,12 @@ const map = {
         AutoOverlay,
         StickyMap,
         OffscreenMaps,
+        HighlightPopup,
+        PropertyTable,
         Map,
         MapInteraction: () => null,
         MapAutoZoom: () => null,
+        MapIdentify: () => null,
         Legend,
         BasemapToggle,
         OverlayToggle,
@@ -135,7 +140,7 @@ const map = {
         geotrace: Geo,
         geoshape: Geo
     },
-    views: { DefaultList, DefaultDetail },
+    views: { DefaultList, DefaultDetail, DefaultPopup },
     config: {
         maps: {}, // Auto-populated from app.config.pages where map == true
         bounds: [

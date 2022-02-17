@@ -45,6 +45,7 @@ import IconSubmitButton from './IconSubmitButton';
 import DeleteForm from './DeleteForm';
 
 import Spinner from './Spinner';
+import Popup from './Popup';
 import Breadcrumbs from './Breadcrumbs';
 import Pagination from './Pagination';
 
@@ -89,4 +90,4 @@ export {
     DeleteForm
 };
 
-export { Spinner, Breadcrumbs, Pagination };
+export { Spinner, Popup, Breadcrumbs, Pagination };
