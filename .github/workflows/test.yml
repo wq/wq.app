@@ -50,7 +50,7 @@ jobs:
       run: |
          cd packages/$PACKAGE
          npm run test
-    - uses: smartsquaregmbh/delete-old-packages@v0.3.1
+    - uses: smartsquaregmbh/delete-old-packages@v0.4.0
       if: |
           github.event_name == 'push' &&
           matrix.package != 'jquery-mobile' &&
