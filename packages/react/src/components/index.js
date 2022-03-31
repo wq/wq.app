@@ -7,6 +7,7 @@ import View from './View';
 import ScrollView from './ScrollView';
 import HorizontalView from './HorizontalView';
 import Text from './Text';
+import Image from './Image';
 import Typography from './Typography';
 import FormatJson from './FormatJson';
 
@@ -38,6 +39,8 @@ import AutoInput from './AutoInput';
 import AutoSubform from './AutoSubform';
 import AutoSubformArray from './AutoSubformArray';
 import PropertyTable from './PropertyTable';
+import ImagePreview from './ImagePreview';
+import FileLink from './FileLink';
 import Form from './Form';
 import FormRoot from './FormRoot';
 import FormError from './FormError';
@@ -66,6 +69,7 @@ export {
     ScrollView,
     HorizontalView,
     Text,
+    Image,
     Typography,
     FormatJson
 };
@@ -84,6 +88,8 @@ export {
     AutoSubform,
     AutoSubformArray,
     PropertyTable,
+    ImagePreview,
+    FileLink,
     Form,
     FormRoot,
     FormError,

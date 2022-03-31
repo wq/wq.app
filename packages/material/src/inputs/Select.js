@@ -92,7 +92,9 @@ export default function Select({
                 )}
                 {choiceGroups.map(({ name, label }) =>
                     name === '__group__' ? (
-                        <ListSubheader>{label}</ListSubheader>
+                        <ListSubheader style={{ backgroundColor: 'white' }}>
+                            {label}
+                        </ListSubheader>
                     ) : (
                         <MenuItem key={name} value={name}>
                             {multiple && (

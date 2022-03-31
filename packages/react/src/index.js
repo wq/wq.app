@@ -130,6 +130,8 @@ const {
     AutoSubform,
     AutoSubformArray,
     PropertyTable,
+    ImagePreview,
+    FileLink,
     DebugContext
 } = components;
 
@@ -144,5 +146,7 @@ export {
     AutoSubform,
     AutoSubformArray,
     PropertyTable,
+    ImagePreview,
+    FileLink,
     DebugContext
 };
