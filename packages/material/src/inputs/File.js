@@ -58,6 +58,7 @@ export default function File({ name, accept, hint, label }) {
                 acceptedFiles={acceptedFiles}
                 onChange={setFile}
                 filesLimit={1}
+                maxFileSize={100000000}
             />
             <HelperText name={name} hint={hint} />
         </>
