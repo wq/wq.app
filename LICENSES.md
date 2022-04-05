@@ -55,7 +55,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://babeljs.io/">@babel/runtime</a> 7.11.2</b></summary>
+<details><summary><b><a href="https://babel.dev/docs/en/next/babel-runtime">@babel/runtime</a> 7.17.8</b></summary>
 
 > MIT License
 > 
@@ -2060,7 +2060,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">regenerator-runtime</a> 0.13.7</b></summary>
+<details><summary><b><a href="null">regenerator-runtime</a> 0.13.9</b></summary>
 
 > MIT License
 > 
