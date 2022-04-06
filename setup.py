@@ -11,6 +11,7 @@ Offline-capable web/native apps for mobile surveys and field data collection.
 
 class BuildJS(build_py):
     def run(self):
+        subprocess.check_call(['git', 'diff', '--exit-code'])
         subprocess.check_call(['make'])
         super().run()
 
