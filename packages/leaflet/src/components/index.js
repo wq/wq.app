@@ -1,5 +1,13 @@
+import MapContainer from './MapContainer';
+import MapToolbar, { BasemapToggle, OverlayToggle } from './MapToolbar';
 import Map from './Map';
 import MapAutoZoom from './MapAutoZoom';
-import Legend, { BasemapToggle, OverlayToggle } from './Legend';
 
-export { Map, MapAutoZoom, Legend, BasemapToggle, OverlayToggle };
+export {
+    MapContainer,
+    MapToolbar,
+    Map,
+    MapAutoZoom,
+    BasemapToggle,
+    OverlayToggle
+};

@@ -1,8 +1,9 @@
 import map from '@wq/map';
 import {
+    MapContainer,
+    MapToolbar,
     Map,
     MapAutoZoom,
-    Legend,
     BasemapToggle,
     OverlayToggle
 } from './components/index';
@@ -44,9 +45,11 @@ export default {
         }));
     },
     components: {
+        MapContainer,
+        MapToolbar,
         Map,
         MapAutoZoom,
-        Legend,
+        MapLayers: () => null,
         BasemapToggle,
         OverlayToggle
     },
@@ -74,8 +77,9 @@ export default {
 };
 
 export {
+    MapContainer,
+    MapToolbar,
     Map,
-    Legend,
     BasemapToggle,
     OverlayToggle,
     Tile,

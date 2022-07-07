@@ -7,6 +7,8 @@ import Pending from '@material-ui/icons/Sync';
 import Close from '@material-ui/icons/Close';
 import Expand from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/icons/ExpandLess';
+import PanelOpen from '@material-ui/icons/ChevronRight';
+import PanelClose from '@material-ui/icons/ChevronLeft';
 import GpsStart from '@material-ui/icons/GpsFixed';
 import GpsStop from '@material-ui/icons/GpsOff';
 import Search from '@material-ui/icons/Search';
@@ -21,6 +23,8 @@ export {
     Close,
     Expand,
     Collapse,
+    PanelOpen,
+    PanelClose,
     GpsStart,
     GpsStop,
     Search

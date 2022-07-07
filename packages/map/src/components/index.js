@@ -5,8 +5,14 @@ import StickyMap from './StickyMap';
 import OffscreenMaps from './OffscreenMaps';
 import HighlightPopup from './HighlightPopup';
 import PropertyTable from './PropertyTable';
+import MapContainer from './MapContainer';
+import MapToolbar from './MapToolbar';
 import Map from './Map';
-import Legend, { BasemapToggle, OverlayToggle } from './Legend';
+import MapLayers from './MapLayers';
+import BasemapToggle from './BasemapToggle';
+import OverlayToggle from './OverlayToggle';
+import Legend from './Legend';
+import LegendIcon from './LegendIcon';
 import GeoTools from './GeoTools';
 
 export {
@@ -17,9 +23,13 @@ export {
     OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    MapContainer,
+    MapToolbar,
     Map,
-    Legend,
+    MapLayers,
     BasemapToggle,
     OverlayToggle,
+    Legend,
+    LegendIcon,
     GeoTools
 };

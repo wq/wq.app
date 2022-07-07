@@ -2,8 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LayersControl } from 'react-leaflet';
 const { BaseLayer, Overlay } = LayersControl;
+import { useComponents } from '@wq/react';
 
-export default function Legend({ position, collapsed, children }) {
+export default function MapToolbar({
+    overlays,
+    basemaps,
+    context,
+    position,
+    collapsed
+}) {
+    const {
+        AutoBasemap,
+        AutoOverlay,
+        BasemapToggle,
+        OverlayToggle
+    } = useComponents();
     if (!position) {
         position = 'topright';
     }
@@ -12,11 +25,31 @@ export default function Legend({ position, collapsed, children }) {
     }
     return (
         <LayersControl position={position} collapsed={collapsed}>
-            {children}
+            {basemaps.map(conf => (
+                <BasemapToggle
+                    key={conf.name}
+                    name={conf.name}
+                    active={conf.active}
+                >
+                    <AutoBasemap {...conf} />
+                </BasemapToggle>
+            ))}
+            {overlays.map(conf => (
+                <OverlayToggle
+                    key={conf.name}
+                    name={conf.name}
+                    active={conf.active}
+                >
+                    <AutoOverlay {...conf} context={context} />
+                </OverlayToggle>
+            ))}
         </LayersControl>
     );
 }
-Legend.propTypes = {
+MapToolbar.propTypes = {
+    overlays: PropTypes.arrayOf(PropTypes.object),
+    basemaps: PropTypes.arrayOf(PropTypes.object),
+    context: PropTypes.object,
     position: PropTypes.object,
     collapsed: PropTypes.bool,
     children: PropTypes.node

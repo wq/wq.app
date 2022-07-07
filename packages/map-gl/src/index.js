@@ -5,9 +5,7 @@ import {
     MapInteraction,
     MapAutoZoom,
     MapIdentify,
-    Legend,
-    BasemapToggle,
-    OverlayToggle
+    MapLayers
 } from './components/index';
 
 import { VectorTile, Tile } from './basemaps/index';
@@ -31,9 +29,7 @@ export default {
         MapInteraction,
         MapAutoZoom,
         MapIdentify,
-        Legend,
-        BasemapToggle,
-        OverlayToggle
+        MapLayers
     },
     basemaps: {
         VectorTile,
@@ -55,9 +51,6 @@ export {
     MapInteraction,
     MapAutoZoom,
     MapIdentify,
-    Legend,
-    BasemapToggle,
-    OverlayToggle,
     VectorTile,
     Tile,
     Geojson,

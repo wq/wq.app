@@ -20,6 +20,8 @@ import {
     OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    Legend,
+    LegendIcon,
     GeoTools
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
@@ -47,6 +49,8 @@ export {
     OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    Legend,
+    LegendIcon,
     GeoTools,
     Geo,
     EmbeddedGeo,

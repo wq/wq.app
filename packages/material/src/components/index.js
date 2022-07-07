@@ -17,6 +17,9 @@ import HomeLink from './HomeLink';
 import IconButton from './IconButton';
 import Fab from './Fab';
 import Chip from './Chip';
+import Switch from './Switch';
+import CheckboxButton from './CheckboxButton';
+import RadioButton from './RadioButton';
 
 import List from './List';
 import ListItem from './ListItem';
@@ -46,6 +49,7 @@ import DeleteForm from './DeleteForm';
 
 import Spinner from './Spinner';
 import Popup from './Popup';
+import SidePanel from './SidePanel';
 import Breadcrumbs from './Breadcrumbs';
 import Pagination from './Pagination';
 
@@ -63,7 +67,18 @@ export {
     FormatJson
 };
 
-export { Link, Button, ButtonLink, HomeLink, IconButton, Fab, Chip };
+export {
+    Link,
+    Button,
+    ButtonLink,
+    HomeLink,
+    IconButton,
+    Fab,
+    Chip,
+    Switch,
+    CheckboxButton,
+    RadioButton
+};
 
 export {
     List,
@@ -90,4 +105,4 @@ export {
     DeleteForm
 };
 
-export { Spinner, Popup, Breadcrumbs, Pagination };
+export { Spinner, Popup, SidePanel, Breadcrumbs, Pagination };

@@ -1,26 +1,28 @@
 import React from 'react';
-import { useComponents } from '@wq/react';
+import { useComponents, usePlugin } from '@wq/react';
 import { useMapState, useOverlayComponents } from '../hooks';
 import PropTypes from 'prop-types';
 
 export default function AutoMap({
     name,
+    toolbar = true,
     containerStyle,
     context,
     state,
     children
 }) {
     const mapState = useMapState(),
+        { showOverlay, hideOverlay, setBasemap } = usePlugin('map'),
         {
+            MapContainer,
+            MapToolbar,
             Map,
             MapInteraction,
             MapAutoZoom,
             MapIdentify,
+            MapLayers,
             AutoBasemap,
-            AutoOverlay,
-            Legend,
-            BasemapToggle,
-            OverlayToggle
+            AutoOverlay
         } = useComponents(),
         { Highlight } = useOverlayComponents();
 
@@ -44,40 +46,45 @@ export default function AutoMap({
     const identify = overlays.some(overlay => !!overlay.popup);
 
     return (
-        <Map
-            name={name}
-            initBounds={initBounds}
-            mapProps={mapProps}
-            containerStyle={containerStyle}
-        >
-            <MapInteraction name={name} />
-            {!!autoZoom && (
-                <MapAutoZoom name={name} context={context} {...autoZoom} />
+        <MapContainer name={name}>
+            {toolbar && (
+                <MapToolbar
+                    name={name}
+                    basemaps={basemaps}
+                    overlays={overlays}
+                    showOverlay={showOverlay}
+                    hideOverlay={hideOverlay}
+                    setBasemap={setBasemap}
+                    context={context}
+                />
             )}
-            {identify && <MapIdentify name={name} context={context} />}
-            <Legend>
-                {basemaps.map((conf, i) => (
-                    <BasemapToggle
-                        key={i}
-                        name={conf.name}
-                        active={conf.active}
-                    >
-                        <AutoBasemap {...conf} />
-                    </BasemapToggle>
-                ))}
-                {overlays.map((conf, i) => (
-                    <OverlayToggle
-                        key={i}
-                        name={conf.name}
-                        active={conf.active}
-                    >
-                        <AutoOverlay {...conf} context={context} />
-                    </OverlayToggle>
-                ))}
-            </Legend>
-            {highlight && <Highlight data={highlight} />}
-            {children}
-        </Map>
+            <Map
+                name={name}
+                initBounds={initBounds}
+                mapProps={mapProps}
+                containerStyle={containerStyle}
+            >
+                <MapInteraction name={name} />
+                {!!autoZoom && (
+                    <MapAutoZoom name={name} context={context} {...autoZoom} />
+                )}
+                {identify && <MapIdentify name={name} context={context} />}
+                <MapLayers>
+                    {basemaps.map(conf => (
+                        <AutoBasemap key={conf.name} {...conf} />
+                    ))}
+                    {overlays.map(conf => (
+                        <AutoOverlay
+                            key={conf.name}
+                            {...conf}
+                            context={context}
+                        />
+                    ))}
+                </MapLayers>
+                {highlight && <Highlight data={highlight} />}
+                {children}
+            </Map>
+        </MapContainer>
     );
 }
 
@@ -91,6 +98,7 @@ AutoMap.makeComponent = props => {
 
 AutoMap.propTypes = {
     name: PropTypes.string,
+    toolbar: PropTypes.bool,
     containerStyle: PropTypes.object,
     context: PropTypes.object,
     state: PropTypes.object,

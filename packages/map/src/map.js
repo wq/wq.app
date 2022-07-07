@@ -6,10 +6,14 @@ import {
     OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    MapContainer,
+    MapToolbar,
     Map,
-    Legend,
+    MapLayers,
     BasemapToggle,
     OverlayToggle,
+    Legend,
+    LegendIcon,
     GeoTools
 } from './components/index';
 import { Geo, EmbeddedGeo } from './inputs/index';
@@ -125,13 +129,17 @@ const map = {
         OffscreenMaps,
         HighlightPopup,
         PropertyTable,
+        MapContainer,
+        MapToolbar,
         Map,
         MapInteraction: () => null,
         MapAutoZoom: () => null,
         MapIdentify: () => null,
-        Legend,
+        MapLayers,
         BasemapToggle,
         OverlayToggle,
+        Legend,
+        LegendIcon,
         GeoTools
     },
     inputs: {

@@ -55,6 +55,7 @@ import DeleteForm from './DeleteForm';
 
 import Spinner from './Spinner';
 import Popup from './Popup';
+import SidePanel from './SidePanel';
 import Breadcrumbs from './Breadcrumbs';
 import Pagination from './Pagination';
 import DebugContext from './DebugContext';
@@ -103,4 +104,4 @@ export {
     DeleteForm
 };
 
-export { Spinner, Popup, Breadcrumbs, Pagination, DebugContext };
+export { Spinner, Popup, SidePanel, Breadcrumbs, Pagination, DebugContext };
