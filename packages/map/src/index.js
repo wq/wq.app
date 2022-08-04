@@ -20,6 +20,7 @@ import {
     OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    MapToolbar,
     Legend,
     LegendIcon,
     GeoTools
@@ -49,6 +50,7 @@ export {
     OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    MapToolbar,
     Legend,
     LegendIcon,
     GeoTools,

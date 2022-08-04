@@ -7,6 +7,7 @@ import {
 } from '../hooks';
 import { AutoMap } from '../components';
 import { EmbeddedGeo } from '../inputs';
+import react from '@wq/react';
 import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
@@ -37,6 +38,8 @@ const store = createStore(
 );
 Object.assign(map, bindActionCreators(map.actions, store.dispatch.bind(store)));
 
+const defaultRegistry = react.registry;
+
 const mockApp = {
     config: routeConfig,
     spin: {
@@ -49,7 +52,7 @@ const mockApp = {
             return Promise.resolve(geojson);
         }
     },
-    plugins: { map }
+    plugins: { map, defaultRegistry }
 };
 
 beforeAll(() => {

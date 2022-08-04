@@ -19,6 +19,9 @@ import ButtonLink from './ButtonLink';
 import IconButton from './IconButton';
 import Fab from './Fab';
 import Chip from './Chip';
+import Switch from './Switch';
+import CheckboxButton from './CheckboxButton';
+import RadioButton from './RadioButton';
 
 import List from './List';
 import ListItem from './ListItem';
@@ -75,7 +78,17 @@ export {
     FormatJson
 };
 
-export { Link, Button, ButtonLink, IconButton, Fab, Chip };
+export {
+    Link,
+    Button,
+    ButtonLink,
+    IconButton,
+    Fab,
+    Chip,
+    Switch,
+    CheckboxButton,
+    RadioButton
+};
 
 export { Message };
 
