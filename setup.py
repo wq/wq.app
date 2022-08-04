@@ -25,16 +25,6 @@ def readme():
         return readme.read()
 
 
-def list_package_data(root):
-    """
-    List top level js, css, & scss folders for inclusion as package data
-    """
-    paths = []
-    for base, dirs, files in os.walk(root):
-        paths.extend([os.path.join(base, name) for name in files])
-    return paths
-
-
 def create_wq_namespace():
     """
     Generate the wq namespace package
@@ -66,29 +56,12 @@ setup(
         'wq.app': [
             'static/app/js/*',
             'static/app/css/*',
-            'js/*',
-            'js/*/*',
-            'css/*',
-            'css/*/*',
-            'css/*/*/*',
-            'scss/*',
-            'scss/*/*',
         ],
     },
     include_package_data=True,
     install_requires=[
         'wq.build',
     ],
-    extras_require={
-        'compat': [
-            'pyScss>=1.3',
-            'compass-stylesheets==0.12.6',
-            'requests',
-            'pystache',
-            'requirejs>=0.2.0',
-            'PyBabeljs',
-        ]
-    },
     namespace_packages=['wq'],
     description=LONG_DESCRIPTION.strip(),
     long_description=readme(),

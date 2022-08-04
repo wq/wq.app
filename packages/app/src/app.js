@@ -231,26 +231,6 @@ app.init = function (config) {
         router.registerLast('', 'index');
     }
 
-    app.use({
-        context(ctx, routeInfo) {
-            // FIXME: Remove in 2.0, in favor of useSitemap()
-            if (routeInfo.name !== 'index') {
-                return;
-            }
-
-            var context = {};
-            context.pages = Object.keys(app.config.pages).map(function (page) {
-                var conf = app.config.pages[page];
-                return {
-                    name: page,
-                    url: conf.url,
-                    list: conf.list
-                };
-            });
-            return context;
-        }
-    });
-
     // Fallback for all other URLs
     router.registerLast(':path*', SERVER, _serverContext);
 
@@ -269,11 +249,6 @@ app.init = function (config) {
     app.service = ds.service;
 
     var ready = ds.ready.then(() => outbox.init(config.outbox));
-
-    if (app.config.jqmInit) {
-        // FIXME: Remove in 2.0
-        ready = ready.then(app.jqmInit);
-    }
 
     if (app.config.autoStart !== false) {
         ready = ready.then(app.start);

@@ -1,30 +1,6 @@
 collectjson:
     -
         paths:
-             - templates
-        type: html
-        output: js/data/templates.js
-        json:
-            indent: 4
-        jsonp: define
-    -
-        paths:
-             - config
-        type: yaml
-        extension: yml
-        output: js/data/config.js
-        json:
-            indent: 4
-        jsonp: define
-    -
-        paths:
-             - templates
-        type: html
-        output: ../packages/app/src/__tests__/templates.json
-        json:
-            indent: 4
-    -
-        paths:
              - config
         type: yaml
         extension: yml
@@ -39,6 +15,3 @@ collectjson:
         output: ../packages/map/src/__tests__/config.json
         json:
             indent: 4
-scss:
-   indir: "scss"
-   outdir: "css"

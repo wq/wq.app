@@ -38,12 +38,6 @@
 &bull;
 [@wq/map-gl]
 
-**Legacy Plugins**
-<br>
-[@wq/jquery-mobile]
-&bull;
-[@wq/leaflet]
-
 [logo]: https://wq.io/images/wq.app.svg
 [docs]: https://wq.io/wq.app/
 
@@ -59,9 +53,6 @@
 [@wq/material]: https://wq.io/@wq/material
 [@wq/map]: https://wq.io/@wq/map
 [@wq/map-gl]: https://wq.io/@wq/map-gl
-
-[@wq/jquery-mobile]: https://github.com/wq/wq.app/tree/main/packages/jquery-mobile
-[@wq/leaflet]: https://github.com/wq/wq.app/tree/main/packages/leaflet
 
 [wq framework]: https://wq.io/
 [wq.db]: https://wq.io/wq.db/

@@ -22,8 +22,6 @@ jobs:
           - material
           - map
           - map-gl
-          - leaflet
-          - jquery-mobile
     steps:
     - uses: actions/checkout@v2
       with:
@@ -51,18 +49,12 @@ jobs:
          cd packages/$PACKAGE
          npm run test
     - uses: smartsquaregmbh/delete-old-packages@v0.4.0
-      if: |
-          github.event_name == 'push' &&
-          matrix.package != 'jquery-mobile' &&
-          matrix.package != 'leaflet'
+      if: github.event_name == 'push'
       with:
          keep: 5
          names: ${{ matrix.package }}
     - name: Publish to Github Packages
-      if: |
-          github.event_name == 'push' &&
-          matrix.package != 'jquery-mobile' &&
-          matrix.package != 'leaflet'
+      if: github.event_name == 'push'
       run: |
          ./set_dev_version.sh
          cd packages/$PACKAGE
@@ -90,14 +82,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install wheel
-        python -m pip install wq.build
     - name: Build Python Wheel
       run: |
         python setup.py bdist_wheel
         python -m pip install `ls dist/*.whl`[compat]
-    - name: Test (deprecated) CLI Commands
-      run: |
-        cd tests
-        mkdir css && wq init && wq scss --indir scss --outdir css
-        cd commands
-        ./test_commands.sh

@@ -1,8 +1,0 @@
-optimize:
-   appDir: input
-   baseUrl: .
-   dir: output
-   removeCombined: true
-   modules:
-     - name: test
-babel: {}

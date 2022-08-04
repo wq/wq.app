@@ -244,14 +244,6 @@ export function routeMapConf(config, routeInfo, context = {}) {
             ...layerconf
         };
 
-        if (layerconf.noAutoAdd) {
-            // FIXME: Remove in 2.0
-            console.warn(
-                new Error('set active: false instead of noAutoAdd: true')
-            );
-            layerconf.active = false;
-            delete layerconf.noAutoAdd;
-        }
         if (layerconf.url && layerconf.url.indexOf('{{') > -1) {
             layerconf.url = Mustache.render(layerconf.url, {
                 ...context,

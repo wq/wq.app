@@ -16,7 +16,7 @@ import {
     LegendIcon,
     GeoTools
 } from './components/index';
-import { Geo, EmbeddedGeo } from './inputs/index';
+import { Geo } from './inputs/index';
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
 import { DefaultList, DefaultDetail, DefaultPopup } from './views/index';
 import reducer, {
@@ -32,7 +32,6 @@ import reducer, {
     MAP_REMOVE_HIGHLIGHT,
     MAP_CLEAR_HIGHLIGHT
 } from './reducer';
-import reactRenderer from '@wq/react';
 
 // module variable
 const map = {
@@ -229,8 +228,6 @@ map.init = function (config) {
         }
     }
 
-    // FIXME: loadDraw();
-
     if (config) {
         Object.assign(this.config, config);
 
@@ -325,43 +322,6 @@ map.init = function (config) {
 // Plugin API
 map.runComponent = 'OffscreenMaps';
 
-// FIXME: Drop this function in 2.0
-map.run = function ($page, routeInfo) {
-    var mapconf = map.config.maps[routeInfo.page],
-        mode = routeInfo.mode,
-        context = routeInfo.context,
-        form = routeInfo.page_config.form,
-        maps = [];
-    if (!mapconf) {
-        return;
-    }
-    if (mapconf[mode] && mapconf[mode].maps) {
-        maps = Object.keys(mapconf[mode].maps);
-    } else {
-        maps = ['main'];
-    }
-    maps.forEach(mapname => {
-        var divid = map.getMapId(routeInfo, mapname) + '-map',
-            $div = $page.find('#' + divid);
-
-        let Component;
-        if (mode === 'edit') {
-            const fieldName = mapname === 'main' ? 'geometry' : mapname,
-                { type } = form.find(field => field.name === fieldName) || {},
-                $field = $page.find(`[name=${fieldName}]`),
-                value = context[fieldName],
-                setValue = data => $field.val(JSON.stringify(data));
-
-            Component = EmbeddedGeo.makeComponent({ type, value, setValue });
-        } else {
-            Component = AutoMap.makeComponent({ context });
-        }
-
-        const detach = reactRenderer.attach(Component, $div[0], this.app);
-        $page.on('pagehide', detach);
-    });
-};
-
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
     var cdn =
@@ -378,27 +338,6 @@ function _defaultBasemaps() {
         }
     ];
 }
-
-// FIXME: Drop this function in 2.0
-map.getMapId = function (routeInfo, mapname) {
-    var rt = routeInfo,
-        parts = [];
-    if (rt.item_id || (rt.mode === 'edit' && rt.variant === 'new')) {
-        if (rt.mode === 'detail') {
-            parts = [rt.page, rt.item_id];
-        } else {
-            parts = [rt.page, rt.item_id || rt.variant, rt.mode];
-        }
-    } else if (routeInfo.parent_page) {
-        parts = [rt.parent_page, rt.parent_id, rt.page];
-    } else {
-        parts = [rt.page];
-    }
-    if (mapname && mapname !== 'main') {
-        parts.push(mapname);
-    }
-    return parts.join('-');
-};
 
 function asFeatureCollection(geojson) {
     if (!geojson) {
