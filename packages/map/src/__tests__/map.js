@@ -6,8 +6,8 @@ import {
     contextFeatureCollection
 } from '../hooks';
 import { AutoMap } from '../components';
-import { EmbeddedGeo } from '../inputs';
-import react from '@wq/react';
+import { Geo } from '../inputs';
+import react, { Form } from '@wq/react';
 import renderTest from '@wq/react/test';
 import routeConfig from './config.json';
 import geojson from './geojson.json';
@@ -430,10 +430,11 @@ test('edit map', async () => {
         }
     );
 
-    const Component = EmbeddedGeo.makeComponent({
-        type: 'geopoint',
-        value: point
-    });
+    const Component = () => (
+        <Form data={{ point: point }}>
+            <Geo type="geopoint" name="point" />
+        </Form>
+    );
 
     const result = renderTest(Component, mockApp),
         overlay = result.root.findByType(Draw);

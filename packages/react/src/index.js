@@ -81,7 +81,7 @@ export default {
                 ...app,
                 plugins: { ...app.plugins }
             },
-            config: {},
+            config: { messages: {} },
             registry: {
                 components: {},
                 inputs: {},

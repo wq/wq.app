@@ -25,7 +25,7 @@ import {
     LegendIcon,
     GeoTools
 } from './components/index';
-import { Geo, EmbeddedGeo } from './inputs/index';
+import { Geo } from './inputs/index';
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
 import { DefaultList, DefaultDetail } from './views/index';
 
@@ -55,7 +55,6 @@ export {
     LegendIcon,
     GeoTools,
     Geo,
-    EmbeddedGeo,
     GeoHelp,
     GeoLocate,
     GeoCode,

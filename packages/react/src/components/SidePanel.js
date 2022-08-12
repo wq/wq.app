@@ -1,3 +1,10 @@
-import { Fragment } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export default Fragment;
+export default function SidePanel({ children }) {
+    return <>{children}</>;
+}
+
+SidePanel.propTypes = {
+    children: PropTypes.node
+};

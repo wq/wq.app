@@ -1,3 +1,3 @@
-import { Fragment } from 'react';
-
-export default Fragment;
+export default function CheckboxButton() {
+    return null;
+}

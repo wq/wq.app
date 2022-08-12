@@ -69,10 +69,10 @@ export default function Geo({
 Geo.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
-    required: PropTypes.boolean,
+    required: PropTypes.bool,
     label: PropTypes.string,
     hint: PropTypes.string,
-    inset: PropTypes.boolean,
+    inset: PropTypes.bool,
     children: PropTypes.node
 };
 

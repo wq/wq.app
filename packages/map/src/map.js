@@ -183,6 +183,9 @@ const map = {
             },
             Draw({ type, data }) {
                 return `Draw ${data ? data.type : type}`;
+            },
+            Accuracy({ accuracy }) {
+                return `Accuracy ${accuracy}`;
             }
         },
         geotools: {
