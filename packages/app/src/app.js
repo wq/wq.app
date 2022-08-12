@@ -58,7 +58,13 @@ app.init = function (config) {
             base_url: ''
         };
     }
-    config.router.getTemplateName = name => name.split(':')[0];
+    config.router.getTemplateName = name => {
+        name = name.split(':')[0];
+        if (app.config.pages[name] && app.config.pages[name].template) {
+            name = app.config.pages[name].template;
+        }
+        return name;
+    };
     if (config.site_title && !config.router.site_title) {
         config.router.site_title = config.site_title;
     }
