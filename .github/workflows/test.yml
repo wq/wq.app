@@ -70,6 +70,8 @@ jobs:
         node-version: [14]
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -85,4 +87,8 @@ jobs:
     - name: Build Python Wheel
       run: |
         python setup.py bdist_wheel
-        python -m pip install `ls dist/*.whl`[compat]
+        python -m pip install `ls dist/*.whl`
+    - uses: actions/upload-artifact@v3
+      with:
+        name: wq.app
+        path: dist/*.whl
