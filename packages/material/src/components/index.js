@@ -35,6 +35,8 @@ import TableBody from './TableBody';
 import TableRow from './TableRow';
 import TableTitle from './TableTitle';
 import TableCell from './TableCell';
+import TableContainer from './TableContainer';
+import TablePagination from './TablePagination';
 
 import FormRoot from './FormRoot';
 import FormError from './FormError';
@@ -90,7 +92,16 @@ export {
     Divider
 };
 
-export { Table, TableHead, TableBody, TableRow, TableTitle, TableCell };
+export {
+    Table,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableTitle,
+    TableCell,
+    TableContainer,
+    TablePagination
+};
 
 export {
     FormRoot,
