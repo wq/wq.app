@@ -43,13 +43,6 @@
         "formik-material-ui-pickers": "0.0.11",
         "material-ui-dropzone": "https://github.com/Yuvaleros/material-ui-dropzone/archive/4d5043c.tar.gz"
     },
-    "peerDependencies": {
-        "@react-native-community/datetimepicker": "^3.0.0",
-        "@react-native-community/netinfo": "^5.9.6",
-        "react-native-modal-datetime-picker": "^8.9.3",
-        "react-native-paper": "^4.0.1",
-        "react-native-picker-select": "^8.0.0"
-    },
     "devDependencies": {
         "@wq/model": "^1.3.0",
         "@wq/store": "^1.3.0"

@@ -37,8 +37,5 @@
     "devDependencies": {
         "@wq/model": "^1.3.0",
         "@wq/store": "^1.3.0"
-    },
-    "peerDependencies": {
-        "expo-location": "^12.1.2"
     }
 }
