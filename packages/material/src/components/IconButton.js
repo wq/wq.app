@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 
 export default function IconButton({ icon, ...rest }) {
     const Icon = useIcon(icon);
+    if (!Icon) {
+        throw new Error(`"${icon}" is not a registered icon!`);
+    }
     return (
         <MuiIconButton {...rest}>
             <Icon />
