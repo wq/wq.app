@@ -1,6 +1,8 @@
 [![@wq/map-gl][logo]][docs]
 
-**@wq/map-gl** is a plugin for [@wq/app] that provides integration with [Mapbox GL JS] (for web) and the Mapbox Map SDK for [Android](mapbox-android) and [iOS](mapbox-ios).   When used together with [@wq/map], @wq/map-gl can leverage the [wq configuration object][config] to generate interactive maps for pages rendered via @wq/app.  The generated maps can automatically download and display GeoJSON data rendered by [wq.db's REST API][wq.db] or any third party service.
+**@wq/map-gl** is a plugin for [@wq/app] that provides integration with Mapbox GL for web, Android, and iOS.  When used together with [@wq/map], @wq/map-gl can leverage the [wq configuration object][config] to generate interactive maps for pages rendered via @wq/app.  The generated maps can automatically download and display GeoJSON data rendered by [wq.db's REST API][wq.db] or any third party service.
+
+The actual bindings for each environment are provided by [@wq/map-gl-web][installation] and [@wq/map-gl-native][installation], either or both of which should be installed in addition to @wq/map-gl.
 
 ### [Documentation][docs]
 

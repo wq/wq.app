@@ -86,7 +86,7 @@ var localmodel = model({
 });
 
 ds.init({
-    service: 'http://localhost:8080/tests',
+    service: 'http://127.0.0.1:8080/tests',
     defaults: {
         format: 'json',
         extra: 1

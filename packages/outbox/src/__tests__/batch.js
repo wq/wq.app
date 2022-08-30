@@ -44,7 +44,7 @@ router.init({
 });
 
 ds.init({
-    service: 'http://localhost:8080/tests',
+    service: 'http://127.0.0.1:8080/tests',
     defaults: {
         format: 'json'
     }
@@ -61,7 +61,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-    await ds.ajax('http://localhost:8080/reset-batch-number', null, 'POST');
+    await ds.ajax('http://127.0.0.1:8080/reset-batch-number', null, 'POST');
     await outbox.empty();
 });
 
@@ -136,7 +136,7 @@ test('sync dependent records in order - with batchService', async () => {
     });
 
     // Sync
-    await ds.ajax('http://localhost:8080/reset-batch-number', null, 'POST');
+    await ds.ajax('http://127.0.0.1:8080/reset-batch-number', null, 'POST');
     await outbox.resume();
     await outbox.waitForAll();
     const syncedOutbox = await outbox.loadItems();

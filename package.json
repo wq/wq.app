@@ -1,12 +1,10 @@
 {
     "scripts": {
-        "bootstrap": "lerna bootstrap",
-        "lerna": "lerna",
-        "test": "lerna run test",
-        "build": "lerna run build",
+        "test": "npm test --workspaces",
+        "build": "npm run build --workspaces --if-present",
         "jest": "jest --verbose",
         "rollup": "rollup",
-        "rollup-all": "lerna run rollup",
+        "rollup-all": "npm run rollup --workspaces --if-present",
         "babel": "babel --ignore **/__tests__/**",
         "precise-commits": "precise-commits",
         "prettier": "prettier",
@@ -33,7 +31,7 @@
         "eslint-plugin-react": "^7.20.6",
         "husky": "^4.2.5",
         "jest": "^26.4.0",
-        "lerna": "^3.22.1",
+        "metro-react-native-babel-preset": "^0.72.1",
         "precise-commits": "^1.0.2",
         "prettier": "^2.0.5",
         "requirejs": "^2.3.6",
@@ -53,5 +51,18 @@
         "arrowParens": "avoid",
         "tabWidth": 4,
         "singleQuote": true
-    }
+    },
+    "workspaces": [
+        "packages/store",
+        "packages/router",
+        "packages/model",
+        "packages/outbox",
+        "packages/app",
+        "packages/react",
+        "packages/material-web",
+        "packages/material",
+        "packages/map",
+        "packages/map-gl-web",
+        "packages/map-gl"
+    ]
 }

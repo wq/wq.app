@@ -31,5 +31,6 @@
         "redux-logger": "^3.0.6",
         "redux-persist": "^6.0.0",
         "whatwg-fetch": "^3.4.0"
-    }
+    },
+    "devDependencies": {}
 }

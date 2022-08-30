@@ -33,8 +33,10 @@ const deps = {
     '@wq/outbox': './packages/outbox/src/outbox.js',
     '@wq/react': './packages/react/src/index.js',
     '@wq/material': './packages/material/src/index.js',
+    '@wq/material-web': './packages/material-web/src/index.js',
     '@wq/map': './packages/map/src/index.js',
-    '@wq/map-gl': './packages/map-gl/src/index.js'
+    '@wq/map-gl': './packages/map-gl/src/index.js',
+    '@wq/map-gl-web': './packages/map-gl-web/src/index.js'
 };
 function resolveId(id) {
     return deps[id];

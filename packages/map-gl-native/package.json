@@ -1,0 +1,52 @@
+{
+    "name": "@wq/map-gl-native",
+    "version": "1.3.0",
+    "description": "React Native & Expo bindings for @wq/map-gl",
+    "type": "module",
+    "main": "index.js",
+    "react-native": "src/index.js",
+    "scripts": {
+        "test": "cd ../../ && NODE_ENV=test_native npm run jest packages/map-gl-native -- --config packages/map-gl-native/jest.config.js --moduleDirectories node_modules packages/map-gl-native/node_modules",
+        "build": "npm run prettier",
+        "prettier": "cd ../../ && npm run prettier -- --write packages/map-gl-native/",
+        "lint": "cd ../../ && npm run eslint packages/map-gl-native/{,src/,src/*/,src/*/*/}*.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wq/wq.app.git",
+        "directory": "packages/map-gl-native"
+    },
+    "keywords": [
+        "wq",
+        "mapbox",
+        "map",
+        "gl",
+        "webgl",
+        "gis"
+    ],
+    "author": "S. Andrew Sheppard",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wq/wq.app/issues"
+    },
+    "homepage": "https://wq.io/@wq/map-gl",
+    "dependencies": {
+        "@turf/circle": "^6.5.0",
+        "@wq/map": "file:../map"
+    },
+    "peerDependencies": {
+        "@react-native-mapbox-gl/maps": "*",
+        "expo-location": "*"
+    },
+    "devDependencies": {
+        "@react-native-mapbox-gl/maps": "^8.6.0-beta.0",
+        "@react-navigation/native": "^6.0.12",
+        "@react-navigation/stack": "^6.2.3",
+        "@wq/model": "^1.3.0",
+        "@wq/react": "file:../react",
+        "@wq/store": "^1.3.0",
+        "expo-location": "^14.3.0",
+        "jest-expo": "^46.0.1",
+        "react-native": "^0.68.3"
+    }
+}

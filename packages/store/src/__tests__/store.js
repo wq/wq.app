@@ -2,7 +2,7 @@ import ds from '../store';
 
 beforeAll(async () => {
     ds.init({
-        service: 'http://localhost:8080/tests'
+        service: 'http://127.0.0.1:8080/tests'
     });
     await ds.ready;
 });
