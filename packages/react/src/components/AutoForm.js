@@ -6,6 +6,7 @@ export default function AutoForm({
     action,
     cancel,
     method,
+    onSubmit,
     storage,
     backgroundSync,
     outboxId,
@@ -37,6 +38,7 @@ export default function AutoForm({
         <Form
             action={action}
             method={method}
+            onSubmit={onSubmit}
             data={formData}
             modelConf={modelConf}
             error={error}
@@ -70,6 +72,7 @@ AutoForm.propTypes = {
     action: PropTypes.string,
     cancel: PropTypes.object,
     method: PropTypes.string,
+    onSubmit: PropTypes.func,
     storage: PropTypes.string,
     backgroundSync: PropTypes.bool,
     outboxId: PropTypes.number,

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Style } from '@react-native-mapbox-gl/maps';
+import { Style } from '@rnmapbox/maps';
 
 export default function VectorTile({ active, url, style }) {
     const json = useMarkVisible(style || url, active);

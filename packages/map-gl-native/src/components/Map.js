@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { usePlugin } from '@wq/react';
 import PropTypes from 'prop-types';
-import MapboxGL from '@react-native-mapbox-gl/maps';
+import MapboxGL from '@rnmapbox/maps';
 import { findBasemapStyle } from '../util';
 
 export default function Map({
@@ -17,6 +17,9 @@ export default function Map({
         pitchWithRotate: pitchEnabled = mapProps && mapProps.dragRotate
     } = mapProps || {};
     useEffect(() => {
+        if (!accessToken) {
+            MapboxGL.setWellKnownTileServer('MapLibre');
+        }
         MapboxGL.setAccessToken(accessToken);
     }, [accessToken]);
 

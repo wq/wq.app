@@ -35,13 +35,13 @@
         "@wq/map": "file:../map"
     },
     "peerDependencies": {
-        "@react-native-mapbox-gl/maps": "*",
+        "@rnmapbox/maps": "*",
         "expo-location": "*"
     },
     "devDependencies": {
-        "@react-native-mapbox-gl/maps": "^8.6.0-beta.0",
         "@react-navigation/native": "^6.0.12",
         "@react-navigation/stack": "^6.2.3",
+        "@rnmapbox/maps": "^10.0.0-beta.32",
         "@wq/model": "^1.3.0",
         "@wq/react": "file:../react",
         "@wq/store": "^1.3.0",
