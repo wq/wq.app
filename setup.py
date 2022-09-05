@@ -2,6 +2,7 @@ import os
 from setuptools import setup
 from setuptools.command.build_py import build_py
 import subprocess
+import pathlib
 
 
 LONG_DESCRIPTION = """
@@ -12,6 +13,10 @@ Offline-capable web/native apps for mobile surveys and field data collection.
 class BuildJS(build_py):
     def run(self):
         subprocess.check_call(['git', 'diff', '--exit-code'])
+        version = pathlib.Path(__file__).parent / 'version.js'
+        version.write_text(
+            f'export default "{self.distribution.get_version()}";'
+        )
         subprocess.check_call(['make'])
         super().run()
 
