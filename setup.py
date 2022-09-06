@@ -52,10 +52,9 @@ setup(
     author_email='andrew@wq.io',
     url='https://wq.io/wq.app',
     license='MIT',
-    packages=['wq', 'wq.app', 'wq.app.build'],
+    packages=['wq', 'wq.app'],
     package_dir={
         'wq.app': '.',
-        'wq.app.build': './build',
     },
     package_data={
         'wq.app': [
@@ -71,7 +70,6 @@ setup(
     description=LONG_DESCRIPTION.strip(),
     long_description=readme(),
     long_description_content_type='text/markdown',
-    entry_points={'wq': 'wq.app=wq.app.build'},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
