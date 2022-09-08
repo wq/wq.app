@@ -130,7 +130,7 @@ export default {
             user,
             is_authenticated: !!user,
             app_config: this.app.config,
-            wq_config: config,
+            user_config: config,
             csrf_token: csrftoken,
             router_info: {
                 ...(ctx && ctx.router_info),

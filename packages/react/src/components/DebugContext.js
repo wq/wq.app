@@ -3,7 +3,6 @@ import { useRenderContext, useRouteInfo, useComponents } from '../hooks';
 
 const SKIP = [
     'app_config',
-    'wq_config',
     'router_info',
     'rt',
     'svc',

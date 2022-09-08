@@ -11,9 +11,6 @@ var app = {
     OFFLINE: 'offline',
     FAILURE: 'failure',
     ERROR: 'error',
-    get wq_config() {
-        return this.getAuthState().config || this.config;
-    },
     get user() {
         return this.getAuthState().user;
     },
@@ -209,7 +206,7 @@ app.init = function (config) {
     // Register routes with wq/router.js
     var root = false;
     Object.keys(app.config.pages).forEach(function (page) {
-        var conf = _getBaseConf(page);
+        var conf = _getConf(page);
         if (!conf.url) {
             root = true;
         }
@@ -540,7 +537,7 @@ const syncUpdateUrl = {
 
 // Return a list of all foreign key fields
 app.getParents = function (page) {
-    var conf = _getBaseConf(page);
+    var conf = _getConf(page);
     return conf.form
         .filter(function (field) {
             return field['wq:ForeignKey'];
@@ -630,7 +627,7 @@ function _extendRouteInfo(routeInfo) {
     const routeName = routeInfo.name,
         itemid = (page !== 'outbox' && routeInfo.slugs.slug) || null;
     var [page, mode, variant] = app.splitRoute(routeName),
-        conf = _getConf(page, true, true),
+        conf = _getConf(page, true),
         pageid = null;
 
     if (conf) {
@@ -675,14 +672,14 @@ function _extendRouteInfo(routeInfo) {
 // Generate list view context and render with [url]_list template;
 // handles requests for [url] and [url]/
 _register.list = function (page) {
-    const conf = _getBaseConf(page),
+    const conf = _getConf(page),
         register = conf.url === '' ? router.registerLast : router.register,
         url = conf.url === '' ? '' : conf.url + '/';
     register(url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     app.getParents(page).forEach(function (ppage) {
-        var pconf = _getBaseConf(ppage);
+        var pconf = _getConf(ppage);
         var url = pconf.url;
         var registerParent;
         if (url === '') {
@@ -866,7 +863,7 @@ async function _displayList(ctx, parentInfo) {
 // Generate item detail view context and render with [url]_detail template;
 // handles requests for [url]/[id]
 _register.detail = function (page, mode, contextFn = _displayItem) {
-    var conf = _getBaseConf(page);
+    var conf = _getConf(page);
     var url = _getDetailUrl(conf.url, mode);
     const register = conf.url === '' ? router.registerLast : router.register;
     register(url, _joinRoute(page, mode), contextFn);
@@ -886,7 +883,7 @@ function _getDetailUrl(url, mode) {
 // Generate item edit context and render with [url]_edit template;
 // handles requests for [url]/[id]/edit and [url]/new
 _register.edit = function (page) {
-    var conf = _getBaseConf(page);
+    var conf = _getConf(page);
     const register = conf.url === '' ? router.registerLast : router.register;
     register(
         _getDetailUrl(conf.url, 'edit'),
@@ -953,7 +950,7 @@ async function _displayItem(ctx) {
 // Render non-list pages with with [url] template;
 // handles requests for [url] and [url]/
 function _registerOther(page) {
-    var conf = _getBaseConf(page);
+    var conf = _getConf(page);
     router.register(
         conf.url,
         page,
@@ -1451,16 +1448,8 @@ function _default_attachments(field, context) {
 }
 
 // Load configuration based on page id
-function _getBaseConf(page) {
-    return _getConf(page, false, true);
-}
-
-function _getConf(page, silentFail, baseConf) {
-    var conf = (baseConf ? app.config : app.wq_config).pages[page];
-    if (!conf && !baseConf) {
-        return _getConf(page, silentFail, true);
-    }
-
+function _getConf(page, silentFail) {
+    var conf = app.config.pages[page];
     if (!conf) {
         if (silentFail) {
             return;
