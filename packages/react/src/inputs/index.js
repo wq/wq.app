@@ -4,6 +4,7 @@ import DateTime from './DateTime';
 import File from './File';
 import Image from './Image';
 import Select from './Select';
+import ForeignKey from './ForeignKey';
 import Radio from './Radio';
 import Toggle from './Toggle';
 import Hidden from './Hidden';
@@ -23,6 +24,7 @@ export {
     File,
     Image,
     Select,
+    ForeignKey,
     Radio,
     Toggle,
     Hidden,

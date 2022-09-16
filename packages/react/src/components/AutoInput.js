@@ -1,12 +1,11 @@
 import React from 'react';
-import { useComponents, useInputComponents, useRenderContext } from '../hooks';
+import { useComponents, useInputComponents } from '../hooks';
 import PropTypes from 'prop-types';
 import { pascalCase } from 'pascal-case';
 
 export default function AutoInput({ name, choices, type, bind = {}, ...rest }) {
     const inputs = useInputComponents(),
-        { AutoSubform, AutoSubformArray, Text } = useComponents(),
-        context = useRenderContext();
+        { AutoSubform, AutoSubformArray, Text } = useComponents();
 
     if (type === 'group') {
         return <AutoSubform name={name} {...rest} />;
@@ -17,15 +16,8 @@ export default function AutoInput({ name, choices, type, bind = {}, ...rest }) {
     let inputType,
         required = bind.required;
     if (rest['wq:ForeignKey']) {
-        let choicesFn = context[name.replace(/\[\d+\]/, '') + '_list'];
-        choices = choicesFn ? choicesFn.call(context) : [];
-        choices = choices.map(({ id, label, outbox }) => ({
-            name: id,
-            label: outbox ? `* ${label}` : label
-        }));
-
         name = `${name}_id`;
-        inputType = 'select';
+        inputType = 'foreign-key';
     } else if (type === 'select1' || type === 'select one') {
         if (!choices) {
             choices = [];

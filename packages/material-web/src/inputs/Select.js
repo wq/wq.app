@@ -26,6 +26,7 @@ export default function Select({
     choices,
     label,
     required,
+    native,
     placeholder,
     renderValue,
     InputLabelProps,
@@ -52,20 +53,64 @@ export default function Select({
     }, [choices]);
 
     const choiceGroups = useMemo(() => {
-        if (!choices.some(choice => choice.group)) {
-            return choices;
-        }
-        let lastGroup,
-            choiceGroups = [];
+        const choiceGroups = {};
         choices.forEach(choice => {
-            if (choice.group && choice.group != lastGroup) {
-                choiceGroups.push({ name: '__group__', label: choice.group });
-                lastGroup = choice.group;
+            const group = choice.group || '';
+            if (!choiceGroups[group]) {
+                choiceGroups[group] = [];
             }
-            choiceGroups.push(choice);
+            choiceGroups[group].push(choice);
         });
         return choiceGroups;
     }, [choices]);
+
+    const Option = native
+        ? ({ value, disabled, children }) => (
+              <option value={value} disabled={disabled}>
+                  {children}
+              </option>
+          )
+        : ({ value, disabled, children, ...rest }) => (
+              <MenuItem value={value} disabled={disabled} {...rest}>
+                  {multiple && (
+                      <ContextCheckbox value={value} field={fieldName} />
+                  )}
+                  <ListItemText primary={children} />
+              </MenuItem>
+          );
+
+    const renderChoices = choices =>
+        choices.map(({ name, label }) => (
+            <Option key={name} value={name}>
+                {label}
+            </Option>
+        ));
+
+    const renderGroups = native
+        ? choiceGroups =>
+              Object.entries(choiceGroups).map(([group, choices]) =>
+                  group ? (
+                      <optgroup key={group} label={group}>
+                          {renderChoices(choices)}
+                      </optgroup>
+                  ) : (
+                      <>{renderChoices(choices)}</>
+                  )
+              )
+        : choiceGroups => {
+              const flattened = [];
+              Object.entries(choiceGroups).forEach(([group, choices]) => {
+                  if (group) {
+                      flattened.push(
+                          <ListSubheader style={{ backgroundColor: 'white' }}>
+                              {group}
+                          </ListSubheader>
+                      );
+                  }
+                  flattened.push(...renderChoices(choices));
+              });
+              return flattened;
+          };
 
     return (
         <FormControl fullWidth margin="dense">
@@ -81,32 +126,17 @@ export default function Select({
                 component={FMuiSelect}
                 multiple={multiple}
                 required={required}
+                native={native}
                 renderValue={renderValue}
                 displayEmpty={!!placeholder}
                 {...rest}
             >
                 {!multiple && (
-                    <MenuItem value="" disabled={!!required}>
+                    <Option value={''} disabled={!!required}>
                         {required ? 'Select one...' : '(No Selection)'}
-                    </MenuItem>
+                    </Option>
                 )}
-                {choiceGroups.map(({ name, label }) =>
-                    name === '__group__' ? (
-                        <ListSubheader style={{ backgroundColor: 'white' }}>
-                            {label}
-                        </ListSubheader>
-                    ) : (
-                        <MenuItem key={name} value={name}>
-                            {multiple && (
-                                <ContextCheckbox
-                                    value={name}
-                                    field={fieldName}
-                                />
-                            )}
-                            <ListItemText primary={label} />
-                        </MenuItem>
-                    )
-                )}
+                {renderGroups(choiceGroups)}
             </Field>
             <HelperText name={fieldName} hint={hint} />
         </FormControl>
@@ -118,6 +148,7 @@ Select.propTypes = {
     label: PropTypes.string,
     placeholder: PropTypes.string,
     required: PropTypes.bool,
+    native: PropTypes.bool,
     renderValue: PropTypes.func,
     InputLabelProps: PropTypes.object
 };

@@ -329,11 +329,16 @@ export function useOutbox() {
     }, [outbox, parseOutbox]);
 }
 
-export function useUnsynced(modelConf) {
+export function useUnsynced(modelNameOrConf) {
     const outbox = useOutbox(),
         {
-            outbox: { filterUnsynced }
-        } = useApp();
+            outbox: { filterUnsynced },
+            models
+        } = useApp(),
+        modelConf =
+            typeof modelNameOrConf === 'string'
+                ? models[modelNameOrConf].config
+                : modelNameOrConf;
     return useMemo(() => {
         return filterUnsynced(outbox, modelConf);
     }, [outbox, modelConf]);

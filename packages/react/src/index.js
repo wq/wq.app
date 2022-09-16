@@ -150,3 +150,7 @@ export {
     FileLink,
     DebugContext
 };
+
+const { ForeignKey } = inputs;
+
+export { ForeignKey };
