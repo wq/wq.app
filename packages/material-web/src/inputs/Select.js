@@ -65,11 +65,7 @@ export default function Select({
     }, [choices]);
 
     const Option = native
-        ? ({ value, disabled, children }) => (
-              <option value={value} disabled={disabled}>
-                  {children}
-              </option>
-          )
+        ? ({ value, children }) => <option value={value}>{children}</option>
         : ({ value, disabled, children, ...rest }) => (
               <MenuItem value={value} disabled={disabled} {...rest}>
                   {multiple && (

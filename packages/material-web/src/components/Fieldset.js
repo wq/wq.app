@@ -16,7 +16,9 @@ export default function Fieldset({ label, children }) {
     return (
         <Card className={classes.card}>
             <CardContent>
-                <Typography color="textSecondary">{label}</Typography>
+                {label && (
+                    <Typography color="textSecondary">{label}</Typography>
+                )}
                 {children}
             </CardContent>
         </Card>
