@@ -4,9 +4,10 @@ import outbox from '@wq/outbox';
 import router from '@wq/router';
 import spinner from './spinner';
 import auth from './auth';
-import defaults from './auth';
+import defaults from './defaults';
 import Mustache from 'mustache';
 import deepcopy from 'deepcopy';
+import { setIn } from 'formik';
 
 var app = {
     OFFLINE: 'offline',
@@ -908,10 +909,12 @@ async function _displayItem(ctx) {
 
     var item;
     if (mode == 'edit' && variant == 'new') {
-        item = {
-            ...routeInfo.params,
-            ...conf.defaults
-        };
+        item = {};
+        Object.entries({ ...routeInfo.params, ...conf.defaults }).forEach(
+            ([key, value]) => {
+                item = setIn(item, key, value);
+            }
+        );
     } else {
         const localOnly = !app.config.loadMissingAsJson;
         item = await model.find(itemid, localOnly);

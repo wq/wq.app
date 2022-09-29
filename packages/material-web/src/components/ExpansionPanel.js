@@ -5,13 +5,19 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import PropTypes from 'prop-types';
 
-export default function ExpansionPanel({ summary, children, open, onToggle }) {
+export default function ExpansionPanel({
+    summary,
+    children,
+    open,
+    onToggle,
+    ...rest
+}) {
     let handleToggle;
     if (onToggle) {
         handleToggle = (evt, state) => onToggle(state);
     }
     return (
-        <MuiExpansionPanel expanded={open} onChange={handleToggle}>
+        <MuiExpansionPanel expanded={open} onChange={handleToggle} {...rest}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                 {summary}
             </ExpansionPanelSummary>
