@@ -1,5 +1,5 @@
 import ds from '@wq/store';
-import modelModule from '@wq/model';
+import orm from '@wq/model';
 import outbox from '@wq/outbox';
 import router from '@wq/router';
 import spinner from './spinner';
@@ -22,9 +22,8 @@ var app = {
 };
 
 const SERVER = '@@SERVER';
-const CORE_PLUGINS = ['renderer'];
+const CORE_PLUGINS = ['orm', 'renderer'];
 
-app.models = {};
 app.plugins = {};
 
 var _register = {};
@@ -221,7 +220,6 @@ app.init = function (config) {
             (conf.server_modes || []).forEach(function (mode) {
                 _register.detail(page, mode, _serverContext);
             });
-            app.models[page] = modelModule(conf);
         } else if (conf) {
             _registerOther(page);
         }
@@ -295,26 +293,6 @@ app.use = function (plugin) {
     }
 };
 
-app.prefetchAll = async function (message) {
-    if (message) {
-        app.spin.start(message);
-    }
-    const result = await Promise.all(
-        Object.keys(app.models).map(function (name) {
-            return app.models[name].prefetch();
-        })
-    );
-    if (message) {
-        app.spin.stop(message);
-    }
-    return result;
-};
-
-app.jqmInit = function () {
-    console.warn(new Error('jqmInit() renamed to start()'));
-    app.start();
-};
-
 app.start = function () {
     router.start();
     app.callPlugins('start');
@@ -330,19 +308,6 @@ async function _getSyncInfo() {
     };
 }
 
-app.go = function () {
-    throw new Error('app.go() has been removed.  Use app.nav() instead');
-};
-
-// Sync outbox and handle result
-app.sync = function (retryAll) {
-    if (retryAll) {
-        console.warn('app.sync(true) renamed to app.retryAll()');
-        app.retryAll();
-    } else {
-        throw new Error('app.sync() no longer used.');
-    }
-};
 app.retryAll = function () {
     app.outbox.unsynced().then(function (unsynced) {
         if (!unsynced) {
@@ -555,10 +520,6 @@ app.getParents = function (page) {
 app.nav = function (url) {
     url = app.base_url + '/' + url;
     router.push(url);
-};
-
-app.replaceState = function (url) {
-    throw new Error('app.replaceState() no longer supported.');
 };
 
 app.refresh = function () {

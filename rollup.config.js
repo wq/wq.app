@@ -29,7 +29,7 @@ const deps = {
     '@wq/app': './packages/app/src/app.js',
     '@wq/store': './packages/store/src/store.js',
     '@wq/router': './packages/router/src/router.js',
-    '@wq/model': './packages/model/src/model.js',
+    '@wq/model': './packages/model/src/index.js',
     '@wq/outbox': './packages/outbox/src/outbox.js',
     '@wq/react': './packages/react/src/index.js',
     '@wq/material': './packages/material/src/index.js',

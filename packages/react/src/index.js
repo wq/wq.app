@@ -1,4 +1,5 @@
 import React from 'react';
+import orm from '@wq/model';
 import { Provider as StoreProvider } from 'react-redux';
 import { AppContext } from './hooks';
 
@@ -15,6 +16,7 @@ import validate from './validate';
 export default {
     name: 'react',
     type: 'renderer',
+    dependencies: [orm],
 
     config: {
         messages: { ...messages }

@@ -84,8 +84,12 @@ class ORMWithReducer extends ORM {
             return `${this.store.name.toUpperCase()}ORM`;
         }
     }
-    reducer(state, action) {
-        const session = this.session(state || this.getEmptyState()),
+    reducer(lastState, action) {
+        const state =
+                action.type === `${this.prefix}_RESET` || !lastState
+                    ? this.getEmptyState()
+                    : lastState,
+            session = this.session(state),
             match = action.type.match(/^([^_]+)_(.+)_([^_]+)$/);
 
         if (!match || match[1] !== this.prefix) {
@@ -255,11 +259,6 @@ ModelMeta.modelName = '_modelmeta';
 function orm(store) {
     if (!_orms[store.name]) {
         const orm = (_orms[store.name] = new ORMWithReducer(store));
-        store.addReducer(
-            'orm',
-            (state, action) => orm.reducer(state, action),
-            true
-        );
         orm.register(ModelMeta);
     }
     return _orms[store.name];
@@ -847,8 +846,4 @@ function isPotentialNumber(value) {
     return typeof value !== 'number' && !Number.isNaN(+value);
 }
 
-model.Model = Model;
-
-export default model;
-
-export { Model };
+export { model, Model };

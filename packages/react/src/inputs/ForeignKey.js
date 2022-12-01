@@ -45,7 +45,7 @@ function useSelectInput(component) {
     let Component;
     if (typeof component === 'string') {
         Component = inputs[component];
-        if (!component) {
+        if (!Component) {
             Component = function UnknownInput(props) {
                 return (
                     <Select

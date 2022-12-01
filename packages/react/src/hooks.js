@@ -214,14 +214,15 @@ export function useBreadcrumbs() {
 }
 
 export function useSitemap() {
-    const config = useConfig(),
-        pages = Object.values(config.pages).filter(
-            page => page.show_in_index !== false
-        ),
-        options = pages.filter(page => !page.list),
-        models = pages.filter(page => page.list);
-
-    return { options, models };
+    const config = useConfig();
+    return useMemo(() => {
+        const pages = Object.values(config.pages).filter(
+                page => page.show_in_index !== false
+            ),
+            options = pages.filter(page => !page.list),
+            models = pages.filter(page => page.list);
+        return { options, models };
+    }, [config]);
 }
 
 export function useSpinner() {

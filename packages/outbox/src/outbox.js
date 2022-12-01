@@ -1,5 +1,5 @@
 import ds from '@wq/store';
-import model from '@wq/model';
+import { model } from '@wq/model';
 import { convert } from '../vendor/json-forms';
 import { createOffline, offlineConfig, RESET_STATE, busy } from './offline';
 
