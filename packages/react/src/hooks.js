@@ -60,7 +60,7 @@ export const RouteContext = React.createContext({
     name: '@@CURRENT'
 });
 
-function useCurrentRoute() {
+export function useCurrentRoute() {
     return useContext(RouteContext).name;
 }
 

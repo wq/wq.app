@@ -22,6 +22,7 @@ export default function OutboxList({ modelConf }) {
             ListItem,
             ListItemLink,
             ListSubheader,
+            View,
             ScrollView,
             HorizontalView,
             Button
@@ -110,7 +111,7 @@ export default function OutboxList({ modelConf }) {
         );
     } else {
         return (
-            <>
+            <View style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <ScrollView>
                     <List>
                         <OutboxItems />
@@ -126,7 +127,7 @@ export default function OutboxList({ modelConf }) {
                         </Button>
                     </HorizontalView>
                 )}
-            </>
+            </View>
         );
     }
 }

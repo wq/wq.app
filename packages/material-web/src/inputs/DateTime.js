@@ -10,6 +10,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import PropTypes from 'prop-types';
 import { usePlugin } from '@wq/react';
 import { format, parse } from './date-utils';
+import Input from './Input';
 
 function makeUtils(type) {
     class Utils extends DateFnsUtils {
@@ -38,7 +39,19 @@ const utils = {
     datetime: makeUtils('datetime')
 };
 
-export default function DateTime({ type, hint, ...rest }) {
+export default function DateTime({ native, ...rest }) {
+    if (native) {
+        return <NativeDateTime {...rest} />;
+    } else {
+        return <PickerDateTime {...rest} />;
+    }
+}
+
+function NativeDateTime(props) {
+    return <Input {...props} />;
+}
+
+function PickerDateTime({ type, hint, ...rest }) {
     type = type.toLowerCase();
 
     const Picker = pickers[type],
@@ -66,7 +79,7 @@ export default function DateTime({ type, hint, ...rest }) {
     );
 }
 
-DateTime.propTypes = {
+PickerDateTime.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     hint: PropTypes.string
