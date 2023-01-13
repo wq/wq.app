@@ -1,5 +1,5 @@
 import store from '@wq/store';
-import model from '../model';
+import { model } from '../model';
 import { URLSearchParams } from 'url';
 global.URLSearchParams = URLSearchParams;
 
@@ -84,6 +84,8 @@ var localmodel = model({
     name: 'localmodel',
     store: ds
 });
+
+ds.addReducer('orm', (state, action) => items.orm.reducer(state, action), true);
 
 ds.init({
     service: 'http://127.0.0.1:8080/tests',

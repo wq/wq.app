@@ -4,7 +4,7 @@
 
 import store from '@wq/store';
 import outboxMod from '../outbox';
-import model from '@wq/model';
+import { model } from '@wq/model';
 
 const ds = store.getStore('outbox-test');
 const outbox = outboxMod.getOutbox(ds);
@@ -32,6 +32,11 @@ const models = {},
     };
     models[name] = model(modelConf[name]);
 });
+ds.addReducer(
+    'orm',
+    (state, action) => models.item.orm.reducer(state, action),
+    true
+);
 
 ds.init({
     service: 'http://127.0.0.1:8080/tests',

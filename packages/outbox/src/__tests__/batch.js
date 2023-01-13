@@ -5,7 +5,7 @@
 import store from '@wq/store';
 import router from '@wq/router';
 import outboxMod from '../outbox';
-import model from '@wq/model';
+import { model } from '@wq/model';
 
 const ds = store.getStore('batch-test');
 const outbox = outboxMod.getOutbox(ds);
@@ -35,14 +35,13 @@ const models = {},
 });
 
 router.init({
-    store: 'batch-test',
-    jQuery: {
-        mobile: {
-            initializePage() {}
-        }
-    }
+    store: 'batch-test'
 });
-
+ds.addReducer(
+    'orm',
+    (state, action) => models.item.orm.reducer(state, action),
+    true
+);
 ds.init({
     service: 'http://127.0.0.1:8080/tests',
     defaults: {
