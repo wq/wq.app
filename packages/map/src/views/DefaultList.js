@@ -4,27 +4,17 @@ import { DefaultList, useComponents, useList } from "@wq/react";
 
 export default function DefaultListWithMap() {
     const mapState = useMapState(),
-        { AutoMap, StickyMap, HighlightPopup } = useComponents(),
+        { MapProvider, AutoMap, HighlightPopup } = useComponents(),
         context = useList();
     if (mapState) {
         const { mapId } = mapState;
-        if (mapId) {
-            return (
-                <>
-                    <DefaultList />
-                    <StickyMap mapId={mapId} context={context} />
-                    <HighlightPopup />
-                </>
-            );
-        } else {
-            return (
-                <>
-                    <DefaultList />
-                    <AutoMap context={context} />
-                    <HighlightPopup />
-                </>
-            );
-        }
+        return (
+            <MapProvider>
+                <DefaultList />
+                <AutoMap mapId={mapId} context={context} />
+                <HighlightPopup />
+            </MapProvider>
+        );
     } else {
         return <DefaultList />;
     }

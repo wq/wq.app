@@ -1,10 +1,9 @@
 import AutoMap from "./AutoMap";
 import AutoBasemap from "./AutoBasemap";
 import AutoOverlay from "./AutoOverlay";
-import StickyMap from "./StickyMap";
-import OffscreenMaps from "./OffscreenMaps";
 import HighlightPopup from "./HighlightPopup";
 import PropertyTable from "./PropertyTable";
+import MapProvider from "./MapProvider";
 import MapContainer from "./MapContainer";
 import MapToolbar from "./MapToolbar";
 import Map from "./Map";
@@ -19,10 +18,9 @@ export {
     AutoMap,
     AutoBasemap,
     AutoOverlay,
-    StickyMap,
-    OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    MapProvider,
     MapContainer,
     MapToolbar,
     Map,

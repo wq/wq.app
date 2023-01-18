@@ -2,10 +2,9 @@ import {
     AutoMap,
     AutoBasemap,
     AutoOverlay,
-    StickyMap,
-    OffscreenMaps,
     HighlightPopup,
     PropertyTable,
+    MapProvider,
     MapContainer,
     MapToolbar,
     Map,
@@ -20,9 +19,6 @@ import { Geo } from "./inputs/index";
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index";
 import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index";
 import reducer, {
-    MAP_READY,
-    MAP_SET_STICKY_PROPS,
-    MAP_SET_STICKY_ID,
     MAP_SHOW_OVERLAY,
     MAP_HIDE_OVERLAY,
     MAP_SET_BASEMAP,
@@ -54,24 +50,6 @@ const map = {
         };
     },
     actions: {
-        ready(instance, name = null) {
-            return {
-                type: MAP_READY,
-                payload: { instance, name },
-            };
-        },
-        setStickyProps(props) {
-            return {
-                type: MAP_SET_STICKY_PROPS,
-                payload: props,
-            };
-        },
-        setStickyMapId(id) {
-            return {
-                type: MAP_SET_STICKY_ID,
-                payload: id,
-            };
-        },
         setBasemap(name) {
             return {
                 type: MAP_SET_BASEMAP,
@@ -124,10 +102,10 @@ const map = {
         AutoMap,
         AutoBasemap,
         AutoOverlay,
-        StickyMap,
-        OffscreenMaps,
         HighlightPopup,
         PropertyTable,
+        MapProvider,
+        useMapInstance: () => null,
         MapContainer,
         MapToolbar,
         Map,
@@ -321,9 +299,6 @@ map.init = function (config) {
         map.config.maps[page] = mapconf;
     });
 };
-
-// Plugin API
-map.runComponent = "OffscreenMaps";
 
 // Default base map configuration - override to customize
 function _defaultBasemaps() {

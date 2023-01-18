@@ -3,16 +3,11 @@ import ReactDOM from "react-dom";
 import ReactIs from "react-is";
 import PropTypes from "prop-types";
 import * as formik from "formik";
-import * as muiUtils from "@material-ui/utils";
-import * as muiStyles from "@material-ui/styles";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import Paper from "@material-ui/core/Paper";
-import withStyles from "@material-ui/core/styles/withStyles";
-import * as colorManipulator from "@material-ui/core/styles/colorManipulator";
-import mapboxgl from "mapbox-gl";
-import ReactMapboxGl, * as reactMapboxGlExports from "react-mapbox-gl";
+import * as muiUtils from "@mui/utils";
+import ButtonBase from "@mui/material/ButtonBase";
+import Paper from "@mui/material/Paper";
+import Map, * as reactMapGlExports from "react-map-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import DrawControl from "react-mapbox-gl-draw";
 
 import app from "@wq/app";
 import material, * as materialExports from "@wq/material";
@@ -27,19 +22,14 @@ export default {
     "react-is": ReactIs,
     "prop-types": PropTypes,
     formik: formik,
-    "@material-ui/utils": muiUtils,
-    "@material-ui/styles": muiStyles,
-    "@material-ui/core/ButtonBase": ButtonBase,
-    "@material-ui/core/Paper": Paper,
-    "@material-ui/core/styles/withStyles": withStyles,
-    "@material-ui/core/styles/colorManipulator": colorManipulator,
-    "mapbox-gl": mapboxgl,
-    "react-mapbox-gl": {
-        default: ReactMapboxGl,
-        ...reactMapboxGlExports,
+    "@mui/utils": muiUtils,
+    "@mui/material/ButtonBase": ButtonBase,
+    "@mui/material/Paper": Paper,
+    "react-map-gl": {
+        default: Map,
+        ...reactMapGlExports,
     },
     "@mapbox/mapbox-gl-draw": MapboxDraw,
-    "react-mapbox-gl-draw": DrawControl,
     "@wq/app": app,
     "@wq/react": {
         default: react,

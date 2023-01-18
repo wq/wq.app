@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import DrawControl from "react-mapbox-gl-draw";
+import { useControl } from "react-map-gl";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 export default function Draw({ type, required, data, setData }) {
     const types = type === "all" ? ["point", "line_string", "polygon"] : [type],
@@ -12,32 +13,46 @@ export default function Draw({ type, required, data, setData }) {
     if (!required) {
         controls.trash = true;
     }
+    const draw = useControl(
+        (props) =>
+            new MapboxDraw({
+                ...props,
+                displayControlsDefault: false,
+                controls,
+            }),
+        ({ map }) => {
+            map.on("draw.create", handleChange);
+            map.on("draw.delete", handleChange);
+            map.on("draw.update", handleChange);
+            map.on("draw.combine", handleChange);
+            map.on("draw.uncombine", handleChange);
+        },
+        ({ map }) => {
+            map.off("draw.create", handleChange);
+            map.off("draw.delete", handleChange);
+            map.off("draw.update", handleChange);
+            map.off("draw.combine", handleChange);
+            map.off("draw.uncombine", handleChange);
+        },
+        { position: "top-right" }
+    );
 
     useEffect(() => {
-        if (data && ref.current) {
-            const { draw } = ref.current;
+        ref.current = { draw };
+    }, [draw]);
+
+    useEffect(() => {
+        if (draw && data) {
             draw.set(data);
         }
-    }, [ref, data]);
+    }, [draw, data]);
 
     function handleChange() {
         const { draw } = ref.current;
         setData(draw.getAll());
     }
 
-    return (
-        <DrawControl
-            ref={ref}
-            position="top-right"
-            displayControlsDefault={false}
-            controls={controls}
-            onDrawCreate={handleChange}
-            onDrawDelete={handleChange}
-            onDrawUpdate={handleChange}
-            onDrawCombine={handleChange}
-            onDrawUncombine={handleChange}
-        />
-    );
+    return null;
 }
 
 Draw.propTypes = {

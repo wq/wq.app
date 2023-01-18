@@ -1,10 +1,7 @@
 import { routeMapConf } from "./hooks";
 
 const RENDER = "RENDER";
-export const MAP_READY = "MAP_READY",
-    MAP_SET_STICKY_PROPS = "MAP_SET_STICKY_PROPS",
-    MAP_SET_STICKY_ID = "MAP_SET_STICKY_ID",
-    MAP_SHOW_OVERLAY = "MAP_SHOW_OVERLAY",
+export const MAP_SHOW_OVERLAY = "MAP_SHOW_OVERLAY",
     MAP_HIDE_OVERLAY = "MAP_HIDE_OVERLAY",
     MAP_SET_BASEMAP = "MAP_SET_BASEMAP",
     MAP_SET_HIGHLIGHT = "MAP_SET_HIGHLIGHT",
@@ -31,21 +28,13 @@ export default function reducer(state = {}, action, config) {
                     );
                 _lastRouteInfo = routeInfo;
                 let nextState = {};
-                const {
-                    stickyMaps,
-                    stickyMapId,
-                    activeBasemap,
-                    activeOverlays,
-                } = state;
+                const { stickyMaps, activeBasemap, activeOverlays } = state;
                 if (!conf) {
                     nextState = { stickyMaps, activeBasemap, activeOverlays };
                 } else {
                     const { mapId } = conf,
-                        {
-                            highlight = null,
-                            instance = (isSameView && state.instance) || null,
-                            instances = (isSameView && state.instances) || {},
-                        } = (mapId && stickyMaps && stickyMaps[mapId]) || {};
+                        { highlight = null } =
+                            (mapId && stickyMaps && stickyMaps[mapId]) || {};
                     nextState = {
                         basemaps: reduceBasemaps(
                             state.basemaps,
@@ -62,44 +51,22 @@ export default function reducer(state = {}, action, config) {
                         autoZoom: conf.autoZoom,
                         mapProps: conf.mapProps,
                         highlight,
-                        instance,
-                        instances,
                         mapId,
-                        stickyMapId:
-                            isSameView && stickyMapId === mapId ? mapId : null,
                         stickyMaps,
                         activeBasemap,
                         activeOverlays,
                     };
                 }
-                [
-                    "stickyMaps",
-                    "stickyMapId",
-                    "activeBasemap",
-                    "activeOverlays",
-                ].forEach((key) => {
-                    if (!nextState[key]) {
-                        delete nextState[key];
+                ["stickyMaps", "activeBasemap", "activeOverlays"].forEach(
+                    (key) => {
+                        if (!nextState[key]) {
+                            delete nextState[key];
+                        }
                     }
-                });
+                );
                 return nextState;
             }
         }
-        case MAP_READY: {
-            const { name, instance } = action.payload;
-            if (name) {
-                return reduceMapState({
-                    ...state,
-                    instances: { ...state.instances, [name]: instance },
-                });
-            } else {
-                return reduceMapState({ ...state, instance });
-            }
-        }
-        case MAP_SET_STICKY_PROPS:
-            return reduceMapState(state, { props: action.payload });
-        case MAP_SET_STICKY_ID:
-            return { ...state, stickyMapId: action.payload };
         case MAP_SHOW_OVERLAY:
             return {
                 ...state,
@@ -318,15 +285,15 @@ function checkEmpty(geojson) {
     }
 }
 
-function reduceMapState(state, stickyState) {
-    const { mapId, instance, instances, highlight } = state;
+function reduceMapState(state) {
+    const { mapId, highlight } = state;
     if (mapId) {
         const stickyMaps = state.stickyMaps || {};
         return {
             ...state,
             stickyMaps: {
                 ...stickyMaps,
-                [mapId]: { instance, instances, highlight, ...stickyState },
+                [mapId]: { highlight },
             },
         };
     } else {

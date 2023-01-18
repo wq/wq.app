@@ -531,8 +531,6 @@ test("toggle layers", async () => {
         mapProps: undefined,
         mapId: undefined,
         highlight: null,
-        instance: null,
-        instances: {},
     });
 
     map.setBasemap("Basemap 2");

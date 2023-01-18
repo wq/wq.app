@@ -4,10 +4,11 @@ import { useMinWidth } from "@wq/material";
 import { useGeoTools } from "../hooks";
 import PropTypes from "prop-types";
 
-export default function GeoTools({ name, type }) {
+export default function GeoTools({ name, type, mapId }) {
     const { toggleProps, setLocation, ActiveTool, value } = useGeoTools(
             name,
-            type
+            type,
+            mapId
         ),
         { View } = useComponents(),
         { Toggle } = useInputComponents(),
@@ -63,4 +64,5 @@ export default function GeoTools({ name, type }) {
 GeoTools.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
+    mapId: PropTypes.string,
 };

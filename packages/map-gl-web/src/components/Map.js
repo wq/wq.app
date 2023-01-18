@@ -1,29 +1,17 @@
-import React, { useMemo, useCallback } from "react";
+import React from "react";
 import { usePlugin } from "@wq/react";
 import PropTypes from "prop-types";
-import ReactMapboxGl from "react-mapbox-gl";
+import Root from "react-map-gl";
 import { findBasemapStyle } from "../util";
 
 export default function Map({
-    name,
+    mapId,
     initBounds,
     children,
     mapProps,
     containerStyle,
 }) {
-    const { ready } = usePlugin("map"),
-        Root = useMemo(() => ReactMapboxGl(mapProps || {}), [mapProps]),
-        fitBounds = useMemo(() => {
-            const [[xmin, ymin], [xmax, ymax]] = initBounds;
-            return [
-                [xmin, ymin],
-                [xmax, ymax],
-            ];
-        }, [initBounds]),
-        onStyleLoad = useCallback(
-            (instance) => ready(instance, name),
-            [ready, name]
-        ),
+    const { engine } = usePlugin("map-gl"),
         style = findBasemapStyle(children);
 
     containerStyle = {
@@ -32,12 +20,21 @@ export default function Map({
         ...containerStyle,
     };
 
+    if (!engine) {
+        throw new Error(
+            "Must pass maplibre-gl or mapbox-gl to mapgl.setEngine()!  See https://wq.io/@wq/map-gl"
+        );
+    }
+
     return (
         <Root
-            style={style}
-            fitBounds={fitBounds}
-            onStyleLoad={onStyleLoad}
-            containerStyle={containerStyle}
+            mapLib={engine}
+            id={mapId}
+            reuseMaps={Boolean(mapId)}
+            mapStyle={style}
+            initialViewState={{ bounds: initBounds }}
+            style={containerStyle}
+            {...mapProps}
         >
             {children}
         </Root>
@@ -45,7 +42,7 @@ export default function Map({
 }
 
 Map.propTypes = {
-    name: PropTypes.string,
+    mapId: PropTypes.string,
     initBounds: PropTypes.array,
     children: PropTypes.node,
     mapProps: PropTypes.object,

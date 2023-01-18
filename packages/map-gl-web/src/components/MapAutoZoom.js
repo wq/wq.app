@@ -1,8 +1,15 @@
 import { useEffect } from "react";
-import { useMapInstance, computeBounds } from "@wq/map";
+import { computeBounds } from "@wq/map";
+import { useMapInstance } from "../hooks";
 
-export default function MapAutoZoom({ name, context, wait, maxZoom, animate }) {
-    const map = useMapInstance(name);
+export default function MapAutoZoom({
+    mapId,
+    context,
+    wait,
+    maxZoom,
+    animate,
+}) {
+    const map = useMapInstance(mapId);
 
     useEffect(() => {
         if (!map || !context) {

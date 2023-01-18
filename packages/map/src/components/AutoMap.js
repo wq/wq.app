@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 
 export default function AutoMap({
     name,
+    mapId,
     toolbar = true,
     containerStyle,
     context,
@@ -40,10 +41,11 @@ export default function AutoMap({
     const identify = overlays.some((overlay) => !!overlay.popup);
 
     return (
-        <MapContainer name={name}>
+        <MapContainer name={name} mapId={mapId}>
             {toolbar && (
                 <MapToolbar
                     name={name}
+                    mapId={mapId}
                     basemaps={basemaps}
                     overlays={overlays}
                     showOverlay={showOverlay}
@@ -54,15 +56,23 @@ export default function AutoMap({
             )}
             <Map
                 name={name}
+                mapId={mapId}
                 initBounds={initBounds}
                 mapProps={mapProps}
                 containerStyle={containerStyle}
             >
-                <MapInteraction name={name} />
+                <MapInteraction name={name} mapId={mapId} />
                 {!!autoZoom && (
-                    <MapAutoZoom name={name} context={context} {...autoZoom} />
+                    <MapAutoZoom
+                        name={name}
+                        mapId={mapId}
+                        context={context}
+                        {...autoZoom}
+                    />
                 )}
-                {identify && <MapIdentify name={name} context={context} />}
+                {identify && (
+                    <MapIdentify name={name} mapId={mapId} context={context} />
+                )}
                 <MapLayers>
                     {basemaps.map((conf) => (
                         <AutoBasemap key={conf.name} {...conf} />
@@ -82,16 +92,9 @@ export default function AutoMap({
     );
 }
 
-AutoMap.makeComponent = (props) => {
-    function Component() {
-        return <AutoMap {...props} />;
-    }
-
-    return Component;
-};
-
 AutoMap.propTypes = {
     name: PropTypes.string,
+    mapId: PropTypes.string,
     toolbar: PropTypes.bool,
     containerStyle: PropTypes.object,
     context: PropTypes.object,

@@ -1,10 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useComponents } from "@wq/react";
-import { useMapInstance } from "../hooks";
 
 export default function MapToolbar({
-    name,
+    mapId,
     overlays,
     basemaps,
     showOverlay,
@@ -12,9 +11,15 @@ export default function MapToolbar({
     setBasemap,
     children,
 }) {
-    const { SidePanel, List, ListSubheader, OverlayToggle, BasemapToggle } =
-            useComponents(),
-        map = useMapInstance(name),
+    const {
+            SidePanel,
+            List,
+            ListSubheader,
+            OverlayToggle,
+            BasemapToggle,
+            useMapInstance,
+        } = useComponents(),
+        map = useMapInstance(mapId),
         hasMultipleOverlays =
             overlays &&
             (overlays.length > 1 || overlays.some((conf) => conf.legend)),
@@ -73,7 +78,7 @@ export default function MapToolbar({
 }
 
 MapToolbar.propTypes = {
-    name: PropTypes.string,
+    mapId: PropTypes.string,
     overlays: PropTypes.arrayOf(PropTypes.object),
     basemaps: PropTypes.arrayOf(PropTypes.object),
     showOverlay: PropTypes.func,
