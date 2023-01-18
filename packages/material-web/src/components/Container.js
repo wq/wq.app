@@ -1,18 +1,19 @@
 import React from "react";
+import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles(() => ({
-    container: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-    },
-}));
 
 export default function Container({ children }) {
-    const classes = useStyles();
-    return <div className={classes.container}>{children}</div>;
+    return (
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100vh",
+            }}
+        >
+            {children}
+        </Box>
+    );
 }
 Container.propTypes = {
     children: PropTypes.node,

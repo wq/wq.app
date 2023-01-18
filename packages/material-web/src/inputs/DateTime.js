@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { Field, useField } from "formik";
 import {
-    KeyboardDatePicker,
-    KeyboardTimePicker,
-    KeyboardDateTimePicker,
-} from "formik-material-ui-pickers";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+    DatePicker,
+    TimePicker,
+    DateTimePicker,
+} from "formik-mui-x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import PropTypes from "prop-types";
 import { usePlugin } from "@wq/react";
@@ -28,9 +28,9 @@ function makeUtils(type) {
 }
 
 const pickers = {
-    date: KeyboardDatePicker,
-    time: KeyboardTimePicker,
-    datetime: KeyboardDateTimePicker,
+    date: DatePicker,
+    time: TimePicker,
+    datetime: DateTimePicker,
 };
 
 const utils = {
@@ -65,7 +65,7 @@ function PickerDateTime({ type, hint, ...rest }) {
     }, [value]);
 
     return (
-        <MuiPickersUtilsProvider utils={utils[type]}>
+        <LocalizationProvider dateAdapter={utils[type]}>
             <Field
                 fullWidth
                 margin="dense"
@@ -75,7 +75,7 @@ function PickerDateTime({ type, hint, ...rest }) {
                 {...rest}
                 type="tel"
             />
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
     );
 }
 

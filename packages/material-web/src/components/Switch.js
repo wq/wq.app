@@ -1,3 +1,3 @@
-import Switch from "@material-ui/core/Switch";
+import Switch from "@mui/material/Switch";
 
 export default Switch;

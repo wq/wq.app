@@ -1,18 +1,10 @@
 import React from "react";
 import { Link } from "@wq/react";
-import Button from "@material-ui/core/Button";
-import HomeIcon from "@material-ui/icons/Home";
-import { makeStyles } from "@material-ui/core/styles";
+import Button from "@mui/material/Button";
+import HomeIcon from "@mui/icons-material/Home";
 import PropTypes from "prop-types";
 
-const useStyles = makeStyles(() => ({
-    icon: {
-        verticalAlign: "middle",
-    },
-}));
-
 export default function HomeLink({ to, label, active, ...rest }) {
-    const styles = useStyles();
     return (
         <Button
             component={Link}
@@ -21,7 +13,7 @@ export default function HomeLink({ to, label, active, ...rest }) {
             aria-label={label}
             {...rest}
         >
-            <HomeIcon className={styles.icon} />
+            <HomeIcon sx={{ verticalAlign: "middle" }} />
         </Button>
     );
 }

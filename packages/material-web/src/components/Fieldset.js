@@ -1,20 +1,12 @@
 import React from "react";
-import Card from "@material-ui/core/Card";
-import Typography from "@material-ui/core/Typography";
-import CardContent from "@material-ui/core/CardContent";
-import { makeStyles } from "@material-ui/core/styles";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import CardContent from "@mui/material/CardContent";
 import PropTypes from "prop-types";
 
-const useStyles = makeStyles({
-    card: {
-        marginBottom: "1em",
-    },
-});
-
 export default function Fieldset({ label, children }) {
-    const classes = useStyles();
     return (
-        <Card className={classes.card}>
+        <Card sx={{ mb: 2 }}>
             <CardContent>
                 {label && (
                     <Typography color="textSecondary">{label}</Typography>

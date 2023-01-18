@@ -1,5 +1,6 @@
 {
     "name": "wq.app",
+    "type": "module",
     "scripts": {
         "test": "npm test --workspaces",
         "build": "npm run build --workspaces --if-present",

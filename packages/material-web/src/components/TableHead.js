@@ -1,3 +1,3 @@
-import TableHead from "@material-ui/core/TableHead";
+import TableHead from "@mui/material/TableHead";
 
 export default TableHead;

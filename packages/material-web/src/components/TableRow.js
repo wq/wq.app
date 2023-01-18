@@ -1,3 +1,3 @@
-import TableRow from "@material-ui/core/TableRow";
+import TableRow from "@mui/material/TableRow";
 
 export default TableRow;

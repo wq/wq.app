@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useComponents } from "@wq/react";
-import Drawer from "@material-ui/core/Drawer";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import Drawer from "@mui/material/Drawer";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import PropTypes from "prop-types";
 
 export default function SidePanel({ children, compactChildren, onChange }) {
-    const mobile = useMediaQuery((theme) => theme.breakpoints.down("sm")),
+    const mobile = useMediaQuery((theme) => theme.breakpoints.down("md")),
         [open, setOpen] = useState(!mobile),
         { IconButton } = useComponents();
 

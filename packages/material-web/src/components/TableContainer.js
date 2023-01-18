@@ -1,3 +1,3 @@
-import TableContainer from "@material-ui/core/TableContainer";
+import TableContainer from "@mui/material/TableContainer";
 
 export default TableContainer;

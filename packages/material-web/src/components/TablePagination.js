@@ -1,3 +1,3 @@
-import TablePagination from "@material-ui/core/TablePagination";
+import TablePagination from "@mui/material/TablePagination";
 
 export default TablePagination;

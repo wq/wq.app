@@ -1,7 +1,7 @@
 import React from "react";
 
-import TablePagination from "@material-ui/core/TablePagination";
-import Paper from "@material-ui/core/Paper";
+import TablePagination from "@mui/material/TablePagination";
+import Paper from "@mui/material/Paper";
 
 import { useRenderContext, useRouteInfo, useReverse, useNav } from "@wq/react";
 
@@ -37,8 +37,8 @@ export default function Pagination() {
                 count={count}
                 page={pageNum - 1}
                 rowsPerPage={per_page}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
             />
         </Paper>
     );

@@ -2,7 +2,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import babel from "@rollup/plugin-babel";
 import analyze from "rollup-plugin-analyzer";
 import license from "rollup-plugin-license";
@@ -61,21 +61,7 @@ export default [
             { resolveId },
             resolve({
                 preferBuiltins: false,
-                customResolveOptions: {
-                    moduleDirectory: [
-                        "./packages/store/node_modules/",
-                        "./packages/router/node_modules/",
-                        "./packages/model/node_modules/",
-                        "./packages/outbox/node_modules/",
-                        "./packages/react/node_modules/",
-                        "./packages/material/node_modules/",
-                        "./packages/map/node_modules/",
-                        "./packages/map-gl/node_modules/",
-                        "node_modules/",
-                    ],
-                },
                 extensions: [".js", ".ts", ".tsx"],
-                dedupe: (path) => path[0] !== ".",
             }),
             analyze({ limit: 10 }),
             license({

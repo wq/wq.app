@@ -1,6 +1,6 @@
 import React from "react";
 import { useField } from "formik";
-import FormHelperText from "@material-ui/core/FormHelperText";
+import FormHelperText from "@mui/material/FormHelperText";
 
 export default function FormError(props) {
     const [, { error }] = useField("__other__");

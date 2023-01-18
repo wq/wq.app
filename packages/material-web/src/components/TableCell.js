@@ -1,3 +1,3 @@
-import TableCell from "@material-ui/core/TableCell";
+import TableCell from "@mui/material/TableCell";
 
 export default TableCell;
