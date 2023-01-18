@@ -6,9 +6,6 @@ module.exports = {
                 ['@babel/preset-env', { targets: { node: 'current' } }],
                 '@babel/preset-react'
             ]
-        },
-        test_native: {
-            presets: ['module:metro-react-native-babel-preset']
         }
     }
 };

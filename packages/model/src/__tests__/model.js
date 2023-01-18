@@ -1,7 +1,7 @@
 import store from '@wq/store';
 import { model } from '../model';
-import { URLSearchParams } from 'url';
-global.URLSearchParams = URLSearchParams;
+
+global.structuredClone = val => val;
 
 var ds = store.getStore('model-test');
 

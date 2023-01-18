@@ -29,7 +29,6 @@
     "dependencies": {
         "@wq/store": "^1.3.0",
         "deepcopy": "^2.1.0",
-        "redux-orm": "https://github.com/redux-orm/redux-orm/archive/29f1826.tar.gz"
-    },
-    "devDependencies": {}
+        "redux-orm": "^0.17.0-rc.0"
+    }
 }

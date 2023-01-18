@@ -31,8 +31,7 @@
     "dependencies": {
         "@wq/material": "file:../material",
         "@wq/react": "file:../react",
-        "mustache": "^4.0.1",
-        "react-reparenting": "^0.6.1"
+        "mustache": "^4.2.0"
     },
     "devDependencies": {
         "@wq/material-web": "file:../material-web",

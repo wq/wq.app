@@ -9,6 +9,7 @@ jobs:
     env:
       PACKAGE: ${{ matrix.package }}
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10"]
         node-version: [18]
@@ -52,12 +53,12 @@ jobs:
          cd packages/$PACKAGE
          npm run test
     - uses: smartsquaregmbh/delete-old-packages@v0.4.0
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       with:
          keep: 5
          names: ${{ matrix.package }}
     - name: Publish to Github Packages
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
          ./set_dev_version.sh
          echo "registry=https://npm.pkg.github.com/wq" > .npmrc

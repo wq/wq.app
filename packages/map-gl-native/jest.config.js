@@ -6,5 +6,6 @@ export default {
         './setup-jest.js'
     ],
     testMatch: ['**/__tests__/**/*.js?(x)'],
-    transformIgnorePatterns: []
+    transformIgnorePatterns: [],
+    moduleNameMapper: { '@wq/material': '<rootDir>/setup-jest.js' }
 };

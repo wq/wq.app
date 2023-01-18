@@ -1,7 +1,5 @@
 'use strict';
 
-var Gn={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#x27;"}
-
 function isNumeric(value) {
   return /^\d+$/.test(value);
 }
@@ -186,7 +184,7 @@ function collectEntries(formEl) {
       return { name: el.name, value: el.value };
     }))
     .filter(function(entry) { return entry;});
-};
+}
 
 function parent(el, tagName) {
   tagName = tagName.toLowerCase();

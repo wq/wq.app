@@ -1,10 +1,8 @@
-/**
- * @jest-environment @wq/jest-env-jsdom-idb
- */
-
 import store from '@wq/store';
 import outboxMod from '../outbox';
 import { model } from '@wq/model';
+
+global.structuredClone = val => val;
 
 const ds = store.getStore('outbox-test');
 const outbox = outboxMod.getOutbox(ds);
