@@ -39,6 +39,9 @@ const deps = {
     "@wq/map-gl-web": "./packages/map-gl-web/src/index.js",
 };
 function resolveId(id) {
+    if (id == "maplibre-gl") {
+        return { id: "./maplibre-gl.js", external: true };
+    }
     return deps[id];
 }
 
@@ -101,24 +104,18 @@ export default [
             }),
             replace({
                 "process.env.NODE_ENV": '"production"',
-                "require('fs')": "NOT_SUPPORTED",
-                "require('path')": "NOT_SUPPORTED",
-                "require.main": "'NOT_SUPPORTED'",
-                "import * as MapboxGl from 'mapbox-gl'":
-                    "import MapboxGl from 'mapbox-gl'",
-                "const isEqual = require('deep-equal')":
-                    "import isEqual from 'deep-equal'",
-                "require('mapbox-gl/dist/mapbox-gl.css')": "",
-                "from 'react-mapbox-gl'": "from 'react-mapbox-gl/src/index'",
-                'require("react-mapbox-gl")':
-                    "require('react-mapbox-gl/src/index')",
+                "import maplibre from": "import",
+                "mapgl.setEngine(maplibre)":
+                    "mapgl.setEngine(window.maplibregl)",
                 delimiters: ["", ""],
+                preventAssignment: true,
             }),
             commonjs(),
             json(),
         ],
         output: {
             file: "static/app/js/wq.js",
+            inlineDynamicImports: true,
             banner,
             format: "esm",
             sourcemap: true,

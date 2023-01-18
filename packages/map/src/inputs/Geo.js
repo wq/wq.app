@@ -12,6 +12,7 @@ import PropTypes from "prop-types";
 export default function Geo({
     name,
     type,
+    mapId = null,
     required,
     label,
     hint,
@@ -45,9 +46,10 @@ export default function Geo({
 
     return (
         <Fieldset label={label}>
-            <GeoTools name={name} type={type} />
+            <GeoTools name={name} type={type} mapId={mapId} />
             <AutoMap
                 name={name}
+                mapId={mapId}
                 containerStyle={{ minHeight: 400 }}
                 context={emptyContext}
             >
@@ -69,6 +71,7 @@ export default function Geo({
 Geo.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
+    mapId: PropTypes.string,
     required: PropTypes.bool,
     label: PropTypes.string,
     hint: PropTypes.string,

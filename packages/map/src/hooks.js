@@ -6,6 +6,7 @@ import {
     usePluginState,
     useRenderContext,
     useApp,
+    useComponents,
     usePluginComponentMap,
 } from "@wq/react";
 import Mustache from "mustache";
@@ -24,12 +25,13 @@ export function useOverlayComponents() {
     return usePluginComponentMap("map", "overlays");
 }
 
-export function useGeoTools(name, type) {
+export function useGeoTools(name, type, mapId) {
     const { zoomToLocation } = usePlugin("map").config,
         tools = usePluginComponentMap("map", "geotools", true),
         toggleName = `${name}_method`,
         mapState = useMapState(),
-        instance = useMapInstance(name),
+        { useMapInstance } = useComponents(),
+        instance = useMapInstance(mapId),
         [, { value }, { setValue }] = useField(name),
         [, , { setValue: setAccuracy }] = useField(`${name}_accuracy`),
         [, { value: activeTool }, { setValue: setActiveTool }] =
@@ -121,17 +123,12 @@ export function useMapState() {
     }
 }
 
-export function useMapInstance(name = null) {
-    const mapState = useMapState();
-    if (mapState) {
-        if (name) {
-            return mapState.instances[name];
-        } else {
-            return mapState.instance;
-        }
-    } else {
-        return null;
-    }
+export function useMapInstance() {
+    throw new Error(
+        "@wq/map's useMapInstance() export is deprecated." +
+            " Load useMapInstance() via useComponents()," +
+            " or import it directly from @wq/map-gl"
+    );
 }
 
 function checkGroupLayers(layerconf) {

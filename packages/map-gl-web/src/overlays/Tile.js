@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Source, Layer } from "react-mapbox-gl";
+import { Source, Layer } from "react-map-gl";
 
 export default function Tile({ name, active, url, tileSize, layout, paint }) {
     const source = useMemo(() => {
@@ -16,16 +16,9 @@ export default function Tile({ name, active, url, tileSize, layout, paint }) {
     }
 
     return (
-        <>
-            <Source id={name} tileJsonSource={source} />
-            <Layer
-                id={name}
-                type="raster"
-                sourceId={name}
-                layout={layout}
-                paint={paint}
-            />
-        </>
+        <Source id={name} {...source}>
+            <Layer id={name} type="raster" layout={layout} paint={paint} />
+        </Source>
     );
 }
 

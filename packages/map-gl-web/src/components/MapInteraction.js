@@ -1,11 +1,10 @@
 import React from "react";
-import { ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
+import { NavigationControl, ScaleControl } from "react-map-gl";
 
 export default function MapInteraction() {
     return (
         <>
-            <ZoomControl position="top-left" />
-            <RotationControl position="top-left" style={{ marginTop: "1em" }} />
+            <NavigationControl position="top-left" />
             <ScaleControl />
         </>
     );
