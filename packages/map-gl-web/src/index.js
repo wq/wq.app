@@ -1,14 +1,14 @@
-import map from '@wq/map';
+import map from "@wq/map";
 
 import {
     Map,
     MapInteraction,
     MapAutoZoom,
     MapIdentify,
-    MapLayers
-} from './components/index';
+    MapLayers,
+} from "./components/index";
 
-import { VectorTile, Tile } from './basemaps/index';
+import { VectorTile, Tile } from "./basemaps/index";
 
 import {
     Geojson,
@@ -16,24 +16,24 @@ import {
     Draw,
     Accuracy,
     VectorTile as VectorTileOverlay,
-    Tile as TileOverlay
-} from './overlays/index';
+    Tile as TileOverlay,
+} from "./overlays/index";
 
-import { zoomToLocation } from './util';
+import { zoomToLocation } from "./util";
 
 export default {
-    name: 'map-gl',
+    name: "map-gl",
     dependencies: [map],
     components: {
         Map,
         MapInteraction,
         MapAutoZoom,
         MapIdentify,
-        MapLayers
+        MapLayers,
     },
     basemaps: {
         VectorTile,
-        Tile
+        Tile,
     },
     overlays: {
         Geojson,
@@ -41,9 +41,9 @@ export default {
         Draw,
         Accuracy,
         VectorTile: VectorTileOverlay,
-        Tile: TileOverlay
+        Tile: TileOverlay,
     },
-    zoomToLocation
+    zoomToLocation,
 };
 
 export {
@@ -58,5 +58,5 @@ export {
     Draw,
     Accuracy,
     VectorTileOverlay,
-    TileOverlay
+    TileOverlay,
 };

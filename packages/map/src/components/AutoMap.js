@@ -1,7 +1,7 @@
-import React from 'react';
-import { useComponents, usePlugin } from '@wq/react';
-import { useMapState, useOverlayComponents } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents, usePlugin } from "@wq/react";
+import { useMapState, useOverlayComponents } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function AutoMap({
     name,
@@ -9,10 +9,10 @@ export default function AutoMap({
     containerStyle,
     context,
     state,
-    children
+    children,
 }) {
     const mapState = useMapState(),
-        { showOverlay, hideOverlay, setBasemap } = usePlugin('map'),
+        { showOverlay, hideOverlay, setBasemap } = usePlugin("map"),
         {
             MapContainer,
             MapToolbar,
@@ -22,7 +22,7 @@ export default function AutoMap({
             MapIdentify,
             MapLayers,
             AutoBasemap,
-            AutoOverlay
+            AutoOverlay,
         } = useComponents(),
         { Highlight } = useOverlayComponents();
 
@@ -34,16 +34,10 @@ export default function AutoMap({
         return null;
     }
 
-    const {
-        basemaps,
-        overlays,
-        initBounds,
-        mapProps,
-        autoZoom,
-        highlight
-    } = state;
+    const { basemaps, overlays, initBounds, mapProps, autoZoom, highlight } =
+        state;
 
-    const identify = overlays.some(overlay => !!overlay.popup);
+    const identify = overlays.some((overlay) => !!overlay.popup);
 
     return (
         <MapContainer name={name}>
@@ -70,10 +64,10 @@ export default function AutoMap({
                 )}
                 {identify && <MapIdentify name={name} context={context} />}
                 <MapLayers>
-                    {basemaps.map(conf => (
+                    {basemaps.map((conf) => (
                         <AutoBasemap key={conf.name} {...conf} />
                     ))}
-                    {overlays.map(conf => (
+                    {overlays.map((conf) => (
                         <AutoOverlay
                             key={conf.name}
                             {...conf}
@@ -88,7 +82,7 @@ export default function AutoMap({
     );
 }
 
-AutoMap.makeComponent = props => {
+AutoMap.makeComponent = (props) => {
     function Component() {
         return <AutoMap {...props} />;
     }
@@ -102,5 +96,5 @@ AutoMap.propTypes = {
     containerStyle: PropTypes.object,
     context: PropTypes.object,
     state: PropTypes.object,
-    children: PropTypes.node
+    children: PropTypes.node,
 };

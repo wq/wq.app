@@ -14,11 +14,11 @@ import {
     OverlayToggle,
     Legend,
     LegendIcon,
-    GeoTools
-} from './components/index';
-import { Geo } from './inputs/index';
-import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from './geotools/index';
-import { DefaultList, DefaultDetail, DefaultPopup } from './views/index';
+    GeoTools,
+} from "./components/index";
+import { Geo } from "./inputs/index";
+import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index";
+import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index";
 import reducer, {
     MAP_READY,
     MAP_SET_STICKY_PROPS,
@@ -30,12 +30,12 @@ import reducer, {
     MAP_ADD_HIGHLIGHT,
     MAP_TOGGLE_HIGHLIGHT,
     MAP_REMOVE_HIGHLIGHT,
-    MAP_CLEAR_HIGHLIGHT
-} from './reducer';
+    MAP_CLEAR_HIGHLIGHT,
+} from "./reducer";
 
 // module variable
 const map = {
-    name: 'map',
+    name: "map",
     reducer(state, action) {
         return reducer(state, action, this.config);
     },
@@ -43,82 +43,82 @@ const map = {
         return { activeBasemap, activeOverlays };
     },
     restore({ activeBasemap, activeOverlays }) {
-        Object.keys(activeOverlays || {}).forEach(key => {
+        Object.keys(activeOverlays || {}).forEach((key) => {
             if (!this.config.allOverlays[key]) {
                 delete activeOverlays[key];
             }
         });
         return {
             activeBasemap,
-            activeOverlays
+            activeOverlays,
         };
     },
     actions: {
         ready(instance, name = null) {
             return {
                 type: MAP_READY,
-                payload: { instance, name }
+                payload: { instance, name },
             };
         },
         setStickyProps(props) {
             return {
                 type: MAP_SET_STICKY_PROPS,
-                payload: props
+                payload: props,
             };
         },
         setStickyMapId(id) {
             return {
                 type: MAP_SET_STICKY_ID,
-                payload: id
+                payload: id,
             };
         },
         setBasemap(name) {
             return {
                 type: MAP_SET_BASEMAP,
-                payload: name
+                payload: name,
             };
         },
         showOverlay(name) {
             return {
                 type: MAP_SHOW_OVERLAY,
-                payload: name
+                payload: name,
             };
         },
         hideOverlay(name) {
             return {
                 type: MAP_HIDE_OVERLAY,
-                payload: name
+                payload: name,
             };
         },
         setHighlight(geojson) {
             return {
                 type: MAP_SET_HIGHLIGHT,
-                payload: asFeatureCollection(geojson)
+                payload: asFeatureCollection(geojson),
             };
         },
         addHighlight(geojson) {
             return {
                 type: MAP_ADD_HIGHLIGHT,
-                payload: asFeatureCollection(geojson)
+                payload: asFeatureCollection(geojson),
             };
         },
         toggleHighlight(geojson) {
             return {
                 type: MAP_TOGGLE_HIGHLIGHT,
-                payload: asFeatureCollection(geojson)
+                payload: asFeatureCollection(geojson),
             };
         },
         removeHighlight(geojson) {
             return {
                 type: MAP_REMOVE_HIGHLIGHT,
-                payload: asFeatureCollection(geojson)
+                payload: asFeatureCollection(geojson),
             };
         },
         clearHighlight() {
             return {
-                type: MAP_CLEAR_HIGHLIGHT
+                type: MAP_CLEAR_HIGHLIGHT,
             };
-        }
+        },
     },
     components: {
         AutoMap,
@@ -139,36 +139,36 @@ const map = {
         OverlayToggle,
         Legend,
         LegendIcon,
-        GeoTools
+        GeoTools,
     },
     inputs: {
         Geo,
         geopoint: Geo,
         geotrace: Geo,
-        geoshape: Geo
+        geoshape: Geo,
     },
     views: { DefaultList, DefaultDetail, DefaultPopup },
     config: {
         maps: {}, // Auto-populated from app.config.pages where map == true
         bounds: [
             [-4, -4],
-            [4, 4]
+            [4, 4],
         ],
         autoZoom: {
             wait: 0.5, // How long to wait before triggering autoZoom
 
             // Settings for fitBounds
             maxZoom: 13,
-            animate: true
+            animate: true,
         },
-        basemaps: _defaultBasemaps()
+        basemaps: _defaultBasemaps(),
     },
 
     registry: {
         basemaps: {
             Tile({ url }) {
                 return `Tile at ${url}`;
-            }
+            },
         },
         overlays: {
             Geojson({ url, data }) {
@@ -186,22 +186,22 @@ const map = {
             },
             Accuracy({ accuracy }) {
                 return `Accuracy ${accuracy}`;
-            }
+            },
         },
         geotools: {
             GeoHelp,
             GeoLocate,
             GeoCode,
-            GeoCoords
-        }
-    }
+            GeoCoords,
+        },
+    },
 };
 
 // This will be called by app.init()
 map.init = function (config) {
     var app = this.app;
 
-    Object.values(app.plugins).forEach(plugin => {
+    Object.values(app.plugins).forEach((plugin) => {
         if (plugin.basemaps) {
             Object.assign(this.registry.basemaps, plugin.basemaps);
         }
@@ -212,10 +212,10 @@ map.init = function (config) {
             Object.assign(this.registry.geotools, plugin.geotools);
         }
         if (plugin.geocoder) {
-            this.config.geocoder = address => plugin.geocoder(address);
+            this.config.geocoder = (address) => plugin.geocoder(address);
         }
         if (plugin.geocoderAddress) {
-            this.config.geocoderAddress = values =>
+            this.config.geocoderAddress = (values) =>
                 plugin.geocoderAddress(values);
         }
         if (plugin.zoomToLocation) {
@@ -243,7 +243,7 @@ map.init = function (config) {
     // Define map configuration for all app pages with map=True
     this.config.allOverlays = {};
 
-    Object.keys(app.config.pages).forEach(page => {
+    Object.keys(app.config.pages).forEach((page) => {
         var pconf = app.config.pages[page],
             mconf = pconf.map;
 
@@ -264,28 +264,28 @@ map.init = function (config) {
             defaults: {
                 maps: {
                     main: {
-                        layers: []
-                    }
-                }
-            }
+                        layers: [],
+                    },
+                },
+            },
         };
 
         // Initialize map configurations for each page display mode
-        mconf.forEach(conf => {
-            var mode = conf.mode || 'defaults',
-                map = conf.map || 'main';
-            if (mode === 'all') {
-                mode = 'defaults';
+        mconf.forEach((conf) => {
+            var mode = conf.mode || "defaults",
+                map = conf.map || "main";
+            if (mode === "all") {
+                mode = "defaults";
             }
             if (!mapconf[mode]) {
                 mapconf[mode] = {
-                    maps: {}
+                    maps: {},
                 };
             }
             mapconf[mode].maps[map] = conf;
             if (conf.layers) {
                 conf.layers.forEach(
-                    layer => (this.config.allOverlays[layer.name] = true)
+                    (layer) => (this.config.allOverlays[layer.name] = true)
                 );
             }
         });
@@ -295,9 +295,9 @@ map.init = function (config) {
         if (pconf.modes) {
             modes = pconf.modes;
         } else if (pconf.list) {
-            modes = ['list', 'detail', 'edit'];
+            modes = ["list", "detail", "edit"];
         }
-        modes.forEach(mode => {
+        modes.forEach((mode) => {
             if (mapconf[mode]) {
                 if (
                     mapconf[mode].maps &&
@@ -313,9 +313,9 @@ map.init = function (config) {
                 maps: {
                     main: {
                         autoLayers: true,
-                        layers: []
-                    }
-                }
+                        layers: [],
+                    },
+                },
             };
         });
         map.config.maps[page] = mapconf;
@@ -323,35 +323,35 @@ map.init = function (config) {
 };
 
 // Plugin API
-map.runComponent = 'OffscreenMaps';
+map.runComponent = "OffscreenMaps";
 
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
     var cdn =
-        'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg';
+        "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg";
     var attr =
         'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.';
 
     return [
         {
-            name: 'Stamen Terrain',
-            type: 'tile',
+            name: "Stamen Terrain",
+            type: "tile",
             url: cdn,
-            attribution: attr
-        }
+            attribution: attr,
+        },
     ];
 }
 
 function asFeatureCollection(geojson) {
     if (!geojson) {
         geojson = [];
-    } else if (geojson.type && geojson.type !== 'FeatureCollection') {
+    } else if (geojson.type && geojson.type !== "FeatureCollection") {
         geojson = [geojson];
     }
     if (Array.isArray(geojson)) {
-        geojson = { type: 'FeatureCollection', features: geojson };
+        geojson = { type: "FeatureCollection", features: geojson };
     } else if (!geojson.type) {
-        throw new Error('Invalid GeoJSON');
+        throw new Error("Invalid GeoJSON");
     }
     return geojson;
 }

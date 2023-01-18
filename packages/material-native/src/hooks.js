@@ -1,4 +1,4 @@
-import { useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from "react-native";
 
 export function useMinWidth(minWidth) {
     const { width } = useWindowDimensions();

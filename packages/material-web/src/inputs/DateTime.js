@@ -1,21 +1,21 @@
-import React, { useEffect } from 'react';
-import { Field, useField } from 'formik';
+import React, { useEffect } from "react";
+import { Field, useField } from "formik";
 import {
     KeyboardDatePicker,
     KeyboardTimePicker,
-    KeyboardDateTimePicker
-} from 'formik-material-ui-pickers';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
-import PropTypes from 'prop-types';
-import { usePlugin } from '@wq/react';
-import { format, parse } from './date-utils';
-import Input from './Input';
+    KeyboardDateTimePicker,
+} from "formik-material-ui-pickers";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import PropTypes from "prop-types";
+import { usePlugin } from "@wq/react";
+import { format, parse } from "./date-utils";
+import Input from "./Input";
 
 function makeUtils(type) {
     class Utils extends DateFnsUtils {
         date(value) {
-            if (typeof value === 'undefined') {
+            if (typeof value === "undefined") {
                 return new Date();
             } else if (value instanceof Date) {
                 return value;
@@ -30,13 +30,13 @@ function makeUtils(type) {
 const pickers = {
     date: KeyboardDatePicker,
     time: KeyboardTimePicker,
-    datetime: KeyboardDateTimePicker
+    datetime: KeyboardDateTimePicker,
 };
 
 const utils = {
-    date: makeUtils('date'),
-    time: makeUtils('time'),
-    datetime: makeUtils('datetime')
+    date: makeUtils("date"),
+    time: makeUtils("time"),
+    datetime: makeUtils("datetime"),
 };
 
 export default function DateTime({ native, ...rest }) {
@@ -55,7 +55,7 @@ function PickerDateTime({ type, hint, ...rest }) {
     type = type.toLowerCase();
 
     const Picker = pickers[type],
-        inputFormat = usePlugin('material').config.inputFormat,
+        inputFormat = usePlugin("material").config.inputFormat,
         [, { value, error, touched }, { setValue }] = useField(rest.name);
 
     useEffect(() => {
@@ -82,5 +82,5 @@ function PickerDateTime({ type, hint, ...rest }) {
 PickerDateTime.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
-    hint: PropTypes.string
+    hint: PropTypes.string,
 };

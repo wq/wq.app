@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 import {
     useComponents,
     useViewComponents,
     useReverse,
-    useList
-} from '../hooks';
+    useList,
+} from "../hooks";
 
 export default function DefaultList() {
     const reverse = useReverse(),
@@ -17,7 +17,7 @@ export default function DefaultList() {
             ListItem,
             ListItemLink,
             Pagination,
-            Fab
+            Fab,
         } = useComponents(),
         { OutboxList } = useViewComponents(),
         { page, can_add, can_view } = page_config,
@@ -46,7 +46,7 @@ export default function DefaultList() {
                                 <ListSubheader>
                                     <Message id="SYNCED_ITEMS" />
                                 </ListSubheader>
-                                {list.map(row => (
+                                {list.map((row) => (
                                     <Row key={row.id} {...row} />
                                 ))}
                             </List>
@@ -59,7 +59,7 @@ export default function DefaultList() {
                                 <Message id="LIST_IS_EMPTY" />
                             </ListItem>
                         ) : (
-                            list.map(row => <Row key={row.id} {...row} />)
+                            list.map((row) => <Row key={row.id} {...row} />)
                         )}
                     </List>
                 )}

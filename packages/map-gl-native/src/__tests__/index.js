@@ -1,5 +1,5 @@
-import mapgl from '../index';
+import mapgl from "../index";
 
-test('it loads', () => {
-    expect(mapgl.name).toBe('map-gl');
+test("it loads", () => {
+    expect(mapgl.name).toBe("map-gl");
 });

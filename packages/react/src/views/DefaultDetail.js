@@ -1,17 +1,17 @@
-import React from 'react';
+import React from "react";
 import {
     useRenderContext,
     useRouteInfo,
     useComponents,
-    useReverse
-} from '../hooks';
+    useReverse,
+} from "../hooks";
 
 export default function DefaultDetail() {
     const reverse = useReverse(),
         context = useRenderContext(),
         { page, item_id, page_config } = useRouteInfo(),
         { ScrollView, PropertyTable, Fab } = useComponents(),
-        form = page_config.form || [{ name: 'label' }],
+        form = page_config.form || [{ name: "label" }],
         editUrl = reverse(`${page}_edit`, item_id);
     return (
         <>

@@ -1,19 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useOverlayComponents, useDataProps } from '../hooks';
+import React from "react";
+import PropTypes from "prop-types";
+import { useOverlayComponents, useDataProps } from "../hooks";
 
 export default function AutoOverlay({ type, data, context, ...conf }) {
     const overlays = useOverlayComponents(),
         Overlay = overlays[type],
         dataProps = useDataProps(data, context);
 
-    if (type === 'empty') {
+    if (type === "empty") {
         return Overlay ? <Overlay active={conf.active} /> : null;
-    } else if (type === 'group') {
+    } else if (type === "group") {
         const Group = Overlay || React.Fragment;
         return (
             <Group>
-                {conf.layers.map(layer => (
+                {conf.layers.map((layer) => (
                     <AutoOverlay
                         key={layer.name}
                         active={conf.active}
@@ -34,7 +34,7 @@ AutoOverlay.propTypes = {
     type: PropTypes.string.isRequired,
     data: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.arrayOf(PropTypes.string)
+        PropTypes.arrayOf(PropTypes.string),
     ]),
-    context: PropTypes.object
+    context: PropTypes.object,
 };

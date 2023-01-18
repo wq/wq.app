@@ -1,21 +1,21 @@
-import React, { useMemo, useCallback, useContext } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { createSelector } from 'redux-orm/src/index.js';
+import React, { useMemo, useCallback, useContext } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { createSelector } from "redux-orm/src/index.js";
 import {
     pathToAction,
     getOptions,
-    selectLocationState
-} from 'redux-first-router';
-import { paramCase } from 'param-case';
-import { useHtmlInput } from './inputs/Input';
+    selectLocationState,
+} from "redux-first-router";
+import { paramCase } from "param-case";
+import { useHtmlInput } from "./inputs/Input";
 
-const isAction = path => path && path.type;
+const isAction = (path) => path && path.type;
 
 const selectors = {};
 
 function getSelector(name) {
     if (!selectors[name]) {
-        selectors[name] = state => state[name];
+        selectors[name] = (state) => state[name];
     }
     return selectors[name];
 }
@@ -30,11 +30,11 @@ export function useRoutesMap() {
 
 export function toNavAction(path, routesMap) {
     const { querySerializer } = getOptions(),
-        baseUrl = routesMap.INDEX ? routesMap.INDEX.path : '/';
+        baseUrl = routesMap.INDEX ? routesMap.INDEX.path : "/";
     return isAction(path)
         ? path
         : pathToAction(
-              path.indexOf('/') === 0 ? path : baseUrl + path,
+              path.indexOf("/") === 0 ? path : baseUrl + path,
               routesMap,
               querySerializer
           );
@@ -42,7 +42,7 @@ export function toNavAction(path, routesMap) {
 
 export function useNavAction() {
     const routesMap = useRoutesMap();
-    return useCallback(path => toNavAction(path, routesMap), [routesMap]);
+    return useCallback((path) => toNavAction(path, routesMap), [routesMap]);
 }
 
 export function useNav(to) {
@@ -57,7 +57,7 @@ export function useNav(to) {
 }
 
 export const RouteContext = React.createContext({
-    name: '@@CURRENT'
+    name: "@@CURRENT",
 });
 
 export function useCurrentRoute() {
@@ -65,14 +65,14 @@ export function useCurrentRoute() {
 }
 
 export function useRenderContext(routeName) {
-    const context = useSelector(getSelector('context')),
+    const context = useSelector(getSelector("context")),
         currentRoute = useCurrentRoute();
     return (context && context[routeName || currentRoute]) || {};
 }
 
 export function useRouteInfo(routeName) {
     const currentRoute = useCurrentRoute(),
-        routeInfos = useSelector(getSelector('routeInfo')),
+        routeInfos = useSelector(getSelector("routeInfo")),
         routeInfo = routeInfos && routeInfos[routeName || currentRoute],
         context = useRenderContext(routeName),
         { getRouteInfo } = useApp().router;
@@ -102,12 +102,12 @@ export function useRouteTitle(routeName) {
     function routeTitle(routeName) {
         const [name, mode, variant] = app.splitRoute(routeName);
         const page_config = config.pages[name] || {
-            name
+            name,
         };
         return getRouteTitle({
             page_config,
             mode,
-            variant
+            variant,
         });
     }
 
@@ -123,13 +123,13 @@ export function useReverse() {
     return useCallback(
         (name, payload, query) => {
             const action = {
-                type: name.toUpperCase()
+                type: name.toUpperCase(),
             };
             if (!location.routesMap[action.type]) {
                 throw new Error(`Unknown route: ${action.type}`);
             }
             if (payload) {
-                if (typeof payload === 'object') {
+                if (typeof payload === "object") {
                     action.payload = payload;
                 } else {
                     action.payload = { slug: payload };
@@ -146,7 +146,7 @@ export function useReverse() {
 
 export function useIndexRoute() {
     // FIXME: This should be read from the configuration
-    return 'index';
+    return "index";
 }
 
 export function useBreadcrumbs() {
@@ -160,7 +160,7 @@ export function useBreadcrumbs() {
             full_path,
             parent_id,
             parent_label,
-            parent_conf
+            parent_conf,
         } = useRouteInfo(),
         reverse = useReverse(),
         index = useIndexRoute(),
@@ -172,16 +172,16 @@ export function useBreadcrumbs() {
 
     const links = [],
         addLink = (url, label) => links.push({ url, label }),
-        addCurrentPage = label => addLink(full_path, label);
+        addCurrentPage = (label) => addLink(full_path, label);
 
-    addLink(reverse(index), 'Home');
+    addLink(reverse(index), "Home");
 
     if (parent_id && parent_conf) {
         addLink(
             reverse(`${parent_conf.page}_list`),
             getRouteTitle({
                 page_config: parent_conf,
-                mode: 'list'
+                mode: "list",
             })
         );
         addLink(reverse(`${parent_conf.page}_detail`, parent_id), parent_label);
@@ -192,12 +192,12 @@ export function useBreadcrumbs() {
             reverse(`${page_config.name}_list`),
             getRouteTitle({
                 page_config,
-                mode: 'list'
+                mode: "list",
             })
         );
-        if (mode !== 'detail') {
+        if (mode !== "detail") {
             const currentTitle = getRouteTitle({ page_config, mode }),
-                detailTitle = getRouteTitle({ page_config, mode: 'detail' });
+                detailTitle = getRouteTitle({ page_config, mode: "detail" });
             addLink(
                 reverse(`${page}_detail`, item_id),
                 title === currentTitle ? detailTitle : title
@@ -217,49 +217,49 @@ export function useSitemap() {
     const config = useConfig();
     return useMemo(() => {
         const pages = Object.values(config.pages).filter(
-                page => page.show_in_index !== false
+                (page) => page.show_in_index !== false
             ),
-            options = pages.filter(page => !page.list),
-            models = pages.filter(page => page.list);
+            options = pages.filter((page) => !page.list),
+            models = pages.filter((page) => page.list);
         return { options, models };
     }, [config]);
 }
 
 export function useSpinner() {
-    const spinner = useSelector(getSelector('spinner'));
+    const spinner = useSelector(getSelector("spinner"));
     return spinner;
 }
 
 export const AppContext = React.createContext({
     app: {
         plugins: {},
-        models: {}
-    }
+        models: {},
+    },
 });
 
 export function useComponents() {
-    return usePluginComponentMap('react', 'components');
+    return usePluginComponentMap("react", "components");
 }
 
 export function useInputComponents() {
-    return usePluginComponentMap('react', 'inputs');
+    return usePluginComponentMap("react", "inputs");
 }
 
 export { useHtmlInput };
 
 export function useIconComponents() {
-    return usePluginComponentMap('react', 'icons');
+    return usePluginComponentMap("react", "icons");
 }
 
 export function useIcon(icon) {
     const icons = useIconComponents();
-    if (typeof icon === 'string') {
+    if (typeof icon === "string") {
         if (icons[icon]) {
             return icons[icon];
         } else {
             return null;
         }
-    } else if (typeof icon === 'function') {
+    } else if (typeof icon === "function") {
         return icon;
     } else {
         return null;
@@ -267,7 +267,7 @@ export function useIcon(icon) {
 }
 
 export function useViewComponents() {
-    return usePluginComponentMap('react', 'views');
+    return usePluginComponentMap("react", "views");
 }
 
 export function useApp() {
@@ -290,19 +290,20 @@ export function useModel(name, filter) {
     const selector = useMemo(() => {
         let selector;
         if (
-            typeof filter === 'function' ||
-            (typeof filter === 'object' && !Array.isArray(filter))
+            typeof filter === "function" ||
+            (typeof filter === "object" && !Array.isArray(filter))
         ) {
             // Filter by query
-            selector = createSelector(model.orm, session =>
+            selector = createSelector(model.orm, (session) =>
                 model.getQuerySet(session).filter(filter).toRefArray()
             );
         } else if (filter) {
             // Filter by id (default ModelSelectorSpec behavior)
-            selector = state => createSelector(model.orm[name])(state, filter);
+            selector = (state) =>
+                createSelector(model.orm[name])(state, filter);
         } else {
             // All objects (use getQuerySet() to leverage config.ordering)
-            selector = createSelector(model.orm, session =>
+            selector = createSelector(model.orm, (session) =>
                 model.getQuerySet(session).toRefArray()
             );
         }
@@ -319,7 +320,7 @@ function selectOutbox(state) {
 export function useOutbox() {
     const outbox = useSelector(selectOutbox),
         {
-            outbox: { parseOutbox }
+            outbox: { parseOutbox },
         } = useApp();
     return useMemo(() => {
         if (outbox) {
@@ -334,10 +335,10 @@ export function useUnsynced(modelNameOrConf) {
     const outbox = useOutbox(),
         {
             outbox: { filterUnsynced },
-            models
+            models,
         } = useApp(),
         modelConf =
-            typeof modelNameOrConf === 'string'
+            typeof modelNameOrConf === "string"
                 ? models[modelNameOrConf].config
                 : modelNameOrConf;
     return useMemo(() => {
@@ -357,9 +358,9 @@ export function useList(routeName) {
             // Context list should generally already equal model list, unless
             // there has been a sync or other model update since last RENDER.
             const seen = {};
-            modelList.forEach(row => (seen[row.id] = true));
+            modelList.forEach((row) => (seen[row.id] = true));
             list = modelList.concat(
-                (contextList || []).filter(row => !seen[row.id])
+                (contextList || []).filter((row) => !seen[row.id])
             );
         } else {
             // Context list probably came directly from server, ignore local model
@@ -371,7 +372,7 @@ export function useList(routeName) {
             page_config,
             list,
             unsynced: show_unsynced ? unsynced : [],
-            empty
+            empty,
         };
     }, [contextList, show_unsynced, page_config, modelList, unsynced]);
 }
@@ -422,9 +423,9 @@ export function usePluginContent() {
     const content = useMemo(
         () =>
             Object.values(app.plugins)
-                .map(plugin => plugin.runComponent)
-                .map(name => (name ? components[name] : null))
-                .filter(component => !!component),
+                .map((plugin) => plugin.runComponent)
+                .map((name) => (name ? components[name] : null))
+                .filter((component) => !!component),
         [app]
     );
 
@@ -447,7 +448,7 @@ export function usePluginContent() {
 }
 
 export function useMessages() {
-    const { config } = usePlugin('react');
+    const { config } = usePlugin("react");
     return config.messages;
 }
 

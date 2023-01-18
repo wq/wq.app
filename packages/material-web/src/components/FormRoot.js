@@ -1,16 +1,16 @@
-import React from 'react';
-import { Form } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Form } from "formik";
+import PropTypes from "prop-types";
 
 export default function FormRoot({ children }) {
     return (
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
             <Form
                 style={{
-                    width: '100%',
-                    maxWidth: '70em',
-                    padding: '1em',
-                    boxSizing: 'border-box'
+                    width: "100%",
+                    maxWidth: "70em",
+                    padding: "1em",
+                    boxSizing: "border-box",
                 }}
             >
                 {children}
@@ -20,5 +20,5 @@ export default function FormRoot({ children }) {
 }
 
 FormRoot.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
 };

@@ -1,14 +1,14 @@
-import React from 'react';
-import { Link } from '@wq/react';
-import Button from '@material-ui/core/Button';
-import HomeIcon from '@material-ui/icons/Home';
-import { makeStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Link } from "@wq/react";
+import Button from "@material-ui/core/Button";
+import HomeIcon from "@material-ui/icons/Home";
+import { makeStyles } from "@material-ui/core/styles";
+import PropTypes from "prop-types";
 
 const useStyles = makeStyles(() => ({
     icon: {
-        verticalAlign: 'middle'
-    }
+        verticalAlign: "middle",
+    },
 }));
 
 export default function HomeLink({ to, label, active, ...rest }) {
@@ -17,7 +17,7 @@ export default function HomeLink({ to, label, active, ...rest }) {
         <Button
             component={Link}
             to={to}
-            color={active ? 'inherit' : 'primary'}
+            color={active ? "inherit" : "primary"}
             aria-label={label}
             {...rest}
         >
@@ -29,5 +29,5 @@ export default function HomeLink({ to, label, active, ...rest }) {
 HomeLink.propTypes = {
     to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     label: PropTypes.string,
-    active: PropTypes.bool
+    active: PropTypes.bool,
 };

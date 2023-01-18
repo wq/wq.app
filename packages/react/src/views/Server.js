@@ -1,7 +1,7 @@
-import React from 'react';
-import { useRenderContext } from '../hooks';
+import React from "react";
+import { useRenderContext } from "../hooks";
 
-const HTML = '@@HTML';
+const HTML = "@@HTML";
 
 export default function Server() {
     const html = useRenderContext()[HTML];

@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 import {
     useApp,
     useReverse,
     useRouteTitle,
     useComponents,
-    useOutbox
-} from '../hooks';
-import PropTypes from 'prop-types';
+    useOutbox,
+} from "../hooks";
+import PropTypes from "prop-types";
 
 export default function OutboxList({ modelConf }) {
     const app = useApp(),
@@ -25,7 +25,7 @@ export default function OutboxList({ modelConf }) {
             View,
             ScrollView,
             HorizontalView,
-            Button
+            Button,
         } = useComponents();
 
     const empty = !items.length;
@@ -35,17 +35,17 @@ export default function OutboxList({ modelConf }) {
             // TODO: Link to model detail or edit page?
             return null;
         } else {
-            return reverse('outbox_edit', item.id);
+            return reverse("outbox_edit", item.id);
         }
     }
 
     function getIcon(item) {
         if (item.synced) {
-            return 'success';
+            return "success";
         } else if (item.error) {
-            return 'error';
+            return "error";
         } else {
-            return 'pending';
+            return "pending";
         }
     }
 
@@ -62,12 +62,12 @@ export default function OutboxList({ modelConf }) {
 
     function getStatus(item) {
         if (item.synced) {
-            return 'SYNC_SUCCESS';
+            return "SYNC_SUCCESS";
         } else if (item.error) {
-            if (typeof item.error === 'string') {
+            if (typeof item.error === "string") {
                 return item.error;
             } else {
-                return 'SYNC_ERROR';
+                return "SYNC_ERROR";
             }
         } else {
             return null;
@@ -82,7 +82,7 @@ export default function OutboxList({ modelConf }) {
                         <Message id="OUTBOX_IS_EMPTY" />
                     </ListItem>
                 )}
-                {items.map(item => {
+                {items.map((item) => {
                     const link = getLink(item),
                         ListItemOrLink = link ? ListItemLink : ListItem;
                     return (
@@ -111,7 +111,7 @@ export default function OutboxList({ modelConf }) {
         );
     } else {
         return (
-            <View style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <View style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <ScrollView>
                     <List>
                         <OutboxItems />
@@ -133,5 +133,5 @@ export default function OutboxList({ modelConf }) {
 }
 
 OutboxList.propTypes = {
-    modelConf: PropTypes.object
+    modelConf: PropTypes.object,
 };

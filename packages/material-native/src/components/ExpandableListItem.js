@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useIcon } from '@wq/react';
-import { List } from 'react-native-paper';
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import { useIcon } from "@wq/react";
+import { List } from "react-native-paper";
+import PropTypes from "prop-types";
 
 export default function ExpandableListItem({
     children,
@@ -27,7 +27,7 @@ export default function ExpandableListItem({
         <List.Accordion
             title={summary}
             description={description}
-            left={Icon ? props => <List.Icon icon={Icon} {...props} /> : null}
+            left={Icon ? (props) => <List.Icon icon={Icon} {...props} /> : null}
             expanded={open}
             onPress={toggleOpen}
             {...rest}
@@ -42,5 +42,5 @@ ExpandableListItem.propTypes = {
     description: PropTypes.node,
     icon: PropTypes.string,
     open: PropTypes.bool,
-    onToggle: PropTypes.func
+    onToggle: PropTypes.func,
 };

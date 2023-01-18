@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { Source, Layer } from "react-mapbox-gl";
 
 function AutoSource({ id, type, ...rest }) {
     let geoJsonSource, tileJsonSource;
-    if (type === 'geojson') {
+    if (type === "geojson") {
         geoJsonSource = { type, ...rest };
     } else {
         tileJsonSource = { type, ...rest };
@@ -27,15 +27,15 @@ function AutoLayer({
     paint,
     metadata,
     source: sourceId,
-    ['source-layer']: sourceLayer,
+    ["source-layer"]: sourceLayer,
     minzoom: minZoom,
     maxzoom: maxZoom,
-    filter
+    filter,
 }) {
     if (active === false) {
         layout = {
             ...(layout || {}),
-            visibility: 'none'
+            visibility: "none",
         };
     }
     return (
@@ -77,7 +77,7 @@ export default function VectorTile({ name, active, before, url, style }) {
             {Object.entries(sources).map(([id, source]) => (
                 <AutoSource key={id} id={id} {...source} />
             ))}
-            {layers.map(layer => (
+            {layers.map((layer) => (
                 <AutoLayer
                     key={layer.id}
                     active={active}
@@ -116,7 +116,7 @@ function UrlVectorTile({ name, active, before, url }) {
 
 AutoSource.propTypes = {
     id: PropTypes.string,
-    type: PropTypes.string
+    type: PropTypes.string,
 };
 
 AutoLayer.propTypes = {
@@ -130,7 +130,7 @@ AutoLayer.propTypes = {
     source: PropTypes.string,
     minzoom: PropTypes.number,
     maxzoom: PropTypes.number,
-    filter: PropTypes.object
+    filter: PropTypes.object,
 };
 
 VectorTile.propTypes = {
@@ -138,12 +138,12 @@ VectorTile.propTypes = {
     active: PropTypes.bool,
     before: PropTypes.string,
     style: PropTypes.object,
-    url: PropTypes.string
+    url: PropTypes.string,
 };
 
 UrlVectorTile.propTypes = {
     name: PropTypes.string,
     active: PropTypes.bool,
     before: PropTypes.string,
-    url: PropTypes.string
+    url: PropTypes.string,
 };

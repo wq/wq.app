@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 export function findBasemapStyle(children) {
     let style = null;
-    React.Children.toArray(children).some(child => {
+    React.Children.toArray(children).some((child) => {
         if (!child || !child.props) {
             return false;
         }
@@ -22,10 +22,10 @@ export function findBasemapStyle(children) {
 }
 
 export function zoomToLocation(instance, geometry) {
-    if (geometry.type == 'Point') {
+    if (geometry.type == "Point") {
         instance.flyTo({
             center: geometry.coordinates,
-            zoom: 18
+            zoom: 18,
         });
     } else {
         // FIXME

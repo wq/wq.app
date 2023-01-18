@@ -1,8 +1,8 @@
-import React from 'react';
-import { useField } from 'formik';
-import { Checkbox as PaperCheckbox, useTheme } from 'react-native-paper';
-import { Text, View } from 'react-native';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useField } from "formik";
+import { Checkbox as PaperCheckbox, useTheme } from "react-native-paper";
+import { Text, View } from "react-native";
+import PropTypes from "prop-types";
 
 export default function Checkbox({ name, label }) {
     const theme = useTheme(),
@@ -16,10 +16,10 @@ export default function Checkbox({ name, label }) {
 
     return (
         <View
-            style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}
+            style={{ flexDirection: "row", alignItems: "center", padding: 8 }}
         >
             <PaperCheckbox.Android
-                status={value ? 'checked' : 'unchecked'}
+                status={value ? "checked" : "unchecked"}
                 onPress={toggleChecked}
             />
             <Text
@@ -34,5 +34,5 @@ export default function Checkbox({ name, label }) {
 
 Checkbox.propTypes = {
     name: PropTypes.string,
-    label: PropTypes.string
+    label: PropTypes.string,
 };

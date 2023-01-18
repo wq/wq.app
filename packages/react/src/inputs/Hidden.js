@@ -1,6 +1,6 @@
-import React from 'react';
-import { Field, ErrorMessage } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field, ErrorMessage } from "formik";
+import PropTypes from "prop-types";
 
 export default function Hidden(props) {
     const { name } = props;
@@ -13,5 +13,5 @@ export default function Hidden(props) {
 }
 
 Hidden.propTypes = {
-    name: PropTypes.string
+    name: PropTypes.string,
 };

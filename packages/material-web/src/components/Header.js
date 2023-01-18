@@ -1,8 +1,8 @@
-import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import { useSiteTitle, useBreadcrumbs, useComponents } from '@wq/react';
+import React from "react";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import { useSiteTitle, useBreadcrumbs, useComponents } from "@wq/react";
 
 export default function Header() {
     const title = useSiteTitle(),

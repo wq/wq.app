@@ -1,27 +1,27 @@
-import ds from '@wq/store';
-import { model } from '@wq/model';
-import { convert } from '../vendor/json-forms';
-import { createOffline, offlineConfig, RESET_STATE, busy } from './offline';
+import ds from "@wq/store";
+import { model } from "@wq/model";
+import { convert } from "../vendor/json-forms";
+import { createOffline, offlineConfig, RESET_STATE, busy } from "./offline";
 
 const { discard: defaultDiscard, retry: defaultRetry } = offlineConfig;
 
-const REMOVE_ITEMS = '@@REMOVE_OUTBOX_ITEMS',
-    RETRY_ITEMS = '@@RETRY_OUTBOX_ITEMS',
-    POST = 'POST',
-    DELETE = 'DELETE',
-    SUBMIT = 'SUBMIT',
-    SUCCESS = 'SUCCESS',
-    UPDATE = 'UPDATE',
-    ERROR = 'ERROR',
-    FORM_SUBMIT = 'FORM_SUBMIT',
-    FORM_SUCCESS = 'FORM_SUCCESS',
-    FORM_ERROR = 'FORM_ERROR',
-    BATCH_SUBMIT = '@@BATCH_SUBMIT',
-    BATCH_SUCCESS = '@@BATCH_SUCCESS',
-    BATCH_ERROR = '@@BATCH_ERROR',
-    ON_SUCCESS = 'ON_SUCCESS',
-    IMMEDIATE = 'IMMEDIATE',
-    LOCAL_ONLY = 'LOCAL_ONLY';
+const REMOVE_ITEMS = "@@REMOVE_OUTBOX_ITEMS",
+    RETRY_ITEMS = "@@RETRY_OUTBOX_ITEMS",
+    POST = "POST",
+    DELETE = "DELETE",
+    SUBMIT = "SUBMIT",
+    SUCCESS = "SUCCESS",
+    UPDATE = "UPDATE",
+    ERROR = "ERROR",
+    FORM_SUBMIT = "FORM_SUBMIT",
+    FORM_SUCCESS = "FORM_SUCCESS",
+    FORM_ERROR = "FORM_ERROR",
+    BATCH_SUBMIT = "@@BATCH_SUBMIT",
+    BATCH_SUCCESS = "@@BATCH_SUCCESS",
+    BATCH_ERROR = "@@BATCH_ERROR",
+    ON_SUCCESS = "ON_SUCCESS",
+    IMMEDIATE = "IMMEDIATE",
+    LOCAL_ONLY = "LOCAL_ONLY";
 
 var _outboxes = {};
 
@@ -41,16 +41,17 @@ class Outbox {
                     this._enqueue(array, item, context),
                 dequeue: (array, item, context) =>
                     this._dequeue(array, item, context),
-                peek: (array, item, context) => this._peek(array, item, context)
+                peek: (array, item, context) =>
+                    this._peek(array, item, context),
             },
-            persist: false // Handled in store
+            persist: false, // Handled in store
         });
         store.addMiddleware(middleware);
         store.addEnhanceReducer(
-            'offline',
+            "offline",
             enhanceReducer,
-            state => this._serialize(state),
-            state => this._deserialize(state)
+            (state) => this._serialize(state),
+            (state) => this._deserialize(state)
         );
         store.addEnhancer(enhanceStore);
 
@@ -63,7 +64,7 @@ class Outbox {
         this.cleanOutbox = true;
         this.maxRetries = 10;
         this.csrftoken = null;
-        this.csrftokenField = 'csrfmiddlewaretoken';
+        this.csrftokenField = "csrfmiddlewaretoken";
         this._memoryItems = {};
         this._waiting = {};
         this._lastOutbox = [];
@@ -72,28 +73,28 @@ class Outbox {
     init(opts) {
         var optlist = [
             // Default to store values but allow overriding
-            'service',
-            'formatKeyword',
-            'defaults',
-            'debugNetwork',
-            'debugValues',
+            "service",
+            "formatKeyword",
+            "defaults",
+            "debugNetwork",
+            "debugValues",
 
             // Outbox-specific options
-            'syncMethod',
-            'applyState',
-            'cleanOutbox',
-            'maxRetries',
-            'batchService',
-            'batchSizeMin',
-            'batchSizeMax',
-            'csrftokenField',
+            "syncMethod",
+            "applyState",
+            "cleanOutbox",
+            "maxRetries",
+            "batchService",
+            "batchSizeMin",
+            "batchSizeMax",
+            "csrftokenField",
 
             // Outbox functions
-            'applyResult',
-            'updateModels'
+            "applyResult",
+            "updateModels",
         ];
 
-        optlist.forEach(opt => {
+        optlist.forEach((opt) => {
             if (this.store.hasOwnProperty(opt)) {
                 this[opt] = this.store[opt];
             }
@@ -104,13 +105,13 @@ class Outbox {
 
         if (opts && opts.parseBatchResult) {
             throw new Error(
-                'parseBatchResult() no longer supported.  Use an ajax() plugin instead.'
+                "parseBatchResult() no longer supported.  Use an ajax() plugin instead."
             );
         }
 
         if (opts && opts.validate) {
             throw new Error(
-                'config.outbox.validate() no longer supported.  Use a validate() plugin instead'
+                "config.outbox.validate() no longer supported.  Use a validate() plugin instead"
             );
         }
 
@@ -118,16 +119,16 @@ class Outbox {
             // Clear out successfully synced items from previous runs, if any
             // FIXME: should we hold up init until this is done?
             this.loadItems()
-                .then(items => {
+                .then((items) => {
                     this.removeItems(
                         items.list
                             .filter(
-                                item =>
+                                (item) =>
                                     item.synced ||
-                                    (item.options.storage === 'temporary' &&
+                                    (item.options.storage === "temporary" &&
                                         !item.options.desiredStorage)
                             )
-                            .map(item => item.id)
+                            .map((item) => item.id)
                     );
                 })
                 .then(() => this._cleanUpItemData);
@@ -151,7 +152,7 @@ class Outbox {
     async save(data, options, noSend) {
         if (noSend) {
             throw new Error(
-                'outbox.save() noSend arg no longer supported; use outbox.pause() instead'
+                "outbox.save() noSend arg no longer supported; use outbox.pause() instead"
             );
         }
         if (options) {
@@ -159,10 +160,10 @@ class Outbox {
         } else {
             options = {};
         }
-        if (options.storage === 'inline') {
+        if (options.storage === "inline") {
             delete options.storage;
         }
-        if (options.storage === 'temporary') {
+        if (options.storage === "temporary") {
             options.once = true;
         }
 
@@ -173,7 +174,7 @@ class Outbox {
         const item = await this._updateItemData({
             id: outboxId,
             data,
-            options
+            options,
         });
         data = item.data;
         options = item.options;
@@ -182,7 +183,7 @@ class Outbox {
         if (data && data.id) {
             currentId = data.id;
         } else if (options.url && options.modelConf && options.modelConf.url) {
-            const match = options.url.match(options.modelConf.url + '/(.+)');
+            const match = options.url.match(options.modelConf.url + "/(.+)");
             if (match) {
                 if (!isNaN(+match[1])) {
                     currentId = +match[1];
@@ -211,7 +212,7 @@ class Outbox {
                     commitType = null;
                     rollbackType = null;
                 } else {
-                    throw new Error('Unknown applyState ' + applyState);
+                    throw new Error("Unknown applyState " + applyState);
                 }
                 payload = currentId;
             } else {
@@ -231,7 +232,7 @@ class Outbox {
                     rollbackType = null;
                     payload = this._localUpdate(data, currentId);
                 } else {
-                    throw new Error('Unknown applyState ' + applyState);
+                    throw new Error("Unknown applyState " + applyState);
                 }
             }
         } else if (options.modelConf) {
@@ -253,12 +254,12 @@ class Outbox {
                     offline: {
                         effect: { data, options },
                         commit: { type: commitType },
-                        rollback: { type: rollbackType }
-                    }
-                }
+                        rollback: { type: rollbackType },
+                    },
+                },
             });
             const items = await this.loadItems(),
-                item = items.list.find(item => item.id === outboxId);
+                item = items.list.find((item) => item.id === outboxId);
             return item || items.list[0];
         } else {
             this.store.dispatch({ type, payload });
@@ -270,14 +271,14 @@ class Outbox {
         const { offline } = action.meta,
             { data, options } = offline.effect;
         if (options.id) {
-            const exist = array.find(act => act.meta.outboxId === options.id);
+            const exist = array.find((act) => act.meta.outboxId === options.id);
             if (exist) {
-                (options.preserve || []).forEach(field => {
+                (options.preserve || []).forEach((field) => {
                     if (data[field] === undefined) {
                         data[field] = exist.meta.offline.effect.data[field];
                     }
                 });
-                array = array.filter(act => act.meta.outboxId !== options.id);
+                array = array.filter((act) => act.meta.outboxId !== options.id);
             }
         } else {
             options.id = action.meta.transaction;
@@ -304,9 +305,9 @@ class Outbox {
             meta: {
                 ...action.meta,
                 offline: {
-                    effect: offline.effect
-                }
-            }
+                    effect: offline.effect,
+                },
+            },
         };
 
         offline.commit.meta.offlineAction = offlineAction;
@@ -318,9 +319,9 @@ class Outbox {
             offline.rollback.meta.currentId = currentId;
         }
 
-        Object.keys(data || {}).forEach(key => {
+        Object.keys(data || {}).forEach((key) => {
             var match =
-                typeof data[key] === 'string' &&
+                typeof data[key] === "string" &&
                 data[key].match(/^outbox-(\d+)$/);
             if (match) {
                 if (!action.meta.parents) {
@@ -336,8 +337,8 @@ class Outbox {
     validate(data, modelConf) {
         const errors = {};
         this.app
-            .callPlugins('validate', [data, modelConf])
-            .forEach(pluginErrors => {
+            .callPlugins("validate", [data, modelConf])
+            .forEach((pluginErrors) => {
                 mergeErrors(errors, pluginErrors);
             });
         return errors;
@@ -346,11 +347,11 @@ class Outbox {
     // Send a single item from the outbox to the server
     sendItem() {
         throw new Error(
-            'sendItem() no longer supported; use waitForItem() instead'
+            "sendItem() no longer supported; use waitForItem() instead"
         );
     }
     _peek(array) {
-        const pending = array.filter(act => {
+        const pending = array.filter((act) => {
             if (act.meta.completed) {
                 return false;
             }
@@ -377,12 +378,12 @@ class Outbox {
         const item = await this._loadItemData({
             id: options.id,
             data,
-            options
+            options,
         });
         data = item.data;
         var url = this.service;
         if (options.url) {
-            url = url + '/' + options.url;
+            url = url + "/" + options.url;
         }
         var method = options.method || this.syncMethod;
         var headers = {};
@@ -390,19 +391,19 @@ class Outbox {
         // Use current CSRF token in case it's changed since item was saved
         var csrftoken = this.csrftoken || options.csrftoken;
         if (csrftoken) {
-            headers['X-CSRFToken'] = csrftoken;
+            headers["X-CSRFToken"] = csrftoken;
             if (!options.json) {
                 data = {
                     ...data,
-                    [this.csrftokenField]: csrftoken
+                    [this.csrftokenField]: csrftoken,
                 };
             }
         }
 
         var defaults = { ...this.defaults };
         if (defaults.format && !this.formatKeyword) {
-            url = url.replace(/\/$/, '');
-            url += '.' + defaults.format;
+            url = url.replace(/\/$/, "");
+            url += "." + defaults.format;
             delete defaults.format;
         }
         var urlObj = new URL(url, window.location);
@@ -411,19 +412,19 @@ class Outbox {
         );
 
         if (this.debugNetwork) {
-            console.log('Sending item to ' + urlObj.href);
+            console.log("Sending item to " + urlObj.href);
             if (this.debugValues) {
                 console.log(data);
             }
         }
 
         if (options.json) {
-            headers['Content-Type'] = 'application/json';
+            headers["Content-Type"] = "application/json";
             data = JSON.stringify(data);
         } else {
             data = this._createFormData(data);
         }
-        return this.store.ajax(urlObj, data, method, headers).then(res => {
+        return this.store.ajax(urlObj, data, method, headers).then((res) => {
             if (!res && method === DELETE) {
                 return action.payload;
             } else {
@@ -463,17 +464,17 @@ class Outbox {
     }
 
     _createBatchAction(actions) {
-        const loadEffect = action => {
+        const loadEffect = (action) => {
             const { effect } = action.meta.offline,
                 { options } = effect;
             let data;
             if (!options.storage) {
                 data = effect.data;
-            } else if (options.storage === 'temporary') {
+            } else if (options.storage === "temporary") {
                 data = this._memoryItems[options.id];
             } else {
                 throw new Error(
-                    'Binary submissions not currently supported in batch mode.'
+                    "Binary submissions not currently supported in batch mode."
                 );
             }
             data = this._parseJsonForm({ data }).data;
@@ -493,34 +494,34 @@ class Outbox {
             meta: {
                 offline: {
                     effect: {
-                        data: effects.map(effect => {
+                        data: effects.map((effect) => {
                             const { data, options } = effect;
                             return {
-                                url: this.store.service + '/' + options.url,
+                                url: this.store.service + "/" + options.url,
                                 method: options.method || this.syncMethod,
                                 headers: {
-                                    'Content-Type': 'application/json',
-                                    Accept: 'application/json',
-                                    'X-CSRFToken': this.csrftoken
+                                    "Content-Type": "application/json",
+                                    Accept: "application/json",
+                                    "X-CSRFToken": this.csrftoken,
                                 },
-                                body: JSON.stringify(data)
+                                body: JSON.stringify(data),
                             };
                         }),
                         options: {
                             url: this.batchService,
-                            json: true
-                        }
+                            json: true,
+                        },
                     },
                     commit: {
                         type: BATCH_SUCCESS,
-                        meta: { actions }
+                        meta: { actions },
                     },
                     rollback: {
                         type: BATCH_ERROR,
-                        meta: { actions }
-                    }
-                }
-            }
+                        meta: { actions },
+                    },
+                },
+            },
         };
     }
 
@@ -536,7 +537,7 @@ class Outbox {
             if (batchAction.payload) {
                 batchError = batchAction.payload;
             } else {
-                batchError = new Error('Batch submission error');
+                batchError = new Error("Batch submission error");
             }
         }
 
@@ -557,8 +558,8 @@ class Outbox {
                     payload,
                     meta: {
                         ...commit.meta,
-                        success: true
-                    }
+                        success: true,
+                    },
                 };
             } else {
                 let error;
@@ -573,15 +574,15 @@ class Outbox {
                 } else if (batchError) {
                     error = batchError;
                 } else {
-                    error = new Error('Missing from batch response');
+                    error = new Error("Missing from batch response");
                 }
                 nextAction = {
                     ...rollback,
                     payload: error,
                     meta: {
                         ...rollback.meta,
-                        success: false
-                    }
+                        success: false,
+                    },
                 };
             }
             return nextAction;
@@ -589,12 +590,12 @@ class Outbox {
     }
 
     _dispatchBatchResponse(batchAction, dispatch) {
-        this._processBatchResponse(batchAction).forEach(nextAction => {
+        this._processBatchResponse(batchAction).forEach((nextAction) => {
             const action = {
                 ...nextAction,
                 meta: {
-                    ...nextAction.meta
-                }
+                    ...nextAction.meta,
+                },
             };
             // Avoid double-dequeue
             delete action.meta.offlineAction;
@@ -604,11 +605,11 @@ class Outbox {
 
     _localUpdate(data, currentId, outboxId) {
         data = this._parseJsonForm({ data }).data;
-        if (!data.hasOwnProperty('id')) {
+        if (!data.hasOwnProperty("id")) {
             if (currentId) {
                 data.id = currentId;
             } else if (outboxId) {
-                data.id = 'outbox-' + outboxId;
+                data.id = "outbox-" + outboxId;
             }
         }
         return data;
@@ -619,8 +620,8 @@ class Outbox {
             return item;
         }
         const data = { ...item.meta.offline.effect.data };
-        Object.keys(data).forEach(key => {
-            if (data[key] === 'outbox-' + outboxId) {
+        Object.keys(data).forEach((key) => {
+            if (data[key] === "outbox-" + outboxId) {
                 data[key] = resultId;
             }
         });
@@ -632,18 +633,18 @@ class Outbox {
                     ...item.meta.offline,
                     effect: {
                         ...item.meta.offline.effect,
-                        data
-                    }
+                        data,
+                    },
                 },
-                parents: item.meta.parents.filter(pid => pid != outboxId)
-            }
+                parents: item.meta.parents.filter((pid) => pid != outboxId),
+            },
         };
     }
 
     _discard(error, action, retries) {
         const { options } = action.meta.offline.effect;
         if (this.debugNetwork) {
-            console.warn('Error sending item to ' + options.url);
+            console.warn("Error sending item to " + options.url);
             console.error(error);
         }
 
@@ -669,8 +670,8 @@ class Outbox {
             type: REMOVE_ITEMS,
             payload: ids,
             meta: {
-                completed: true
-            }
+                completed: true,
+            },
         });
     }
 
@@ -688,30 +689,30 @@ class Outbox {
             type: RETRY_ITEMS,
             payload: ids,
             meta: {
-                completed: true
-            }
+                completed: true,
+            },
         });
     }
 
     async retryAll() {
         const unsynced = await this.unsyncedItems();
-        this.retryItems(unsynced.map(item => item.id));
+        this.retryItems(unsynced.map((item) => item.id));
         await this.waitForAll();
     }
 
     sendAll() {
         throw new Error(
-            'sendall() no longer supported; use retryAll() and/or waitForAll() instead'
+            "sendall() no longer supported; use retryAll() and/or waitForAll() instead"
         );
     }
 
     _dequeue(array, action) {
         if (action.type === REMOVE_ITEMS) {
             return array.filter(
-                item => action.payload.indexOf(item.meta.outboxId) === -1
+                (item) => action.payload.indexOf(item.meta.outboxId) === -1
             );
         } else if (action.type === RETRY_ITEMS) {
-            return array.map(item => {
+            return array.map((item) => {
                 if (action.payload.indexOf(item.meta.outboxId) === -1) {
                     return item;
                 } else {
@@ -720,13 +721,13 @@ class Outbox {
                         meta: {
                             ...item.meta,
                             completed: false,
-                            success: undefined
-                        }
+                            success: undefined,
+                        },
                     };
                 }
             });
         } else if (action.type == BATCH_SUCCESS || action.type == BATCH_ERROR) {
-            this._processBatchResponse(action).forEach(nextAction => {
+            this._processBatchResponse(action).forEach((nextAction) => {
                 array = this._dequeue(array, nextAction);
             });
             return array;
@@ -736,7 +737,7 @@ class Outbox {
             if (!outboxId) {
                 return array;
             }
-            return array.map(item => {
+            return array.map((item) => {
                 if (item.meta.outboxId === outboxId) {
                     return this._applyResult(item, action);
                 } else if (item.meta.parents && action.meta.success) {
@@ -763,12 +764,12 @@ class Outbox {
     }
 
     waitForAll() {
-        return this.waitForItem('ALL');
+        return this.waitForItem("ALL");
     }
 
     waitForItem(id) {
         var resolve;
-        const promise = new Promise(res => (resolve = res));
+        const promise = new Promise((res) => (resolve = res));
         if (!this._waiting[id]) {
             this._waiting[id] = [];
         }
@@ -786,24 +787,24 @@ class Outbox {
         }
 
         const lastIds = {};
-        this._lastOutbox.forEach(action => {
+        this._lastOutbox.forEach((action) => {
             lastIds[action.meta.offline.effect.options.id] = true;
         });
         this._lastOutbox = outbox;
 
         const pending = await this._allPendingItems();
-        if (!pending.length && this._waiting['ALL']) {
-            this._resolveWaiting('ALL');
+        if (!pending.length && this._waiting["ALL"]) {
+            this._resolveWaiting("ALL");
         }
 
         const pendingById = {};
-        pending.forEach(item => (pendingById[item.id] = true));
+        pending.forEach((item) => (pendingById[item.id] = true));
 
         const checkIds = Object.keys(lastIds).concat(
             Object.keys(this._waiting)
         );
-        checkIds.forEach(id => {
-            if (!pendingById[id] && id != 'ALL') {
+        checkIds.forEach((id) => {
+            if (!pendingById[id] && id != "ALL") {
                 this._resolveWaiting(id);
             }
         });
@@ -811,15 +812,15 @@ class Outbox {
 
     async _resolveWaiting(id) {
         const waiting = this._waiting[id];
-        if (!waiting && !(this.app && this.app.hasPlugin('onsync'))) {
+        if (!waiting && !(this.app && this.app.hasPlugin("onsync"))) {
             return;
         }
-        const item = id === 'ALL' ? null : await this.loadItem(+id);
-        if (this.app && id != 'ALL') {
-            this.app.callPlugins('onsync', [item]);
+        const item = id === "ALL" ? null : await this.loadItem(+id);
+        if (this.app && id != "ALL") {
+            this.app.callPlugins("onsync", [item]);
         }
         if (waiting) {
-            waiting.forEach(fn => fn(item));
+            waiting.forEach((fn) => fn(item));
             delete this._waiting[id];
         }
     }
@@ -827,20 +828,20 @@ class Outbox {
     // Process service send() results
     _applyResult(item, action) {
         if (this.applyResult) {
-            console.warn('applyResult() override no longer called');
+            console.warn("applyResult() override no longer called");
         }
         const newItem = {
             ...item,
             meta: {
                 ...item.meta,
                 success: action.meta.success,
-                completed: true
-            }
+                completed: true,
+            },
         };
         if (newItem.meta.success) {
             if (this.debugNetwork) {
                 console.log(
-                    'Item successfully sent to ' +
+                    "Item successfully sent to " +
                         item.meta.offline.effect.options.url
                 );
             }
@@ -857,7 +858,7 @@ class Outbox {
         }
         return model({
             store: this.store,
-            ...conf
+            ...conf,
         });
     }
 
@@ -868,20 +869,20 @@ class Outbox {
             list: items,
             count: items.length,
             pages: 1,
-            per_page: items.length
+            per_page: items.length,
         };
     }
 
     parseOutbox(outbox) {
         return outbox
-            .map(action => {
+            .map((action) => {
                 const { data, options } = action.meta.offline.effect;
                 var item = {
                     id: options.id,
                     label: options.label || `Unsynced Item #${options.id}`,
                     data: data,
                     options: { ...options },
-                    synced: !!action.meta.success
+                    synced: !!action.meta.success,
                 };
                 delete item.options.id;
                 if (item.options.method === DELETE) {
@@ -899,9 +900,9 @@ class Outbox {
                             error.json ||
                             error.text ||
                             error.status ||
-                            '' + error;
+                            "" + error;
                     } else {
-                        item.error = 'Error';
+                        item.error = "Error";
                     }
                 }
                 return item;
@@ -919,10 +920,10 @@ class Outbox {
 
     filterUnsynced(items, modelConf) {
         // Exclude synced & temporary items from list
-        items = items.filter(item => {
+        items = items.filter((item) => {
             if (item.synced) {
                 return false;
-            } else if (item.options.storage == 'temporary') {
+            } else if (item.options.storage == "temporary") {
                 if (item.options.desiredStorage) {
                     return true;
                 }
@@ -934,7 +935,7 @@ class Outbox {
 
         if (modelConf) {
             // Only match items corresponding to the specified list
-            items = items.filter(item => {
+            items = items.filter((item) => {
                 if (!item.options.modelConf) {
                     return false;
                 }
@@ -951,7 +952,7 @@ class Outbox {
             items = this.filterUnsynced(list, modelConf);
         if (withData) {
             return await Promise.all(
-                items.map(item => this._loadItemData(item))
+                items.map((item) => this._loadItemData(item))
             );
         } else {
             return items;
@@ -961,15 +962,15 @@ class Outbox {
     // Unsynced items that have not been attempted (or retried)
     async pendingItems(modelConf, withData) {
         const unsynced = await this.unsyncedItems(modelConf, withData);
-        return unsynced.filter(item => {
-            return !item.hasOwnProperty('error');
+        return unsynced.filter((item) => {
+            return !item.hasOwnProperty("error");
         });
     }
 
     async _pendingTempItems() {
-        return (await this.loadItems()).list.filter(item => {
+        return (await this.loadItems()).list.filter((item) => {
             return (
-                item.options.storage === 'temporary' &&
+                item.options.storage === "temporary" &&
                 !item.synced &&
                 !item.error
             );
@@ -984,7 +985,7 @@ class Outbox {
 
     async loadItem(itemId) {
         var item = (await this.loadItems()).list.find(
-            item => item.id === itemId
+            (item) => item.id === itemId
         );
         item = await this._loadItemData(item);
         return this._parseJsonForm(item);
@@ -993,11 +994,11 @@ class Outbox {
     async _loadItemData(item) {
         if (!item || !item.options || !item.options.storage) {
             return item;
-        } else if (item.options.storage == 'temporary') {
+        } else if (item.options.storage == "temporary") {
             return setData(item, this._memoryItems[item.id]);
         } else {
-            return this.store.lf.getItem('outbox_' + item.id).then(
-                data => setData(item, data),
+            return this.store.lf.getItem("outbox_" + item.id).then(
+                (data) => setData(item, data),
                 () => setData(item, null)
             );
         }
@@ -1005,7 +1006,7 @@ class Outbox {
             if (data) {
                 obj.data = data;
             } else {
-                obj.label = '[Form Data Missing]';
+                obj.label = "[Form Data Missing]";
                 obj.missing = true;
             }
             return obj;
@@ -1021,15 +1022,15 @@ class Outbox {
         for (key in item.data) {
             values.push({
                 name: key,
-                value: item.data[key]
+                value: item.data[key],
             });
         }
         item.data = convert(values);
         for (key in item.data) {
             if (Array.isArray(item.data[key])) {
                 item.data[key].forEach((row, i) => {
-                    if (typeof row === 'object') {
-                        row['@index'] = i;
+                    if (typeof row === "object") {
+                        row["@index"] = i;
                     }
                 });
             }
@@ -1044,16 +1045,16 @@ class Outbox {
         if (!item.options || !item.options.storage) {
             return item;
         }
-        if (item.options.storage == 'temporary') {
+        if (item.options.storage == "temporary") {
             this._memoryItems[item.id] = item.data;
             return this._withoutData(item);
         } else {
-            return this.store.lf.setItem('outbox_' + item.id, item.data).then(
+            return this.store.lf.setItem("outbox_" + item.id, item.data).then(
                 () => this._withoutData(item),
                 () => {
-                    console.warn('could not save form contents to storage');
+                    console.warn("could not save form contents to storage");
                     item.options.desiredStorage = item.options.storage;
-                    item.options.storage = 'temporary';
+                    item.options.storage = "temporary";
                     return this._updateItemData(item);
                 }
             );
@@ -1069,10 +1070,10 @@ class Outbox {
         }
         var obj = {};
         Object.keys(item)
-            .filter(key => {
-                return key != 'data';
+            .filter((key) => {
+                return key != "data";
             })
-            .forEach(key => {
+            .forEach((key) => {
                 obj[key] = item[key];
             });
         return obj;
@@ -1081,10 +1082,10 @@ class Outbox {
     async _cleanUpItemData() {
         var validId = {};
         const validItems = (await this.loadItems()).list;
-        validItems.forEach(item => {
+        validItems.forEach((item) => {
             validId[item.id] = true;
         });
-        Object.keys(this._memoryItems).forEach(itemId => {
+        Object.keys(this._memoryItems).forEach((itemId) => {
             if (!validId[itemId]) {
                 delete this._memoryItems[itemId];
             }
@@ -1092,17 +1093,17 @@ class Outbox {
         const keys = await this.store.lf.keys();
         await Promise.all(
             keys
-                .filter(key => key.indexOf('outbox_') === 0)
-                .map(key => key.replace('outbox_', ''))
-                .filter(itemId => !validId[itemId])
-                .map(itemId => this.store.lf.removeItem('outbox_' + itemId))
+                .filter((key) => key.indexOf("outbox_") === 0)
+                .map((key) => key.replace("outbox_", ""))
+                .filter((itemId) => !validId[itemId])
+                .map((itemId) => this.store.lf.removeItem("outbox_" + itemId))
         );
     }
 
     _serialize(state) {
         return {
             ...state,
-            outbox: state.outbox.map(action => this._serializeAction(action))
+            outbox: state.outbox.map((action) => this._serializeAction(action)),
         };
     }
     _serializeAction(action) {
@@ -1110,20 +1111,20 @@ class Outbox {
             return action;
         }
         var error = {};
-        ['json', 'text', 'status'].forEach(key => {
+        ["json", "text", "status"].forEach((key) => {
             if (key in action.meta.error) {
                 error[key] = action.meta.error[key];
             }
         });
         if (!Object.keys(error).length) {
-            error.text = '' + action.meta.error;
+            error.text = "" + action.meta.error;
         }
         return {
             ...action,
             meta: {
                 ...action.meta,
-                error
-            }
+                error,
+            },
         };
     }
     _deserialize(state) {
@@ -1134,7 +1135,7 @@ class Outbox {
 function mergeErrors(errors, newErrors) {
     if (
         !newErrors ||
-        typeof newErrors !== 'object' ||
+        typeof newErrors !== "object" ||
         !Object.keys(newErrors).length
     ) {
         return errors;
@@ -1147,13 +1148,13 @@ function mergeErrors(errors, newErrors) {
             Array.isArray(error) !== Array.isArray(newError)
         ) {
             errors[key] = newError;
-        } else if (typeof error === 'string') {
-            errors[key] = error + ' • ' + newError;
+        } else if (typeof error === "string") {
+            errors[key] = error + " • " + newError;
         } else if (Array.isArray(error)) {
             errors[key] = error
                 .map((err, i) => mergeErrors(err, newError[i]))
                 .concat(newError.slice(error.length));
-        } else if (typeof error === 'object') {
+        } else if (typeof error === "object") {
             errors[key] = mergeErrors(error, newError);
         }
     });

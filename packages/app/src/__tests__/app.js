@@ -1,5 +1,5 @@
-import app from '../app';
+import app from "../app";
 
-test('it loads', () => {
+test("it loads", () => {
     expect(app).toBeTruthy();
 });

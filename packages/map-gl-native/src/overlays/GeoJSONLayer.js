@@ -1,16 +1,16 @@
-import React, { useMemo } from 'react';
-import { ShapeSource, Style } from '@rnmapbox/maps';
-import PropTypes from 'prop-types';
+import React, { useMemo } from "react";
+import { ShapeSource, Style } from "@rnmapbox/maps";
+import PropTypes from "prop-types";
 
-const types = ['symbol', 'line', 'fill', 'circle'];
+const types = ["symbol", "line", "fill", "circle"];
 
 export default function GeoJSONLayer({ id, before, data, ...rest }) {
     if (!id) {
         const ids =
             data && data.features
-                ? data.features.map(feature => feature.id)
+                ? data.features.map((feature) => feature.id)
                 : [];
-        id = `_geojson_${ids.join('_')}`;
+        id = `_geojson_${ids.join("_")}`;
     }
     const {
         symbolLayout,
@@ -20,23 +20,23 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
         lineLayout,
         linePaint,
         circleLayout,
-        circlePaint
+        circlePaint,
     } = rest;
     const [sourceProps, style] = useMemo(() => {
         const sourceProps = {
-            id
+            id,
         };
-        if (typeof data === 'string') {
+        if (typeof data === "string") {
             sourceProps.url = data;
         } else {
             sourceProps.shape = data;
         }
-        const layers = types.map(type => ({
+        const layers = types.map((type) => ({
             id: `${id}-${type}`,
             source: id,
             type,
             paint: rest[`${type}Paint`] || {},
-            layout: rest[`${type}Layout`] || {}
+            layout: rest[`${type}Layout`] || {},
         }));
 
         return [sourceProps, { layers }];
@@ -51,7 +51,7 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
         lineLayout,
         linePaint,
         circleLayout,
-        circlePaint
+        circlePaint,
     ]);
 
     return (
@@ -64,5 +64,5 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
 GeoJSONLayer.propTypes = {
     id: PropTypes.string,
     before: PropTypes.string,
-    data: PropTypes.object
+    data: PropTypes.object,
 };

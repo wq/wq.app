@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from 'react-native';
-import { useNav } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Button } from "react-native";
+import { useNav } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function Link({ to, children }) {
     const onPress = useNav(to);
@@ -11,5 +11,5 @@ export default function Link({ to, children }) {
 
 Link.propTypes = {
     to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    children: PropTypes.node
+    children: PropTypes.node,
 };

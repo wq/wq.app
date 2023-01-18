@@ -1,9 +1,9 @@
-import { Model, model as createModel } from './model.js';
+import { Model, model as createModel } from "./model.js";
 
 const orm = {
     // Plugin attributes
-    name: 'orm',
-    type: 'orm',
+    name: "orm",
+    type: "orm",
     init() {
         for (const conf of Object.values(this.app.config.pages)) {
             if (!conf.list) {
@@ -16,13 +16,13 @@ const orm = {
             }
         }
         this.app.models = this.models;
-        this.app.prefetchAll = message => this.prefetchAll(message);
+        this.app.prefetchAll = (message) => this.prefetchAll(message);
         this.app.resetAll = () => this.reset();
     },
     actions: {
         reset() {
-            return { type: 'ORM_RESET' };
-        }
+            return { type: "ORM_RESET" };
+        },
     },
     reducer(state, action) {
         if (!this._orm) {
@@ -39,13 +39,13 @@ const orm = {
             this.app.spin.start(message);
         }
         const result = await Promise.all(
-            Object.values(this.models).map(model => model.prefetch())
+            Object.values(this.models).map((model) => model.prefetch())
         );
         if (message) {
             this.app.spin.stop(message);
         }
         return result;
-    }
+    },
 };
 
 export default orm;

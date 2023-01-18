@@ -1,8 +1,8 @@
-import React from 'react';
-import { useIcon } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useIcon } from "../hooks";
+import PropTypes from "prop-types";
 
-export default function IconButton({ icon, type = 'button', ...rest }) {
+export default function IconButton({ icon, type = "button", ...rest }) {
     const Icon = useIcon(icon);
     return (
         <button type={type} {...rest}>
@@ -13,5 +13,5 @@ export default function IconButton({ icon, type = 'button', ...rest }) {
 
 IconButton.propTypes = {
     icon: PropTypes.string,
-    type: PropTypes.string
+    type: PropTypes.string,
 };

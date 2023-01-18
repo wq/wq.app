@@ -1,6 +1,6 @@
-import React from 'react';
-import Typography from '@material-ui/core/Typography';
-import PropTypes from 'prop-types';
+import React from "react";
+import Typography from "@material-ui/core/Typography";
+import PropTypes from "prop-types";
 
 export default function FlatFieldset({ label, children }) {
     return (
@@ -13,5 +13,5 @@ export default function FlatFieldset({ label, children }) {
 
 FlatFieldset.propTypes = {
     label: PropTypes.string,
-    children: PropTypes.node
+    children: PropTypes.node,
 };

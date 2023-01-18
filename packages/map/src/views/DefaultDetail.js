@@ -1,6 +1,6 @@
-import React from 'react';
-import { useMapState } from '../hooks';
-import { DefaultDetail, useComponents, useRenderContext } from '@wq/react';
+import React from "react";
+import { useMapState } from "../hooks";
+import { DefaultDetail, useComponents, useRenderContext } from "@wq/react";
 
 export default function DefaultDetailWithMap() {
     const mapState = useMapState(),

@@ -1,3 +1,3 @@
-import Geo from './Geo';
+import Geo from "./Geo";
 
 export { Geo };

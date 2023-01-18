@@ -1,6 +1,6 @@
-import React from 'react';
-import { useField, ErrorMessage } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useField, ErrorMessage } from "formik";
+import PropTypes from "prop-types";
 
 export default function File({ name, label, ...rest }) {
     const [, { value, initialValue }, { setValue }] = useField(name);
@@ -11,19 +11,19 @@ export default function File({ name, label, ...rest }) {
             setValue({
                 name,
                 type,
-                body: evt.target.files[0]
+                body: evt.target.files[0],
             });
         } else {
             setValue(initialValue || null);
         }
     }
 
-    const hasValue = value && value !== '__clear__';
+    const hasValue = value && value !== "__clear__";
 
     return (
-        <div style={{ marginBottom: '0.5em' }}>
-            <div style={{ display: 'flex' }}>
-                <label htmlFor={name} style={{ width: '25%' }}>
+        <div style={{ marginBottom: "0.5em" }}>
+            <div style={{ display: "flex" }}>
+                <label htmlFor={name} style={{ width: "25%" }}>
                     {label}
                 </label>
                 <input
@@ -39,7 +39,7 @@ export default function File({ name, label, ...rest }) {
                     Current: {value.name ? value.name : value}
                     <button
                         onClick={() =>
-                            setValue(initialValue ? '__clear__' : null)
+                            setValue(initialValue ? "__clear__" : null)
                         }
                     >
                         Clear
@@ -53,5 +53,5 @@ export default function File({ name, label, ...rest }) {
 
 File.propTypes = {
     name: PropTypes.string,
-    label: PropTypes.string
+    label: PropTypes.string,
 };

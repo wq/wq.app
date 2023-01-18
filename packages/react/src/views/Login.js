@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 import {
     useComponents,
     useInputComponents,
     useReverse,
-    useRenderContext
-} from '../hooks';
+    useRenderContext,
+} from "../hooks";
 
 export default function Login() {
     const reverse = useReverse(),
@@ -17,7 +17,7 @@ export default function Login() {
             SubmitButton,
             View,
             Text,
-            ButtonLink
+            ButtonLink,
         } = useComponents(),
         { Input } = useInputComponents(),
         { is_authenticated, user } = useRenderContext();
@@ -27,8 +27,8 @@ export default function Login() {
             <View>
                 <Text>Logged in as {user.label || user.username}</Text>
                 <HorizontalView>
-                    <ButtonLink to={reverse('logout')}>Log Out</ButtonLink>
-                    <ButtonLink to={reverse('index')}>
+                    <ButtonLink to={reverse("logout")}>Log Out</ButtonLink>
+                    <ButtonLink to={reverse("index")}>
                         Return to Home
                     </ButtonLink>
                 </HorizontalView>
@@ -47,7 +47,7 @@ export default function Login() {
                 <Input name="password" type="password" label="Password" />
                 <FormError />
                 <HorizontalView>
-                    <CancelButton to={reverse('index')}>
+                    <CancelButton to={reverse("index")}>
                         <Message id="CANCEL" />
                     </CancelButton>
                     <SubmitButton>

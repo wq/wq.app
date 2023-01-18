@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function MapLayers({ children }) {
     return (
@@ -13,7 +13,7 @@ export default function MapLayers({ children }) {
                 </tr>
             </thead>
             <tbody>
-                {React.Children.map(children, element => (
+                {React.Children.map(children, (element) => (
                     <MapLayer element={element} />
                 ))}
             </tbody>
@@ -21,22 +21,22 @@ export default function MapLayers({ children }) {
     );
 }
 MapLayers.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
 };
 
 export function MapLayer({ element }) {
-    const type = element.type.isAutoBasemap ? 'Basemap' : 'Overlay',
+    const type = element.type.isAutoBasemap ? "Basemap" : "Overlay",
         { name, active } = element.props;
     return (
         <tr>
             <td>{type}</td>
             <td>{name}</td>
-            <td>{active ? 'Y' : 'N'}</td>
+            <td>{active ? "Y" : "N"}</td>
             <td>{element}</td>
         </tr>
     );
 }
 
 MapLayer.propTypes = {
-    element: PropTypes.node
+    element: PropTypes.node,
 };

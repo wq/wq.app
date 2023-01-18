@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import GeoJSONLayer from './GeoJSONLayer';
+import React from "react";
+import PropTypes from "prop-types";
+import GeoJSONLayer from "./GeoJSONLayer";
 
 export default function Geojson({
     name,
@@ -13,7 +13,7 @@ export default function Geojson({
     color,
     fill,
     line,
-    circle
+    circle,
 }) {
     let symbolLayout,
         symbolPaint,
@@ -29,8 +29,8 @@ export default function Geojson({
         symbolPaint = paint;
     } else if (icon) {
         symbolLayout = {
-            'icon-image': icon,
-            'icon-allow-overlap': true
+            "icon-image": icon,
+            "icon-allow-overlap": true,
         };
     } else if (fill || line || circle) {
         fillPaint = fill;
@@ -38,61 +38,61 @@ export default function Geojson({
         circlePaint = circle;
     } else {
         fillPaint = {
-            'fill-color': color || '#3388ff',
-            'fill-opacity': [
-                'match',
-                ['geometry-type'],
-                ['Polygon', 'MultiPolygon'],
+            "fill-color": color || "#3388ff",
+            "fill-opacity": [
+                "match",
+                ["geometry-type"],
+                ["Polygon", "MultiPolygon"],
                 0.2,
-                0
-            ]
+                0,
+            ],
         };
         linePaint = {
-            'line-width': 3,
-            'line-color': color || '#3388ff',
-            'line-opacity': 1
+            "line-width": 3,
+            "line-color": color || "#3388ff",
+            "line-opacity": 1,
         };
         circlePaint = {
-            'circle-color': 'white',
-            'circle-radius': [
-                'match',
-                ['geometry-type'],
-                ['Point', 'MultiPoint'],
+            "circle-color": "white",
+            "circle-radius": [
+                "match",
+                ["geometry-type"],
+                ["Point", "MultiPoint"],
                 3,
-                0
+                0,
             ],
-            'circle-stroke-color': color || '#3086cc',
-            'circle-stroke-width': [
-                'match',
-                ['geometry-type'],
-                ['Point', 'MultiPoint'],
+            "circle-stroke-color": color || "#3086cc",
+            "circle-stroke-width": [
+                "match",
+                ["geometry-type"],
+                ["Point", "MultiPoint"],
                 3,
-                0
+                0,
             ],
-            'circle-opacity': [
-                'match',
-                ['geometry-type'],
-                ['Point', 'MultiPoint'],
+            "circle-opacity": [
+                "match",
+                ["geometry-type"],
+                ["Point", "MultiPoint"],
                 1,
-                0
-            ]
+                0,
+            ],
         };
     }
 
     fillLayout = {
-        visibility: active && fillPaint ? 'visible' : 'none'
+        visibility: active && fillPaint ? "visible" : "none",
     };
     lineLayout = {
-        visibility: active && linePaint ? 'visible' : 'none'
+        visibility: active && linePaint ? "visible" : "none",
     };
     circleLayout = {
-        visibility: active && circlePaint ? 'visible' : 'none'
+        visibility: active && circlePaint ? "visible" : "none",
     };
 
     if (symbolLayout) {
         symbolLayout = {
             ...symbolLayout,
-            visibility: active ? 'visible' : 'none'
+            visibility: active ? "visible" : "none",
         };
     }
 
@@ -125,5 +125,5 @@ Geojson.propTypes = {
     fill: PropTypes.object,
     line: PropTypes.object,
     circle: PropTypes.object,
-    draw: PropTypes.object
+    draw: PropTypes.object,
 };

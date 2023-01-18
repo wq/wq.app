@@ -1,26 +1,26 @@
-import babel from '@rollup/plugin-babel';
+import babel from "@rollup/plugin-babel";
 
 export default [
     {
-        input: 'node_modules/material-ui-dropzone/src/index.js',
+        input: "node_modules/material-ui-dropzone/src/index.js",
         plugins: [
             babel({
                 plugins: [
-                    '@babel/plugin-proposal-optional-chaining',
-                    '@babel/plugin-proposal-nullish-coalescing-operator'
-                ]
+                    "@babel/plugin-proposal-optional-chaining",
+                    "@babel/plugin-proposal-nullish-coalescing-operator",
+                ],
             }),
             {
                 resolveId(id) {
-                    if (id.startsWith('@material-ui/')) {
+                    if (id.startsWith("@material-ui/")) {
                         return { id, external: true };
                     }
-                }
-            }
+                },
+            },
         ],
-        external: ['react', 'prop-types', 'clsx', 'react-dropzone'],
+        external: ["react", "prop-types", "clsx", "react-dropzone"],
         output: {
-            file: 'packages/material-web/src/vendor/material-ui-dropzone.js'
-        }
-    }
+            file: "packages/material-web/src/vendor/material-ui-dropzone.js",
+        },
+    },
 ];

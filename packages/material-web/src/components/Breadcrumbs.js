@@ -1,19 +1,19 @@
-import React from 'react';
+import React from "react";
 
-import Paper from '@material-ui/core/Paper';
-import MuiBreadcrumbs from '@material-ui/core/Breadcrumbs';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import Paper from "@material-ui/core/Paper";
+import MuiBreadcrumbs from "@material-ui/core/Breadcrumbs";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 
-import { makeStyles } from '@material-ui/core/styles';
-import { useReverse, useComponents } from '@wq/react';
+import { makeStyles } from "@material-ui/core/styles";
+import { useReverse, useComponents } from "@wq/react";
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
     breadcrumbs: {
         padding: theme.spacing(1, 0),
-        borderBottom: `1px solid ${theme.palette.divider}`
-    }
+        borderBottom: `1px solid ${theme.palette.divider}`,
+    },
 }));
 
 export default function Breadcrumbs({ links }) {
@@ -22,7 +22,7 @@ export default function Breadcrumbs({ links }) {
         { ButtonLink, HomeLink } = useComponents();
 
     if (!links) {
-        links = [{ url: reverse('index'), label: 'Home', active: true }];
+        links = [{ url: reverse("index"), label: "Home", active: true }];
     }
 
     // FIXME: NavLink should already be able to detect current page
@@ -40,7 +40,7 @@ export default function Breadcrumbs({ links }) {
                     <ButtonLink
                         key={i}
                         to={url}
-                        color={active ? 'inherit' : 'primary'}
+                        color={active ? "inherit" : "primary"}
                     >
                         {label}
                     </ButtonLink>
@@ -51,5 +51,5 @@ export default function Breadcrumbs({ links }) {
 }
 
 Breadcrumbs.propTypes = {
-    links: PropTypes.arrayOf(PropTypes.object)
+    links: PropTypes.arrayOf(PropTypes.object),
 };

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useComponents, useInputComponents, usePlugin } from '@wq/react';
-import { useField, useFormikContext } from 'formik';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import { useComponents, useInputComponents, usePlugin } from "@wq/react";
+import { useField, useFormikContext } from "formik";
+import PropTypes from "prop-types";
 
 export default function GeoCode({ name, type, setLocation }) {
     const { IconButton } = useComponents(),
@@ -9,19 +9,19 @@ export default function GeoCode({ name, type, setLocation }) {
         [
             ,
             { value: address },
-            { setValue: setAddress, setError: setAddressError }
-        ] = useField(name + '_address'),
+            { setValue: setAddress, setError: setAddressError },
+        ] = useField(name + "_address"),
         [geocodeStatus, setGeocodeStatus] = useState(null),
-        { geocoder, geocoderAddress } = usePlugin('map').config,
+        { geocoder, geocoderAddress } = usePlugin("map").config,
         { values } = useFormikContext();
 
     async function geocode() {
         if (!geocoder) {
-            setAddressError('No geocoder plugin registered!');
+            setAddressError("No geocoder plugin registered!");
             return;
         }
         setAddressError(null);
-        setGeocodeStatus('Looking up location...');
+        setGeocodeStatus("Looking up location...");
         try {
             const result = await geocoder(address),
                 { label, geometry } = result;
@@ -30,14 +30,14 @@ export default function GeoCode({ name, type, setLocation }) {
                     latitude: geometry.coordinates[1],
                     longitude: geometry.coordinates[0],
                     zoom: true,
-                    save: type === 'geopoint'
+                    save: type === "geopoint",
                 });
-                setGeocodeStatus(label || 'Location found!');
+                setGeocodeStatus(label || "Location found!");
             } else {
-                setGeocodeStatus(label || 'Not found');
+                setGeocodeStatus(label || "Not found");
             }
         } catch (e) {
-            setAddressError(e.message || '' + e);
+            setAddressError(e.message || "" + e);
             setGeocodeStatus(null);
         }
     }
@@ -54,19 +54,19 @@ export default function GeoCode({ name, type, setLocation }) {
     return (
         <>
             <Input
-                name={name + '_address'}
+                name={name + "_address"}
                 label="Address"
-                helperText={geocodeStatus || 'Enter address or city name'}
+                helperText={geocodeStatus || "Enter address or city name"}
             />
             <IconButton onClick={geocode} icon="search" color="secondary" />
         </>
     );
 }
 
-GeoCode.toolLabel = 'Address';
+GeoCode.toolLabel = "Address";
 
 GeoCode.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
-    setLocation: PropTypes.func
+    setLocation: PropTypes.func,
 };

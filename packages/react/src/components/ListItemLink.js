@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function ListItemLink({ children, icon, description, ...rest }) {
     const { ListItem, Link } = useComponents();
@@ -14,5 +14,5 @@ export default function ListItemLink({ children, icon, description, ...rest }) {
 ListItemLink.propTypes = {
     children: PropTypes.node,
     description: PropTypes.node,
-    icon: PropTypes.string
+    icon: PropTypes.string,
 };

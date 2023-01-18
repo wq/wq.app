@@ -1,13 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function HorizontalView({ children, style, ...rest }) {
     return (
         <div
             style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                ...style
+                display: "flex",
+                justifyContent: "space-between",
+                ...style,
             }}
             {...rest}
         >
@@ -18,5 +18,5 @@ export default function HorizontalView({ children, style, ...rest }) {
 
 HorizontalView.propTypes = {
     children: PropTypes.node,
-    style: PropTypes.object
+    style: PropTypes.object,
 };

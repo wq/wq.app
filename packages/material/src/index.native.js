@@ -1,4 +1,4 @@
-import material from '@wq/material-native';
+import material from "@wq/material-native";
 
 export default material;
-export * from '@wq/material-native';
+export * from "@wq/material-native";

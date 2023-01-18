@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useComponents } from '@wq/react';
-import Collapse from '@material-ui/core/Collapse';
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import { useComponents } from "@wq/react";
+import Collapse from "@material-ui/core/Collapse";
+import PropTypes from "prop-types";
 
 export default function ExpandableListItem({
     children,
@@ -28,7 +28,7 @@ export default function ExpandableListItem({
                 onClick={toggleOpen}
                 secondaryAction={
                     <IconButton
-                        icon={open ? 'collapse' : 'expand'}
+                        icon={open ? "collapse" : "expand"}
                         onClick={toggleOpen}
                     />
                 }
@@ -46,5 +46,5 @@ export default function ExpandableListItem({
 ExpandableListItem.propTypes = {
     children: PropTypes.node,
     open: PropTypes.bool,
-    onToggle: PropTypes.func
+    onToggle: PropTypes.func,
 };

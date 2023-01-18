@@ -1,19 +1,19 @@
-import React, { useMemo, useCallback, useRef } from 'react';
-import { useField } from 'formik';
-import { DropzoneArea } from '../vendor/material-ui-dropzone.js';
-import Fieldset from './Fieldset';
-import HelperText from '../inputs/HelperText';
-import PropTypes from 'prop-types';
+import React, { useMemo, useCallback, useRef } from "react";
+import { useField } from "formik";
+import { DropzoneArea } from "../vendor/material-ui-dropzone.js";
+import Fieldset from "./Fieldset";
+import HelperText from "../inputs/HelperText";
+import PropTypes from "prop-types";
 
 export default function FileArray({ name, label, subform, hint, maxRows }) {
     const [, { initialValue = [] }, { setValue }] = useField(name),
         fileField = subform.find(
-            field => field.type === 'file' || field.type === 'image'
+            (field) => field.type === "file" || field.type === "image"
         ) || {
-            name: 'file',
-            type: 'file'
+            name: "file",
+            type: "file",
         },
-        accept = fileField.type === 'image' ? 'image/*' : null,
+        accept = fileField.type === "image" ? "image/*" : null,
         loadedRef = useRef(null);
 
     const initialFiles = useMemo(() => {
@@ -21,29 +21,30 @@ export default function FileArray({ name, label, subform, hint, maxRows }) {
                 return [];
             }
             return initialValue
-                .filter(row => {
+                .filter((row) => {
                     if (
                         !row[fileField.name] ||
-                        row[fileField.name] === '__clear__'
+                        row[fileField.name] === "__clear__"
                     ) {
                         return false;
                     }
                     return true;
                 })
-                .map(row => {
+                .map((row) => {
                     const value = row[fileField.name];
                     if (value.type && value.body) {
                         return value.body;
-                    } else if (typeof value === 'string') {
+                    } else if (typeof value === "string") {
                         return value;
                     }
                 });
         }, [initialValue]),
-        acceptedFiles = useMemo(() => (accept ? accept.split(',') : null), [
-            accept
-        ]),
+        acceptedFiles = useMemo(
+            () => (accept ? accept.split(",") : null),
+            [accept]
+        ),
         setFiles = useCallback(
-            files => {
+            (files) => {
                 if (!loadedRef.current) {
                     // Component mounted
                     loadedRef.current = -1;
@@ -51,11 +52,11 @@ export default function FileArray({ name, label, subform, hint, maxRows }) {
                 } else if (loadedRef.current === -1) {
                     // initialFiles loaded
                     let fileIndex = 0;
-                    loadedRef.current = initialValue.map(row => {
+                    loadedRef.current = initialValue.map((row) => {
                         let file;
                         if (
                             row[fileField.name] &&
-                            row[fileField.name] !== '__clear__'
+                            row[fileField.name] !== "__clear__"
                         ) {
                             file = files[fileIndex];
                             fileIndex++;
@@ -67,7 +68,7 @@ export default function FileArray({ name, label, subform, hint, maxRows }) {
                 const nextValue = files.map((file, i) => {
                     const { row, file: initialFile } = loadedRef.current[i] || {
                         row: {},
-                        file: null
+                        file: null,
                     };
                     if (initialFile === file) {
                         return row;
@@ -77,16 +78,16 @@ export default function FileArray({ name, label, subform, hint, maxRows }) {
                             [fileField.name]: {
                                 name: file.name,
                                 type: file.type,
-                                body: file
-                            }
+                                body: file,
+                            },
                         };
                     }
                 });
                 if (initialValue && nextValue.length < initialValue.length) {
-                    initialValue.slice(nextValue.length).forEach(row => {
+                    initialValue.slice(nextValue.length).forEach((row) => {
                         nextValue.push({
                             ...row,
-                            [fileField.name]: '__clear__'
+                            [fileField.name]: "__clear__",
                         });
                     });
                 }
@@ -118,5 +119,5 @@ FileArray.propTypes = {
     label: PropTypes.string,
     subform: PropTypes.arrayOf(PropTypes.object),
     hint: PropTypes.string,
-    maxRows: PropTypes.number
+    maxRows: PropTypes.number,
 };

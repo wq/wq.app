@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useComponents } from '@wq/react';
-import { useMapInstance } from '../hooks';
+import React from "react";
+import PropTypes from "prop-types";
+import { useComponents } from "@wq/react";
+import { useMapInstance } from "../hooks";
 
 export default function MapToolbar({
     name,
@@ -10,19 +10,14 @@ export default function MapToolbar({
     showOverlay,
     hideOverlay,
     setBasemap,
-    children
+    children,
 }) {
-    const {
-            SidePanel,
-            List,
-            ListSubheader,
-            OverlayToggle,
-            BasemapToggle
-        } = useComponents(),
+    const { SidePanel, List, ListSubheader, OverlayToggle, BasemapToggle } =
+            useComponents(),
         map = useMapInstance(name),
         hasMultipleOverlays =
             overlays &&
-            (overlays.length > 1 || overlays.some(conf => conf.legend)),
+            (overlays.length > 1 || overlays.some((conf) => conf.legend)),
         hasMultipleBasemaps = basemaps && basemaps.length > 1;
 
     if (!hasMultipleOverlays && !hasMultipleBasemaps) {
@@ -42,13 +37,13 @@ export default function MapToolbar({
                 {hasMultipleOverlays && (
                     <>
                         <ListSubheader>Layers</ListSubheader>
-                        {overlays.map(conf => (
+                        {overlays.map((conf) => (
                             <OverlayToggle
                                 key={conf.name}
                                 name={conf.name}
                                 legend={conf.legend}
                                 active={conf.active}
-                                setActive={active =>
+                                setActive={(active) =>
                                     active
                                         ? showOverlay(conf.name)
                                         : hideOverlay(conf.name)
@@ -60,12 +55,12 @@ export default function MapToolbar({
                 {hasMultipleBasemaps && (
                     <>
                         <ListSubheader>Basemap</ListSubheader>
-                        {basemaps.map(conf => (
+                        {basemaps.map((conf) => (
                             <BasemapToggle
                                 key={conf.name}
                                 name={conf.name}
                                 active={conf.active}
-                                setActive={active =>
+                                setActive={(active) =>
                                     active && setBasemap(conf.name)
                                 }
                             />
@@ -84,5 +79,5 @@ MapToolbar.propTypes = {
     showOverlay: PropTypes.func,
     hideOverlay: PropTypes.func,
     setBasemap: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
 };

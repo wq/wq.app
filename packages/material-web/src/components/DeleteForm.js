@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents, useMessages } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents, useMessages } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function DeleteForm({ action }) {
     const { Form, SubmitButton, View, HorizontalView } = useComponents(),
@@ -28,5 +28,5 @@ export default function DeleteForm({ action }) {
 }
 
 DeleteForm.propTypes = {
-    action: PropTypes.string
+    action: PropTypes.string,
 };

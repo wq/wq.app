@@ -1,7 +1,7 @@
-import React from 'react';
-import { Field } from 'formik';
-import HelperText from './HelperText';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field } from "formik";
+import HelperText from "./HelperText";
+import PropTypes from "prop-types";
 
 export default function Hidden(props) {
     return (
@@ -14,5 +14,5 @@ export default function Hidden(props) {
 
 Hidden.propTypes = {
     name: PropTypes.string,
-    hint: PropTypes.string
+    hint: PropTypes.string,
 };

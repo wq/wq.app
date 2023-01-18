@@ -1,14 +1,14 @@
-import React from 'react';
-import { Field, ErrorMessage } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field, ErrorMessage } from "formik";
+import PropTypes from "prop-types";
 
 export default function Radio({ name, label, choices, horizontal }) {
     const style = {
-        display: 'flex',
-        flexDirection: horizontal ? 'row' : 'column'
+        display: "flex",
+        flexDirection: horizontal ? "row" : "column",
     };
     return (
-        <div style={{ marginBottom: '0.5em' }}>
+        <div style={{ marginBottom: "0.5em" }}>
             <fieldset>
                 <legend>{label}</legend>
                 <div style={style}>
@@ -30,5 +30,5 @@ Radio.propTypes = {
     type: PropTypes.string,
     label: PropTypes.string,
     horizontal: PropTypes.bool,
-    choices: PropTypes.arrayOf(PropTypes.object)
+    choices: PropTypes.arrayOf(PropTypes.object),
 };

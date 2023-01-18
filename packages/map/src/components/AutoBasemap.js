@@ -1,18 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useBasemapComponents } from '../hooks';
+import React from "react";
+import PropTypes from "prop-types";
+import { useBasemapComponents } from "../hooks";
 
 export default function AutoBasemap({ type, ...conf }) {
     const basemaps = useBasemapComponents(),
         Basemap = basemaps[type];
 
-    if (type === 'empty') {
+    if (type === "empty") {
         return Basemap ? <Basemap active={conf.active} /> : null;
-    } else if (type === 'group') {
+    } else if (type === "group") {
         const Group = Basemap || React.Fragment;
         return (
             <Group>
-                {conf.layers.map(layer => (
+                {conf.layers.map((layer) => (
                     <AutoBasemap
                         key={layer.name}
                         active={conf.active}
@@ -29,6 +29,6 @@ export default function AutoBasemap({ type, ...conf }) {
     return <Basemap {...conf} />;
 }
 AutoBasemap.propTypes = {
-    type: PropTypes.string.isRequired
+    type: PropTypes.string.isRequired,
 };
 AutoBasemap.isAutoBasemap = true;

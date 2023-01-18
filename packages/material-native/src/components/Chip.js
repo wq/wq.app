@@ -1,7 +1,7 @@
-import React from 'react';
-import { useIcon } from '@wq/react';
-import { Chip as PaperChip, useTheme } from 'react-native-paper';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useIcon } from "@wq/react";
+import { Chip as PaperChip, useTheme } from "react-native-paper";
+import PropTypes from "prop-types";
 
 export default function Chip({
     label,
@@ -16,21 +16,21 @@ export default function Chip({
     const theme = useTheme(),
         Icon = useIcon(icon);
 
-    if (color === 'primary') {
+    if (color === "primary") {
         color = theme.colors.primary;
-    } else if (color === 'secondary') {
+    } else if (color === "secondary") {
         color = theme.colors.accent;
     }
 
     let style, chipTheme;
     if (color) {
         style = {
-            backgroundColor: color
+            backgroundColor: color,
         };
         chipTheme = {
             colors: {
-                text: '#ffffff'
-            }
+                text: "#ffffff",
+            },
         };
     }
 
@@ -63,5 +63,5 @@ Chip.propTypes = {
     onClick: PropTypes.func,
     onPress: PropTypes.func,
     onDelete: PropTypes.func,
-    onClose: PropTypes.func
+    onClose: PropTypes.func,
 };

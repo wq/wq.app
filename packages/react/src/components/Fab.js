@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents, useIcon } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents, useIcon } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function Fab({ icon, to, ...rest }) {
     const { Link } = useComponents(),
@@ -14,5 +14,5 @@ export default function Fab({ icon, to, ...rest }) {
 
 Fab.propTypes = {
     icon: PropTypes.string,
-    to: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };

@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSiteTitle, useComponents, useBreadcrumbs } from '../hooks';
+import React from "react";
+import { useSiteTitle, useComponents, useBreadcrumbs } from "../hooks";
 
 export default function Header() {
     const title = useSiteTitle(),

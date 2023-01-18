@@ -1,7 +1,7 @@
-import React from 'react';
-import { useApp, useComponents, useValidate } from '../hooks';
-import { Formik } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useApp, useComponents, useValidate } from "../hooks";
+import { Formik } from "formik";
+import PropTypes from "prop-types";
 
 export default function Form({
     action,
@@ -15,7 +15,7 @@ export default function Form({
     data = {},
     error,
     FormRoot,
-    children
+    children,
 }) {
     const app = useApp(),
         validate = useValidate(),
@@ -52,8 +52,8 @@ export default function Form({
             preserve,
             data: {
                 _method: method,
-                ...values
-            }
+                ...values,
+            },
         });
 
         if (error) {
@@ -74,7 +74,7 @@ export default function Form({
             initialValues={data}
             initialErrors={errors}
             initialTouched={errors}
-            validate={values => validate(values, modelConf)}
+            validate={(values) => validate(values, modelConf)}
             validateOnBlur={true}
             validateOnChange={false}
             onSubmit={handleSubmit}
@@ -97,7 +97,7 @@ Form.propTypes = {
     data: PropTypes.object,
     error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     FormRoot: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
 };
 
 function parseApiError(error, values) {
@@ -105,21 +105,21 @@ function parseApiError(error, values) {
         return;
     }
     const errors = {};
-    if (typeof error === 'string') {
-        errors['__other__'] = error;
+    if (typeof error === "string") {
+        errors["__other__"] = error;
     } else {
         Object.entries(error).map(([key, error]) => {
             if (!(key in values)) {
-                key = '__other__';
+                key = "__other__";
             }
             if (Array.isArray(error)) {
-                if (typeof error[0] === 'object') {
+                if (typeof error[0] === "object") {
                     errors[key] = error.map((err, i) =>
                         parseApiError(err, (values[key] || [])[i] || {})
                     );
                     return;
                 }
-            } else if (typeof error === 'object') {
+            } else if (typeof error === "object") {
                 errors[key] = parseApiError(error, values[key] || {});
                 return;
             } else {
@@ -128,14 +128,14 @@ function parseApiError(error, values) {
             if (errors[key]) {
                 error = [errors[key], ...error];
             }
-            errors[key] = error.join('; ');
+            errors[key] = error.join("; ");
         });
     }
     return errors;
 }
 
 function checkForFiles(values) {
-    if (!values || typeof values !== 'object') {
+    if (!values || typeof values !== "object") {
         return false;
     }
     if (values.name && values.type && values.body) {

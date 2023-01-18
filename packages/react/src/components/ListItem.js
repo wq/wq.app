@@ -1,6 +1,6 @@
-import React from 'react';
-import { useIcon } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useIcon } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function ListItem({ children, description, icon, ...rest }) {
     const Icon = useIcon(icon);
@@ -16,5 +16,5 @@ export default function ListItem({ children, description, icon, ...rest }) {
 ListItem.propTypes = {
     children: PropTypes.node,
     description: PropTypes.node,
-    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func])
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 };

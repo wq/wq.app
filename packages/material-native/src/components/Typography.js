@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
     Text,
     Subheading,
     Title,
     Paragraph,
     Headline,
-    Caption
-} from 'react-native-paper';
-import PropTypes from 'prop-types';
+    Caption,
+} from "react-native-paper";
+import PropTypes from "prop-types";
 
 const variants = {
     default: Text,
@@ -22,12 +22,12 @@ const variants = {
     body1: Paragraph,
     body2: Paragraph,
     caption: Caption,
-    overline: Caption
+    overline: Caption,
 };
 
 export default function Typography({ variant, children, ...rest }) {
     const Component = variants[variant] || variants.default;
-    if (variant === 'overline' && typeof children === 'string') {
+    if (variant === "overline" && typeof children === "string") {
         children = children.toUpperCase();
     }
     return <Component {...rest}>{children}</Component>;
@@ -35,5 +35,5 @@ export default function Typography({ variant, children, ...rest }) {
 
 Typography.propTypes = {
     variant: PropTypes.string,
-    children: PropTypes.node
+    children: PropTypes.node,
 };

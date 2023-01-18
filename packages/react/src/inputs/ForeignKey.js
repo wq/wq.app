@@ -1,25 +1,25 @@
-import React from 'react';
-import { useModel, useUnsynced, useInputComponents } from '../hooks';
-import { useFormikContext, getIn } from 'formik';
+import React from "react";
+import { useModel, useUnsynced, useInputComponents } from "../hooks";
+import { useFormikContext, getIn } from "formik";
 
 function useChoices(modelName, group_by) {
     const records = useModel(modelName),
         unsyncedItems = useUnsynced(modelName),
-        getGroup = record => (group_by && record[group_by]) || null;
+        getGroup = (record) => (group_by && record[group_by]) || null;
 
     return unsyncedItems
-        .map(item => ({
-            name: 'outbox-' + item.id,
+        .map((item) => ({
+            name: "outbox-" + item.id,
             label: `* ${item.label}`,
             group: getGroup(item.data),
-            data: item.data
+            data: item.data,
         }))
         .concat(
-            records.map(record => ({
+            records.map((record) => ({
                 name: record.id,
                 label: record.label,
                 group: getGroup(record),
-                data: record
+                data: record,
             }))
         );
 }
@@ -32,7 +32,7 @@ function useFilteredChoices(modelName, group_by, filterConf) {
     Object.entries(filterConf).forEach(([key, value]) => {
         filter[key] = getIn(values, value);
     });
-    return choices.filter(choice =>
+    return choices.filter((choice) =>
         Object.entries(filter).every(([key, value]) => {
             return choice.data[key] == value;
         })
@@ -43,7 +43,7 @@ function useSelectInput(component) {
     const inputs = useInputComponents(),
         { Select } = inputs;
     let Component;
-    if (typeof component === 'string') {
+    if (typeof component === "string") {
         Component = inputs[component];
         if (!Component) {
             Component = function UnknownInput(props) {
@@ -72,7 +72,7 @@ export default function ForeignKey({ filter, ...rest }) {
 }
 
 function FilteredForeignKey({
-    ['wq:ForeignKey']: modelName,
+    ["wq:ForeignKey"]: modelName,
     group_by,
     filter,
     component,
@@ -84,7 +84,7 @@ function FilteredForeignKey({
 }
 
 function UnfilteredForeignKey({
-    ['wq:ForeignKey']: modelName,
+    ["wq:ForeignKey"]: modelName,
     group_by,
     component,
     ...rest

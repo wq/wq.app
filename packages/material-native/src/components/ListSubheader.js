@@ -1,3 +1,3 @@
-import { List } from 'react-native-paper';
+import { List } from "react-native-paper";
 
 export default List.Subheader;

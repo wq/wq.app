@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { useMapInstance } from '@wq/map';
-import Geojson from './Geojson';
-import PropTypes from 'prop-types';
+import React, { useEffect } from "react";
+import { useMapInstance } from "@wq/map";
+import Geojson from "./Geojson";
+import PropTypes from "prop-types";
 
 export default function Draw({ name, data, setData }) {
     const map = useMapInstance(name);
@@ -10,7 +10,7 @@ export default function Draw({ name, data, setData }) {
         if (!map) {
             return;
         }
-        map._onPress = evt => {
+        map._onPress = (evt) => {
             setData(evt.nativeEvent.payload.geometry);
         };
         return () => {
@@ -26,5 +26,5 @@ export default function Draw({ name, data, setData }) {
 Draw.propTypes = {
     name: PropTypes.string,
     data: PropTypes.object,
-    setData: PropTypes.func
+    setData: PropTypes.func,
 };

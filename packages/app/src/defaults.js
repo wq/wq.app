@@ -1,10 +1,10 @@
 const defaults = {
-    name: 'defaults',
+    name: "defaults",
     async context(ctx, routeInfo) {
         const fields = (routeInfo.page_config.form || []).filter(
-            field => field.type === 'repeat' && field.initial
+            (field) => field.type === "repeat" && field.initial
         );
-        if (routeInfo.variant === 'new' && fields.length > 0) {
+        if (routeInfo.variant === "new" && fields.length > 0) {
             const defaults = {};
             for (let field of fields) {
                 defaults[field.name] = await defaultAttachments(
@@ -15,16 +15,16 @@ const defaults = {
             }
             return defaults;
         }
-    }
+    },
 };
 export default defaults;
 
 // List of empty annotations for new objects
 async function defaultAttachments(field, context, app) {
-    if (field.type != 'repeat' || !field.initial) {
+    if (field.type != "repeat" || !field.initial) {
         return [];
     }
-    if (typeof field.initial == 'string' || typeof field.initial == 'number') {
+    if (typeof field.initial == "string" || typeof field.initial == "number") {
         const attachments = [];
         for (let i = 0; i < +field.initial; i++) {
             attachments.push({});
@@ -41,7 +41,7 @@ async function defaultAttachments(field, context, app) {
         return [];
     }
 
-    const model = app.models[typeField['wq:ForeignKey']];
+    const model = app.models[typeField["wq:ForeignKey"]];
 
     let filterConf = field.initial.filter;
     if (!filterConf || !Object.keys(filterConf).length) {
@@ -51,8 +51,8 @@ async function defaultAttachments(field, context, app) {
     }
     const filter = computeFilter(filterConf, context);
     const types = await model.filter(filter);
-    return types.map(type => ({
-        [typeField.name + '_id']: type.id
+    return types.map((type) => ({
+        [typeField.name + "_id"]: type.id,
     }));
 }
 

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { AppRegistry } from 'react-native';
-import { navRef, nav } from './hooks';
+import React, { useState } from "react";
+import { AppRegistry } from "react-native";
+import { navRef, nav } from "./hooks";
 
 export function init() {
     const { router, store } = this.app;
-    router.push = to => nav(to, router.routesMap, navRef.current, store);
-    AppRegistry.registerComponent('main', () => RootWrapper);
+    router.push = (to) => nav(to, router.routesMap, navRef.current, store);
+    AppRegistry.registerComponent("main", () => RootWrapper);
 }
 
 var _setRoot, _Root;
@@ -16,7 +16,7 @@ export function start() {
     if (_setRoot) {
         _setRoot(_Root);
     }
-    store.dispatch({ type: 'INDEX' });
+    store.dispatch({ type: "INDEX" });
 }
 
 function RootWrapper() {

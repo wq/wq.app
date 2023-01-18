@@ -1,12 +1,12 @@
-import ds from '@wq/store';
-import deepcopy from 'deepcopy';
+import ds from "@wq/store";
+import deepcopy from "deepcopy";
 import {
     Model as ORMModel,
     ORM,
     attr,
     fk,
-    ForeignKey
-} from 'redux-orm/src/index.js';
+    ForeignKey,
+} from "redux-orm/src/index.js";
 
 function model(config) {
     return new Model(config);
@@ -14,19 +14,19 @@ function model(config) {
 
 const _orms = {};
 
-const CREATE = 'CREATE',
-    UPDATE = 'UPDATE',
-    SUCCESS = 'SUCCESS',
-    DELETE = 'DELETE',
-    OVERWRITE = 'OVERWRITE',
+const CREATE = "CREATE",
+    UPDATE = "UPDATE",
+    SUCCESS = "SUCCESS",
+    DELETE = "DELETE",
+    OVERWRITE = "OVERWRITE",
     ALWAYS = true,
     NEVER = false,
-    IF_NOT_EXIST = 'IF_NOT_EXIST';
+    IF_NOT_EXIST = "IF_NOT_EXIST";
 
 class ORMWithReducer extends ORM {
     constructor(store) {
         super({
-            stateSelector: state => state.orm
+            stateSelector: (state) => state.orm,
         });
         this.store = store;
     }
@@ -35,10 +35,10 @@ class ORMWithReducer extends ORM {
         if (!this._rrel) {
             this._rrel = {};
             const models = {};
-            this.getModelClasses().forEach(cls => {
+            this.getModelClasses().forEach((cls) => {
                 models[cls.modelName] = cls;
             });
-            Object.values(models).forEach(cls => {
+            Object.values(models).forEach((cls) => {
                 Object.entries(cls.fields).forEach(([name, field]) => {
                     if (!(field instanceof ForeignKey)) {
                         return;
@@ -52,8 +52,8 @@ class ORMWithReducer extends ORM {
                     }
                     const isNested =
                         (toModel.wqConfig.form || []).filter(
-                            f =>
-                                f.type === 'repeat' &&
+                            (f) =>
+                                f.type === "repeat" &&
                                 f.name === field.relatedName
                         ).length > 0;
 
@@ -65,7 +65,7 @@ class ORMWithReducer extends ORM {
                         model: cls.modelName,
                         fkName: name,
                         relatedName: field.relatedName,
-                        nested: isNested
+                        nested: isNested,
                     });
                 });
             });
@@ -74,12 +74,12 @@ class ORMWithReducer extends ORM {
     }
 
     getNestedModels(modelName) {
-        return this.getReverseRels(modelName).filter(rel => rel.nested);
+        return this.getReverseRels(modelName).filter((rel) => rel.nested);
     }
 
     get prefix() {
-        if (this.store.name === 'main') {
-            return 'ORM';
+        if (this.store.name === "main") {
+            return "ORM";
         } else {
             return `${this.store.name.toUpperCase()}ORM`;
         }
@@ -127,7 +127,7 @@ class ORMWithReducer extends ORM {
                     this._updateID(cls, action.meta.currentId, items[0].id);
                 }
 
-                items.forEach(item => this._nestedUpdate(cls, item));
+                items.forEach((item) => this._nestedUpdate(cls, item));
 
                 updateCount = true;
 
@@ -142,10 +142,10 @@ class ORMWithReducer extends ORM {
             case OVERWRITE: {
                 const { list, ...info } = action.payload;
                 this._removeObsolete(cls.all(), list, true);
-                list.forEach(item => this._nestedUpdate(cls, item));
+                list.forEach((item) => this._nestedUpdate(cls, item));
                 session._modelmeta.upsert({
                     id: cls.modelName,
-                    ...info
+                    ...info,
                 });
                 break;
             }
@@ -166,7 +166,7 @@ class ORMWithReducer extends ORM {
                     id: cls.modelName,
                     pages: 1,
                     count: cls.count(),
-                    per_page: cls.count()
+                    per_page: cls.count(),
                 });
             }
             // FIXME: Update count for nested models
@@ -190,10 +190,10 @@ class ORMWithReducer extends ORM {
             if (exist && exist[relatedName] && exist[relatedName].toRefArray) {
                 this._removeObsolete(exist[relatedName], item[relatedName]);
             }
-            item[relatedName].forEach(row => {
+            item[relatedName].forEach((row) => {
                 session[model].upsert({
                     ...row,
-                    [fkName]: item.id
+                    [fkName]: item.id,
                 });
             });
             delete item[relatedName];
@@ -202,10 +202,10 @@ class ORMWithReducer extends ORM {
     }
 
     _removeObsolete(qs, newItems, nested) {
-        const idsToKeep = newItems.map(row => row.id).filter(id => !!id),
-            obsolete = qs.filter(item => !idsToKeep.includes(item.id));
+        const idsToKeep = newItems.map((row) => row.id).filter((id) => !!id),
+            obsolete = qs.filter((item) => !idsToKeep.includes(item.id));
         if (nested) {
-            obsolete.toModelArray().forEach(item => this._nestedDelete(item));
+            obsolete.toModelArray().forEach((item) => this._nestedDelete(item));
         } else {
             obsolete.delete();
         }
@@ -240,21 +240,21 @@ class ORMWithReducer extends ORM {
         // (including both nested and non-nested relationships)
         rrel.forEach(({ fkName, relatedName }) => {
             exist[relatedName].update({
-                [fkName]: newId
+                [fkName]: newId,
             });
         });
 
         // Remove and replace (see redux-orm #176)
         cls.upsert({
             ...exist.ref,
-            id: newId
+            id: newId,
         });
         exist.delete();
     }
 }
 
 class ModelMeta extends ORMModel {}
-ModelMeta.modelName = '_modelmeta';
+ModelMeta.modelName = "_modelmeta";
 
 function orm(store) {
     if (!_orms[store.name]) {
@@ -271,7 +271,7 @@ model.cacheOpts = {
         server: ALWAYS,
         client: true,
         page: 1,
-        reversed: true
+        reversed: true,
     },
 
     // All data is prefetched and stored locally, no subsequent requests are
@@ -280,7 +280,7 @@ model.cacheOpts = {
         server: NEVER,
         client: true,
         page: 0,
-        reversed: false
+        reversed: false,
     },
 
     // "Important" data is cached; other data can be accessed via pagination.
@@ -288,7 +288,7 @@ model.cacheOpts = {
         server: ALWAYS,
         client: true,
         page: 0,
-        reversed: true
+        reversed: true,
     },
 
     // Start with filtered/empty list; store responses to subsequent requests
@@ -296,7 +296,7 @@ model.cacheOpts = {
         server: IF_NOT_EXIST,
         client: true,
         page: 0,
-        reversed: true
+        reversed: true,
     },
 
     // No data is cached locally; all data require a network request.
@@ -304,8 +304,8 @@ model.cacheOpts = {
         server: ALWAYS,
         client: false,
         page: 0,
-        reversed: false
-    }
+        reversed: false,
+    },
 };
 
 // Retrieve a stored list as an object with helper functions
@@ -314,29 +314,29 @@ model.cacheOpts = {
 class Model {
     constructor(config) {
         if (!config) {
-            throw 'No configuration provided!';
+            throw "No configuration provided!";
         }
-        if (typeof config == 'string') {
+        if (typeof config == "string") {
             config = { query: config, name: config };
         }
 
         if (!config.name) {
-            throw new Error('Model name is now required.');
+            throw new Error("Model name is now required.");
         }
 
         if (!config.cache) {
-            config.cache = 'first_page';
+            config.cache = "first_page";
         }
 
         this.config = config;
         this.name = config.name;
-        this.idCol = config.idCol || 'id';
+        this.idCol = config.idCol || "id";
         this.opts = model.cacheOpts[config.cache];
 
         if (!this.opts) {
-            throw 'Unknown cache option ' + config.cache;
+            throw "Unknown cache option " + config.cache;
         }
-        ['max_local_pages', 'partial', 'reversed'].forEach(function (name) {
+        ["max_local_pages", "partial", "reversed"].forEach(function (name) {
             if (name in config) {
                 throw '"' + name + '" is deprecated in favor of "cache"';
             }
@@ -365,17 +365,17 @@ class Model {
                 }
                 static get fields() {
                     const fields = {};
-                    (config.form || []).forEach(field => {
-                        if (field['wq:ForeignKey']) {
-                            fields[field.name + '_id'] = fk({
-                                to: field['wq:ForeignKey'],
+                    (config.form || []).forEach((field) => {
+                        if (field["wq:ForeignKey"]) {
+                            fields[field.name + "_id"] = fk({
+                                to: field["wq:ForeignKey"],
                                 as: field.name,
                                 relatedName:
-                                    field['wq:related_name'] ||
+                                    field["wq:related_name"] ||
                                     config.url ||
-                                    config.name + 's'
+                                    config.name + "s",
                             });
-                        } else if (field.type !== 'repeat') {
+                        } else if (field.type !== "repeat") {
                             fields[field.name] = attr();
                         }
                     });
@@ -407,7 +407,7 @@ class Model {
     dispatch(type, payload, meta) {
         const action = {
             type: this.expandActionType(type),
-            payload: payload
+            payload: payload,
         };
         if (meta) {
             action.meta = meta;
@@ -422,7 +422,7 @@ class Model {
     getSessionModel(session) {
         const model = (session || this.getSession())[this.name];
         if (!model) {
-            throw new Error('Could not find model in session');
+            throw new Error("Could not find model in session");
         }
         return model;
     }
@@ -434,15 +434,15 @@ class Model {
     getQuerySet(session) {
         const model = this.getSessionModel(session),
             ordering = this.config.ordering || [
-                this.opts.reversed ? `-${this.idCol}` : this.idCol
+                this.opts.reversed ? `-${this.idCol}` : this.idCol,
             ],
             columns = [],
             orders = [];
 
-        ordering.map(name => {
-            let order = 'asc';
-            if (name.startsWith('-')) {
-                order = 'desc';
+        ordering.map((name) => {
+            let order = "asc";
+            if (name.startsWith("-")) {
+                order = "desc";
                 name = name.slice(1);
             }
             columns.push(name);
@@ -507,7 +507,7 @@ class Model {
             ...info,
             list: this.getQuerySet()
                 .toModelArray()
-                .map(instance => this._withNested(instance))
+                .map((instance) => this._withNested(instance)),
         };
     }
 
@@ -524,7 +524,7 @@ class Model {
                 return {
                     pages: 1,
                     count: 0,
-                    per_page: 0
+                    per_page: 0,
                 };
             }
         }
@@ -538,7 +538,7 @@ class Model {
     async page(page_num, limit) {
         if (!this.config.url) {
             if (page_num > this.opts.page) {
-                throw new Error('No URL, cannot retrieve page ' + page_num);
+                throw new Error("No URL, cannot retrieve page " + page_num);
             }
         }
         if (page_num <= this.opts.page && !limit) {
@@ -558,9 +558,9 @@ class Model {
 
     // Find an object by id
     async find(value, localOnly) {
-        if (localOnly && typeof localOnly !== 'boolean') {
+        if (localOnly && typeof localOnly !== "boolean") {
             throw new Error(
-                'Usage: find(value[, localOnly).  To customize id attr use config.idCol'
+                "Usage: find(value[, localOnly).  To customize id attr use config.idCol"
             );
         }
         await this.ensureLoaded();
@@ -576,7 +576,7 @@ class Model {
             this.config.url
         ) {
             const result = await this.store.fetch(
-                '/' + this.config.url + '/' + value
+                "/" + this.config.url + "/" + value
             );
             if (result && result.id && this.opts.server === IF_NOT_EXIST) {
                 await this.update([result]);
@@ -590,15 +590,15 @@ class Model {
     filterFields() {
         let fields = [this.idCol];
         fields = fields.concat(
-            (this.config.form || []).map(field =>
-                field['wq:ForeignKey'] ? `${field.name}_id` : field.name
+            (this.config.form || []).map((field) =>
+                field["wq:ForeignKey"] ? `${field.name}_id` : field.name
             )
         );
         fields = fields.concat(Object.keys(this.functions));
         fields = fields.concat(this.config.filter_fields || []);
         if (this.config.filter_ignore) {
             fields = fields.filter(
-                field => !this.config.filter_ignore.includes(field)
+                (field) => !this.config.filter_ignore.includes(field)
             );
         }
         return fields;
@@ -610,16 +610,16 @@ class Model {
         // (e.g. for use with list views that have custom URL params)
         const filterFields = this.filterFields(),
             pagination = {};
-        Object.keys(filter).forEach(field => {
+        Object.keys(filter).forEach((field) => {
             if (!filterFields.includes(field)) {
-                if (field === 'page' || field === 'limit') {
+                if (field === "page" || field === "limit") {
                     pagination[field] = filter[field];
                 } else if (!(this.config.filter_ignore || []).includes(field)) {
                     console.warn(
                         `Ignoring unrecognized field "${field}"` +
                             ` while filtering ${this.name} list.` +
-                            ' Add to form or filter_fields to enable filtering,' +
-                            ' or to filter_ignore to remove this warning.'
+                            " Add to form or filter_fields to enable filtering," +
+                            " or to filter_ignore to remove this warning."
                     );
                 }
                 filter = { ...filter };
@@ -634,7 +634,7 @@ class Model {
             const result = await this.store.fetch({
                 url: this.config.url,
                 ...filter,
-                ...pagination
+                ...pagination,
             });
             return this._processData(result);
         }
@@ -649,9 +649,9 @@ class Model {
         var qs = this.getQuerySet();
         if (any) {
             // any=true: Match on any of the provided filter attributes
-            qs = qs.filter(item => {
+            qs = qs.filter((item) => {
                 return (
-                    Object.keys(filter).filter(attr => {
+                    Object.keys(filter).filter((attr) => {
                         return this.matches(item, attr, filter[attr]);
                     }).length > 0
                 );
@@ -665,7 +665,7 @@ class Model {
                 customFilter = {},
                 hasDefaultFilter = false,
                 hasCustomFilter = false;
-            Object.keys(filter).forEach(attr => {
+            Object.keys(filter).forEach((attr) => {
                 const comp = filter[attr];
                 if (this.isCustomFilter(attr, comp)) {
                     customFilter[attr] = comp;
@@ -679,9 +679,9 @@ class Model {
                 qs = qs.filter(defaultFilter);
             }
             if (hasCustomFilter) {
-                qs = qs.filter(item => {
+                qs = qs.filter((item) => {
                     var match = true;
-                    Object.keys(customFilter).forEach(attr => {
+                    Object.keys(customFilter).forEach((attr) => {
                         if (!this.matches(item, attr, customFilter[attr])) {
                             match = false;
                         }
@@ -700,7 +700,7 @@ class Model {
             return this.filterPage(filter, any, true);
         }
         return this._processData(
-            qs.toModelArray().map(instance => this._withNested(instance))
+            qs.toModelArray().map((instance) => this._withNested(instance))
         );
     }
 
@@ -717,18 +717,18 @@ class Model {
 
     // Merge new/updated items into list
     async update(update, meta) {
-        if (meta && typeof meta === 'string') {
+        if (meta && typeof meta === "string") {
             throw new Error(
-                'Usage: update(items[, meta]).  To customize id attr use config.idCol'
+                "Usage: update(items[, meta]).  To customize id attr use config.idCol"
             );
         }
         return this.dispatch(UPDATE, update, meta);
     }
 
     async remove(id, meta) {
-        if (meta && typeof meta === 'string') {
+        if (meta && typeof meta === "string") {
             throw new Error(
-                'Usage: remove(id).  To customize id attr use config.idCol'
+                "Usage: remove(id).  To customize id attr use config.idCol"
             );
         }
         return this.dispatch(DELETE, id, meta);
@@ -756,7 +756,7 @@ class Model {
     async fetchUpdate(params, idCol) {
         if (idCol) {
             throw new Error(
-                'Usage: fetchUpdate(params).  To customize id attr use config.idCol'
+                "Usage: fetchUpdate(params).  To customize id attr use config.idCol"
             );
         }
         // Update local list with recent items from server
@@ -803,7 +803,7 @@ class Model {
         }
 
         if (Array.isArray(comp)) {
-            return comp.filter(c => checkValue(value, c)).length > 0;
+            return comp.filter((c) => checkValue(value, c)).length > 0;
         } else {
             return checkValue(value, comp);
         }
@@ -811,10 +811,10 @@ class Model {
         function checkValue(value, comp) {
             if (isRawBoolean(value)) {
                 return value === toBoolean(comp);
-            } else if (typeof value === 'number') {
+            } else if (typeof value === "number") {
                 return value === +comp;
             } else if (Array.isArray(value)) {
-                return value.filter(v => checkValue(v, comp)).length > 0;
+                return value.filter((v) => checkValue(v, comp)).length > 0;
             } else {
                 return value === comp;
             }
@@ -827,11 +827,11 @@ function isRawBoolean(value) {
 }
 
 function toBoolean(value) {
-    if ([true, 'true', 1, '1', 't', 'y'].indexOf(value) > -1) {
+    if ([true, "true", 1, "1", "t", "y"].indexOf(value) > -1) {
         return true;
-    } else if ([false, 'false', 0, '0', 'f', 'n'].indexOf(value) > -1) {
+    } else if ([false, "false", 0, "0", "f", "n"].indexOf(value) > -1) {
         return false;
-    } else if ([null, 'null'].indexOf(value) > -1) {
+    } else if ([null, "null"].indexOf(value) > -1) {
         return null;
     } else {
         return value;
@@ -843,7 +843,7 @@ function isPotentialBoolean(value) {
 }
 
 function isPotentialNumber(value) {
-    return typeof value !== 'number' && !Number.isNaN(+value);
+    return typeof value !== "number" && !Number.isNaN(+value);
 }
 
 export { model, Model };

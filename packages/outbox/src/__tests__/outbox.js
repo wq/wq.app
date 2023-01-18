@@ -1,46 +1,46 @@
-import store from '@wq/store';
-import outboxMod from '../outbox';
-import { model } from '@wq/model';
+import store from "@wq/store";
+import outboxMod from "../outbox";
+import { model } from "@wq/model";
 
-global.structuredClone = val => val;
+global.structuredClone = (val) => val;
 
-const ds = store.getStore('outbox-test');
+const ds = store.getStore("outbox-test");
 const outbox = outboxMod.getOutbox(ds);
 
 const mockApp = {
     plugins: {},
     hasPlugin: () => true,
     callPlugins(method, args) {
-        Object.values(this.plugins).forEach(plugin =>
+        Object.values(this.plugins).forEach((plugin) =>
             plugin[method].apply(plugin, args)
         );
-    }
+    },
 };
 
 const models = {},
     modelConf = {};
 
-['item', 'itemtype', 'attribute'].forEach(name => {
+["item", "itemtype", "attribute"].forEach((name) => {
     modelConf[name] = {
         name: name,
-        url: name + 's',
+        url: name + "s",
         list: true,
-        cache: 'all',
-        store: ds
+        cache: "all",
+        store: ds,
     };
     models[name] = model(modelConf[name]);
 });
 ds.addReducer(
-    'orm',
+    "orm",
     (state, action) => models.item.orm.reducer(state, action),
     true
 );
 
 ds.init({
-    service: 'http://127.0.0.1:8080/tests',
+    service: "http://127.0.0.1:8080/tests",
     defaults: {
-        format: 'json'
-    }
+        format: "json",
+    },
 });
 
 beforeAll(async () => {
@@ -53,73 +53,73 @@ beforeEach(async () => {
     await outbox.empty();
 });
 
-test('form with no explicit storage', async () => {
+test("form with no explicit storage", async () => {
     expect(
         await testOutbox({
             data: { test: 123 },
             options: {},
             expectItem: {
                 id: 1,
-                label: 'Unsynced Item #1',
+                label: "Unsynced Item #1",
                 synced: false,
                 data: { test: 123 },
-                options: {}
+                options: {},
             },
-            expectStored: null
+            expectStored: null,
         })
     ).toBeTruthy();
 });
 
-test('form with storage=store', async () => {
-    var blob = new Blob([1, 2, 3], { type: 'text/plain' });
+test("form with storage=store", async () => {
+    var blob = new Blob([1, 2, 3], { type: "text/plain" });
     expect(
         await testOutbox({
             data: {
                 file: {
-                    type: 'text/plain',
-                    name: 'test.txt',
-                    body: blob
-                }
+                    type: "text/plain",
+                    name: "test.txt",
+                    body: blob,
+                },
             },
             options: {
-                storage: 'store'
+                storage: "store",
             },
             expectItem: {
                 id: 1,
-                label: 'Unsynced Item #1',
+                label: "Unsynced Item #1",
                 synced: false,
                 options: {
-                    storage: 'store'
-                }
+                    storage: "store",
+                },
             },
             expectStored: {
                 file: {
-                    type: 'text/plain',
-                    name: 'test.txt',
-                    body: blob
-                }
-            }
+                    type: "text/plain",
+                    name: "test.txt",
+                    body: blob,
+                },
+            },
         })
     ).toBeTruthy();
 });
 
-test('form with storage=temporary', async () => {
+test("form with storage=temporary", async () => {
     expect(
         await testOutbox({
-            data: { secret: 'code' },
+            data: { secret: "code" },
             options: {
-                storage: 'temporary'
+                storage: "temporary",
             },
             expectItem: {
                 id: 1,
-                label: 'Unsynced Item #1',
+                label: "Unsynced Item #1",
                 synced: false,
                 options: {
-                    storage: 'temporary',
-                    once: true
-                }
+                    storage: "temporary",
+                    once: true,
+                },
             },
-            expectStored: null
+            expectStored: null,
         })
     ).toBeTruthy();
 });
@@ -129,14 +129,14 @@ async function testOutbox(test) {
     await outbox.save(test.data, test.options);
 
     const actualOutbox = await outbox.loadItems(),
-        actualStored = await ds.lf.getItem('outbox_1'),
+        actualStored = await ds.lf.getItem("outbox_1"),
         actualItem = await outbox.loadItem(1);
 
     const expectOutbox = {
         list: [test.expectItem],
         pages: 1,
         count: 1,
-        per_page: 1
+        per_page: 1,
     };
     expect(actualOutbox).toEqual(expectOutbox);
     expect(actualStored).toEqual(test.expectStored);
@@ -144,14 +144,14 @@ async function testOutbox(test) {
     return true;
 }
 
-test('handle 200 success', async () => {
+test("handle 200 success", async () => {
     const simple = {
         data: {
-            label: 'Test'
+            label: "Test",
         },
         options: {
-            url: 'status/200'
-        }
+            url: "status/200",
+        },
     };
     await outbox.save(simple.data, simple.options);
     await outbox.waitForItem(1);
@@ -159,24 +159,24 @@ test('handle 200 success', async () => {
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
-        label: 'Unsynced Item #1',
+        label: "Unsynced Item #1",
         synced: true,
         result: {
             id: item.result.id,
-            ...simple.data
+            ...simple.data,
         },
-        ...simple
+        ...simple,
     });
 });
 
-test('handle 400 error', async () => {
+test("handle 400 error", async () => {
     const simple = {
         data: {
-            label: 'Test'
+            label: "Test",
         },
         options: {
-            url: 'status/400'
-        }
+            url: "status/400",
+        },
     };
     await outbox.save(simple.data, simple.options);
     await outbox.waitForItem(1);
@@ -184,25 +184,25 @@ test('handle 400 error', async () => {
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
-        label: 'Unsynced Item #1',
+        label: "Unsynced Item #1",
         synced: false,
         // retryCount: 1,
         error: {
-            label: ['Not a valid label']
+            label: ["Not a valid label"],
         },
-        ...simple
+        ...simple,
     });
 });
 
-test('handle 500 error', async () => {
+test("handle 500 error", async () => {
     const simple = {
         data: {
-            label: 'Test'
+            label: "Test",
         },
         options: {
-            url: 'status/500',
-            once: true
-        }
+            url: "status/500",
+            once: true,
+        },
     };
     await outbox.save(simple.data, simple.options);
     await outbox.waitForItem(1);
@@ -210,23 +210,23 @@ test('handle 500 error', async () => {
     const item = syncedOutbox.list[0];
     expect(item).toEqual({
         id: 1,
-        label: 'Unsynced Item #1',
+        label: "Unsynced Item #1",
         synced: false,
         // retryCount: 1,
-        error: 'SERVER ERROR',
-        ...simple
+        error: "SERVER ERROR",
+        ...simple,
     });
 });
 
-test('onsync hook', () => {
-    return new Promise(done => {
+test("onsync hook", () => {
+    return new Promise((done) => {
         const simple = {
             data: {
-                label: 'Test'
+                label: "Test",
             },
             options: {
-                url: 'status/200'
-            }
+                url: "status/200",
+            },
         };
         outbox.app.plugins.testplugin = { onsync };
         outbox.save(simple.data, simple.options);
@@ -234,13 +234,13 @@ test('onsync hook', () => {
         function onsync(item) {
             expect(item).toEqual({
                 id: 1,
-                label: 'Unsynced Item #1',
+                label: "Unsynced Item #1",
                 synced: true,
                 result: {
                     id: item.result.id,
-                    ...simple.data
+                    ...simple.data,
                 },
-                ...simple
+                ...simple,
             });
             delete outbox.app.plugins.testplugin;
             done();
@@ -248,38 +248,38 @@ test('onsync hook', () => {
     });
 });
 
-test('sync dependent records in order - with ON_SUCCESS', async () => {
+test("sync dependent records in order - with ON_SUCCESS", async () => {
     const itemtype = {
         data: {
-            label: 'New ItemType'
+            label: "New ItemType",
         },
         options: {
-            url: 'itemtypes',
-            modelConf: modelConf.itemtype
-        }
+            url: "itemtypes",
+            modelConf: modelConf.itemtype,
+        },
     };
 
     var attribute = {
         data: {
-            label: 'New Attribute'
+            label: "New Attribute",
         },
         options: {
-            url: 'attributes',
-            modelConf: modelConf.attribute
-        }
+            url: "attributes",
+            modelConf: modelConf.attribute,
+        },
     };
 
     var item = {
         data: {
-            type_id: 'outbox-1',
-            color: 'red',
-            'values[0][attribute_id]': 'outbox-2',
-            'values[0][value]': 'Test Value'
+            type_id: "outbox-1",
+            color: "red",
+            "values[0][attribute_id]": "outbox-2",
+            "values[0][value]": "Test Value",
         },
         options: {
-            url: 'items',
-            modelConf: modelConf.item
-        }
+            url: "items",
+            modelConf: modelConf.item,
+        },
     };
 
     // Save three records to outbox
@@ -291,30 +291,30 @@ test('sync dependent records in order - with ON_SUCCESS', async () => {
         list: [
             {
                 id: 3,
-                label: 'Unsynced Item #3',
+                label: "Unsynced Item #3",
                 data: item.data,
                 options: item.options,
                 synced: false,
-                parents: [1, 2]
+                parents: [1, 2],
             },
             {
                 id: 2,
-                label: 'Unsynced Item #2',
+                label: "Unsynced Item #2",
                 data: attribute.data,
                 options: attribute.options,
-                synced: false
+                synced: false,
             },
             {
                 id: 1,
-                label: 'Unsynced Item #1',
+                label: "Unsynced Item #1",
                 data: itemtype.data,
                 options: itemtype.options,
-                synced: false
-            }
+                synced: false,
+            },
         ],
         pages: 1,
         count: 3,
-        per_page: 3
+        per_page: 3,
     });
 
     // Sync records.  sendAll() should automatically sync the parent
@@ -338,26 +338,26 @@ test('sync dependent records in order - with ON_SUCCESS', async () => {
     expect(results.item.values[0].attribute_id).toEqual(results.attribute.id);
 });
 
-const ORIG_VALUE = 'Test',
-    NEW_VALUE = 'Test 2';
+const ORIG_VALUE = "Test",
+    NEW_VALUE = "Test 2";
 
 async function checkName() {
-    const item = await models.item.find('four');
+    const item = await models.item.find("four");
     return item.name;
 }
 
-test('apply state ON_SYNC', async () => {
-    await models.item.overwrite([{ id: 'four', name: ORIG_VALUE }]);
+test("apply state ON_SYNC", async () => {
+    await models.item.overwrite([{ id: "four", name: ORIG_VALUE }]);
     outbox.pause();
     const { id } = await outbox.save(
         {
-            id: 'four',
-            name: NEW_VALUE
+            id: "four",
+            name: NEW_VALUE,
         },
         {
-            url: 'items/four',
-            method: 'POST', // FIXME: PUT doesn't work in jsdom 11 (#2300)
-            modelConf: modelConf.item
+            url: "items/four",
+            method: "POST", // FIXME: PUT doesn't work in jsdom 11 (#2300)
+            modelConf: modelConf.item,
         }
     );
     expect(await checkName()).toBe(ORIG_VALUE);
@@ -367,19 +367,19 @@ test('apply state ON_SYNC', async () => {
     expect(await checkName()).toBe(NEW_VALUE);
 });
 
-test('apply state IMMEDIATE', async () => {
-    await models.item.overwrite([{ id: 'four', name: ORIG_VALUE }]);
+test("apply state IMMEDIATE", async () => {
+    await models.item.overwrite([{ id: "four", name: ORIG_VALUE }]);
     outbox.pause();
     const { id } = await outbox.save(
         {
-            id: 'four',
-            name: NEW_VALUE
+            id: "four",
+            name: NEW_VALUE,
         },
         {
-            url: 'items/four',
-            method: 'POST', // FIXME: PUT doesn't work in jsdom 11 (#2300)
-            applyState: 'IMMEDIATE',
-            modelConf: modelConf.item
+            url: "items/four",
+            method: "POST", // FIXME: PUT doesn't work in jsdom 11 (#2300)
+            applyState: "IMMEDIATE",
+            modelConf: modelConf.item,
         }
     );
     expect(await checkName()).toBe(NEW_VALUE);
@@ -389,16 +389,16 @@ test('apply state IMMEDIATE', async () => {
     expect(await checkName()).toBe(NEW_VALUE);
 });
 
-test('apply state LOCAL_ONLY', async () => {
-    await models.item.overwrite([{ id: 'four', name: ORIG_VALUE }]);
+test("apply state LOCAL_ONLY", async () => {
+    await models.item.overwrite([{ id: "four", name: ORIG_VALUE }]);
     const result = await outbox.save(
         {
-            id: 'four',
-            name: NEW_VALUE
+            id: "four",
+            name: NEW_VALUE,
         },
         {
-            applyState: 'LOCAL_ONLY',
-            modelConf: modelConf.item
+            applyState: "LOCAL_ONLY",
+            modelConf: modelConf.item,
         }
     );
     expect(result).toBeNull();
@@ -406,41 +406,41 @@ test('apply state LOCAL_ONLY', async () => {
     expect(await checkName()).toBe(NEW_VALUE);
 });
 
-test('sync dependent records in order - with IMMEDIATE', async () => {
+test("sync dependent records in order - with IMMEDIATE", async () => {
     const itemtype = {
         data: {
-            label: 'New ItemType'
+            label: "New ItemType",
         },
         options: {
-            url: 'itemtypes',
+            url: "itemtypes",
             modelConf: modelConf.itemtype,
-            applyState: 'IMMEDIATE'
-        }
+            applyState: "IMMEDIATE",
+        },
     };
 
     var attribute = {
         data: {
-            label: 'New Attribute'
+            label: "New Attribute",
         },
         options: {
-            url: 'attributes',
+            url: "attributes",
             modelConf: modelConf.attribute,
-            applyState: 'IMMEDIATE'
-        }
+            applyState: "IMMEDIATE",
+        },
     };
 
     var item = {
         data: {
-            type_id: 'outbox-1',
-            color: 'red',
-            'values[0][attribute_id]': 'outbox-2',
-            'values[0][value]': 'Test Value'
+            type_id: "outbox-1",
+            color: "red",
+            "values[0][attribute_id]": "outbox-2",
+            "values[0][value]": "Test Value",
         },
         options: {
-            url: 'items',
+            url: "items",
             modelConf: modelConf.item,
-            applyState: 'IMMEDIATE'
-        }
+            applyState: "IMMEDIATE",
+        },
     };
 
     // Save three records to outbox
@@ -453,48 +453,48 @@ test('sync dependent records in order - with IMMEDIATE', async () => {
         list: [
             {
                 id: 3,
-                label: 'Unsynced Item #3',
+                label: "Unsynced Item #3",
                 data: item.data,
                 options: item.options,
                 synced: false,
-                parents: [1, 2]
+                parents: [1, 2],
             },
             {
                 id: 2,
-                label: 'Unsynced Item #2',
+                label: "Unsynced Item #2",
                 data: attribute.data,
                 options: attribute.options,
-                synced: false
+                synced: false,
             },
             {
                 id: 1,
-                label: 'Unsynced Item #1',
+                label: "Unsynced Item #1",
                 data: itemtype.data,
                 options: itemtype.options,
-                synced: false
-            }
+                synced: false,
+            },
         ],
         pages: 1,
         count: 3,
-        per_page: 3
+        per_page: 3,
     });
 
     // Since IMMEDIATE is set, local models should already contain records
-    expect(await models.itemtype.find('outbox-1')).toMatchObject({
-        label: 'New ItemType'
+    expect(await models.itemtype.find("outbox-1")).toMatchObject({
+        label: "New ItemType",
     });
-    expect(await models.attribute.find('outbox-2')).toMatchObject({
-        label: 'New Attribute'
+    expect(await models.attribute.find("outbox-2")).toMatchObject({
+        label: "New Attribute",
     });
-    expect(await models.item.find('outbox-3')).toMatchObject({
-        type_id: 'outbox-1',
-        color: 'red',
+    expect(await models.item.find("outbox-3")).toMatchObject({
+        type_id: "outbox-1",
+        color: "red",
         values: [
             {
-                attribute_id: 'outbox-2',
-                value: 'Test Value'
-            }
-        ]
+                attribute_id: "outbox-2",
+                value: "Test Value",
+            },
+        ],
     });
 
     // Sync records.  sendAll() should automatically sync the parent
@@ -519,24 +519,24 @@ test('sync dependent records in order - with IMMEDIATE', async () => {
 
     // Local models should now be updated with the server-generated IDs, with
     // no trace of the outbox ids.
-    expect(await models.itemtype.find('outbox-1')).toBeNull();
-    expect(await models.attribute.find('outbox-2')).toBeNull();
-    expect(await models.item.find('outbox-3')).toBeNull();
+    expect(await models.itemtype.find("outbox-1")).toBeNull();
+    expect(await models.attribute.find("outbox-2")).toBeNull();
+    expect(await models.item.find("outbox-3")).toBeNull();
 
     expect(await models.itemtype.find(results.itemtype.id)).toMatchObject({
-        label: 'New ItemType'
+        label: "New ItemType",
     });
     expect(await models.attribute.find(results.attribute.id)).toMatchObject({
-        label: 'New Attribute'
+        label: "New Attribute",
     });
     expect(await models.item.find(results.item.id)).toMatchObject({
         type_id: results.itemtype.id,
-        color: 'red',
+        color: "red",
         values: [
             {
                 attribute_id: results.attribute.id,
-                value: 'Test Value'
-            }
-        ]
+                value: "Test Value",
+            },
+        ],
     });
 });

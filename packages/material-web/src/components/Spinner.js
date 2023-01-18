@@ -1,7 +1,7 @@
-import React from 'react';
-import Modal from '@material-ui/core/Modal';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { useSpinner } from '@wq/react';
+import React from "react";
+import Modal from "@material-ui/core/Modal";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import { useSpinner } from "@wq/react";
 
 export default function Spinner() {
     const { active } = useSpinner();
@@ -11,10 +11,10 @@ export default function Spinner() {
         <Modal open={active}>
             <div
                 style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh'
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100vh",
                 }}
             >
                 <CircularProgress />

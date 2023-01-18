@@ -1,6 +1,6 @@
-import React from 'react';
-import { useFormikContext, getIn } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useFormikContext, getIn } from "formik";
+import PropTypes from "prop-types";
 
 export default function HelperText({ name, hint }) {
     const { errors, touched } = useFormikContext(),
@@ -15,10 +15,10 @@ export default function HelperText({ name, hint }) {
         return null;
     }
 
-    return <p style={showError && { color: 'red' }}>{hint}</p>;
+    return <p style={showError && { color: "red" }}>{hint}</p>;
 }
 
 HelperText.propTypes = {
     name: PropTypes.string,
-    hint: PropTypes.string
+    hint: PropTypes.string,
 };

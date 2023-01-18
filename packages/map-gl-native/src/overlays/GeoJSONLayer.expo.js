@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Marker as RNMarker, Polyline as RNPolyline } from 'react-native-maps';
-import { Colors } from 'react-native-paper';
-import { useGeoJSON } from '@wq/map';
+import React from "react";
+import PropTypes from "prop-types";
+import { Marker as RNMarker, Polyline as RNPolyline } from "react-native-maps";
+import { Colors } from "react-native-paper";
+import { useGeoJSON } from "@wq/map";
 
 const COLOR_LIST = Object.values(Colors);
 
@@ -11,12 +11,12 @@ export default function GeoJSONLayer({ id, data }) {
     const features = (data && data.features) || [];
     return (
         <>
-            {features.map(feature => (
+            {features.map((feature) => (
                 <Feature
                     key={feature.id}
                     feature={{
                         ...feature,
-                        layer: { source: id }
+                        layer: { source: id },
                     }}
                 />
             ))}
@@ -33,14 +33,14 @@ function makeLine(line) {
 }
 
 function Feature({ feature }) {
-    if (feature.geometry.type === 'Point') {
+    if (feature.geometry.type === "Point") {
         return (
             <RNMarker
                 pinColor={getColor(feature)}
                 coordinate={makePoint(feature.geometry.coordinates)}
             />
         );
-    } else if (feature.geometry.type === 'MultiLineString') {
+    } else if (feature.geometry.type === "MultiLineString") {
         return (
             <RNPolyline
                 strokeColor={getColor(feature)}
@@ -48,7 +48,7 @@ function Feature({ feature }) {
                 coordinates={makeLine(feature.geometry.coordinates[0])}
             />
         );
-    } else if (feature.geometry.type === 'Polygon') {
+    } else if (feature.geometry.type === "Polygon") {
         return (
             <RNPolyline
                 strokeColor={getColor(feature)}
@@ -63,7 +63,7 @@ function Feature({ feature }) {
 }
 GeoJSONLayer.propTypes = {
     id: PropTypes.string,
-    data: PropTypes.object
+    data: PropTypes.object,
 };
 
 const colors = {};

@@ -1,40 +1,39 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useField } from 'formik';
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useField } from "formik";
 import {
     useRouteInfo,
     usePlugin,
     usePluginState,
     useRenderContext,
     useApp,
-    usePluginComponentMap
-} from '@wq/react';
-import Mustache from 'mustache';
+    usePluginComponentMap,
+} from "@wq/react";
+import Mustache from "mustache";
 
 export const TYPE_MAP = {
-    geopoint: 'point',
-    geotrace: 'line_string',
-    geoshape: 'polygon'
+    geopoint: "point",
+    geotrace: "line_string",
+    geoshape: "polygon",
 };
 
 export function useBasemapComponents() {
-    return usePluginComponentMap('map', 'basemaps');
+    return usePluginComponentMap("map", "basemaps");
 }
 
 export function useOverlayComponents() {
-    return usePluginComponentMap('map', 'overlays');
+    return usePluginComponentMap("map", "overlays");
 }
 
 export function useGeoTools(name, type) {
-    const { zoomToLocation } = usePlugin('map').config,
-        tools = usePluginComponentMap('map', 'geotools', true),
+    const { zoomToLocation } = usePlugin("map").config,
+        tools = usePluginComponentMap("map", "geotools", true),
         toggleName = `${name}_method`,
         mapState = useMapState(),
         instance = useMapInstance(name),
         [, { value }, { setValue }] = useField(name),
         [, , { setValue: setAccuracy }] = useField(`${name}_accuracy`),
-        [, { value: activeTool }, { setValue: setActiveTool }] = useField(
-            toggleName
-        );
+        [, { value: activeTool }, { setValue: setActiveTool }] =
+            useField(toggleName);
 
     const [defaultTool, DefaultTool] =
             Object.entries(tools).find(([, Tool]) => Tool.toolDefault) ||
@@ -48,12 +47,12 @@ export function useGeoTools(name, type) {
             longitude = 0,
             accuracy = null,
             zoom = true,
-            save = false
+            save = false,
         }) => {
             if (!geometry) {
                 geometry = {
-                    type: 'Point',
-                    coordinates: [longitude, latitude]
+                    type: "Point",
+                    coordinates: [longitude, latitude],
                 };
             }
 
@@ -67,7 +66,7 @@ export function useGeoTools(name, type) {
                     name,
                     type,
                     activeTool,
-                    mapState
+                    mapState,
                 });
             }
         },
@@ -93,12 +92,12 @@ export function useGeoTools(name, type) {
                     .filter(([, Tool]) => Tool.toolLabel)
                     .map(([key, Tool]) => ({
                         name: key,
-                        label: Tool.toolLabel
-                    }))
+                        label: Tool.toolLabel,
+                    })),
             },
             setLocation,
             ActiveTool,
-            value
+            value,
         }),
         [toggleName, tools, setLocation, ActiveTool, value]
     );
@@ -106,7 +105,7 @@ export function useGeoTools(name, type) {
 
 // Load map configuration for the given page
 export function useMapConfig() {
-    const { config } = usePlugin('map'),
+    const { config } = usePlugin("map"),
         routeInfo = useRouteInfo(),
         context = useRenderContext();
 
@@ -114,7 +113,7 @@ export function useMapConfig() {
 }
 
 export function useMapState() {
-    const state = usePluginState('map');
+    const state = usePluginState("map");
     if (state && state.basemaps && state.overlays) {
         return state;
     } else {
@@ -137,7 +136,7 @@ export function useMapInstance(name = null) {
 
 function checkGroupLayers(layerconf) {
     const { type, layers = [] } = layerconf;
-    if (type !== 'group') {
+    if (type !== "group") {
         return layerconf;
     }
     return {
@@ -148,53 +147,53 @@ function checkGroupLayers(layerconf) {
             }
             return {
                 ...layer,
-                name: `${layerconf.name}-${i}`
+                name: `${layerconf.name}-${i}`,
             };
-        })
+        }),
     };
 }
 
 export function routeMapConf(config, routeInfo, context = {}) {
     const { page, mode, path, params, item_id, page_config } = routeInfo,
-        conf = config.maps[page === 'outbox' ? page_config.name : page];
+        conf = config.maps[page === "outbox" ? page_config.name : page];
 
     if (!conf) {
         return null;
     }
     // FIXME: custom mapname
-    const mapname = 'main';
+    const mapname = "main";
 
     // Start with defaults, override with mode-specific options
     var mapconf = {
         ...(conf.defaults.maps[mapname] || {}),
         ...((conf[mode] || { maps: {} }).maps[mapname] || {}),
         basemaps: config.basemaps.map(checkGroupLayers),
-        bounds: config.bounds
+        bounds: config.bounds,
     };
 
     if (config.mapProps) {
         mapconf.mapProps = config.mapProps;
     }
-    if (typeof mapconf.autoZoom === 'undefined') {
+    if (typeof mapconf.autoZoom === "undefined") {
         mapconf.autoZoom = { ...config.autoZoom };
     }
     if (mapconf.autoZoom === true) {
         mapconf.autoZoom = {};
     }
-    if (typeof mapconf.autoZoom.wait === 'undefined') {
+    if (typeof mapconf.autoZoom.wait === "undefined") {
         mapconf.autoZoom.wait = 0.5;
     }
-    if (typeof mapconf.autoZoom.maxZoom === 'undefined') {
+    if (typeof mapconf.autoZoom.maxZoom === "undefined") {
         mapconf.autoZoom.maxZoom = 13;
     }
-    if (typeof mapconf.autoZoom.animate === 'undefined') {
+    if (typeof mapconf.autoZoom.animate === "undefined") {
         mapconf.autoZoom.animate = true;
     }
 
     // Combine (rather than overwrite) defaults + mode-specific layers
     if (
         mode &&
-        mode !== 'defaults' &&
+        mode !== "defaults" &&
         conf.defaults.maps[mapname] &&
         conf.defaults.maps[mapname].layers
     ) {
@@ -210,52 +209,52 @@ export function routeMapConf(config, routeInfo, context = {}) {
     }
 
     // Compute default layer configuration for wq REST API
-    if (mapconf.autoLayers && mode !== 'edit') {
+    if (mapconf.autoLayers && mode !== "edit") {
         const geometryFields = getGeometryFields((page_config || {}).form);
-        geometryFields.forEach(field => {
+        geometryFields.forEach((field) => {
             let name = (page_config && page_config.label) || mapconf.name;
             if (field.label) {
                 name += ` - ${field.label}`;
             }
             const defaultLayer = {
                 name,
-                type: 'geojson'
+                type: "geojson",
             };
-            if (!mode || mode === 'list') {
+            if (!mode || mode === "list") {
                 Object.assign(defaultLayer, {
-                    data: ['context_feature_collection', field.name],
+                    data: ["context_feature_collection", field.name],
                     popup: page,
-                    cluster: true
+                    cluster: true,
                 });
             } else {
                 Object.assign(defaultLayer, {
-                    data: ['context_feature', field.name],
-                    popup: page
+                    data: ["context_feature", field.name],
+                    popup: page,
                 });
             }
             mapconf.layers.push(defaultLayer);
         });
     }
-    mapconf.layers = mapconf.layers.map(checkGroupLayers).map(layerconf => {
+    mapconf.layers = mapconf.layers.map(checkGroupLayers).map((layerconf) => {
         // FIXME: recalculate
-        const baseurl = path.replace(/\/$/, '');
+        const baseurl = path.replace(/\/$/, "");
         layerconf = {
             active: true,
-            ...layerconf
+            ...layerconf,
         };
 
-        if (layerconf.url && layerconf.url.indexOf('{{') > -1) {
+        if (layerconf.url && layerconf.url.indexOf("{{") > -1) {
             layerconf.url = Mustache.render(layerconf.url, {
                 ...context,
                 id: item_id,
-                url: baseurl
+                url: baseurl,
             });
             if (params) {
                 const pstr = new URLSearchParams(params).toString();
-                if (layerconf.url.indexOf('?') > -1) {
-                    layerconf.url += '&' + pstr;
+                if (layerconf.url.indexOf("?") > -1) {
+                    layerconf.url += "&" + pstr;
                 } else {
-                    layerconf.url += '?' + pstr;
+                    layerconf.url += "?" + pstr;
                 }
             }
         }
@@ -265,22 +264,22 @@ export function routeMapConf(config, routeInfo, context = {}) {
     return mapconf;
 }
 
-function getGeometryFields(form, prefix = '') {
+function getGeometryFields(form, prefix = "") {
     const geometryFields = [];
-    (form || []).forEach(field => {
-        if (field.type.startsWith('geo')) {
+    (form || []).forEach((field) => {
+        if (field.type.startsWith("geo")) {
             geometryFields.push({
                 name: prefix + field.name,
-                label: field.label || field.name
+                label: field.label || field.name,
             });
-        } else if (field.type === 'group') {
+        } else if (field.type === "group") {
             geometryFields.push(
                 ...getGeometryFields(
                     field.children,
                     (prefix = `${field.name}.`)
                 )
             );
-        } else if (field.type === 'repeat') {
+        } else if (field.type === "repeat") {
             geometryFields.push(
                 ...getGeometryFields(
                     field.children,
@@ -290,19 +289,19 @@ function getGeometryFields(form, prefix = '') {
         }
     });
     if (geometryFields.length === 0 && !prefix) {
-        geometryFields.push({ name: 'geometry', label: '' });
+        geometryFields.push({ name: "geometry", label: "" });
     }
     return geometryFields;
 }
 
 export function contextFeatureCollection(context, fieldName) {
     return {
-        type: 'FeatureCollection',
+        type: "FeatureCollection",
         features: ((context && context.list) || [])
-            .map(obj => {
+            .map((obj) => {
                 return contextFeature(obj, fieldName);
             })
-            .filter(obj => !!obj)
+            .filter((obj) => !!obj),
     };
 }
 
@@ -312,27 +311,27 @@ export function contextFeature(context, fieldName) {
         return null;
     }
     return {
-        type: 'Feature',
+        type: "Feature",
         id: context.id,
         geometry,
         properties: {
-            ...context
-        }
+            ...context,
+        },
     };
 }
 
 function contextGeometry(context, fieldName) {
-    const [prefix, ...rest] = fieldName.split('.');
+    const [prefix, ...rest] = fieldName.split(".");
     if (!context) {
         return null;
-    } else if (prefix.endsWith('[]')) {
+    } else if (prefix.endsWith("[]")) {
         const list = context[prefix.slice(0, prefix.length - 2)];
         if (Array.isArray(list)) {
             return {
-                type: 'GeometryCollection',
-                geometries: list.map(row =>
-                    contextGeometry(row, rest.join('.'))
-                )
+                type: "GeometryCollection",
+                geometries: list.map((row) =>
+                    contextGeometry(row, rest.join("."))
+                ),
             };
         } else {
             return null;
@@ -340,7 +339,7 @@ function contextGeometry(context, fieldName) {
     } else {
         const obj = context[prefix];
         if (rest.length) {
-            return contextGeometry(obj, rest.join('.'));
+            return contextGeometry(obj, rest.join("."));
         } else if (obj && obj.type && (obj.coordinates || obj.geometries)) {
             return obj;
         } else {
@@ -354,18 +353,18 @@ export function useDataProps(data, context) {
         const dataProps = {};
         if (Array.isArray(data)) {
             const [dataType, fieldName] = data;
-            if (dataType === 'context_feature_collection') {
+            if (dataType === "context_feature_collection") {
                 dataProps.data = contextFeatureCollection(context, fieldName);
-            } else if (dataType === 'context_feature') {
+            } else if (dataType === "context_feature") {
                 dataProps.data = contextFeature(context, fieldName) || {
-                    type: 'Feature',
+                    type: "Feature",
                     geometry: {
-                        type: 'GeometryCollection',
-                        geometries: []
-                    }
+                        type: "GeometryCollection",
+                        geometries: [],
+                    },
                 };
             } else {
-                console.error('Unexpected data context array', data);
+                console.error("Unexpected data context array", data);
             }
         } else if (data) {
             dataProps.data = data;
@@ -380,11 +379,11 @@ export function useGeoJSON(url, data) {
     const app = useApp(),
         [geojson, setGeojson] = useState();
 
-    if (url && !(url.indexOf('/') === 0 || url.indexOf('http') === 0)) {
+    if (url && !(url.indexOf("/") === 0 || url.indexOf("http") === 0)) {
         console.warn(
             new Error(`Use "{{{rt}}}/${url}" instead of relative URL`)
         );
-        url = app.service + '/' + url;
+        url = app.service + "/" + url;
     }
 
     useEffect(() => {
@@ -433,11 +432,11 @@ export function useFeatureCollection(value) {
 
 export function asGeometry(geojson, maxGeometries) {
     var geoms = [];
-    if (geojson.type === 'FeatureCollection') {
+    if (geojson.type === "FeatureCollection") {
         geojson.features.forEach(function (feature) {
             addGeometry(feature.geometry);
         });
-    } else if (geojson.type === 'Feature') {
+    } else if (geojson.type === "Feature") {
         addGeometry(geojson.geometry);
     } else {
         addGeometry(geojson);
@@ -451,18 +450,18 @@ export function asGeometry(geojson, maxGeometries) {
         return geoms[geoms.length - 1];
     } else if (maxGeometries && geoms.length > maxGeometries) {
         return {
-            type: 'GeometryCollection',
-            geometries: geoms.slice(-maxGeometries)
+            type: "GeometryCollection",
+            geometries: geoms.slice(-maxGeometries),
         };
     } else {
         return {
-            type: 'GeometryCollection',
-            geometries: geoms
+            type: "GeometryCollection",
+            geometries: geoms,
         };
     }
 
     function addGeometry(geometry) {
-        if (geometry.type == 'GeometryCollection') {
+        if (geometry.type == "GeometryCollection") {
             geometry.geometries.forEach(addGeometry);
         } else {
             geoms.push(geometry);
@@ -471,7 +470,7 @@ export function asGeometry(geojson, maxGeometries) {
 }
 
 export function asFeatureCollection(geojson) {
-    if (typeof geojson === 'string') {
+    if (typeof geojson === "string") {
         try {
             geojson = JSON.parse(geojson);
         } catch (e) {
@@ -488,25 +487,25 @@ export function asFeatureCollection(geojson) {
     }
 
     let features;
-    if (geometry.type === 'GeometryCollection') {
-        features = geometry.geometries.map(geometry => ({
-            type: 'Feature',
+    if (geometry.type === "GeometryCollection") {
+        features = geometry.geometries.map((geometry) => ({
+            type: "Feature",
             properties: {},
-            geometry
+            geometry,
         }));
     } else {
         features = [
             {
-                type: 'Feature',
+                type: "Feature",
                 properties: {},
-                geometry
-            }
+                geometry,
+            },
         ];
     }
 
     return {
-        type: 'FeatureCollection',
-        features
+        type: "FeatureCollection",
+        features,
     };
 }
 
@@ -516,9 +515,9 @@ export function computeBounds(features) {
         miny,
         maxx,
         maxy;
-    features.forEach(feature => {
+    features.forEach((feature) => {
         const geometry = feature.geometry;
-        if (geometry.type === 'GeometryCollection') {
+        if (geometry.type === "GeometryCollection") {
             geometry.geometries.forEach(addCoordinates);
         } else {
             addCoordinates(geometry.coordinates);
@@ -534,7 +533,7 @@ export function computeBounds(features) {
             return;
         }
         const [x, y] = coordinates;
-        if (typeof x !== 'number' || typeof y !== 'number') {
+        if (typeof x !== "number" || typeof y !== "number") {
             return;
         }
         if (hasBounds) {
@@ -552,7 +551,7 @@ export function computeBounds(features) {
     if (hasBounds) {
         return [
             [minx, miny],
-            [maxx, maxy]
+            [maxx, maxy],
         ];
     } else {
         return null;

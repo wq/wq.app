@@ -1,41 +1,41 @@
-import { connectRoutes, push, NOT_FOUND, ADD_ROUTES } from 'redux-first-router';
-import queryString from 'query-string';
-import { capitalCase } from 'capital-case';
-import { getStore } from '@wq/store';
+import { connectRoutes, push, NOT_FOUND, ADD_ROUTES } from "redux-first-router";
+import queryString from "query-string";
+import { capitalCase } from "capital-case";
+import { getStore } from "@wq/store";
 
-const HTML = '@@HTML',
-    RENDER = 'RENDER',
-    FIRST = '@@FIRST',
-    DEFAULT = '@@DEFAULT',
-    LAST = '@@LAST',
-    CURRENT = '@@CURRENT',
+const HTML = "@@HTML",
+    RENDER = "RENDER",
+    FIRST = "@@FIRST",
+    DEFAULT = "@@DEFAULT",
+    LAST = "@@LAST",
+    CURRENT = "@@CURRENT",
     validOrder = {
         [FIRST]: true,
         [DEFAULT]: true,
-        [LAST]: true
+        [LAST]: true,
     };
 
 const defaultQuerySerializer = {
     parse(str) {
-        return queryString.parse(str, { arrayFormat: 'comma' });
+        return queryString.parse(str, { arrayFormat: "comma" });
     },
     stringify(obj) {
-        return queryString.stringify(obj, { arrayFormat: 'comma' });
-    }
+        return queryString.stringify(obj, { arrayFormat: "comma" });
+    },
 };
 
 // Exported module object
 var router = {
     config: {
-        store: 'main',
+        store: "main",
         tmpl404: 404,
         debug: false,
-        getTemplateName: name => name,
-        querySerializer: defaultQuerySerializer
+        getTemplateName: (name) => name,
+        querySerializer: defaultQuerySerializer,
     },
     routesMap: {},
     routeInfoFn: [],
-    contextProcessors: []
+    contextProcessors: [],
 };
 
 // Configuration
@@ -47,7 +47,7 @@ router.init = function (config) {
 
     router.config = {
         ...router.config,
-        ...config
+        ...config,
     };
 
     // Configuration options:
@@ -59,18 +59,18 @@ router.init = function (config) {
         reducer: routeReducer,
         middleware,
         enhancer,
-        initialDispatch
+        initialDispatch,
     } = connectRoutes(
         {},
         {
             querySerializer: router.config.querySerializer,
-            initialDispatch: false
+            initialDispatch: false,
         }
     );
     router.store = getStore(router.config.store);
-    router.store.addReducer('location', routeReducer);
-    router.store.addReducer('context', contextReducer);
-    router.store.addReducer('routeInfo', routeInfoReducer);
+    router.store.addReducer("location", routeReducer);
+    router.store.addReducer("context", contextReducer);
+    router.store.addReducer("routeInfo", routeInfoReducer);
     router.store.addEnhancer(enhancer);
     router.store.addMiddleware(middleware);
     router.store.setThunkHandler(router.addThunk);
@@ -79,7 +79,7 @@ router.init = function (config) {
 
 router.start = function () {
     if (!router.config) {
-        throw new Error('Initialize router first!');
+        throw new Error("Initialize router first!");
     }
     var orderedRoutes = {};
     [FIRST, DEFAULT, LAST].forEach(function (order) {
@@ -91,13 +91,13 @@ router.start = function () {
     });
     router.store.dispatch({
         type: ADD_ROUTES,
-        payload: { routes: orderedRoutes }
+        payload: { routes: orderedRoutes },
     });
     router._initialDispatch();
 };
 
 router.jqmInit = function () {
-    console.warn(new Error('jqmInit() renamed to start()'));
+    console.warn(new Error("jqmInit() renamed to start()"));
     router.start();
 };
 
@@ -113,16 +113,16 @@ function contextReducer(context = {}, action) {
         current = {
             router_info: {
                 ...routeInfo,
-                template: router.config.tmpl404
+                template: router.config.tmpl404,
             },
             rt: router.base_url,
-            url: routeInfo.full_path
+            url: routeInfo.full_path,
         };
     }
     return {
         ...context,
         [current.router_info.name]: current,
-        [CURRENT]: current
+        [CURRENT]: current,
     };
 }
 
@@ -132,7 +132,7 @@ function routeInfoReducer(routeInfo = {}, action) {
         return {
             ...routeInfo,
             [current.name]: current,
-            [CURRENT]: current
+            [CURRENT]: current,
         };
     } else {
         return routeInfo;
@@ -143,13 +143,13 @@ async function _generateContext(dispatch, getState, refresh = false) {
     const location = getState().location;
     var context = {
         router_info: _routeInfo(location),
-        rt: router.base_url
+        rt: router.base_url,
     };
     for (var i = 0; i < router.contextProcessors.length; i++) {
         var fn = router.contextProcessors[i];
         context = {
             ...context,
-            ...((await fn(context)) || {})
+            ...((await fn(context)) || {}),
         };
     }
     if (context[NOT_FOUND]) {
@@ -167,34 +167,34 @@ router.register = function (
     thunk = null
 ) {
     var name;
-    const newUsage = ' Usage: router.register(path[, name[, contextFn]])';
+    const newUsage = " Usage: router.register(path[, name[, contextFn]])";
     if (!validOrder[order]) {
         // Assume old-style prevent() callback was passed
-        throw new Error('prevent() no longer supported.' + newUsage);
+        throw new Error("prevent() no longer supported." + newUsage);
     }
 
     if (context) {
-        if (typeof context !== 'function') {
+        if (typeof context !== "function") {
             throw new Error(
-                'Unexpected ' + context + ' for contextFn.' + newUsage
+                "Unexpected " + context + " for contextFn." + newUsage
             );
         }
-    } else if (typeof nameOrContext === 'function') {
+    } else if (typeof nameOrContext === "function") {
         context = nameOrContext;
         nameOrContext = null;
     }
 
     if (nameOrContext) {
         name = nameOrContext;
-        if (typeof name !== 'string') {
+        if (typeof name !== "string") {
             throw new Error(
-                'Unexpected ' + name + ' for route name.' + newUsage
+                "Unexpected " + name + " for route name." + newUsage
             );
         }
     } else {
-        if (path.indexOf('/') > -1) {
+        if (path.indexOf("/") > -1) {
             throw new Error(
-                'router.register() now requires a route name if path contains /.' +
+                "router.register() now requires a route name if path contains /." +
                     newUsage
             );
         }
@@ -204,7 +204,7 @@ router.register = function (
 
     if (context && context.length > 1) {
         throw new Error(
-            'contextFn should take a single argument (the existing context) and return a new context for merging.'
+            "contextFn should take a single argument (the existing context) and return a new context for merging."
         );
     }
 
@@ -218,7 +218,7 @@ router.register = function (
     router.routesMap[name.toUpperCase()] = {
         path: _normalizePath(path),
         thunk: thunkFn,
-        order
+        order,
     };
 
     if (context) {
@@ -239,7 +239,7 @@ router.registerLast = function (path, name, context) {
 router.addThunk = function (name, thunk) {
     router.routesMap[name] = {
         thunk,
-        order: FIRST
+        order: FIRST,
     };
 };
 
@@ -269,12 +269,12 @@ router.addContextForRoute = function (pathOrName, fn) {
 };
 
 router.onShow = function () {
-    throw new Error('router.onShow() is removed.  Use a run() plugin instead');
+    throw new Error("router.onShow() is removed.  Use a run() plugin instead");
 };
 
 router.addRoute = function () {
     throw new Error(
-        'router.addRoute() is removed.  Use a run() plugin instead'
+        "router.addRoute() is removed.  Use a run() plugin instead"
     );
 };
 
@@ -289,7 +289,7 @@ router.render = function (context, refresh) {
         }
         context = {
             ...context,
-            _refreshCount: refresh
+            _refreshCount: refresh,
         };
     }
 
@@ -302,7 +302,7 @@ router.render = function (context, refresh) {
 
     return router.store.dispatch({
         type: RENDER,
-        payload: context
+        payload: context,
     });
 };
 
@@ -322,7 +322,7 @@ router.reload = function () {
     const context = router.getContext(),
         refresh = (context._refreshCount || 0) + 1;
     return _generateContext(
-        action => router.store.dispatch(action),
+        (action) => router.store.dispatch(action),
         () => router.store.getState(),
         refresh
     );
@@ -331,18 +331,18 @@ router.reload = function () {
 // Simple 404 page helper
 router.notFound = function () {
     return {
-        [NOT_FOUND]: true
+        [NOT_FOUND]: true,
     };
 };
 
 // Use when loading HTML from server
 router.rawHTML = function (html) {
     return {
-        [HTML]: html
+        [HTML]: html,
     };
 };
 
-router.base_url = '';
+router.base_url = "";
 
 router.addRouteInfo = function (fn) {
     router.routeInfoFn.push(fn);
@@ -353,13 +353,13 @@ router.getRouteInfo = function (context, routeInfo) {
     if (routeInfo) {
         if (
             !ctxRouteInfo ||
-            ['name', 'mode', 'variant', 'item_id'].some(
-                key => ctxRouteInfo[key] != routeInfo[key]
+            ["name", "mode", "variant", "item_id"].some(
+                (key) => ctxRouteInfo[key] != routeInfo[key]
             )
         ) {
             return {
                 ...routeInfo,
-                pending: true
+                pending: true,
             };
         } else {
             return ctxRouteInfo;
@@ -380,7 +380,7 @@ router.getContextTitle = function (context, routeInfo) {
     }
 
     if (!title) {
-        title = 'Loading...';
+        title = "Loading...";
     }
 
     return title;
@@ -396,19 +396,19 @@ router.getRouteTitle = function (routeInfo) {
             `${verbose_name}s`;
 
     let title,
-        prefix = '';
-    if (mode === 'list' && verbose_name === 'outbox') {
-        title = 'outbox';
-    } else if (mode === 'list') {
+        prefix = "";
+    if (mode === "list" && verbose_name === "outbox") {
+        title = "outbox";
+    } else if (mode === "list") {
         title = verbose_name_plural;
-    } else if (mode === 'edit') {
+    } else if (mode === "edit") {
         title = verbose_name;
-        if (variant === 'new') {
-            prefix = 'New ';
+        if (variant === "new") {
+            prefix = "New ";
         } else {
-            prefix = 'Edit ';
+            prefix = "Edit ";
         }
-    } else if (mode && mode !== 'detail') {
+    } else if (mode && mode !== "detail") {
         title = `${verbose_name} - ${mode}`;
     } else {
         title = verbose_name;
@@ -422,8 +422,8 @@ router.getRouteTitle = function (routeInfo) {
 };
 
 function _normalizePath(path) {
-    path = path.replace('<slug>', ':slug');
-    return router.base_url + '/' + path;
+    path = path.replace("<slug>", ":slug");
+    return router.base_url + "/" + path;
 }
 
 function _getRouteName(pathOrName) {
@@ -438,13 +438,13 @@ function _getRouteName(pathOrName) {
         });
     }
     if (!name) {
-        throw new Error('Unrecognized route: ' + pathOrName);
+        throw new Error("Unrecognized route: " + pathOrName);
     }
     return name.toLowerCase();
 }
 
 function _removeBase(pathname) {
-    return pathname.replace(router.base_url + '/', '');
+    return pathname.replace(router.base_url + "/", "");
 }
 
 var _lastRouteInfo = null;
@@ -460,7 +460,7 @@ function _computeRouteInfo(location) {
     if (location.current && location.prev) {
         location = {
             ...location.current,
-            prev: location.prev
+            prev: location.prev,
         };
     }
     var info = {};
@@ -470,13 +470,13 @@ function _computeRouteInfo(location) {
     info.path = _removeBase(location.pathname);
     info.path_enc = escape(info.path);
     info.full_path =
-        location.pathname + (location.search ? '?' + location.search : '');
+        location.pathname + (location.search ? "?" + location.search : "");
     info.full_path_enc = escape(info.full_path);
     info.params = location.query;
     info.slugs = location.payload;
     info.base_url = router.base_url;
 
-    router.routeInfoFn.forEach(fn => (info = fn(info)));
+    router.routeInfoFn.forEach((fn) => (info = fn(info)));
     return info;
 }
 

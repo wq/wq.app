@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { Style } from '@rnmapbox/maps';
+import React, { useMemo } from "react";
+import PropTypes from "prop-types";
+import { Style } from "@rnmapbox/maps";
 
 export default function VectorTile({ active, url, style }) {
     const json = useMarkVisible(style || url, active);
@@ -11,15 +11,15 @@ function useMarkVisible(style, active) {
     return useMemo(() => {
         return {
             ...style,
-            layers: (style.layers || []).map(layer => {
+            layers: (style.layers || []).map((layer) => {
                 return {
                     ...layer,
                     layout: {
                         ...(layer.layout || {}),
-                        visibility: active ? 'visible' : 'none'
-                    }
+                        visibility: active ? "visible" : "none",
+                    },
                 };
-            })
+            }),
         };
     }, [style, active]);
 }
@@ -27,5 +27,5 @@ function useMarkVisible(style, active) {
 VectorTile.propTypes = {
     active: PropTypes.bool,
     style: PropTypes.object,
-    url: PropTypes.string
+    url: PropTypes.string,
 };

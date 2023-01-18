@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
-import { App as DefaultApp, usePlugin } from '@wq/react';
-import { ThemeProvider } from '@material-ui/styles';
-import { createMuiTheme } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import React, { useMemo } from "react";
+import { App as DefaultApp, usePlugin } from "@wq/react";
+import { ThemeProvider } from "@material-ui/styles";
+import { createMuiTheme } from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 export default function App() {
-    const { theme } = usePlugin('material').config,
+    const { theme } = usePlugin("material").config,
         muiTheme = useMemo(() => createTheme(theme), [theme]);
     return (
         <ThemeProvider theme={muiTheme}>
