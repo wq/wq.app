@@ -1,5 +1,5 @@
-import React from 'react';
-import { useRenderContext } from '../hooks';
+import React from "react";
+import { useRenderContext } from "../hooks";
 
 export default function NotFound() {
     const { url } = useRenderContext();

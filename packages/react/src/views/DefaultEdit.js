@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 import {
     useRenderContext,
     useRouteInfo,
     useComponents,
-    useReverse
-} from '../hooks';
+    useReverse,
+} from "../hooks";
 
 export default function DefaultEdit() {
     const reverse = useReverse(),
@@ -14,7 +14,7 @@ export default function DefaultEdit() {
         { ScrollView, AutoForm, DeleteForm } = useComponents();
 
     let backUrl;
-    if (outbox_id || variant === 'new') {
+    if (outbox_id || variant === "new") {
         backUrl = reverse(`${page_config.name}_list`);
     } else {
         backUrl = reverse(`${page}_detail`, context.id);
@@ -23,10 +23,10 @@ export default function DefaultEdit() {
     let submitUrl, method;
     if (context.id) {
         submitUrl = `${page_config.url}/${context.id}`;
-        method = 'PUT';
+        method = "PUT";
     } else {
         submitUrl = `${page_config.url}/`;
-        method = 'POST';
+        method = "POST";
     }
 
     return (

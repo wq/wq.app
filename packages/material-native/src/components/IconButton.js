@@ -1,7 +1,7 @@
-import React from 'react';
-import { useIcon } from '@wq/react';
-import { IconButton as PaperIconButton, useTheme } from 'react-native-paper';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useIcon } from "@wq/react";
+import { IconButton as PaperIconButton, useTheme } from "react-native-paper";
+import PropTypes from "prop-types";
 
 export default function IconButton({ icon, onClick, onPress, color, ...rest }) {
     const Icon = useIcon(icon),
@@ -9,9 +9,9 @@ export default function IconButton({ icon, onClick, onPress, color, ...rest }) {
     if (!onPress) {
         onPress = onClick;
     }
-    if (color === 'primary') {
+    if (color === "primary") {
         color = theme.colors.primary;
-    } else if (color === 'secondary') {
+    } else if (color === "secondary") {
         color = theme.colors.accent;
     }
     return (
@@ -28,5 +28,5 @@ IconButton.propTypes = {
     icon: PropTypes.string,
     onClick: PropTypes.func,
     onPress: PropTypes.func,
-    color: PropTypes.string
+    color: PropTypes.string,
 };

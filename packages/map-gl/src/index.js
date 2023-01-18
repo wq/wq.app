@@ -1,4 +1,4 @@
-import mapgl from '@wq/map-gl-web';
+import mapgl from "@wq/map-gl-web";
 
 export default mapgl;
-export * from '@wq/map-gl-web';
+export * from "@wq/map-gl-web";

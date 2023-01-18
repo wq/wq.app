@@ -1,11 +1,11 @@
-import React from 'react';
-import { useSpinner } from '../hooks';
+import React from "react";
+import { useSpinner } from "../hooks";
 
 const style = {
-    position: 'absolute',
-    top: '1em',
-    right: '1em',
-    color: 'gray'
+    position: "absolute",
+    top: "1em",
+    right: "1em",
+    color: "gray",
 };
 
 export default function Spinner() {

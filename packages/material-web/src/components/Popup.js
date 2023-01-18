@@ -1,9 +1,9 @@
-import React from 'react';
-import Drawer from '@material-ui/core/Drawer';
-import PropTypes from 'prop-types';
+import React from "react";
+import Drawer from "@material-ui/core/Drawer";
+import PropTypes from "prop-types";
 
 export default function Popup({
-    anchor = 'bottom',
+    anchor = "bottom",
     children,
     open,
     onClose,
@@ -20,5 +20,5 @@ Popup.propTypes = {
     anchor: PropTypes.string,
     children: PropTypes.node,
     open: PropTypes.bool,
-    onClose: PropTypes.func
+    onClose: PropTypes.func,
 };

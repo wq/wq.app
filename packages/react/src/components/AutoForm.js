@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function AutoForm({
     action,
@@ -15,7 +15,7 @@ export default function AutoForm({
     data,
     error,
     FormRoot,
-    children
+    children,
 }) {
     const {
         Message,
@@ -25,7 +25,7 @@ export default function AutoForm({
         HorizontalView,
         View,
         CancelButton,
-        SubmitButton
+        SubmitButton,
     } = useComponents();
 
     const formData = initData(form, data);
@@ -81,7 +81,7 @@ AutoForm.propTypes = {
     data: PropTypes.object,
     error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     FormRoot: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
 };
 
 export function initData(form, data) {
@@ -95,17 +95,17 @@ export function initData(form, data) {
         formData.id = data.id;
     }
 
-    form.forEach(field => {
-        const fieldName = field['wq:ForeignKey']
+    form.forEach((field) => {
+        const fieldName = field["wq:ForeignKey"]
             ? `${field.name}_id`
             : field.name;
 
         let value;
-        if (field.type === 'repeat') {
-            value = (data[fieldName] || []).map(row =>
+        if (field.type === "repeat") {
+            value = (data[fieldName] || []).map((row) =>
                 initData(field.children, row)
             );
-        } else if (field.type === 'group') {
+        } else if (field.type === "group") {
             if (fieldName) {
                 value = initData(field.children, data[fieldName] || {});
             } else {
@@ -127,14 +127,14 @@ export function initData(form, data) {
     return formData;
 
     function defaultValue(field) {
-        if (field.type === 'select') {
+        if (field.type === "select") {
             return [];
         } else if (NULL_FIELDS.includes(field.type)) {
             return null;
         } else {
-            return '';
+            return "";
         }
     }
 }
 
-const NULL_FIELDS = ['date', 'time', 'dateTime', 'int', 'integer', 'decimal'];
+const NULL_FIELDS = ["date", "time", "dateTime", "int", "integer", "decimal"];

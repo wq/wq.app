@@ -1,5 +1,5 @@
-import React from 'react';
-import { useComponents } from '../hooks';
+import React from "react";
+import { useComponents } from "../hooks";
 
 export default function Footer() {
     const { FooterContent } = useComponents();

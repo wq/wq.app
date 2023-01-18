@@ -1,46 +1,46 @@
-import React from 'react';
-import { useComponents, useInputComponents } from '../hooks';
-import PropTypes from 'prop-types';
-import { pascalCase } from 'pascal-case';
+import React from "react";
+import { useComponents, useInputComponents } from "../hooks";
+import PropTypes from "prop-types";
+import { pascalCase } from "pascal-case";
 
 export default function AutoInput({ name, choices, type, bind = {}, ...rest }) {
     const inputs = useInputComponents(),
         { AutoSubform, AutoSubformArray, Text } = useComponents();
 
-    if (type === 'group') {
+    if (type === "group") {
         return <AutoSubform name={name} {...rest} />;
-    } else if (type === 'repeat') {
+    } else if (type === "repeat") {
         return <AutoSubformArray name={name} {...rest} />;
     }
 
     let inputType,
         required = bind.required;
-    if (rest['wq:ForeignKey']) {
+    if (rest["wq:ForeignKey"]) {
         name = `${name}_id`;
-        inputType = 'foreign-key';
-    } else if (type === 'select1' || type === 'select one') {
+        inputType = "foreign-key";
+    } else if (type === "select1" || type === "select one") {
         if (!choices) {
             choices = [];
         }
         if (choices.length < 5) {
-            inputType = 'toggle';
+            inputType = "toggle";
         } else if (choices.length < 10) {
-            inputType = 'radio';
+            inputType = "radio";
         } else {
-            inputType = 'select';
+            inputType = "select";
         }
     } else if (inputs[type]) {
         inputType = type;
     } else {
-        if (type === 'picture' || type === 'photo') {
-            inputType = 'image';
-        } else if (type === 'video' || type === 'audio') {
-            inputType = 'file';
-        } else if (type === 'binary') {
+        if (type === "picture" || type === "photo") {
+            inputType = "image";
+        } else if (type === "video" || type === "audio") {
+            inputType = "file";
+        } else if (type === "binary") {
             // wq.db <1.3
-            inputType = 'file';
+            inputType = "file";
         } else {
-            inputType = 'input';
+            inputType = "input";
         }
     }
 
@@ -74,6 +74,6 @@ AutoInput.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     bind: PropTypes.object,
-    'wq:ForeignKey': PropTypes.string,
-    choices: PropTypes.arrayOf(PropTypes.object)
+    "wq:ForeignKey": PropTypes.string,
+    choices: PropTypes.arrayOf(PropTypes.object),
 };

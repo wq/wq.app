@@ -1,5 +1,5 @@
 const geolocation = {
-    supported: 'geolocation' in navigator,
+    supported: "geolocation" in navigator,
     watchPosition(onPosition, onError, options) {
         return navigator.geolocation.watchPosition(
             onPosition,
@@ -9,7 +9,7 @@ const geolocation = {
     },
     clearWatch(watchId) {
         return navigator.geolocation.clearWatch(watchId);
-    }
+    },
 };
 
 export default geolocation;

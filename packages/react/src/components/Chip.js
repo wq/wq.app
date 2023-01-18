@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents, useIcon } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents, useIcon } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function Chip({ label, icon, onDelete, ...rest }) {
     const { IconButton } = useComponents(),
@@ -8,9 +8,9 @@ export default function Chip({ label, icon, onDelete, ...rest }) {
     return (
         <span
             style={{
-                border: '1px solid blue',
-                'border-radius': '1em',
-                padding: '0.25em'
+                border: "1px solid blue",
+                "border-radius": "1em",
+                padding: "0.25em",
             }}
             {...rest}
         >
@@ -24,5 +24,5 @@ export default function Chip({ label, icon, onDelete, ...rest }) {
 Chip.propTypes = {
     label: PropTypes.node,
     icon: PropTypes.string,
-    onDelete: PropTypes.func
+    onDelete: PropTypes.func,
 };

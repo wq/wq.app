@@ -1,4 +1,4 @@
-import mapgl from '@wq/map-gl-native';
+import mapgl from "@wq/map-gl-native";
 
 export default mapgl;
-export * from '@wq/map-gl-native';
+export * from "@wq/map-gl-native";

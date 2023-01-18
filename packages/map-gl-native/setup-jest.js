@@ -1,9 +1,9 @@
-import { NativeModules } from 'react-native';
+import { NativeModules } from "react-native";
 
 if (!NativeModules.MGLLogging) {
     NativeModules.MGLLogging = {};
 }
-for (const name of ['MGLLogging', 'MGLOfflineModule', 'MGLLocationModule']) {
+for (const name of ["MGLLogging", "MGLOfflineModule", "MGLLocationModule"]) {
     const module = NativeModules[name];
     if (!module.addListener) {
         module.addListener = jest.fn();

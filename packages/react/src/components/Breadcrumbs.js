@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function Breadcrumbs({ links }) {
     const { Link } = useComponents();
@@ -26,5 +26,5 @@ export default function Breadcrumbs({ links }) {
 }
 
 Breadcrumbs.propTypes = {
-    links: PropTypes.arrayOf(PropTypes.object)
+    links: PropTypes.arrayOf(PropTypes.object),
 };

@@ -1,9 +1,9 @@
-import { createRef, useMemo } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { useApp, usePlugin, useRoutesMap, toNavAction } from './hooks.js';
+import { createRef, useMemo } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { useApp, usePlugin, useRoutesMap, toNavAction } from "./hooks.js";
 
-export * from './hooks.js';
+export * from "./hooks.js";
 
 export const navRef = createRef();
 
@@ -28,12 +28,12 @@ export function useNav(to) {
 }
 
 export function useNavigationProps() {
-    const config = usePlugin('react').config;
+    const config = usePlugin("react").config;
     return config.navigationProps || {};
 }
 
 export function useCreateNavigator(options) {
-    const config = usePlugin('react').config;
+    const config = usePlugin("react").config;
     const createNavigator = config.createNavigator || createDefaultNavigator;
     return useMemo(() => {
         return createNavigator(options);

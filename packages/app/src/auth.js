@@ -1,28 +1,28 @@
-const LOGIN_SUCCESS = 'LOGIN_SUCCESS',
-    LOGIN_CHECK = 'LOGIN_CHECK',
-    LOGIN_RELOAD = 'LOGIN_RELOAD',
-    LOGOUT_SUBMIT = 'LOGOUT_SUBMIT',
-    LOGOUT_SUCCESS = 'LOGOUT_SUCCESS',
-    CSRFTOKEN = 'CSRFTOKEN';
+const LOGIN_SUCCESS = "LOGIN_SUCCESS",
+    LOGIN_CHECK = "LOGIN_CHECK",
+    LOGIN_RELOAD = "LOGIN_RELOAD",
+    LOGOUT_SUBMIT = "LOGOUT_SUBMIT",
+    LOGOUT_SUCCESS = "LOGOUT_SUCCESS",
+    CSRFTOKEN = "CSRFTOKEN";
 
 export default {
-    name: 'auth',
+    name: "auth",
     persist: true,
 
     pages: {
         login: {
-            url: 'login'
+            url: "login",
         },
 
         logout: {
-            url: 'logout',
+            url: "logout",
             thunk(dispatch, getState) {
                 if (!getState().auth.user) {
                     return;
                 }
                 dispatch({ type: LOGOUT_SUBMIT });
-            }
-        }
+            },
+        },
     },
 
     start() {
@@ -56,7 +56,7 @@ export default {
                 const { csrftoken } = action.payload;
                 return {
                     ...state,
-                    csrftoken
+                    csrftoken,
                 };
             }
             default: {
@@ -83,19 +83,19 @@ export default {
             const user = getState().auth.user,
                 ds = this.app.store;
             setTimeout(function () {
-                ds.fetch('/login').then(function (result) {
+                ds.fetch("/login").then(function (result) {
                     if (result && result.user && result.config) {
                         dispatch({
                             type: LOGIN_RELOAD,
-                            payload: result
+                            payload: result,
                         });
                     } else {
                         const { csrftoken } = result || {};
                         dispatch({
                             type: user ? LOGOUT_SUCCESS : CSRFTOKEN,
                             payload: {
-                                csrftoken
-                            }
+                                csrftoken,
+                            },
                         });
                     }
                 });
@@ -103,17 +103,17 @@ export default {
         },
 
         LOGOUT_SUBMIT(dispatch) {
-            this.app.store.fetch('/logout').then(function (result) {
+            this.app.store.fetch("/logout").then(function (result) {
                 dispatch({
                     type: LOGOUT_SUCCESS,
-                    payload: result
+                    payload: result,
                 });
             });
         },
 
         LOGOUT_SUCCESS() {
             this.refreshUserInfo();
-        }
+        },
     },
 
     context(ctx) {
@@ -139,9 +139,9 @@ export default {
                     can_view: wqPageConf.can_view !== false,
                     can_add: wqPageConf.can_add || false,
                     can_change: wqPageConf.can_change || false,
-                    can_delete: wqPageConf.can_delete || false
-                }
-            }
+                    can_delete: wqPageConf.can_delete || false,
+                },
+            },
         };
     },
 
@@ -153,7 +153,7 @@ export default {
             app.router.render(
                 {
                     ...context,
-                    ...this.userInfo(context)
+                    ...this.userInfo(context),
                 },
                 true
             );
@@ -168,5 +168,5 @@ export default {
     async refreshCSRFToken() {
         const { csrftoken } = this.getState();
         this.app.outbox.setCSRFToken(csrftoken);
-    }
+    },
 };

@@ -1,4 +1,4 @@
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 
 const geolocation = {
     supported: true,
@@ -6,8 +6,8 @@ const geolocation = {
         Location.installWebGeolocationPolyfill();
         const { status } = await Location.requestForegroundPermissionsAsync();
 
-        if (status != 'success') {
-            onError(new Error('Location permission not granted'));
+        if (status != "success") {
+            onError(new Error("Location permission not granted"));
         }
 
         return navigator.geolocation.watchPosition(
@@ -18,13 +18,13 @@ const geolocation = {
     },
     clearWatch(watchId) {
         return navigator.geolocation.clearWatch(watchId);
-    }
+    },
 };
 
 function convertOptions(options) {
     if (options.enableHighAccuracy) {
         return {
-            accuracy: Location.Accuracy.BestForNavigation
+            accuracy: Location.Accuracy.BestForNavigation,
         };
     } else {
         return {};

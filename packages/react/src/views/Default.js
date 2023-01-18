@@ -1,6 +1,6 @@
-import React from 'react';
-import { useRouteInfo, useComponents } from '../hooks';
-import { pascalCase } from 'pascal-case';
+import React from "react";
+import { useRouteInfo, useComponents } from "../hooks";
+import { pascalCase } from "pascal-case";
 
 export default function Default() {
     const { name } = useRouteInfo(),

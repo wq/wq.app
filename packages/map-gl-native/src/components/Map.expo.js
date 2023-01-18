@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
-import { usePlugin } from '@wq/react';
-import PropTypes from 'prop-types';
-import { View, useWindowDimensions } from 'react-native';
-import MapView from 'react-native-maps';
+import React, { useMemo } from "react";
+import { usePlugin } from "@wq/react";
+import PropTypes from "prop-types";
+import { View, useWindowDimensions } from "react-native";
+import MapView from "react-native-maps";
 
 export default function Map({ bounds, children, mapProps, containerStyle }) {
-    const { ready } = usePlugin('map'),
+    const { ready } = usePlugin("map"),
         window = useWindowDimensions(),
         region = useMemo(() => {
             const [[xmin, ymin], [xmax, ymax]] = bounds,
@@ -17,16 +17,16 @@ export default function Map({ bounds, children, mapProps, containerStyle }) {
                 latitude: y,
                 longitude: x,
                 latitudeDelta: ydelta,
-                longitudeDelta: xdelta
+                longitudeDelta: xdelta,
             };
         }, [bounds]);
 
     containerStyle = {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
         minHeight: 200, // ?
-        ...containerStyle
+        ...containerStyle,
     };
 
     return (
@@ -47,5 +47,5 @@ Map.propTypes = {
     bounds: PropTypes.array,
     children: PropTypes.node,
     mapProps: PropTypes.object,
-    containerStyle: PropTypes.object
+    containerStyle: PropTypes.object,
 };

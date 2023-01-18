@@ -1,16 +1,16 @@
-import React from 'react';
+import React from "react";
 import {
     RouteContext,
     useRenderContext,
     useRouteInfo,
     useComponents,
     useViewComponents,
-    usePluginContent
-} from './hooks';
-import PropTypes from 'prop-types';
+    usePluginContent,
+} from "./hooks";
+import PropTypes from "prop-types";
 
-const HTML = '@@HTML', // @wq/router
-    CURRENT = '@@CURRENT'; // @wq/router
+const HTML = "@@HTML", // @wq/router
+    CURRENT = "@@CURRENT"; // @wq/router
 
 export default function App({ route }) {
     if (!route) {
@@ -23,7 +23,7 @@ export default function App({ route }) {
     );
 }
 App.propTypes = {
-    route: PropTypes.string
+    route: PropTypes.string,
 };
 
 function AppLayout({ showHeader }) {
@@ -35,16 +35,16 @@ function AppLayout({ showHeader }) {
 
     let name;
     if (routeInfo.pending) {
-        name = 'loading';
+        name = "loading";
     } else if (context[HTML]) {
-        name = 'server';
+        name = "server";
     } else if (views[routeInfo.template]) {
         name = routeInfo.template;
     } else if (
-        typeof routeInfo.template === 'string' &&
-        views[routeInfo.template.replace('_', '-')]
+        typeof routeInfo.template === "string" &&
+        views[routeInfo.template.replace("_", "-")]
     ) {
-        name = routeInfo.template.replace('_', '-');
+        name = routeInfo.template.replace("_", "-");
     } else if (views[routeInfo.name]) {
         name = routeInfo.name;
     } else if (routeInfo.mode) {
@@ -53,11 +53,11 @@ function AppLayout({ showHeader }) {
                 `${page}_${mode}`,
                 `${page}-${mode}`,
                 `default-${mode}`,
-                'default'
+                "default",
             ];
-        name = names.find(name => views[name]);
+        name = names.find((name) => views[name]);
     } else {
-        name = 'default';
+        name = "default";
     }
 
     const View = views[name];
@@ -93,5 +93,5 @@ function AppLayout({ showHeader }) {
     }
 }
 AppLayout.propTypes = {
-    showHeader: PropTypes.bool
+    showHeader: PropTypes.bool,
 };

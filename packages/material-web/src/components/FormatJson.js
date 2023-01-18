@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function FormatJson({ json }) {
     return (
@@ -10,5 +10,5 @@ export default function FormatJson({ json }) {
 }
 
 FormatJson.propTypes = {
-    json: PropTypes.object
+    json: PropTypes.object,
 };

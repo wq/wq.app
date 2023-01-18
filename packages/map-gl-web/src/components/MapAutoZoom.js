@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useMapInstance, computeBounds } from '@wq/map';
+import { useEffect } from "react";
+import { useMapInstance, computeBounds } from "@wq/map";
 
 export default function MapAutoZoom({ name, context, wait, maxZoom, animate }) {
     const map = useMapInstance(name);
@@ -10,20 +10,20 @@ export default function MapAutoZoom({ name, context, wait, maxZoom, animate }) {
         }
         const startTime = new Date();
 
-        map.on('idle', autoZoom);
+        map.on("idle", autoZoom);
 
         async function autoZoom() {
-            map.off('idle', autoZoom);
+            map.off("idle", autoZoom);
             const sources = map.getStyle().sources,
                 allFeatures = [];
             for (const name in sources) {
                 const source = sources[name];
-                if (source.type !== 'geojson') {
+                if (source.type !== "geojson") {
                     continue;
                 }
 
                 let data;
-                if (typeof source.data === 'object') {
+                if (typeof source.data === "object") {
                     data = source.data;
                 } else {
                     try {
@@ -31,17 +31,17 @@ export default function MapAutoZoom({ name, context, wait, maxZoom, animate }) {
                         data = await response.json();
                     } catch (e) {
                         console.error(e);
-                        data = { type: 'FeatureCollection', features: [] };
+                        data = { type: "FeatureCollection", features: [] };
                     }
                 }
 
                 let features;
-                if (data.type === 'FeatureCollection') {
+                if (data.type === "FeatureCollection") {
                     features = data.features || [];
-                } else if (data.type === 'Feature') {
+                } else if (data.type === "Feature") {
                     features = [data];
                 } else {
-                    features = [{ type: 'Feature', geometry: data }];
+                    features = [{ type: "Feature", geometry: data }];
                 }
 
                 allFeatures.push(...features);

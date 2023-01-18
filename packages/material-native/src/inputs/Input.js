@@ -1,14 +1,14 @@
-import React from 'react';
-import { TextInput } from 'react-native-paper';
-import { useField } from 'formik';
-import { useHtmlInput } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import { TextInput } from "react-native-paper";
+import { useField } from "formik";
+import { useHtmlInput } from "@wq/react";
+import PropTypes from "prop-types";
 
 const keyboards = {
-    int: 'number-pad',
-    decimal: 'decimal-pad',
-    tel: 'phone-pad',
-    email: 'email-address'
+    int: "number-pad",
+    decimal: "decimal-pad",
+    tel: "phone-pad",
+    email: "email-address",
 };
 
 export default function Input(props) {
@@ -19,8 +19,8 @@ export default function Input(props) {
         { setValue, setTouched } = helpers;
 
     function handleChange(value) {
-        if (type === 'int' || type === 'decimal') {
-            if (type === 'int') {
+        if (type === "int" || type === "decimal") {
+            if (type === "int") {
                 value = parseInt(value);
             } else {
                 value = +value;
@@ -28,10 +28,10 @@ export default function Input(props) {
             if (Number.isNaN(value)) {
                 setValue(null);
             } else {
-                if (typeof min === 'number' && value < min) {
+                if (typeof min === "number" && value < min) {
                     value = min;
                 }
-                if (typeof max === 'number' && value > max) {
+                if (typeof max === "number" && value > max) {
                     value = max;
                 }
                 setValue(value);
@@ -42,8 +42,8 @@ export default function Input(props) {
     }
 
     let formatValue;
-    if (type === 'int' || type === 'decimal') {
-        formatValue = typeof value === 'number' ? '' + value : '';
+    if (type === "int" || type === "decimal") {
+        formatValue = typeof value === "number" ? "" + value : "";
     } else {
         formatValue = value;
     }
@@ -51,8 +51,8 @@ export default function Input(props) {
     return (
         <TextInput
             label={label}
-            multiline={type === 'text'}
-            keyboardType={keyboards[type] || 'default'}
+            multiline={type === "text"}
+            keyboardType={keyboards[type] || "default"}
             maxLength={maxLength}
             onChangeText={handleChange}
             onBlur={() => setTouched(true)}
@@ -68,5 +68,5 @@ Input.propTypes = {
     label: PropTypes.string,
     style: PropTypes.object,
     min: PropTypes.number,
-    max: PropTypes.number
+    max: PropTypes.number,
 };

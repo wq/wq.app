@@ -1,7 +1,7 @@
-import React from 'react';
-import { useComponents } from '../hooks';
-import PropTypes from 'prop-types';
-import { pascalCase } from 'pascal-case';
+import React from "react";
+import { useComponents } from "../hooks";
+import PropTypes from "prop-types";
+import { pascalCase } from "pascal-case";
 
 export default function AutoSubform({
     name,
@@ -42,7 +42,7 @@ export default function AutoSubform({
         Fieldset = components.Fieldset;
     }
 
-    const prefix = name ? `${name}.` : '';
+    const prefix = name ? `${name}.` : "";
 
     return (
         <Fieldset name={name} label={label}>
@@ -62,5 +62,5 @@ AutoSubform.propTypes = {
     name: PropTypes.string,
     label: PropTypes.string,
     subform: PropTypes.arrayOf(PropTypes.object),
-    component: PropTypes.elementType
+    component: PropTypes.elementType,
 };

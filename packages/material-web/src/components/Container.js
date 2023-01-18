@@ -1,13 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import React from "react";
+import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(() => ({
     container: {
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh'
-    }
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+    },
 }));
 
 export default function Container({ children }) {
@@ -15,5 +15,5 @@ export default function Container({ children }) {
     return <div className={classes.container}>{children}</div>;
 }
 Container.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
 };

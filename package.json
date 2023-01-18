@@ -45,10 +45,7 @@
         "whatwg-fetch": "^3.6.2"
     },
     "prettier": {
-        "trailingComma": "none",
-        "arrowParens": "avoid",
-        "tabWidth": 4,
-        "singleQuote": true
+        "tabWidth": 4
     },
     "workspaces": [
         "packages/store",

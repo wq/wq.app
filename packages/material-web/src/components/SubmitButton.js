@@ -1,5 +1,5 @@
-import React from 'react';
-import { useComponents } from '@wq/react';
+import React from "react";
+import { useComponents } from "@wq/react";
 
 export default function SubmitButton(props) {
     const { Button } = useComponents();

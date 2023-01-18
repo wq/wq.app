@@ -1,11 +1,11 @@
-import React from 'react';
-import { Field } from 'formik';
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import { ToggleButtonGroup } from 'formik-material-ui-lab';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-import HelperText from './HelperText';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field } from "formik";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import { ToggleButtonGroup } from "formik-material-ui-lab";
+import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
+import HelperText from "./HelperText";
+import PropTypes from "prop-types";
 
 export default function Toggle({ choices, label, ...rest }) {
     return (
@@ -30,5 +30,5 @@ export default function Toggle({ choices, label, ...rest }) {
 
 Toggle.propTypes = {
     choices: PropTypes.arrayOf(PropTypes.object),
-    label: PropTypes.string
+    label: PropTypes.string,
 };

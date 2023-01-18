@@ -1,18 +1,13 @@
-import React from 'react';
-import { useSitemap, useReverse, useRouteTitle, useComponents } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useSitemap, useReverse, useRouteTitle, useComponents } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function Index() {
     const reverse = useReverse(),
         routeTitle = useRouteTitle(),
         { options, models } = useSitemap(),
-        {
-            Message,
-            ScrollView,
-            List,
-            ListSubheader,
-            ListItemLink
-        } = useComponents();
+        { Message, ScrollView, List, ListSubheader, ListItemLink } =
+            useComponents();
 
     function PageLink({ name }) {
         const to = reverse(name),
@@ -20,7 +15,7 @@ export default function Index() {
         return <ListItemLink to={to}>{title}</ListItemLink>;
     }
     PageLink.propTypes = {
-        name: PropTypes.string
+        name: PropTypes.string,
     };
 
     const subheadings = models.length > 0 && options.length > 0;
@@ -33,7 +28,7 @@ export default function Index() {
                         <Message id="OTHER_PAGES" />
                     </ListSubheader>
                 )}
-                {options.map(page => (
+                {options.map((page) => (
                     <PageLink key={page.name} name={page.name} />
                 ))}
                 {subheadings && (
@@ -41,7 +36,7 @@ export default function Index() {
                         <Message id="MODEL_PAGES" />
                     </ListSubheader>
                 )}
-                {models.map(page => (
+                {models.map((page) => (
                     <PageLink key={page.name} name={`${page.name}_list`} />
                 ))}
             </List>

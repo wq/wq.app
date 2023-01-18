@@ -1,7 +1,7 @@
-import React from 'react';
-import { Field, ErrorMessage } from 'formik';
-import { HelperText } from 'react-native-paper';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field, ErrorMessage } from "formik";
+import { HelperText } from "react-native-paper";
+import PropTypes from "prop-types";
 
 function Empty() {
     return null;
@@ -18,5 +18,5 @@ export default function Hidden(props) {
 }
 
 Hidden.propTypes = {
-    name: PropTypes.string
+    name: PropTypes.string,
 };

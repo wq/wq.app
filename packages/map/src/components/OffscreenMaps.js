@@ -1,23 +1,23 @@
-import React, { useEffect } from 'react';
-import { useComponents, usePluginReducer } from '@wq/react';
-import { makeStyles } from '@material-ui/core/styles';
-import { createReparentableSpace } from 'react-reparenting';
+import React, { useEffect } from "react";
+import { useComponents, usePluginReducer } from "@wq/react";
+import { makeStyles } from "@material-ui/core/styles";
+import { createReparentableSpace } from "react-reparenting";
 
 const { Reparentable, sendReparentableChild } = createReparentableSpace();
 
 export { Reparentable };
 
-const OFFSCREEN_ID = 'offscreen-maps';
+const OFFSCREEN_ID = "offscreen-maps";
 
 const useStyles = makeStyles({
     offscreen: {
-        '&> *': {
-            position: 'absolute !important',
-            top: '-2000px !important',
-            width: '100vw',
-            height: 'calc(100vh - 120px)'
-        }
-    }
+        "&> *": {
+            position: "absolute !important",
+            top: "-2000px !important",
+            width: "100vw",
+            height: "calc(100vh - 120px)",
+        },
+    },
 });
 
 export function moveOffscreen(mapId) {
@@ -27,10 +27,8 @@ export function moveOffscreen(mapId) {
 export default function OffscreenMaps() {
     const { AutoMap } = useComponents(),
         classes = useStyles();
-    const [
-        { mapId, stickyMaps, stickyMapId },
-        { setStickyMapId }
-    ] = usePluginReducer('map');
+    const [{ mapId, stickyMaps, stickyMapId }, { setStickyMapId }] =
+        usePluginReducer("map");
 
     useEffect(() => {
         if ((!mapId && !stickyMapId) || mapId === stickyMapId) {
@@ -65,9 +63,9 @@ export default function OffscreenMaps() {
                                 name,
                                 containerStyle,
                                 state,
-                                children
-                            } = {}
-                        }
+                                children,
+                            } = {},
+                        },
                     ]) =>
                         mapId !== stickyMapId &&
                         state && (

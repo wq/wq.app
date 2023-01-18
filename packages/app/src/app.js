@@ -1,28 +1,28 @@
-import ds from '@wq/store';
-import orm from '@wq/model';
-import outbox from '@wq/outbox';
-import router from '@wq/router';
-import spinner from './spinner';
-import auth from './auth';
-import defaults from './defaults';
-import Mustache from 'mustache';
-import deepcopy from 'deepcopy';
-import { setIn } from 'formik';
+import ds from "@wq/store";
+import orm from "@wq/model";
+import outbox from "@wq/outbox";
+import router from "@wq/router";
+import spinner from "./spinner";
+import auth from "./auth";
+import defaults from "./defaults";
+import Mustache from "mustache";
+import deepcopy from "deepcopy";
+import { setIn } from "formik";
 
 var app = {
-    OFFLINE: 'offline',
-    FAILURE: 'failure',
-    ERROR: 'error',
+    OFFLINE: "offline",
+    FAILURE: "failure",
+    ERROR: "error",
     get user() {
         return this.getAuthState().user;
     },
     get csrftoken() {
         return this.getAuthState().csrftoken;
-    }
+    },
 };
 
-const SERVER = '@@SERVER';
-const CORE_PLUGINS = ['orm', 'renderer'];
+const SERVER = "@@SERVER";
+const CORE_PLUGINS = ["orm", "renderer"];
 
 app.plugins = {};
 
@@ -35,7 +35,7 @@ app.init = function (config) {
     if (!config.pages) {
         config.pages = {};
     }
-    CORE_PLUGINS.forEach(type => {
+    CORE_PLUGINS.forEach((type) => {
         if (!app[type]) {
             throw new Error(`Register a ${type} with app.use()`);
         }
@@ -54,11 +54,11 @@ app.init = function (config) {
     // Router (wq/router.js) configuration
     if (!config.router) {
         config.router = {
-            base_url: ''
+            base_url: "",
         };
     }
-    config.router.getTemplateName = name => {
-        name = name.split(':')[0];
+    config.router.getTemplateName = (name) => {
+        name = name.split(":")[0];
         if (app.config.pages[name] && app.config.pages[name].template) {
             name = app.config.pages[name].template;
         }
@@ -72,7 +72,7 @@ app.init = function (config) {
     if (!config.store) {
         config.store = {
             service: config.router.base_url,
-            defaults: { format: 'json' }
+            defaults: { format: "json" },
         };
     }
     if (!config.store.fetchFail) {
@@ -86,11 +86,11 @@ app.init = function (config) {
         if (plugin.reducer) {
             let persist = false,
                 restore = null;
-            if (typeof plugin.persist === 'function') {
+            if (typeof plugin.persist === "function") {
                 persist = plugin.persist.bind(plugin);
                 restore = plugin.restore
                     ? plugin.restore.bind(plugin)
-                    : state => state;
+                    : (state) => state;
             } else if (plugin.persist) {
                 persist = true;
             }
@@ -117,8 +117,8 @@ app.init = function (config) {
 
     app.spin = {
         start: (msg, duration, opts) => spinner.start(msg, duration, opts),
-        forSeconds: duration => spinner.start(null, duration),
-        stop: msg => spinner.stop(msg)
+        forSeconds: (duration) => spinner.start(null, duration),
+        stop: (msg) => spinner.stop(msg),
     };
 
     // Outbox (wq/outbox.js) configuration
@@ -130,7 +130,7 @@ app.init = function (config) {
     if (config.debug) {
         config.router.debug = config.debug;
         config.store.debug = config.debug;
-        CORE_PLUGINS.forEach(type => {
+        CORE_PLUGINS.forEach((type) => {
             if (config[type]) {
                 config[type].debug = config.debug;
             }
@@ -151,7 +151,7 @@ app.init = function (config) {
 
     app.config = config;
 
-    app['native'] = !!window.cordova;
+    app["native"] = !!window.cordova;
 
     // Initialize wq/router.js
     router.init(config.router);
@@ -167,19 +167,19 @@ app.init = function (config) {
         if (config.backgroundSync === -1) {
             outbox.pause();
         } else if (config.backgroundSync > 1) {
-            console.warn('Sync interval is now controlled by redux-offline');
+            console.warn("Sync interval is now controlled by redux-offline");
         }
     }
 
     // Deprecated hooks
     const deprecated = {
-        noBackgroundSync: 'backgroundSync: false',
-        postsave: 'a postsaveurl() plugin hook or a postsave page config',
-        saveerror: 'an onsync() plugin hook',
-        showOutboxErrors: 'an onsync() and/or run() hook',
+        noBackgroundSync: "backgroundSync: false",
+        postsave: "a postsaveurl() plugin hook or a postsave page config",
+        saveerror: "an onsync() plugin hook",
+        showOutboxErrors: "an onsync() and/or run() hook",
         _addOutboxItemsToContext: "@wq/outbox's IMMEDIATE mode",
-        presync: 'the template context',
-        postsync: 'the template context or an onsync() plugin hook'
+        presync: "the template context",
+        postsync: "the template context or an onsync() plugin hook",
     };
     Object.entries(deprecated).forEach(([hook, alternative]) => {
         // TODO: Make this an error in 2.0
@@ -191,10 +191,10 @@ app.init = function (config) {
             );
         }
     });
-    if (app.hasPlugin('onsave')) {
+    if (app.hasPlugin("onsave")) {
         console.warn(
             new Error(
-                'An onsave() plugin hook has no effect.  Use an onsync() hook instead.  See wq.app 1.2 release notes for more info.'
+                "An onsave() plugin hook has no effect.  Use an onsync() hook instead.  See wq.app 1.2 release notes for more info."
             )
         );
     }
@@ -203,7 +203,7 @@ app.init = function (config) {
         app.config.pages[page].name = page;
     });
 
-    app.callPlugins('init');
+    app.callPlugins("init");
 
     // Register routes with wq/router.js
     var root = false;
@@ -226,21 +226,21 @@ app.init = function (config) {
     });
 
     // Register outbox
-    router.register('outbox/', 'outbox_list', () => outbox.loadItems());
-    router.register('outbox/<slug>', 'outbox_detail', _renderOutboxItem);
-    router.register('outbox/<slug>/edit', 'outbox_edit', _renderOutboxItem);
+    router.register("outbox/", "outbox_list", () => outbox.loadItems());
+    router.register("outbox/<slug>", "outbox_detail", _renderOutboxItem);
+    router.register("outbox/<slug>/edit", "outbox_edit", _renderOutboxItem);
 
     // Fallback index page
     if (!root && !app.config.pages.index) {
-        router.registerLast('', 'index');
+        router.registerLast("", "index");
     }
 
     // Fallback for all other URLs
-    router.registerLast(':path*', SERVER, _serverContext);
+    router.registerLast(":path*", SERVER, _serverContext);
 
     Object.entries(app.plugins).forEach(([name, plugin]) => {
         if (plugin.context) {
-            router.addContext(ctx => {
+            router.addContext((ctx) => {
                 return plugin.context(ctx, ctx.router_info);
             });
         }
@@ -264,7 +264,7 @@ app.init = function (config) {
 var pcount = 0;
 app.use = function (plugin) {
     if (Array.isArray(plugin)) {
-        plugin.forEach(p => app.use(p));
+        plugin.forEach((p) => app.use(p));
         return;
     }
     if (plugin.dependencies) {
@@ -279,7 +279,7 @@ app.use = function (plugin) {
     }
     pcount++;
     if (!plugin.name) {
-        plugin.name = 'plugin' + pcount;
+        plugin.name = "plugin" + pcount;
     }
     app.plugins[plugin.name] = plugin;
     plugin.app = app;
@@ -295,16 +295,16 @@ app.use = function (plugin) {
 
 app.start = function () {
     router.start();
-    app.callPlugins('start');
+    app.callPlugins("start");
 };
 
 async function _getSyncInfo() {
     const unsynced = await outbox.unsynced();
     return {
         svc: app.service,
-        native: app['native'],
+        native: app["native"],
         syncing: app.syncing,
-        unsynced: unsynced
+        unsynced: unsynced,
     };
 }
 
@@ -321,14 +321,14 @@ app.emptyOutbox = function (confirmFirst) {
     /* global confirm */
     if (confirmFirst) {
         if (navigator.notification && navigator.notification.confirm) {
-            navigator.notification.confirm('Empty Outbox?', function (button) {
+            navigator.notification.confirm("Empty Outbox?", function (button) {
                 if (button == 1) {
                     app.emptyOutbox();
                 }
             });
             return;
         } else {
-            if (!confirm('Empty Outbox?')) {
+            if (!confirm("Empty Outbox?")) {
                 return;
             }
         }
@@ -361,8 +361,8 @@ app.postSaveNav = function (item, alreadySynced) {
     var url;
 
     const pluginUrl = app
-        .callPlugins('postsaveurl', [item, alreadySynced])
-        .filter(item => !!item);
+        .callPlugins("postsaveurl", [item, alreadySynced])
+        .filter((item) => !!item);
 
     if (pluginUrl.length) {
         url = pluginUrl[0];
@@ -372,7 +372,7 @@ app.postSaveNav = function (item, alreadySynced) {
 
     // Navigate to computed URL
     if (app.config.debug) {
-        console.log('Successfully saved; continuing to ' + url);
+        console.log("Successfully saved; continuing to " + url);
     }
     router.push(url);
 };
@@ -391,10 +391,10 @@ app.postsaveurl = function (item, alreadySynced) {
         // Otherwise, default is to return the page for the item just saved
         if (!alreadySynced || item.deletedId) {
             // If backgroundSync, return to list view while syncing
-            postsave = modelConf.name + '_list';
+            postsave = modelConf.name + "_list";
         } else {
             // If !backgroundSync, return to the newly synced item
-            postsave = modelConf.name + '_detail';
+            postsave = modelConf.name + "_detail";
         }
     }
 
@@ -419,27 +419,27 @@ app.postsaveurl = function (item, alreadySynced) {
         } else {
             urlContext = { ...item.data, ...item.result };
         }
-        url = app.base_url + '/' + Mustache.render(postsave, urlContext);
+        url = app.base_url + "/" + Mustache.render(postsave, urlContext);
     } else if (!pconf.list) {
-        url = app.base_url + '/' + pconf.url;
+        url = app.base_url + "/" + pconf.url;
     } else {
         if (pconf.modes.concat(pconf.server_modes || []).indexOf(mode) == -1) {
-            throw 'Unknown template mode!';
+            throw "Unknown template mode!";
         }
 
         // For list pages, the url can differ depending on the mode
-        url = app.base_url + '/' + pconf.url + '/';
+        url = app.base_url + "/" + pconf.url + "/";
 
-        if (mode != 'list') {
+        if (mode != "list") {
             // Detail or edit view; determine item id and add to url
             if (postsave == modelConf.name && !item.synced) {
                 // Config indicates return to detail/edit view of the model
                 // that was just saved, but the item hasn't been synced yet.
                 // Navigate to outbox URL instead.
-                url = app.base_url + '/outbox/' + item.id;
-                if (mode != 'edit' && item.error) {
+                url = app.base_url + "/outbox/" + item.id;
+                if (mode != "edit" && item.error) {
                     // Return to edit form if there was an error
-                    mode = 'edit';
+                    mode = "edit";
                 }
             } else {
                 // Item has been successfully synced
@@ -450,15 +450,15 @@ app.postsaveurl = function (item, alreadySynced) {
                 } else {
                     // Otherwise, look for a foreign key reference
                     // FIXME: what if the foreign key has a different name?
-                    itemid = item.result && item.result[postsave + '_id'];
+                    itemid = item.result && item.result[postsave + "_id"];
                 }
                 if (!itemid) {
-                    throw 'Could not find ' + postsave + ' id in result!';
+                    throw "Could not find " + postsave + " id in result!";
                 }
                 url += itemid;
             }
-            if (mode != 'detail') {
-                url += '/' + mode;
+            if (mode != "detail") {
+                url += "/" + mode;
             }
         }
     }
@@ -466,7 +466,7 @@ app.postsaveurl = function (item, alreadySynced) {
 };
 
 const syncUpdateUrl = {
-    name: 'syncUpdateUrl',
+    name: "syncUpdateUrl",
     onsync(obitem) {
         const context = router.getContext() || {},
             { router_info: routeInfo = {} } = context,
@@ -478,7 +478,7 @@ const syncUpdateUrl = {
                 page_config,
                 full_path,
                 item_id,
-                parent_id
+                parent_id,
             } = routeInfo,
             { id: outboxId, result } = obitem || {},
             { id: resultId } = result || {},
@@ -489,11 +489,11 @@ const syncUpdateUrl = {
         }
         if (
             routeOutboxId === outboxId &&
-            page === 'outbox' &&
+            page === "outbox" &&
             page_config &&
             page_config.url
         ) {
-            const modePath = mode === 'detail' ? '' : `/${mode}`;
+            const modePath = mode === "detail" ? "" : `/${mode}`;
             router.push(
                 `${base_url}/${page_config.url}/${resultId}${modePath}`
             );
@@ -501,7 +501,7 @@ const syncUpdateUrl = {
         if (item_id === outboxSlug || parent_id === outboxSlug) {
             router.push(full_path.replace(outboxSlug, resultId));
         }
-    }
+    },
 };
 
 // Return a list of all foreign key fields
@@ -509,16 +509,16 @@ app.getParents = function (page) {
     var conf = _getConf(page);
     return conf.form
         .filter(function (field) {
-            return field['wq:ForeignKey'];
+            return field["wq:ForeignKey"];
         })
         .map(function (field) {
-            return field['wq:ForeignKey'];
+            return field["wq:ForeignKey"];
         });
 };
 
 // Shortcuts for $.mobile.changePage
 app.nav = function (url) {
-    url = app.base_url + '/' + url;
+    url = app.base_url + "/" + url;
     router.push(url);
 };
 
@@ -565,8 +565,8 @@ app.splitRoute = function (routeName) {
     if (match) {
         page = match[1];
         mode = match[2];
-        if (mode.indexOf(':') > -1) {
-            [mode, variant] = mode.split(':');
+        if (mode.indexOf(":") > -1) {
+            [mode, variant] = mode.split(":");
         } else {
             variant = null;
         }
@@ -580,9 +580,9 @@ app.splitRoute = function (routeName) {
 
 function _joinRoute(page, mode, variant) {
     if (variant) {
-        return page + '_' + mode + ':' + variant;
+        return page + "_" + mode + ":" + variant;
     } else if (mode) {
-        return page + '_' + mode;
+        return page + "_" + mode;
     } else {
         return page;
     }
@@ -590,28 +590,28 @@ function _joinRoute(page, mode, variant) {
 
 function _extendRouteInfo(routeInfo) {
     const routeName = routeInfo.name,
-        itemid = (page !== 'outbox' && routeInfo.slugs.slug) || null;
+        itemid = (page !== "outbox" && routeInfo.slugs.slug) || null;
     var [page, mode, variant] = app.splitRoute(routeName),
         conf = _getConf(page, true),
         pageid = null;
 
     if (conf) {
-        if (mode && mode !== 'list') {
+        if (mode && mode !== "list") {
             pageid =
                 page +
-                '_' +
+                "_" +
                 mode +
-                (variant ? '_' + variant : '') +
-                (itemid ? '_' + itemid : '') +
-                '-page';
+                (variant ? "_" + variant : "") +
+                (itemid ? "_" + itemid : "") +
+                "-page";
         }
-    } else if (page === 'outbox') {
+    } else if (page === "outbox") {
         conf = {
-            name: 'outbox',
-            url: 'outbox',
-            page: 'outbox',
+            name: "outbox",
+            url: "outbox",
+            page: "outbox",
             form: [],
-            modes: ['list', 'detail', 'edit']
+            modes: ["list", "detail", "edit"],
         };
     } else {
         page = routeName;
@@ -620,7 +620,7 @@ function _extendRouteInfo(routeInfo) {
             name: page,
             page: page,
             form: [],
-            modes: []
+            modes: [],
         };
     }
     return {
@@ -630,7 +630,7 @@ function _extendRouteInfo(routeInfo) {
         mode: mode,
         variant: variant,
         item_id: itemid,
-        dom_id: pageid
+        dom_id: pageid,
     };
 }
 
@@ -638,23 +638,23 @@ function _extendRouteInfo(routeInfo) {
 // handles requests for [url] and [url]/
 _register.list = function (page) {
     const conf = _getConf(page),
-        register = conf.url === '' ? router.registerLast : router.register,
-        url = conf.url === '' ? '' : conf.url + '/';
-    register(url, _joinRoute(page, 'list'), ctx => _displayList(ctx));
+        register = conf.url === "" ? router.registerLast : router.register,
+        url = conf.url === "" ? "" : conf.url + "/";
+    register(url, _joinRoute(page, "list"), (ctx) => _displayList(ctx));
 
     // Special handling for /[parent_list_url]/[parent_id]/[url]
     app.getParents(page).forEach(function (ppage) {
         var pconf = _getConf(ppage);
         var url = pconf.url;
         var registerParent;
-        if (url === '') {
+        if (url === "") {
             registerParent = router.registerLast;
         } else {
             registerParent = router.register;
-            url += '/';
+            url += "/";
         }
-        url += ':parent_id/' + conf.url;
-        registerParent(url, _joinRoute(page, 'list', ppage), parentContext);
+        url += ":parent_id/" + conf.url;
+        registerParent(url, _joinRoute(page, "list", ppage), parentContext);
     });
 
     async function parentContext(ctx) {
@@ -665,9 +665,9 @@ _register.list = function (page) {
             pitem = await app.models[ppage].find(parent_id);
         var parentUrl;
         if (pitem) {
-            parentUrl = pconf.url + '/' + pitem.id;
-        } else if (parent_id.indexOf('outbox-') == -1) {
-            parentUrl = 'outbox/' + parent_id.split('-')[1];
+            parentUrl = pconf.url + "/" + pitem.id;
+        } else if (parent_id.indexOf("outbox-") == -1) {
+            parentUrl = "outbox/" + parent_id.split("-")[1];
         } else {
             parentUrl = null;
         }
@@ -676,16 +676,16 @@ _register.list = function (page) {
             parent_url: parentUrl,
             parent_label: pitem && pitem.label,
             parent_page: ppage,
-            parent_conf: pconf
+            parent_conf: pconf,
         };
-        parentInfo['parent_is_' + ppage] = true;
+        parentInfo["parent_is_" + ppage] = true;
 
         return _displayList(ctx, {
             ...parentInfo,
             router_info: {
                 ...routeInfo,
-                ...parentInfo
-            }
+                ...parentInfo,
+            },
         });
     }
 };
@@ -715,14 +715,14 @@ async function _displayList(ctx, parentInfo) {
         }
         filter = {};
         for (var key in params || {}) {
-            if (key != 'page') {
+            if (key != "page") {
                 filter[key] = params[key];
             }
         }
         if (parentInfo) {
             conf.form.forEach(function (field) {
-                if (field['wq:ForeignKey'] == parentInfo.parent_page) {
-                    filter[field.name + '_id'] = parentInfo.parent_id;
+                if (field["wq:ForeignKey"] == parentInfo.parent_page) {
+                    filter[field.name + "_id"] = parentInfo.parent_id;
                 }
             });
         }
@@ -792,9 +792,9 @@ async function _displayList(ctx, parentInfo) {
         if (+pnum - 1 > model.opts.page && (model.opts.client || pnum > 2)) {
             let prevp = filter ? { ...filter } : {};
             prevp.page = +pnum - 1;
-            prev = conf.url + '/?' + new URLSearchParams(prevp).toString();
+            prev = conf.url + "/?" + new URLSearchParams(prevp).toString();
         } else if (+pnum - 1 == model.opts.page && !filter) {
-            prev = conf.url + '/';
+            prev = conf.url + "/";
             prevIsLocal = true;
         }
     }
@@ -802,7 +802,7 @@ async function _displayList(ctx, parentInfo) {
     if (pnum < data.pages && (model.opts.server || pnum)) {
         let nextp = filter ? { ...filter } : {};
         nextp.page = +pnum + 1;
-        next = conf.url + '/?' + new URLSearchParams(nextp).toString();
+        next = conf.url + "/?" + new URLSearchParams(nextp).toString();
         if (nextp.page == 1) {
             currentIsLocal = true;
         }
@@ -811,13 +811,13 @@ async function _displayList(ctx, parentInfo) {
     var context = {
         ...data,
         ...parentInfo,
-        previous: prev ? '/' + prev : null,
-        next: next ? '/' + next : null,
+        previous: prev ? "/" + prev : null,
+        next: next ? "/" + next : null,
         multiple: prev || next ? true : false,
         page: pnum,
         show_unsynced: showUnsynced,
         previous_is_local: prevIsLocal,
-        current_is_local: currentIsLocal
+        current_is_local: currentIsLocal,
     };
 
     app._addOutboxItemsToContext(context, unsyncedItems);
@@ -830,17 +830,17 @@ async function _displayList(ctx, parentInfo) {
 _register.detail = function (page, mode, contextFn = _displayItem) {
     var conf = _getConf(page);
     var url = _getDetailUrl(conf.url, mode);
-    const register = conf.url === '' ? router.registerLast : router.register;
+    const register = conf.url === "" ? router.registerLast : router.register;
     register(url, _joinRoute(page, mode), contextFn);
 };
 
 function _getDetailUrl(url, mode) {
     if (url) {
-        url += '/';
+        url += "/";
     }
-    url += '<slug>';
-    if (mode != 'detail') {
-        url += '/' + mode;
+    url += "<slug>";
+    if (mode != "detail") {
+        url += "/" + mode;
     }
     return url;
 }
@@ -849,15 +849,15 @@ function _getDetailUrl(url, mode) {
 // handles requests for [url]/[id]/edit and [url]/new
 _register.edit = function (page) {
     var conf = _getConf(page);
-    const register = conf.url === '' ? router.registerLast : router.register;
+    const register = conf.url === "" ? router.registerLast : router.register;
     register(
-        _getDetailUrl(conf.url, 'edit'),
-        _joinRoute(page, 'edit'),
+        _getDetailUrl(conf.url, "edit"),
+        _joinRoute(page, "edit"),
         _displayItem
     );
     router.registerFirst(
-        conf.url + '/new',
-        _joinRoute(page, 'edit', 'new'),
+        conf.url + "/new",
+        _joinRoute(page, "edit", "new"),
         _displayItem
     );
 };
@@ -869,7 +869,7 @@ async function _displayItem(ctx) {
         model = app.models[page];
 
     var item;
-    if (mode == 'edit' && variant == 'new') {
+    if (mode == "edit" && variant == "new") {
         item = {};
         Object.entries({ ...routeInfo.params, ...conf.defaults }).forEach(
             ([key, value]) => {
@@ -918,7 +918,7 @@ function _registerOther(page) {
     );
     async function _displayOther() {
         if (conf.server_only) {
-            return _loadFromServer(app.base_url + '/' + conf.url);
+            return _loadFromServer(app.base_url + "/" + conf.url);
         } else {
             return {};
         }
@@ -937,16 +937,16 @@ async function _renderOutboxItem(ctx) {
 
     var id,
         page = item.options.modelConf.name,
-        template = page + '_' + mode,
+        template = page + "_" + mode,
         idMatch = item.options.url.match(
-            new RegExp(item.options.modelConf.url + '/([^/]+)$')
+            new RegExp(item.options.modelConf.url + "/([^/]+)$")
         );
     if (item.data.id) {
         id = item.data.id;
     } else if (idMatch) {
         id = idMatch[1];
     } else {
-        id = 'new';
+        id = "new";
     }
     var context = {
         outbox_id: item.id,
@@ -956,11 +956,11 @@ async function _renderOutboxItem(ctx) {
             ...routeInfo,
             page_config: item.options.modelConf,
             template: template,
-            outbox_id: item.id
+            outbox_id: item.id,
         },
-        ...deepcopy(item.data)
+        ...deepcopy(item.data),
     };
-    if (id != 'new') {
+    if (id != "new") {
         context.id = id;
     }
     return context;
@@ -981,20 +981,20 @@ app.submitForm = async function ({
     has_files,
     outboxId,
     preserve,
-    data: vals
+    data: vals,
 }) {
     const conf = _getConfByUrl(url, true);
 
     var options = {
-        url: url
+        url: url,
     };
 
     if (storage) {
         options.storage = storage;
     } else if (!backgroundSync) {
-        options.storage = 'temporary';
+        options.storage = "temporary";
     } else if (has_files) {
-        options.storage = 'store';
+        options.storage = "store";
     }
 
     if (_hasNestedObject(vals)) {
@@ -1015,13 +1015,13 @@ app.submitForm = async function ({
         options.method = vals._method;
         delete vals._method;
     } else {
-        options.method = 'POST';
+        options.method = "POST";
     }
 
     if (conf) {
         options.modelConf = conf;
         if (conf.label_template) {
-            if (typeof conf.label_template === 'function') {
+            if (typeof conf.label_template === "function") {
                 options.label = conf.label_template(vals);
             } else {
                 options.label = Mustache.render(conf.label_template, vals);
@@ -1055,7 +1055,7 @@ app.submitForm = async function ({
         // FIXME: waitForItem() probably doesn't resolve until back online.
         app.postSaveNav(item, false);
         return [item, null];
-    } else if (typeof item.error === 'string') {
+    } else if (typeof item.error === "string") {
         // Save failed and error information is not in JSON format
         // (likely a 500 server failure)
         return [item, app.FAILURE];
@@ -1068,18 +1068,18 @@ app.submitForm = async function ({
 
 function _hasNestedObject(value) {
     return Object.values(value).some(
-        val =>
-            typeof val === 'object' &&
-            (!Array.isArray(val) || typeof val[0] === 'object')
+        (val) =>
+            typeof val === "object" &&
+            (!Array.isArray(val) || typeof val[0] === "object")
     );
 }
 
-function _flattenJson(value, prefix = '') {
+function _flattenJson(value, prefix = "") {
     const result = {};
     if (prefix) {
         if (value === null || value === undefined) {
-            return { [prefix]: '' };
-        } else if (typeof value !== 'object') {
+            return { [prefix]: "" };
+        } else if (typeof value !== "object") {
             return { [prefix]: value };
         }
     }
@@ -1089,7 +1089,7 @@ function _flattenJson(value, prefix = '') {
             val.forEach((row, i) =>
                 Object.assign(result, _flattenJson(row, `${fullKey}[${i}]`))
             );
-        } else if (typeof val === 'object') {
+        } else if (typeof val === "object") {
             if (_isFile(val)) {
                 result[fullKey] = val;
             } else if (_isGeometry(val)) {
@@ -1129,14 +1129,14 @@ function _getConf(page, silentFail) {
     return {
         page: page,
         form: [],
-        modes: conf.list ? ['list', 'detail', 'edit'] : [],
-        ...conf
+        modes: conf.list ? ["list", "detail", "edit"] : [],
+        ...conf,
     };
 }
 
 // Helper to load configuration based on URL
 function _getConfByUrl(url, silentFail) {
-    var parts = url.split('/');
+    var parts = url.split("/");
     var conf;
     for (var p in app.config.pages) {
         if (app.config.pages[p].url == parts[0]) {
@@ -1156,9 +1156,9 @@ function _getConfByUrl(url, silentFail) {
 async function _loadFromServer(url) {
     // options = (ui && ui.options) || {};
     if (app.config.debug) {
-        console.log('Loading ' + url + ' from server');
+        console.log("Loading " + url + " from server");
         if (app.base_url && url.indexOf(app.base_url) !== 0) {
-            console.warn(url + ' does not include ' + app.base_url);
+            console.warn(url + " does not include " + app.base_url);
         }
     }
     const response = await fetch(url),
@@ -1174,7 +1174,7 @@ function _serverContext(ctx) {
 
 function _fetchFail(query, error) {
     /* eslint no-unused-vars: off */
-    app.spin.alert('Error Loading Data');
+    app.spin.alert("Error Loading Data");
 }
 
 export default app;

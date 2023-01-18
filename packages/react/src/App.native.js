@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import DefaultApp from './App.js';
+import React, { useMemo } from "react";
+import DefaultApp from "./App.js";
 import {
     useComponents,
     useRoutesMap,
@@ -7,10 +7,10 @@ import {
     useRouteTitle,
     navRef,
     useNavigationProps,
-    useCreateNavigator
-} from './hooks';
-import { NavigationContainer } from '@react-navigation/native';
-import PropTypes from 'prop-types';
+    useCreateNavigator,
+} from "./hooks";
+import { NavigationContainer } from "@react-navigation/native";
+import PropTypes from "prop-types";
 
 export default function App({ options = {} }) {
     const { Header } = useComponents(),
@@ -23,11 +23,11 @@ export default function App({ options = {} }) {
             () =>
                 Object.entries(routesMap)
                     .filter(
-                        ([name, route]) => route.path && name !== '@@SERVER'
+                        ([name, route]) => route.path && name !== "@@SERVER"
                     )
                     .map(([name, route]) => ({
                         name,
-                        ...route
+                        ...route,
                     })),
             [routesMap]
         );
@@ -39,16 +39,16 @@ export default function App({ options = {} }) {
                 screenOptions={{
                     header: function header(props) {
                         return <Header {...props} />;
-                    }
+                    },
                 }}
             >
-                {routes.map(route => (
+                {routes.map((route) => (
                     <Screen
                         key={route.name}
                         name={route.name}
                         options={({ route }) => ({
                             title: routeTitle(route.name.toLowerCase()),
-                            ...options.screen
+                            ...options.screen,
                         })}
                         component={AppScreen}
                         route={route}
@@ -60,7 +60,7 @@ export default function App({ options = {} }) {
 }
 
 App.propTypes = {
-    options: PropTypes.object
+    options: PropTypes.object,
 };
 
 function AppScreen({ route }) {
@@ -68,5 +68,5 @@ function AppScreen({ route }) {
     return <DefaultApp route={name.toLowerCase()} />;
 }
 AppScreen.propTypes = {
-    route: PropTypes.object
+    route: PropTypes.object,
 };

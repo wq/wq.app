@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function Map({ children }) {
     return (
-        <div style={{ flex: '1', minHeight: 200 }}>
+        <div style={{ flex: "1", minHeight: 200 }}>
             <p>
                 No map integration library loaded - use @wq/leaflet or
                 @wq/map-gl.
@@ -14,5 +14,5 @@ export default function Map({ children }) {
 }
 
 Map.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
 };

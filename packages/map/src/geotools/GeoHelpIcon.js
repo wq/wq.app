@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function GeoHelpIcon({ name, type }) {
     const iconClass = getIconClass(name, type);
@@ -11,10 +11,10 @@ export default function GeoHelpIcon({ name, type }) {
         <span
             className={iconClass}
             style={{
-                display: 'inline-block',
+                display: "inline-block",
                 width: 18,
                 height: 18,
-                verticalAlign: 'middle'
+                verticalAlign: "middle",
             }}
         />
     );
@@ -22,18 +22,18 @@ export default function GeoHelpIcon({ name, type }) {
 
 GeoHelpIcon.propTypes = {
     name: PropTypes.string,
-    type: PropTypes.string
+    type: PropTypes.string,
 };
 
-const SHAPES = ['point', 'line', 'polygon'],
-    ICONS = SHAPES.map(shape => `${shape.toUpperCase()}_ICON`);
+const SHAPES = ["point", "line", "polygon"],
+    ICONS = SHAPES.map((shape) => `${shape.toUpperCase()}_ICON`);
 
 function getIconClass(iconName, drawType) {
     let shape = null;
 
-    if (iconName === 'TOOL_ICON') {
-        if (drawType === 'line_string') {
-            shape = 'line';
+    if (iconName === "TOOL_ICON") {
+        if (drawType === "line_string") {
+            shape = "line";
         } else if (SHAPES.includes(drawType)) {
             shape = drawType;
         }

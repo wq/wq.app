@@ -1,25 +1,25 @@
-import React, { useMemo } from 'react';
-import { Field, getIn } from 'formik';
-import { Select as FMuiSelect } from 'formik-material-ui';
-import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import PropTypes from 'prop-types';
-import { useFormikContext } from 'formik';
-import HelperText from './HelperText';
+import React, { useMemo } from "react";
+import { Field, getIn } from "formik";
+import { Select as FMuiSelect } from "formik-material-ui";
+import MenuItem from "@material-ui/core/MenuItem";
+import Checkbox from "@material-ui/core/Checkbox";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListSubheader from "@material-ui/core/ListSubheader";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormControl from "@material-ui/core/FormControl";
+import PropTypes from "prop-types";
+import { useFormikContext } from "formik";
+import HelperText from "./HelperText";
 
 function ContextCheckbox({ value, field }) {
     const { values } = useFormikContext();
-    const checked = (getIn(values, field) || []).some(val => val === value);
+    const checked = (getIn(values, field) || []).some((val) => val === value);
     return <Checkbox checked={checked} />;
 }
 
 ContextCheckbox.propTypes = {
     value: PropTypes.string,
-    field: PropTypes.string
+    field: PropTypes.string,
 };
 
 export default function Select({
@@ -35,13 +35,13 @@ export default function Select({
     const { name: fieldName, type, hint } = rest,
         { errors, touched } = useFormikContext(),
         showError = !!getIn(errors, fieldName) && getIn(touched, fieldName),
-        multiple = type === 'select';
+        multiple = type === "select";
 
     if (multiple && !renderValue) {
-        renderValue = sel => sel.map(getLabel).join(', ');
+        renderValue = (sel) => sel.map(getLabel).join(", ");
     }
     if (placeholder && !renderValue) {
-        renderValue = sel => getLabel(sel) || sel || placeholder;
+        renderValue = (sel) => getLabel(sel) || sel || placeholder;
     }
 
     const getLabel = useMemo(() => {
@@ -49,13 +49,13 @@ export default function Select({
         choices.forEach(({ name, label }) => {
             labels[name] = label;
         });
-        return name => labels[name];
+        return (name) => labels[name];
     }, [choices]);
 
     const choiceGroups = useMemo(() => {
         const choiceGroups = {};
-        choices.forEach(choice => {
-            const group = choice.group || '';
+        choices.forEach((choice) => {
+            const group = choice.group || "";
             if (!choiceGroups[group]) {
                 choiceGroups[group] = [];
             }
@@ -75,7 +75,7 @@ export default function Select({
               </MenuItem>
           );
 
-    const renderChoices = choices =>
+    const renderChoices = (choices) =>
         choices.map(({ name, label }) => (
             <Option key={name} value={name}>
                 {label}
@@ -83,7 +83,7 @@ export default function Select({
         ));
 
     const renderGroups = native
-        ? choiceGroups =>
+        ? (choiceGroups) =>
               Object.entries(choiceGroups).map(([group, choices]) =>
                   group ? (
                       <optgroup key={group} label={group}>
@@ -93,12 +93,12 @@ export default function Select({
                       <>{renderChoices(choices)}</>
                   )
               )
-        : choiceGroups => {
+        : (choiceGroups) => {
               const flattened = [];
               Object.entries(choiceGroups).forEach(([group, choices]) => {
                   if (group) {
                       flattened.push(
-                          <ListSubheader style={{ backgroundColor: 'white' }}>
+                          <ListSubheader style={{ backgroundColor: "white" }}>
                               {group}
                           </ListSubheader>
                       );
@@ -128,8 +128,8 @@ export default function Select({
                 {...rest}
             >
                 {!multiple && (
-                    <Option value={''} disabled={!!required}>
-                        {required ? 'Select one...' : '(No Selection)'}
+                    <Option value={""} disabled={!!required}>
+                        {required ? "Select one..." : "(No Selection)"}
                     </Option>
                 )}
                 {renderGroups(choiceGroups)}
@@ -146,5 +146,5 @@ Select.propTypes = {
     required: PropTypes.bool,
     native: PropTypes.bool,
     renderValue: PropTypes.func,
-    InputLabelProps: PropTypes.object
+    InputLabelProps: PropTypes.object,
 };

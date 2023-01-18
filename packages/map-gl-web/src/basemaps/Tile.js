@@ -5,9 +5,9 @@ export default function Tile() {
 
 export function asBasemapStyle(basemap) {
     const urls = [];
-    if (basemap.url.match('{s}')) {
-        (basemap.subdomains || ['a', 'b', 'c']).forEach(s =>
-            urls.push(basemap.url.replace('{s}', s))
+    if (basemap.url.match("{s}")) {
+        (basemap.subdomains || ["a", "b", "c"]).forEach((s) =>
+            urls.push(basemap.url.replace("{s}", s))
         );
     } else {
         urls.push(basemap.url);
@@ -16,18 +16,18 @@ export function asBasemapStyle(basemap) {
         version: 8,
         sources: {
             [basemap.name]: {
-                type: 'raster',
+                type: "raster",
                 tiles: urls,
-                tileSize: basemap.tileSize || 256
-            }
+                tileSize: basemap.tileSize || 256,
+            },
         },
         layers: [
             {
                 id: basemap.name,
-                type: 'raster',
-                source: basemap.name
-            }
-        ]
+                type: "raster",
+                source: basemap.name,
+            },
+        ],
     };
 }
 

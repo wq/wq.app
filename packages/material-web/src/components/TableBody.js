@@ -1,3 +1,3 @@
-import TableBody from '@material-ui/core/TableBody';
+import TableBody from "@material-ui/core/TableBody";
 
 export default TableBody;

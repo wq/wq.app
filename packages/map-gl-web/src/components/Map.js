@@ -1,35 +1,35 @@
-import React, { useMemo, useCallback } from 'react';
-import { usePlugin } from '@wq/react';
-import PropTypes from 'prop-types';
-import ReactMapboxGl from 'react-mapbox-gl';
-import { findBasemapStyle } from '../util';
+import React, { useMemo, useCallback } from "react";
+import { usePlugin } from "@wq/react";
+import PropTypes from "prop-types";
+import ReactMapboxGl from "react-mapbox-gl";
+import { findBasemapStyle } from "../util";
 
 export default function Map({
     name,
     initBounds,
     children,
     mapProps,
-    containerStyle
+    containerStyle,
 }) {
-    const { ready } = usePlugin('map'),
+    const { ready } = usePlugin("map"),
         Root = useMemo(() => ReactMapboxGl(mapProps || {}), [mapProps]),
         fitBounds = useMemo(() => {
             const [[xmin, ymin], [xmax, ymax]] = initBounds;
             return [
                 [xmin, ymin],
-                [xmax, ymax]
+                [xmax, ymax],
             ];
         }, [initBounds]),
-        onStyleLoad = useCallback(instance => ready(instance, name), [
-            ready,
-            name
-        ]),
+        onStyleLoad = useCallback(
+            (instance) => ready(instance, name),
+            [ready, name]
+        ),
         style = findBasemapStyle(children);
 
     containerStyle = {
-        flex: '1',
+        flex: "1",
         minHeight: 200,
-        ...containerStyle
+        ...containerStyle,
     };
 
     return (
@@ -49,5 +49,5 @@ Map.propTypes = {
     initBounds: PropTypes.array,
     children: PropTypes.node,
     mapProps: PropTypes.object,
-    containerStyle: PropTypes.object
+    containerStyle: PropTypes.object,
 };

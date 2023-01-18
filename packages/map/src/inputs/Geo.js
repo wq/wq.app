@@ -1,13 +1,13 @@
-import React from 'react';
-import { useComponents, useInputComponents } from '@wq/react';
+import React from "react";
+import { useComponents, useInputComponents } from "@wq/react";
 import {
     TYPE_MAP,
     useOverlayComponents,
     useFeatureCollection,
-    asGeometry
-} from '../hooks';
-import { useField } from 'formik';
-import PropTypes from 'prop-types';
+    asGeometry,
+} from "../hooks";
+import { useField } from "formik";
+import PropTypes from "prop-types";
 
 export default function Geo({
     name,
@@ -16,13 +16,13 @@ export default function Geo({
     label,
     hint,
     inset = true,
-    children
+    children,
 }) {
     const {
             Fieldset: DefaultFieldset,
             FlatFieldset,
             AutoMap,
-            GeoTools
+            GeoTools,
         } = useComponents(),
         { HelperText } = useInputComponents(),
         { Draw, Accuracy } = useOverlayComponents(),
@@ -33,7 +33,7 @@ export default function Geo({
         maxGeometries = 1; // FIXME;
 
     const geojson = useFeatureCollection(value),
-        drawType = TYPE_MAP[type] || 'all',
+        drawType = TYPE_MAP[type] || "all",
         Fieldset = inset ? DefaultFieldset : FlatFieldset;
 
     function handleChange(geojson) {
@@ -73,7 +73,7 @@ Geo.propTypes = {
     label: PropTypes.string,
     hint: PropTypes.string,
     inset: PropTypes.bool,
-    children: PropTypes.node
+    children: PropTypes.node,
 };
 
 const emptyContext = {};

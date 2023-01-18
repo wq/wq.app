@@ -1,7 +1,7 @@
-import React from 'react';
-import Alert from 'react-native';
-import { useComponents, useMessages } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import Alert from "react-native";
+import { useComponents, useMessages } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function DeleteForm({ action }) {
     const { Form, SubmitButton, View, HorizontalView } = useComponents(),
@@ -9,11 +9,11 @@ export default function DeleteForm({ action }) {
             CONFIRM_DELETE,
             CONFIRM_DELETE_TITLE,
             CONFIRM_DELETE_OK,
-            CONFIRM_DELETE_CANCEL
+            CONFIRM_DELETE_CANCEL,
         } = useMessages();
 
     async function confirmSubmit() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             Alert.alert(
                 CONFIRM_DELETE_TITLE,
                 CONFIRM_DELETE,
@@ -23,20 +23,20 @@ export default function DeleteForm({ action }) {
                         onPress() {
                             resolve(false);
                         },
-                        style: 'cancel'
+                        style: "cancel",
                     },
                     {
                         text: CONFIRM_DELETE_OK,
                         onPress() {
                             resolve(true);
                         },
-                        style: 'destructive'
-                    }
+                        style: "destructive",
+                    },
                 ],
                 {
                     onDismiss() {
                         resolve(false);
-                    }
+                    },
                 }
             );
         });
@@ -60,5 +60,5 @@ export default function DeleteForm({ action }) {
 }
 
 DeleteForm.propTypes = {
-    action: PropTypes.string
+    action: PropTypes.string,
 };

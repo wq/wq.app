@@ -1,28 +1,29 @@
-import React, { useMemo, useCallback, useRef } from 'react';
-import { useField } from 'formik';
-import { DropzoneArea } from '../vendor/material-ui-dropzone.js';
-import InputLabel from '@material-ui/core/InputLabel';
-import HelperText from './HelperText';
-import PropTypes from 'prop-types';
+import React, { useMemo, useCallback, useRef } from "react";
+import { useField } from "formik";
+import { DropzoneArea } from "../vendor/material-ui-dropzone.js";
+import InputLabel from "@material-ui/core/InputLabel";
+import HelperText from "./HelperText";
+import PropTypes from "prop-types";
 
 export default function File({ name, accept, hint, label }) {
     const [, { initialValue }, { setValue }] = useField(name),
         loadedRef = useRef(null);
 
     const initialFiles = useMemo(() => {
-            if (!initialValue || initialValue === '__clear__') {
+            if (!initialValue || initialValue === "__clear__") {
                 return [];
             } else if (initialValue.type && initialValue.body) {
                 return [initialValue.body];
-            } else if (typeof initialValue === 'string') {
+            } else if (typeof initialValue === "string") {
                 return [initialValue];
             }
         }, [initialValue]),
-        acceptedFiles = useMemo(() => (accept ? accept.split(',') : null), [
-            accept
-        ]),
+        acceptedFiles = useMemo(
+            () => (accept ? accept.split(",") : null),
+            [accept]
+        ),
         setFile = useCallback(
-            files => {
+            (files) => {
                 if (!loadedRef.current) {
                     // Component mounted
                     loadedRef.current = -1;
@@ -38,11 +39,11 @@ export default function File({ name, accept, hint, label }) {
                         setValue({
                             name,
                             type,
-                            body: files[0]
+                            body: files[0],
                         });
                     }
                 } else if (initialValue) {
-                    setValue('__clear__');
+                    setValue("__clear__");
                 } else {
                     setValue(null);
                 }
@@ -69,5 +70,5 @@ File.propTypes = {
     name: PropTypes.string,
     accept: PropTypes.string,
     label: PropTypes.string,
-    hint: PropTypes.string
+    hint: PropTypes.string,
 };

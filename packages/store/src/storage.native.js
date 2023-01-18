@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function createStorage(name) {
     return {
@@ -7,7 +7,7 @@ export function createStorage(name) {
         },
         setItem(key, value) {
             return AsyncStorage.setItem(`${name}_${key}`, value);
-        }
+        },
     };
 }
 

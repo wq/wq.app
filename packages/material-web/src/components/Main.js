@@ -1,13 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import React from "react";
+import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(() => ({
     main: {
-        flex: '1',
-        display: 'flex',
-        overflowY: 'hidden'
-    }
+        flex: "1",
+        display: "flex",
+        overflowY: "hidden",
+    },
 }));
 
 export default function Main({ children }) {
@@ -16,5 +16,5 @@ export default function Main({ children }) {
 }
 
 Main.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
 };

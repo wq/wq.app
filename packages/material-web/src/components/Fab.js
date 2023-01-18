@@ -1,8 +1,8 @@
-import React from 'react';
-import MuiFab from '@material-ui/core/Fab';
-import { Link } from '@wq/react';
-import PropTypes from 'prop-types';
-import { useIcon } from '@wq/react';
+import React from "react";
+import MuiFab from "@material-ui/core/Fab";
+import { Link } from "@wq/react";
+import PropTypes from "prop-types";
+import { useIcon } from "@wq/react";
 
 export default function Fab({ icon, to, ...rest }) {
     const Icon = useIcon(icon);
@@ -12,10 +12,10 @@ export default function Fab({ icon, to, ...rest }) {
             to={to}
             color="primary"
             style={{
-                position: 'absolute',
+                position: "absolute",
                 right: 16,
                 bottom: 16,
-                zIndex: 1
+                zIndex: 1,
             }}
             {...rest}
         >
@@ -26,5 +26,5 @@ export default function Fab({ icon, to, ...rest }) {
 
 Fab.propTypes = {
     icon: PropTypes.string,
-    to: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };

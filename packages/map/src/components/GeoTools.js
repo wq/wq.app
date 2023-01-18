@@ -1,8 +1,8 @@
-import React from 'react';
-import { useComponents, useInputComponents } from '@wq/react';
-import { useMinWidth } from '@wq/material';
-import { useGeoTools } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents, useInputComponents } from "@wq/react";
+import { useMinWidth } from "@wq/material";
+import { useGeoTools } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function GeoTools({ name, type }) {
     const { toggleProps, setLocation, ActiveTool, value } = useGeoTools(
@@ -17,9 +17,9 @@ export default function GeoTools({ name, type }) {
         return (
             <View
                 style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center'
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
                 }}
             >
                 <View style={{ marginRight: 8, minWidth: 200 }}>
@@ -41,11 +41,11 @@ export default function GeoTools({ name, type }) {
                 </View>
                 <View
                     style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
                         padding: 8,
-                        width: '100%'
+                        width: "100%",
                     }}
                 >
                     <ActiveTool
@@ -62,5 +62,5 @@ export default function GeoTools({ name, type }) {
 
 GeoTools.propTypes = {
     name: PropTypes.string,
-    type: PropTypes.string
+    type: PropTypes.string,
 };

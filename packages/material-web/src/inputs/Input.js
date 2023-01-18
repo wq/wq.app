@@ -1,8 +1,8 @@
-import React from 'react';
-import { Field } from 'formik';
-import { TextField } from 'formik-material-ui';
-import { useHtmlInput } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field } from "formik";
+import { TextField } from "formik-material-ui";
+import { useHtmlInput } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function Input({ hint, inputProps, ...rest }) {
     const { name, type, maxLength } = useHtmlInput(rest);
@@ -23,5 +23,5 @@ export default function Input({ hint, inputProps, ...rest }) {
 Input.propTypes = {
     name: PropTypes.string,
     hint: PropTypes.string,
-    inputProps: PropTypes.object
+    inputProps: PropTypes.object,
 };

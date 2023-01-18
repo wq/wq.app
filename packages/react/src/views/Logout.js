@@ -1,5 +1,5 @@
-import React from 'react';
-import { useRenderContext, useComponents } from '../hooks';
+import React from "react";
+import { useRenderContext, useComponents } from "../hooks";
 
 export default function Logout() {
     const { is_authenticated } = useRenderContext(),
@@ -7,7 +7,7 @@ export default function Logout() {
     return (
         <View>
             <Text>
-                <Message id={is_authenticated ? 'LOGGING_OUT' : 'LOGGED_OUT'} />
+                <Message id={is_authenticated ? "LOGGING_OUT" : "LOGGED_OUT"} />
             </Text>
         </View>
     );

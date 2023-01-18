@@ -1,6 +1,6 @@
-import React from 'react';
-import { useComponents } from '../hooks';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents } from "../hooks";
+import PropTypes from "prop-types";
 
 export default function FieldsetArray({ label, children, addRow }) {
     const { View, Button } = useComponents();
@@ -17,5 +17,5 @@ export default function FieldsetArray({ label, children, addRow }) {
 FieldsetArray.propTypes = {
     label: PropTypes.string,
     children: PropTypes.node,
-    addRow: PropTypes.func
+    addRow: PropTypes.func,
 };

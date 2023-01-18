@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
-import { useComponents, usePluginReducer } from '@wq/react';
-import PropTypes from 'prop-types';
-import { Reparentable, moveOffscreen } from './OffscreenMaps';
+import React, { useEffect } from "react";
+import { useComponents, usePluginReducer } from "@wq/react";
+import PropTypes from "prop-types";
+import { Reparentable, moveOffscreen } from "./OffscreenMaps";
 
 export default function StickyMap({
     mapId,
     name,
     containerStyle,
     context,
-    children
+    children,
 }) {
-    const [mapState, { setStickyProps }] = usePluginReducer('map'),
+    const [mapState, { setStickyProps }] = usePluginReducer("map"),
         { stickyMapId, stickyMaps } = mapState,
         currentProps =
             stickyMaps && stickyMaps[mapId] && stickyMaps[mapId].props,
@@ -22,8 +22,8 @@ export default function StickyMap({
         }
 
         const nextState = {};
-        Object.keys(mapState).forEach(key => {
-            if (key === 'stickyMapId' || key === 'stickyMaps') {
+        Object.keys(mapState).forEach((key) => {
+            if (key === "stickyMapId" || key === "stickyMaps") {
                 return;
             }
             nextState[key] = mapState[key];
@@ -35,7 +35,7 @@ export default function StickyMap({
             currentProps.containerStyle === containerStyle &&
             currentProps.context === context &&
             Object.keys(nextState).every(
-                key => nextState[key] === currentProps.state[key]
+                (key) => nextState[key] === currentProps.state[key]
             )
         ) {
             return;
@@ -46,7 +46,7 @@ export default function StickyMap({
             containerStyle,
             context,
             state: nextState,
-            children
+            children,
         });
     }, [
         mapId,
@@ -55,7 +55,7 @@ export default function StickyMap({
         name,
         containerStyle,
         context,
-        children
+        children,
     ]);
 
     useEffect(() => {
@@ -76,5 +76,5 @@ StickyMap.propTypes = {
     name: PropTypes.string,
     containerStyle: PropTypes.object,
     context: PropTypes.object,
-    children: PropTypes.node
+    children: PropTypes.node,
 };

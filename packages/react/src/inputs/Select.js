@@ -1,13 +1,13 @@
-import React from 'react';
-import { Field, ErrorMessage } from 'formik';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field, ErrorMessage } from "formik";
+import PropTypes from "prop-types";
 
 export default function Select({ name, type, label, choices }) {
-    const multiple = type === 'select';
+    const multiple = type === "select";
     return (
-        <div style={{ marginBottom: '0.5em' }}>
-            <div style={{ display: 'flex' }}>
-                <label htmlFor={name} style={{ width: '25%' }}>
+        <div style={{ marginBottom: "0.5em" }}>
+            <div style={{ display: "flex" }}>
+                <label htmlFor={name} style={{ width: "25%" }}>
                     {label}
                 </label>
                 <Field
@@ -33,5 +33,5 @@ Select.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     label: PropTypes.string,
-    choices: PropTypes.arrayOf(PropTypes.object)
+    choices: PropTypes.arrayOf(PropTypes.object),
 };

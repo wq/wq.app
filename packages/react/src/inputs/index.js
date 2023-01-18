@@ -1,14 +1,14 @@
-import Input from './Input';
-import Checkbox from './Checkbox';
-import DateTime from './DateTime';
-import File from './File';
-import Image from './Image';
-import Select from './Select';
-import ForeignKey from './ForeignKey';
-import Radio from './Radio';
-import Toggle from './Toggle';
-import Hidden from './Hidden';
-import HelperText from './HelperText';
+import Input from "./Input";
+import Checkbox from "./Checkbox";
+import DateTime from "./DateTime";
+import File from "./File";
+import Image from "./Image";
+import Select from "./Select";
+import ForeignKey from "./ForeignKey";
+import Radio from "./Radio";
+import Toggle from "./Toggle";
+import Hidden from "./Hidden";
+import HelperText from "./HelperText";
 
 const Date = DateTime;
 const Time = DateTime;
@@ -28,5 +28,5 @@ export {
     Radio,
     Toggle,
     Hidden,
-    HelperText
+    HelperText,
 };

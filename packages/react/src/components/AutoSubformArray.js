@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { useComponents } from '../hooks';
-import { FieldArray, getIn } from 'formik';
-import PropTypes from 'prop-types';
-import { initData } from './AutoForm';
-import { pascalCase } from 'pascal-case';
+import React, { useCallback } from "react";
+import { useComponents } from "../hooks";
+import { FieldArray, getIn } from "formik";
+import PropTypes from "prop-types";
+import { initData } from "./AutoForm";
+import { pascalCase } from "pascal-case";
 
 export default function AutoSubformArray({ name, label, subform, ...rest }) {
     const components = useComponents(),
@@ -32,7 +32,7 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
         }
     } else if (
         subform.length === 1 &&
-        (subform[0].type === 'file' || subform[0].type === 'image')
+        (subform[0].type === "file" || subform[0].type === "image")
     ) {
         // Special case for subforms containing only a single file field
         FieldsetArray = components.FileArray;
@@ -79,7 +79,7 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
         [name, label, subform, FieldsetArray, AutoSubform]
     );
 
-    SubformArray.displayName = 'SubformArray';
+    SubformArray.displayName = "SubformArray";
 
     return (
         <FieldArray
@@ -94,5 +94,5 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
 AutoSubformArray.propTypes = {
     name: PropTypes.string,
     label: PropTypes.string,
-    subform: PropTypes.arrayOf(PropTypes.object)
+    subform: PropTypes.arrayOf(PropTypes.object),
 };

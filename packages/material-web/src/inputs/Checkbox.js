@@ -1,8 +1,8 @@
-import React from 'react';
-import { Field } from 'formik';
-import { CheckboxWithLabel } from 'formik-material-ui';
-import HelperText from './HelperText';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Field } from "formik";
+import { CheckboxWithLabel } from "formik-material-ui";
+import HelperText from "./HelperText";
+import PropTypes from "prop-types";
 
 export default function Input({ label, ...props }) {
     return (
@@ -21,5 +21,5 @@ export default function Input({ label, ...props }) {
 Input.propTypes = {
     name: PropTypes.string,
     label: PropTypes.string,
-    hint: PropTypes.string
+    hint: PropTypes.string,
 };

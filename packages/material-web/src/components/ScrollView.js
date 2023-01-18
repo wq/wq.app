@@ -1,14 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 export default function ScrollView({ children, style }) {
     return (
         <div
             style={{
-                overflowX: 'hidden',
-                overflowY: 'auto',
+                overflowX: "hidden",
+                overflowY: "auto",
                 flex: 1,
-                ...style
+                ...style,
             }}
         >
             {children}
@@ -18,5 +18,5 @@ export default function ScrollView({ children, style }) {
 
 ScrollView.propTypes = {
     children: PropTypes.node,
-    style: PropTypes.object
+    style: PropTypes.object,
 };

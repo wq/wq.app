@@ -1,10 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
 
 export function init() {
     if (!this.root) {
-        this.root = document.body.appendChild(document.createElement('div'));
-        this.root.id = 'wq-app-root';
+        this.root = document.body.appendChild(document.createElement("div"));
+        this.root.id = "wq-app-root";
     }
 }
 

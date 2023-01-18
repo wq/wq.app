@@ -1,4 +1,4 @@
-import localForage from 'localforage';
+import localForage from "localforage";
 
 export function createStorage(name) {
     return localForage.createInstance({ name });

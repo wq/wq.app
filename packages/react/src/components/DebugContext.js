@@ -1,18 +1,18 @@
-import React from 'react';
-import { useRenderContext, useRouteInfo, useComponents } from '../hooks';
+import React from "react";
+import { useRenderContext, useRouteInfo, useComponents } from "../hooks";
 
 const SKIP = [
-    'app_config',
-    'router_info',
-    'rt',
-    'svc',
-    'user',
-    'is_authenticated',
-    'csrf_token',
-    'native',
-    'unsynced',
-    'local',
-    '_refreshCount'
+    "app_config",
+    "router_info",
+    "rt",
+    "svc",
+    "user",
+    "is_authenticated",
+    "csrf_token",
+    "native",
+    "unsynced",
+    "local",
+    "_refreshCount",
 ];
 
 export default function DebugContext() {
@@ -21,7 +21,7 @@ export default function DebugContext() {
         { List, ListSubheader, FormatJson } = useComponents();
     const main = { ...context },
         other = {};
-    SKIP.forEach(skip => {
+    SKIP.forEach((skip) => {
         other[skip] = main[skip];
         delete main[skip];
     });

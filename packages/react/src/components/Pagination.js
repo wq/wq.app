@@ -1,5 +1,5 @@
-import React from 'react';
-import { useRenderContext, useComponents } from '../hooks';
+import React from "react";
+import { useRenderContext, useComponents } from "../hooks";
 
 export default function Pagination() {
     const { Link } = useComponents(),
@@ -11,7 +11,7 @@ export default function Pagination() {
             previous,
             next,
             previous_is_local,
-            current_is_local
+            current_is_local,
         } = useRenderContext();
 
     if (!(multiple && pages && per_page)) {
@@ -22,8 +22,8 @@ export default function Pagination() {
         <p>
             {previous && (
                 <Link to={previous}>
-                    &lt;{' '}
-                    {previous_is_local ? 'Local Cache' : `Previous ${per_page}`}
+                    &lt;{" "}
+                    {previous_is_local ? "Local Cache" : `Previous ${per_page}`}
                 </Link>
             )}
             {!current_is_local && (
@@ -33,7 +33,7 @@ export default function Pagination() {
             )}
             {next && (
                 <Link to={next}>
-                    {current_is_local ? 'All Data' : `Next ${per_page}`} &gt;
+                    {current_is_local ? "All Data" : `Next ${per_page}`} &gt;
                 </Link>
             )}
         </p>

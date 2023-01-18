@@ -1,6 +1,6 @@
-import React from 'react';
-import { ActivityIndicator, Modal, Portal } from 'react-native-paper';
-import { useSpinner } from '@wq/react';
+import React from "react";
+import { ActivityIndicator, Modal, Portal } from "react-native-paper";
+import { useSpinner } from "@wq/react";
 
 export default function Spinner() {
     const { active } = useSpinner();

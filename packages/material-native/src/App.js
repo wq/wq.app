@@ -1,20 +1,20 @@
-import React, { useMemo } from 'react';
-import { App as DefaultApp, usePlugin } from '@wq/react';
+import React, { useMemo } from "react";
+import { App as DefaultApp, usePlugin } from "@wq/react";
 import {
     DefaultTheme,
     DarkTheme,
-    Provider as PaperProvider
-} from 'react-native-paper';
+    Provider as PaperProvider,
+} from "react-native-paper";
 
 export default function App() {
-    const { theme: configTheme } = usePlugin('material').config,
+    const { theme: configTheme } = usePlugin("material").config,
         theme = useMemo(() => createTheme(configTheme), [configTheme]),
         options = useMemo(
             () => ({
                 navigator: { theme },
                 screen: {
-                    cardStyle: { backgroundColor: theme.colors.background }
-                }
+                    cardStyle: { backgroundColor: theme.colors.background },
+                },
             }),
             [theme]
         );
@@ -28,7 +28,7 @@ export default function App() {
 
 function createTheme({ type, primary, secondary, background }) {
     const colors = {},
-        base = type === 'dark' ? DarkTheme : DefaultTheme;
+        base = type === "dark" ? DarkTheme : DefaultTheme;
     if (primary) {
         colors.primary = primary;
     }
@@ -42,7 +42,7 @@ function createTheme({ type, primary, secondary, background }) {
         ...base,
         colors: {
             ...base.colors,
-            ...colors
-        }
+            ...colors,
+        },
     };
 }

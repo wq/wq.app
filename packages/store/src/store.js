@@ -3,28 +3,28 @@ import {
     combineReducers,
     applyMiddleware,
     compose,
-    bindActionCreators
-} from 'redux';
-import logger from 'redux-logger';
-import { persistStore, persistReducer, createTransform } from 'redux-persist';
-import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
-import { createStorage, serialize, deserialize } from './storage';
+    bindActionCreators,
+} from "redux";
+import logger from "redux-logger";
+import { persistStore, persistReducer, createTransform } from "redux-persist";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
+import { createStorage, serialize, deserialize } from "./storage";
 
-const REMOVE = '@@KVP_REMOVE';
-const SET = '@@KVP_SET';
-const CLEAR = '@@KVP_CLEAR';
+const REMOVE = "@@KVP_REMOVE";
+const SET = "@@KVP_SET";
+const CLEAR = "@@KVP_CLEAR";
 
 // Internal variables and functions
 var _verbosity = {
     Network: 1,
     Lookup: 2,
-    Values: 3
+    Values: 3,
 };
 
 class Store {
     constructor(name) {
         if (_stores[name]) {
-            throw name + ' store already exists!';
+            throw name + " store already exists!";
         }
         this.name = name;
         _stores[name] = this;
@@ -39,8 +39,8 @@ class Store {
 
         this.ready = {
             then: function () {
-                throw new Error('Call init first!');
-            }
+                throw new Error("Call init first!");
+            },
         };
 
         // Registered redux functions
@@ -57,7 +57,7 @@ class Store {
         this._promises = {}; // Save promises to prevent redundant fetches
 
         this.addReducer(
-            'kvp',
+            "kvp",
             (state, action) => this.kvpReducer(state, action),
             true
         );
@@ -66,14 +66,14 @@ class Store {
     init(opts = {}) {
         var self = this;
         var optlist = [
-            'debug',
-            'storageFail',
+            "debug",
+            "storageFail",
 
-            'service',
-            'defaults',
-            'fetchFail',
-            'ajax',
-            'formatKeyword'
+            "service",
+            "defaults",
+            "fetchFail",
+            "ajax",
+            "formatKeyword",
         ];
         optlist.forEach(function (opt) {
             if (opts.hasOwnProperty(opt)) {
@@ -83,17 +83,17 @@ class Store {
         if (self.debug) {
             for (var level in _verbosity) {
                 if (self.debug >= _verbosity[level]) {
-                    self['debug' + level] = true;
+                    self["debug" + level] = true;
                 }
             }
             self.addMiddleware(logger);
         }
 
         var storeReady;
-        self.ready = new Promise(resolve => (storeReady = resolve));
+        self.ready = new Promise((resolve) => (storeReady = resolve));
 
         var reducer = combineReducers(this._reducers);
-        this._enhanceReducers.forEach(enhanceReducer => {
+        this._enhanceReducers.forEach((enhanceReducer) => {
             reducer = enhanceReducer(reducer);
         });
         const enhancers = compose(
@@ -104,14 +104,14 @@ class Store {
         this.lf = createStorage(this.name);
 
         const persistConfig = {
-            key: 'root',
+            key: "root",
             storage: this.lf,
             stateReconciler: autoMergeLevel2,
             serialize,
             deserialize,
             transforms: this._transforms,
             whitelist: this._persistKeys,
-            writeFailHandler: error => this.storageFail(error)
+            writeFailHandler: (error) => this.storageFail(error),
         };
         const persistedReducer = persistReducer(persistConfig, reducer);
         this._store = createStore(persistedReducer, {}, enhancers);
@@ -122,7 +122,7 @@ class Store {
                 storeReady();
             }
         });
-        this._unsubscribers = this._subscribers.map(fn =>
+        this._unsubscribers = this._subscribers.map((fn) =>
             this._store.subscribe(fn)
         );
         this._deferActions.forEach(this._store.dispatch);
@@ -144,7 +144,7 @@ class Store {
             const index = this._subscribers.length - 1;
             return () => {
                 if (!this._unsubscribers) {
-                    throw new Error('Store was never fully initialized!');
+                    throw new Error("Store was never fully initialized!");
                 }
                 this._unsubscribers[index]();
             };
@@ -192,7 +192,7 @@ class Store {
 
     addThunk(name, thunk) {
         if (!this._thunkHandler) {
-            throw new Error('@wq/router is required to handle thunks');
+            throw new Error("@wq/router is required to handle thunks");
         }
         this._thunkHandler(name, thunk);
     }
@@ -208,7 +208,7 @@ class Store {
         } else if (action.type === SET) {
             state = {
                 ...state,
-                [action.payload.key]: action.payload.value
+                [action.payload.key]: action.payload.value,
             };
         } else if (action.type === CLEAR) {
             state = {};
@@ -221,28 +221,28 @@ class Store {
         await this.ready;
         var self = this;
         if (Array.isArray(query)) {
-            var promises = query.map(row => self.get(row));
+            var promises = query.map((row) => self.get(row));
             return Promise.all(promises);
         }
         query = self.normalizeQuery(query);
         var key = self.toKey(query);
 
         if (self.debugLookup) {
-            console.log('looking up ' + key);
+            console.log("looking up " + key);
         }
 
         // Check storage first
         const kvp = this.getState().kvp;
         if (kvp[key]) {
             if (self.debugLookup) {
-                console.log('in storage');
+                console.log("in storage");
             }
             return kvp[key];
         } else {
             // Search ends here if query is a simple string
-            if (typeof query == 'string') {
+            if (typeof query == "string") {
                 if (self.debugLookup) {
-                    console.log('not found');
+                    console.log("not found");
                 }
                 return null;
             }
@@ -258,23 +258,23 @@ class Store {
         var key = self.toKey(query);
         if (value === null) {
             if (self.debugLookup) {
-                console.log('deleting ' + key);
+                console.log("deleting " + key);
             }
             self.dispatch({
                 type: REMOVE,
-                payload: { key }
+                payload: { key },
             });
             return;
         } else {
             if (self.debugLookup) {
-                console.log('saving new value for ' + key);
+                console.log("saving new value for " + key);
                 if (self.debugValues) {
                     console.log(value);
                 }
             }
             self.dispatch({
                 type: SET,
-                payload: { key, value }
+                payload: { key, value },
             });
             return;
         }
@@ -282,14 +282,14 @@ class Store {
 
     // Callback for localStorage failure - override to inform the user
     storageFail(error) {
-        console.warn('Error persisting store:');
+        console.warn("Error persisting store:");
         console.warn(error);
     }
 
     // Convert "/url" to {'url': "url"} (simplify common use case)
     normalizeQuery(query) {
-        if (typeof query === 'string' && query.charAt(0) == '/') {
-            query = { url: query.replace(/^\//, '') };
+        if (typeof query === "string" && query.charAt(0) == "/") {
+            query = { url: query.replace(/^\//, "") };
         }
         return query;
     }
@@ -299,9 +299,9 @@ class Store {
         var self = this;
         query = self.normalizeQuery(query);
         if (!query) {
-            throw 'Invalid query!';
+            throw "Invalid query!";
         }
-        if (typeof query == 'string') {
+        if (typeof query == "string") {
             return query;
         } else {
             return new URLSearchParams(query).toString();
@@ -330,12 +330,12 @@ class Store {
         var key = self.toKey(query);
         var data = { ...self.defaults, ...query };
         var url = self.service;
-        if (data.hasOwnProperty('url')) {
-            url = url + '/' + data.url;
+        if (data.hasOwnProperty("url")) {
+            url = url + "/" + data.url;
             delete data.url;
         }
         if (data.format && !self.formatKeyword) {
-            url += '.' + data.format;
+            url += "." + data.format;
             delete data.format;
         }
 
@@ -344,19 +344,19 @@ class Store {
         }
 
         if (self.debugNetwork) {
-            console.log('fetching ' + key);
+            console.log("fetching " + key);
         }
 
-        var promise = self.ajax(url, data, 'GET');
+        var promise = self.ajax(url, data, "GET");
         this._promises[key] = promise.then(
-            async data => {
+            async (data) => {
                 delete this._promises[key];
                 if (!data) {
-                    self.fetchFail(query, 'Error parsing data!');
+                    self.fetchFail(query, "Error parsing data!");
                     return;
                 }
                 if (self.debugNetwork) {
-                    console.log('received result for ' + key);
+                    console.log("received result for " + key);
                     if (self.debugValues) {
                         console.log(data);
                     }
@@ -366,10 +366,10 @@ class Store {
                 }
                 return data;
             },
-            error => {
+            (error) => {
                 delete this._promises[key];
                 console.error(error);
-                self.fetchFail(query, 'Error parsing data!');
+                self.fetchFail(query, "Error parsing data!");
             }
         );
         return this._promises[key];
@@ -379,11 +379,11 @@ class Store {
     ajax(url, data, method, headers) {
         var urlObj = new URL(url, window.location);
         if (!method) {
-            method = 'GET';
+            method = "GET";
         } else {
             method = method.toUpperCase();
         }
-        if (method == 'GET') {
+        if (method == "GET") {
             Object.entries(data || {}).forEach(([key, value]) =>
                 urlObj.searchParams.append(key, value)
             );
@@ -392,8 +392,8 @@ class Store {
         return fetch(urlObj, {
             method: method,
             body: data,
-            headers: headers
-        }).then(response => {
+            headers: headers,
+        }).then((response) => {
             if (response.ok) {
                 if (response.status === 204) {
                     return null;
@@ -401,7 +401,7 @@ class Store {
                     return response.json();
                 }
             } else {
-                return response.text().then(result => {
+                return response.text().then((result) => {
                     var error = new Error();
                     try {
                         error.json = JSON.parse(result);
@@ -419,7 +419,7 @@ class Store {
     fetchFail(query, error) {
         var self = this;
         var key = self.toKey(query);
-        console.warn('Error loading ' + key + ': ' + error);
+        console.warn("Error loading " + key + ": " + error);
     }
 
     // Helper function for prefetching data
@@ -443,7 +443,7 @@ class Store {
 var _stores = {};
 
 // Hybrid module object provides/is a singleton instance...
-var ds = new Store('main');
+var ds = new Store("main");
 
 // ... and a way to retrieve/autoinit other stores
 ds.getStore = getStore;

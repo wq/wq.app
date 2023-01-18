@@ -1,14 +1,14 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import PropTypes from "prop-types";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
     root: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: theme.spacing(1)
-    }
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: theme.spacing(1),
+    },
 }));
 
 export default function HorizontalView({ children, ...rest }) {
@@ -21,5 +21,5 @@ export default function HorizontalView({ children, ...rest }) {
 }
 
 HorizontalView.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
 };

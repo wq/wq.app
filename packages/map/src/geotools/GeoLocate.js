@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useComponents } from '@wq/react';
-import geolocation from './geolocation';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useRef } from "react";
+import { useComponents } from "@wq/react";
+import geolocation from "./geolocation";
+import PropTypes from "prop-types";
 
 export default function GeoLocate({ type, setLocation }) {
     const { Button, Typography } = useComponents(),
-        [gpsStatus, setGpsStatus] = useState(''),
+        [gpsStatus, setGpsStatus] = useState(""),
         gpsWatch = useRef();
 
     async function startGps() {
@@ -13,16 +13,16 @@ export default function GeoLocate({ type, setLocation }) {
             return;
         }
         if (!geolocation.supported) {
-            setGpsStatus('Geolocation not supported');
+            setGpsStatus("Geolocation not supported");
             return;
         }
         const watchId = await geolocation.watchPosition(onPosition, onError, {
             enableHighAccuracy: true,
-            timeout: 60 * 1000
+            timeout: 60 * 1000,
         });
 
         gpsWatch.current = watchId;
-        setGpsStatus('Determining location...');
+        setGpsStatus("Determining location...");
     }
 
     function onPosition(evt) {
@@ -34,17 +34,17 @@ export default function GeoLocate({ type, setLocation }) {
             latitude: lat,
             accuracy: acc,
             zoom: true,
-            save: type === 'geopoint'
+            save: type === "geopoint",
         });
 
-        const latFmt = lat > 0 ? lat + '°N' : -lat + '°S',
-            lngFmt = lng > 0 ? lng + '°E' : -lng + '°W',
+        const latFmt = lat > 0 ? lat + "°N" : -lat + "°S",
+            lngFmt = lng > 0 ? lng + "°E" : -lng + "°W",
             accFmt =
                 acc > 1000
-                    ? '~' + Math.round(acc / 1000) + 'km'
+                    ? "~" + Math.round(acc / 1000) + "km"
                     : acc > 1
-                    ? '~' + Math.round(acc) + 'm'
-                    : acc + 'm';
+                    ? "~" + Math.round(acc) + "m"
+                    : acc + "m";
         setGpsStatus(`${latFmt} ${lngFmt} (${accFmt})`);
     }
 
@@ -62,7 +62,7 @@ export default function GeoLocate({ type, setLocation }) {
 
     function resetGps() {
         stopGps();
-        setGpsStatus('');
+        setGpsStatus("");
     }
 
     useEffect(() => {
@@ -77,28 +77,28 @@ export default function GeoLocate({ type, setLocation }) {
                 style={{
                     marginRight: 8,
                     flex: 1,
-                    textAlign: 'center'
+                    textAlign: "center",
                 }}
                 color="textSecondary"
             >
                 {gpsStatus}
             </Typography>
             <Button
-                icon={gpsActive ? 'gps-stop' : 'gps-start'}
+                icon={gpsActive ? "gps-stop" : "gps-start"}
                 style={{ minWidth: 140 }}
-                variant={gpsActive ? 'contained' : 'outlined'}
+                variant={gpsActive ? "contained" : "outlined"}
                 color="secondary"
                 onClick={gpsActive ? resetGps : startGps}
             >
-                {gpsActive ? 'Stop GPS' : 'Start GPS'}
+                {gpsActive ? "Stop GPS" : "Start GPS"}
             </Button>
         </>
     );
 }
 
-GeoLocate.toolLabel = 'Current';
+GeoLocate.toolLabel = "Current";
 
 GeoLocate.propTypes = {
     type: PropTypes.string,
-    setLocation: PropTypes.func
+    setLocation: PropTypes.func,
 };

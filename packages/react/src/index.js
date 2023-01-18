@@ -1,42 +1,42 @@
-import React from 'react';
-import orm from '@wq/model';
-import { Provider as StoreProvider } from 'react-redux';
-import { AppContext } from './hooks';
+import React from "react";
+import orm from "@wq/model";
+import { Provider as StoreProvider } from "react-redux";
+import { AppContext } from "./hooks";
 
-import App from './App';
+import App from "./App";
 
-import messages from './messages';
-import * as components from './components/index';
-import * as inputs from './inputs/index';
-import * as icons from './icons';
-import * as views from './views/index';
-import { init, start, unmount } from './init';
-import validate from './validate';
+import messages from "./messages";
+import * as components from "./components/index";
+import * as inputs from "./inputs/index";
+import * as icons from "./icons";
+import * as views from "./views/index";
+import { init, start, unmount } from "./init";
+import validate from "./validate";
 
 export default {
-    name: 'react',
-    type: 'renderer',
+    name: "react",
+    type: "renderer",
     dependencies: [orm],
 
     config: {
-        messages: { ...messages }
+        messages: { ...messages },
     },
 
     registry: {
         components: {
             App,
-            ...components
+            ...components,
         },
         inputs: { ...inputs },
         icons: { ...icons },
-        views: { ...views }
+        views: { ...views },
     },
 
     init(config) {
         if (config) {
             Object.assign(this.config, config);
         }
-        Object.values(this.app.plugins).forEach(plugin => {
+        Object.values(this.app.plugins).forEach((plugin) => {
             if (plugin.messages) {
                 Object.assign(this.config.messages, plugin.messages);
             }
@@ -67,7 +67,7 @@ export default {
                 </AppContext.Provider>
             </StoreProvider>
         );
-        AppRoot.displayName = 'AppRoot';
+        AppRoot.displayName = "AppRoot";
         return AppRoot;
     },
 
@@ -81,17 +81,17 @@ export default {
         const tempPlugin = {
             app: {
                 ...app,
-                plugins: { ...app.plugins }
+                plugins: { ...app.plugins },
             },
             config: { messages: {} },
             registry: {
                 components: {},
                 inputs: {},
                 icons: {},
-                views: {}
+                views: {},
             },
             root,
-            getRootComponent: this.getRootComponent
+            getRootComponent: this.getRootComponent,
         };
 
         this.init.call(tempPlugin);
@@ -102,7 +102,7 @@ export default {
         return {
             start: () => this.start.call(tempPlugin),
             getRootComponent: () => tempPlugin.getRootComponent(),
-            stop: () => unmount.call(tempPlugin)
+            stop: () => unmount.call(tempPlugin),
         };
     },
 
@@ -116,11 +116,11 @@ export default {
         const emptyRoot = {},
             instance = this.createInstance(component, emptyRoot, app);
         return instance.getRootComponent();
-    }
+    },
 };
 
-export * from './hooks';
-export * from './views/index';
+export * from "./hooks";
+export * from "./views/index";
 
 const {
     Link,
@@ -134,7 +134,7 @@ const {
     PropertyTable,
     ImagePreview,
     FileLink,
-    DebugContext
+    DebugContext,
 } = components;
 
 export {
@@ -150,7 +150,7 @@ export {
     PropertyTable,
     ImagePreview,
     FileLink,
-    DebugContext
+    DebugContext,
 };
 
 const { ForeignKey } = inputs;

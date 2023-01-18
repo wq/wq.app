@@ -1,6 +1,6 @@
-import React from 'react';
-import { Geojson } from 'react-native-maps';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Geojson } from "react-native-maps";
+import PropTypes from "prop-types";
 
 export default function Highlight({ data }) {
     return (
@@ -14,5 +14,5 @@ export default function Highlight({ data }) {
 }
 
 Highlight.propTypes = {
-    data: PropTypes.object
+    data: PropTypes.object,
 };

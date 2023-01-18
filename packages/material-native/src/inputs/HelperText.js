@@ -1,3 +1,3 @@
-import { HelperText } from 'react-native-paper';
+import { HelperText } from "react-native-paper";
 
 export default HelperText;

@@ -1,13 +1,13 @@
-import React from 'react';
-import { useComponents, useViewComponents, usePluginReducer } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import { useComponents, useViewComponents, usePluginReducer } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function HighlightPopup() {
     const { Popup, View, ScrollView, IconButton } = useComponents(),
-        [{ highlight }, { clearHighlight }] = usePluginReducer('map'),
+        [{ highlight }, { clearHighlight }] = usePluginReducer("map"),
         features = (highlight && highlight.features) || [];
     return (
-        <View style={{ position: 'absolute', bottom: 0 }}>
+        <View style={{ position: "absolute", bottom: 0 }}>
             <Popup
                 open={features.length > 0}
                 onClose={clearHighlight}
@@ -16,10 +16,10 @@ export default function HighlightPopup() {
                 <IconButton
                     icon="close"
                     onClick={clearHighlight}
-                    style={{ position: 'absolute', right: 0, top: 0 }}
+                    style={{ position: "absolute", right: 0, top: 0 }}
                 />
-                <ScrollView style={{ maxHeight: '33vh' }}>
-                    {features.map(feature => (
+                <ScrollView style={{ maxHeight: "33vh" }}>
+                    {features.map((feature) => (
                         <PopupContent key={feature.id} feature={feature} />
                     ))}
                 </ScrollView>
@@ -31,15 +31,15 @@ export default function HighlightPopup() {
 function PopupContent({ feature }) {
     const popupName = feature.popup
             ? `${feature.popup}-popup`
-            : 'default-popup',
+            : "default-popup",
         views = useViewComponents();
 
     let View = views[popupName];
     if (!View) {
         console.warn(`No popup view named ${popupName}, using default.`);
-        View = views['default-popup'];
+        View = views["default-popup"];
         if (!View) {
-            throw new Error('No popup view named default-popup!');
+            throw new Error("No popup view named default-popup!");
         }
     }
 
@@ -47,5 +47,5 @@ function PopupContent({ feature }) {
 }
 
 PopupContent.propTypes = {
-    feature: PropTypes.object
+    feature: PropTypes.object,
 };

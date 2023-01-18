@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 export function findBasemapStyle(children) {
     let style = null;
-    React.Children.toArray(children).some(child => {
+    React.Children.toArray(children).some((child) => {
         if (!child || !child.props) {
             return false;
         }
@@ -22,11 +22,11 @@ export function findBasemapStyle(children) {
 }
 
 export function zoomToLocation(instance, geometry) {
-    if (geometry.type == 'Point') {
+    if (geometry.type == "Point") {
         instance.camera.setCamera({
             centerCoordinate: geometry.coordinates,
             zoomLevel: 18,
-            animationDuration: 2000
+            animationDuration: 2000,
         });
     } else {
         // FIXME

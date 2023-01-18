@@ -1,7 +1,7 @@
-import React from 'react';
-import { Appbar } from 'react-native-paper';
-import { useBreadcrumbs, useNav } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Appbar } from "react-native-paper";
+import { useBreadcrumbs, useNav } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function Header({ options, route }) {
     const title = options.title || route.name,
@@ -18,5 +18,5 @@ export default function Header({ options, route }) {
 
 Header.propTypes = {
     options: PropTypes.object,
-    route: PropTypes.object
+    route: PropTypes.object,
 };

@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import TablePagination from '@material-ui/core/TablePagination';
-import Paper from '@material-ui/core/Paper';
+import TablePagination from "@material-ui/core/TablePagination";
+import Paper from "@material-ui/core/Paper";
 
-import { useRenderContext, useRouteInfo, useReverse, useNav } from '@wq/react';
+import { useRenderContext, useRouteInfo, useReverse, useNav } from "@wq/react";
 
 export default function Pagination() {
     const reverse = useReverse(),
@@ -15,20 +15,20 @@ export default function Pagination() {
         return null;
     }
 
-    const updateParams = newParams => {
+    const updateParams = (newParams) => {
         nav(
             reverse(
                 routeName,
                 {},
                 {
                     ...params,
-                    ...newParams
+                    ...newParams,
                 }
             )
         );
     };
     const handleChangePage = (evt, page) => updateParams({ page: page + 1 });
-    const handleChangeRowsPerPage = evt =>
+    const handleChangeRowsPerPage = (evt) =>
         updateParams({ limit: evt.target.value });
     return (
         <Paper>

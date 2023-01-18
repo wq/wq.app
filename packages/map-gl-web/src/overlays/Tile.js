@@ -1,18 +1,18 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
+import React, { useMemo } from "react";
+import PropTypes from "prop-types";
+import { Source, Layer } from "react-mapbox-gl";
 
 export default function Tile({ name, active, url, tileSize, layout, paint }) {
     const source = useMemo(() => {
         return {
-            type: 'raster',
+            type: "raster",
             tiles: [url],
-            tileSize: tileSize || 256
+            tileSize: tileSize || 256,
         };
     }, [url]);
 
     if (active === false) {
-        layout = { ...(layout || {}), visibility: 'none' };
+        layout = { ...(layout || {}), visibility: "none" };
     }
 
     return (
@@ -35,5 +35,5 @@ Tile.propTypes = {
     url: PropTypes.string,
     tileSize: PropTypes.number,
     layout: PropTypes.object,
-    paint: PropTypes.object
+    paint: PropTypes.object,
 };

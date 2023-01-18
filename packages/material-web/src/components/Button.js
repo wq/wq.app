@@ -1,7 +1,7 @@
-import React from 'react';
-import MuiButton from '@material-ui/core/Button';
-import { useIcon } from '@wq/react';
-import PropTypes from 'prop-types';
+import React from "react";
+import MuiButton from "@material-ui/core/Button";
+import { useIcon } from "@wq/react";
+import PropTypes from "prop-types";
 
 export default function Button({ icon, ...rest }) {
     const Icon = useIcon(icon),
@@ -10,5 +10,5 @@ export default function Button({ icon, ...rest }) {
 }
 
 Button.propTypes = {
-    icon: PropTypes.string
+    icon: PropTypes.string,
 };

@@ -1,6 +1,6 @@
-import React from 'react';
-import { List } from 'react-native-paper';
-import PropTypes from 'prop-types';
+import React from "react";
+import { List } from "react-native-paper";
+import PropTypes from "prop-types";
 
 export default function ExpansionPanel({ summary, children, open, onToggle }) {
     let handleToggle;
@@ -18,5 +18,5 @@ ExpansionPanel.propTypes = {
     summary: PropTypes.node,
     children: PropTypes.node,
     open: PropTypes.bool,
-    onToggle: PropTypes.func
+    onToggle: PropTypes.func,
 };
