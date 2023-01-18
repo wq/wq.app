@@ -1,3 +1,3 @@
-import Table from "@material-ui/core/Table";
+import Table from "@mui/material/Table";
 
 export default Table;

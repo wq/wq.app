@@ -1,6 +1,6 @@
 import React from "react";
 import { Field } from "formik";
-import { CheckboxWithLabel } from "formik-material-ui";
+import { CheckboxWithLabel } from "formik-mui";
 import HelperText from "./HelperText";
 import PropTypes from "prop-types";
 

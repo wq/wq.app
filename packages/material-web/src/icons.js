@@ -1,17 +1,17 @@
-import Add from "@material-ui/icons/Add";
-import Edit from "@material-ui/icons/Edit";
-import Delete from "@material-ui/icons/Delete";
-import Success from "@material-ui/icons/Done";
-import Error from "@material-ui/icons/Error";
-import Pending from "@material-ui/icons/Sync";
-import Close from "@material-ui/icons/Close";
-import Expand from "@material-ui/icons/ExpandMore";
-import Collapse from "@material-ui/icons/ExpandLess";
-import PanelOpen from "@material-ui/icons/ChevronRight";
-import PanelClose from "@material-ui/icons/ChevronLeft";
-import GpsStart from "@material-ui/icons/GpsFixed";
-import GpsStop from "@material-ui/icons/GpsOff";
-import Search from "@material-ui/icons/Search";
+import Add from "@mui/icons-material/Add";
+import Edit from "@mui/icons-material/Edit";
+import Delete from "@mui/icons-material/Delete";
+import Success from "@mui/icons-material/Done";
+import Error from "@mui/icons-material/Error";
+import Pending from "@mui/icons-material/Sync";
+import Close from "@mui/icons-material/Close";
+import Expand from "@mui/icons-material/ExpandMore";
+import Collapse from "@mui/icons-material/ExpandLess";
+import PanelOpen from "@mui/icons-material/ChevronRight";
+import PanelClose from "@mui/icons-material/ChevronLeft";
+import GpsStart from "@mui/icons-material/GpsFixed";
+import GpsStop from "@mui/icons-material/GpsOff";
+import Search from "@mui/icons-material/Search";
 
 export {
     Add,

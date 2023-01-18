@@ -1,9 +1,9 @@
 import React from "react";
 import { Field } from "formik";
-import ToggleButton from "@material-ui/lab/ToggleButton";
-import { ToggleButtonGroup } from "formik-material-ui-lab";
-import FormControl from "@material-ui/core/FormControl";
-import FormLabel from "@material-ui/core/FormLabel";
+import ToggleButton from "@mui/material/ToggleButton";
+import { ToggleButtonGroup } from "formik-mui";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 import HelperText from "./HelperText";
 import PropTypes from "prop-types";
 

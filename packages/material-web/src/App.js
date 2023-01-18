@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
 import { App as DefaultApp, usePlugin } from "@wq/react";
-import { ThemeProvider } from "@material-ui/styles";
-import { createMuiTheme } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import {
+    createTheme as createMuiTheme,
+    ThemeProvider,
+} from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
 export default function App() {
     const { theme } = usePlugin("material").config,
@@ -19,7 +21,7 @@ function createTheme(theme) {
     const { type, primary, secondary, background } = theme;
     const palette = theme.palette || {};
     if (type) {
-        palette.type = type;
+        palette.mode = type;
     }
     if (primary) {
         palette.primary = { main: primary };

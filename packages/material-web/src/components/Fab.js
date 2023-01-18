@@ -1,5 +1,5 @@
 import React from "react";
-import MuiFab from "@material-ui/core/Fab";
+import MuiFab from "@mui/material/Fab";
 import { Link } from "@wq/react";
 import PropTypes from "prop-types";
 import { useIcon } from "@wq/react";

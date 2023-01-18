@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useRef } from "react";
 import { useField } from "formik";
-import { DropzoneArea } from "../vendor/material-ui-dropzone.js";
-import InputLabel from "@material-ui/core/InputLabel";
+import { DropzoneArea } from "mui-file-dropzone";
+import InputLabel from "@mui/material/InputLabel";
 import HelperText from "./HelperText";
 import PropTypes from "prop-types";
 

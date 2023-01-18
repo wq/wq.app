@@ -1,5 +1,5 @@
 import React from "react";
-import MuiChip from "@material-ui/core/Chip";
+import MuiChip from "@mui/material/Chip";
 import { useIcon } from "@wq/react";
 import PropTypes from "prop-types";
 

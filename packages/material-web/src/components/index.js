@@ -25,7 +25,7 @@ import List from "./List";
 import ListItem from "./ListItem";
 import ListItemLink from "./ListItemLink";
 import ListSubheader from "./ListSubheader";
-import ExpansionPanel from "./ExpansionPanel";
+import Accordion from "./Accordion";
 import ExpandableListItem from "./ExpandableListItem";
 import Divider from "./Divider";
 
@@ -87,7 +87,8 @@ export {
     ListItem,
     ListItemLink,
     ListSubheader,
-    ExpansionPanel,
+    Accordion,
+    Accordion as ExpansionPanel,
     ExpandableListItem,
     Divider,
 };

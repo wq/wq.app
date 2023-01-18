@@ -6,8 +6,6 @@ init:
 	mkdir -p static/app/css
 
 wq.js: init
-	cd packages/material-web && npm run rollup
-	cd ../../
 	npm run rollup -- -c
 	cp -p packages/app/css/wq.css static/app/css/wq.css
 	cp -p node_modules/mapbox-gl/dist/mapbox-gl.css static/app/css/mapbox-gl.css
