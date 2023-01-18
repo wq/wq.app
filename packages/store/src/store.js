@@ -10,8 +10,6 @@ import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import { createStorage, serialize, deserialize } from './storage';
 
-import 'whatwg-fetch';
-
 const REMOVE = '@@KVP_REMOVE';
 const SET = '@@KVP_SET';
 const CLEAR = '@@KVP_CLEAR';

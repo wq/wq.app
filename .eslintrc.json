@@ -29,6 +29,7 @@
         "no-console": "off",
         "no-redeclare": "off",
         "no-prototype-builtins": "off",
-        "require-atomic-updates": "off"
+        "require-atomic-updates": "off",
+        "react/prop-types": [2, { "skipUndeclared": true }]
     }
 }
