@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Source, Layer } from "react-map-gl";
 
 function AutoLayer({ id, active, before, layout, ...rest }) {
-    if (active === false) {
-        layout = {
-            ...(layout || {}),
-            visibility: "none",
+    const layer = useMemo(() => {
+        return {
+            id,
+            layout:
+                active === false
+                    ? { ...(layout || {}), visibility: "none" }
+                    : layout,
         };
-    }
-    return <Layer id={id} beforeId={before} layout={layout} {...rest} />;
+    }, [id, active, layout]);
+
+    return <Layer beforeId={before} {...layer} {...rest} />;
 }
 
 export default function VectorTile({ name, active, before, url, style }) {

@@ -1,7 +1,8 @@
 import { routeMapConf } from "./hooks";
 
 const RENDER = "RENDER";
-export const MAP_SHOW_OVERLAY = "MAP_SHOW_OVERLAY",
+export const MAP_SET_VIEW_STATE = "MAP_SET_VIEWSTATE",
+    MAP_SHOW_OVERLAY = "MAP_SHOW_OVERLAY",
     MAP_HIDE_OVERLAY = "MAP_HIDE_OVERLAY",
     MAP_SET_BASEMAP = "MAP_SET_BASEMAP",
     MAP_SET_HIGHLIGHT = "MAP_SET_HIGHLIGHT",
@@ -33,7 +34,7 @@ export default function reducer(state = {}, action, config) {
                     nextState = { stickyMaps, activeBasemap, activeOverlays };
                 } else {
                     const { mapId } = conf,
-                        { highlight = null } =
+                        { highlight = null, viewState = null } =
                             (mapId && stickyMaps && stickyMaps[mapId]) || {};
                     nextState = {
                         basemaps: reduceBasemaps(
@@ -47,6 +48,7 @@ export default function reducer(state = {}, action, config) {
                             activeOverlays,
                             isSameView
                         ),
+                        viewState,
                         initBounds: conf.bounds,
                         autoZoom: conf.autoZoom,
                         mapProps: conf.mapProps,
@@ -67,6 +69,8 @@ export default function reducer(state = {}, action, config) {
                 return nextState;
             }
         }
+        case MAP_SET_VIEW_STATE:
+            return reduceMapState({ ...state, viewState: action.payload });
         case MAP_SHOW_OVERLAY:
             return {
                 ...state,
@@ -286,14 +290,14 @@ function checkEmpty(geojson) {
 }
 
 function reduceMapState(state) {
-    const { mapId, highlight } = state;
+    const { mapId, highlight, viewState } = state;
     if (mapId) {
         const stickyMaps = state.stickyMaps || {};
         return {
             ...state,
             stickyMaps: {
                 ...stickyMaps,
-                [mapId]: { highlight },
+                [mapId]: { highlight, viewState },
             },
         };
     } else {

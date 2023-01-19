@@ -3,7 +3,22 @@ export default function Tile() {
     return null;
 }
 
+const styles = {};
 export function asBasemapStyle(basemap) {
+    const key = makeBasemapKey(basemap);
+    if (!styles[key]) {
+        styles[key] = makeBasemapStyle(basemap);
+    }
+    return styles[key];
+}
+
+function makeBasemapKey(basemap) {
+    return ["name", "url", "subdomains", "tileSize"]
+        .map((key) => "" + (basemap[key] || ""))
+        .join("__");
+}
+
+function makeBasemapStyle(basemap) {
     const urls = [];
     if (basemap.url.match("{s}")) {
         (basemap.subdomains || ["a", "b", "c"]).forEach((s) =>

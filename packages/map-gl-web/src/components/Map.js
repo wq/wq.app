@@ -1,5 +1,5 @@
-import React from "react";
-import { usePlugin } from "@wq/react";
+import React, { useCallback } from "react";
+import { usePlugin, usePluginReducer } from "@wq/react";
 import PropTypes from "prop-types";
 import Root from "react-map-gl";
 import { findBasemapStyle } from "../util";
@@ -12,6 +12,11 @@ export default function Map({
     containerStyle,
 }) {
     const { engine } = usePlugin("map-gl"),
+        [{ viewState }, { setViewState }] = usePluginReducer("map"),
+        onMove = useCallback(
+            (evt) => setViewState(evt.viewState),
+            [setViewState]
+        ),
         style = findBasemapStyle(children);
 
     containerStyle = {
@@ -32,9 +37,11 @@ export default function Map({
             id={mapId}
             reuseMaps={Boolean(mapId)}
             mapStyle={style}
-            initialViewState={{ bounds: initBounds }}
+            initialViewState={!viewState && { bounds: initBounds }}
+            onMove={onMove}
             style={containerStyle}
             {...mapProps}
+            {...viewState}
         >
             {children}
         </Root>
