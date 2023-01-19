@@ -5,19 +5,28 @@ import { Source, Layer } from "react-map-gl";
 export default function Tile({ name, active, url, tileSize, layout, paint }) {
     const source = useMemo(() => {
         return {
+            id: name,
             type: "raster",
             tiles: [url],
             tileSize: tileSize || 256,
         };
-    }, [url]);
+    }, [name, url]);
 
-    if (active === false) {
-        layout = { ...(layout || {}), visibility: "none" };
-    }
+    const layer = useMemo(() => {
+        return {
+            id: name,
+            type: "raster",
+            layout:
+                active === false
+                    ? { ...(layout || {}), visibility: "none" }
+                    : layout,
+            paint,
+        };
+    }, [name, active, layout, paint]);
 
     return (
-        <Source id={name} {...source}>
-            <Layer id={name} type="raster" layout={layout} paint={paint} />
+        <Source {...source}>
+            <Layer {...layer} />
         </Source>
     );
 }

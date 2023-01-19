@@ -519,6 +519,7 @@ test("toggle layers", async () => {
                 active: false,
             },
         ],
+        viewState: null,
         initBounds: [
             [-4, -4],
             [4, 4],

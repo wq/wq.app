@@ -19,6 +19,7 @@ import { Geo } from "./inputs/index";
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index";
 import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index";
 import reducer, {
+    MAP_SET_VIEW_STATE,
     MAP_SHOW_OVERLAY,
     MAP_HIDE_OVERLAY,
     MAP_SET_BASEMAP,
@@ -50,6 +51,9 @@ const map = {
         };
     },
     actions: {
+        setViewState(viewState) {
+            return { type: MAP_SET_VIEW_STATE, payload: viewState };
+        },
         setBasemap(name) {
             return {
                 type: MAP_SET_BASEMAP,
