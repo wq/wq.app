@@ -14,10 +14,10 @@ import {
     Legend,
     LegendIcon,
     GeoTools,
-} from "./components/index";
-import { Geo } from "./inputs/index";
-import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index";
-import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index";
+} from "./components/index.js";
+import { Geo } from "./inputs/index.js";
+import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index.js";
+import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index.js";
 import reducer, {
     MAP_SET_VIEW_STATE,
     MAP_SHOW_OVERLAY,
@@ -28,7 +28,7 @@ import reducer, {
     MAP_TOGGLE_HIGHLIGHT,
     MAP_REMOVE_HIGHLIGHT,
     MAP_CLEAR_HIGHLIGHT,
-} from "./reducer";
+} from "./reducer.js";
 
 // module variable
 const map = {

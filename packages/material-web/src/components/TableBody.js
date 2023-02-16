@@ -1,3 +1,3 @@
-import TableBody from "@mui/material/TableBody";
+import { TableBody } from "@mui/material";
 
 export default TableBody;

@@ -1,9 +1,9 @@
 import react from "@wq/react";
-import App from "./App";
-import * as components from "./components/index";
-import * as inputs from "./inputs/index";
-import * as icons from "./icons";
-import { format, parse } from "./inputs/date-utils";
+import App from "./App.js";
+import * as components from "./components/index.js";
+import * as inputs from "./inputs/index.js";
+import * as icons from "./icons.js";
+import { format, parse } from "./inputs/date-utils.js";
 
 export default {
     name: "material",
@@ -39,7 +39,7 @@ export default {
 };
 
 export { App };
-export * from "./components/index";
-export * from "./inputs/index";
-export * from "./hooks";
+export * from "./components/index.js";
+export * from "./inputs/index.js";
+export * from "./hooks.js";
 export { format, parse };

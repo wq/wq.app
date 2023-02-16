@@ -1,5 +1,5 @@
 import React from "react";
-import { useComponents, useMessages } from "../hooks";
+import { useComponents, useMessages } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function DeleteForm({ action }) {

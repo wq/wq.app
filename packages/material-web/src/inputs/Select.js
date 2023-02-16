@@ -1,15 +1,17 @@
 import React, { useMemo } from "react";
 import { Field, getIn } from "formik";
 import { Select as FMuiSelect } from "formik-mui";
-import MenuItem from "@mui/material/MenuItem";
-import Checkbox from "@mui/material/Checkbox";
-import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
+import {
+    MenuItem,
+    Checkbox,
+    ListItemText,
+    ListSubheader,
+    InputLabel,
+    FormControl,
+} from "@mui/material";
 import PropTypes from "prop-types";
 import { useFormikContext } from "formik";
-import HelperText from "./HelperText";
+import HelperText from "./HelperText.js";
 
 function ContextCheckbox({ value, field }) {
     const { values } = useFormikContext();

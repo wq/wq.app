@@ -1,6 +1,6 @@
 import React from "react";
 import { useIcon } from "@wq/react";
-import MuiIconButton from "@mui/material/IconButton";
+import { IconButton as MuiIconButton } from "@mui/material";
 import PropTypes from "prop-types";
 
 export default function IconButton({ icon, size = "large", ...rest }) {

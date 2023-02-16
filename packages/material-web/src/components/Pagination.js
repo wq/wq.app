@@ -1,7 +1,6 @@
 import React from "react";
 
-import TablePagination from "@mui/material/TablePagination";
-import Paper from "@mui/material/Paper";
+import { TablePagination, Paper } from "@mui/material";
 
 import { useRenderContext, useRouteInfo, useReverse, useNav } from "@wq/react";
 

@@ -26,7 +26,7 @@ const orm = {
     },
     reducer(state, action) {
         if (!this._orm) {
-            return state;
+            return state || {};
         }
         return this._orm.reducer(state, action);
     },

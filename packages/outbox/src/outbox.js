@@ -1,7 +1,7 @@
 import ds from "@wq/store";
 import { model } from "@wq/model";
-import { convert } from "../vendor/json-forms";
-import { createOffline, offlineConfig, RESET_STATE, busy } from "./offline";
+import { convert } from "../vendor/json-forms.js";
+import { createOffline, offlineConfig, RESET_STATE, busy } from "./offline.js";
 
 const { discard: defaultDiscard, retry: defaultRetry } = offlineConfig;
 

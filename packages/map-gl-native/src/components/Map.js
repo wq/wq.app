@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { usePlugin } from "@wq/react";
 import PropTypes from "prop-types";
 import MapboxGL from "@rnmapbox/maps";
-import { findBasemapStyle } from "../util";
+import { findBasemapStyle } from "../util.js";
 
 export default function Map({
     name,

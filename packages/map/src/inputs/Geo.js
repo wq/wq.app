@@ -5,7 +5,7 @@ import {
     useOverlayComponents,
     useFeatureCollection,
     asGeometry,
-} from "../hooks";
+} from "../hooks.js";
 import { useField } from "formik";
 import PropTypes from "prop-types";
 

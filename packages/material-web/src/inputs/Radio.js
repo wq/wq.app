@@ -1,11 +1,13 @@
 import React from "react";
 import { Field } from "formik";
 import { RadioGroup } from "formik-mui";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import MuiRadio from "@mui/material/Radio";
-import HelperText from "./HelperText";
+import {
+    FormControl,
+    FormLabel,
+    FormControlLabel,
+    Radio as MuiRadio,
+} from "@mui/material";
+import HelperText from "./HelperText.js";
 import PropTypes from "prop-types";
 
 export default function Radio({ choices, label, ...rest }) {

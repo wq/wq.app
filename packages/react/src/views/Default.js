@@ -1,5 +1,5 @@
 import React from "react";
-import { useRouteInfo, useComponents } from "../hooks";
+import { useRouteInfo, useComponents } from "../hooks.js";
 import { pascalCase } from "pascal-case";
 
 export default function Default() {

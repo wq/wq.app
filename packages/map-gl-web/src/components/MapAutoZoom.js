@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { computeBounds } from "@wq/map";
-import { useMapInstance } from "../hooks";
+import { useMapInstance } from "../hooks.js";
 
 export default function MapAutoZoom({
     mapId,

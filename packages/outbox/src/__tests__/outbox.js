@@ -1,5 +1,5 @@
 import store from "@wq/store";
-import outboxMod from "../outbox";
+import outboxMod from "../outbox.js";
 import { model } from "@wq/model";
 
 global.structuredClone = (val) => val;

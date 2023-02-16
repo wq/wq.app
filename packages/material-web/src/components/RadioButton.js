@@ -1,3 +1,3 @@
-import Radio from "@mui/material/Radio";
+import { Radio } from "@mui/material";
 
 export default Radio;

@@ -1,4 +1,4 @@
-import { routeMapConf } from "./hooks";
+import { routeMapConf } from "./hooks.js";
 
 const RENDER = "RENDER";
 export const MAP_SET_VIEW_STATE = "MAP_SET_VIEWSTATE",

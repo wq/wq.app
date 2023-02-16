@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 export function init() {
     if (!this.root) {
@@ -10,9 +10,12 @@ export function init() {
 
 export function start() {
     const RootComponent = this.getRootComponent();
-    ReactDOM.render(<RootComponent />, this.root);
+    this._reactRoot = createRoot(this.root);
+    this._reactRoot.render(<RootComponent />);
 }
 
 export function unmount() {
-    ReactDOM.unmountComponentAtNode(this.root);
+    if (this._reactRoot) {
+        this._reactRoot.unmount();
+    }
 }

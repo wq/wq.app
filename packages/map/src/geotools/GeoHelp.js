@@ -1,7 +1,7 @@
 import React from "react";
 import { useComponents, useMessages } from "@wq/react";
-import { TYPE_MAP } from "../hooks";
-import GeoHelpIcon from "./GeoHelpIcon";
+import { TYPE_MAP } from "../hooks.js";
+import GeoHelpIcon from "./GeoHelpIcon.js";
 import PropTypes from "prop-types";
 
 export default function GeoHelp({ value, type }) {

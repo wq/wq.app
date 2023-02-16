@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useMapInstance } from "@wq/map";
-import Geojson from "./Geojson";
+import Geojson from "./Geojson.js";
 import PropTypes from "prop-types";
 
 export default function Draw({ name, data, setData }) {

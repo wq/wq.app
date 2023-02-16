@@ -1,7 +1,7 @@
-import Map from "./Map";
-import MapInteraction from "./MapInteraction";
-import MapAutoZoom from "./MapAutoZoom";
-import MapIdentify from "./MapIdentify";
-import MapLayers from "./MapLayers";
+import Map from "./Map.js";
+import MapInteraction from "./MapInteraction.js";
+import MapAutoZoom from "./MapAutoZoom.js";
+import MapIdentify from "./MapIdentify.js";
+import MapLayers from "./MapLayers.js";
 
 export { Map, MapInteraction, MapAutoZoom, MapIdentify, MapLayers };

@@ -1,3 +1,3 @@
-import FieldsetArray from "./FieldsetArray";
+import FieldsetArray from "./FieldsetArray.js";
 
 export default FieldsetArray;

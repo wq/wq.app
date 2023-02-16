@@ -1,12 +1,12 @@
 import React from "react";
-import map from "../map";
+import map from "../map.js";
 import {
     routeMapConf,
     contextFeature,
     contextFeatureCollection,
-} from "../hooks";
-import { AutoMap } from "../components";
-import { Geo } from "../inputs";
+} from "../hooks.js";
+import { AutoMap } from "../components/index.js";
+import { Geo } from "../inputs/index.js";
 import react, { Form } from "@wq/react";
 import renderTest from "@wq/react/test";
 import routeConfig from "./config.json";

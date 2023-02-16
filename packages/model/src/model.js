@@ -1,12 +1,8 @@
 import ds from "@wq/store";
 import deepcopy from "deepcopy";
-import {
-    Model as ORMModel,
-    ORM,
-    attr,
-    fk,
-    ForeignKey,
-} from "redux-orm/src/index.js";
+import * as ReduxORM from "redux-orm";
+
+const { Model: ORMModel, ORM, attr, fk, ForeignKey } = ReduxORM;
 
 function model(config) {
     return new Model(config);

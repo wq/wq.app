@@ -5,7 +5,7 @@ import {
     useRouteTitle,
     useComponents,
     useOutbox,
-} from "../hooks";
+} from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function OutboxList({ modelConf }) {

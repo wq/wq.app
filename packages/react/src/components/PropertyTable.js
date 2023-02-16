@@ -1,5 +1,5 @@
 import React from "react";
-import { useComponents } from "../hooks";
+import { useComponents } from "../hooks.js";
 import PropTypes from "prop-types";
 
 const Value = ({ values, field }) => {

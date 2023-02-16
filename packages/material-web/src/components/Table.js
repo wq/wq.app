@@ -1,3 +1,3 @@
-import Table from "@mui/material/Table";
+import { Table } from "@mui/material";
 
 export default Table;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "@wq/react";
-import Button from "@mui/material/Button";
-import HomeIcon from "@mui/icons-material/Home";
+import { Button } from "@mui/material";
+import { Home as HomeIcon } from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 export default function HomeLink({ to, label, active, ...rest }) {

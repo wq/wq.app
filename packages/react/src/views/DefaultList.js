@@ -4,7 +4,7 @@ import {
     useViewComponents,
     useReverse,
     useList,
-} from "../hooks";
+} from "../hooks.js";
 
 export default function DefaultList() {
     const reverse = useReverse(),

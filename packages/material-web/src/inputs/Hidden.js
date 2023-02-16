@@ -1,6 +1,6 @@
 import React from "react";
 import { Field } from "formik";
-import HelperText from "./HelperText";
+import HelperText from "./HelperText.js";
 import PropTypes from "prop-types";
 
 export default function Hidden(props) {

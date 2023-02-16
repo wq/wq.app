@@ -1,3 +1,3 @@
-import TableRow from "@mui/material/TableRow";
+import { TableRow } from "@mui/material";
 
 export default TableRow;

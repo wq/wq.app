@@ -1,8 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import "./createObjectURL.mock";
-import mapgl from "../index";
+import mapgl from "../index.js";
 
 test("it loads", () => {
     expect(mapgl.name).toBe("map-gl");

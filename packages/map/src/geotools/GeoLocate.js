@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useComponents } from "@wq/react";
-import geolocation from "./geolocation";
+import geolocation from "./geolocation.js";
 import PropTypes from "prop-types";
 
 export default function GeoLocate({ type, setLocation }) {

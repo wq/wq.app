@@ -1,5 +1,5 @@
 import React from "react";
-import { useRenderContext, useRouteInfo, useComponents } from "../hooks";
+import { useRenderContext, useRouteInfo, useComponents } from "../hooks.js";
 
 const SKIP = [
     "app_config",

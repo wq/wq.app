@@ -1,6 +1,6 @@
 import React from "react";
 import { useComponents, usePlugin } from "@wq/react";
-import { useMapState, useOverlayComponents } from "../hooks";
+import { useMapState, useOverlayComponents } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function AutoMap({

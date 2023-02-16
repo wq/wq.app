@@ -1,7 +1,7 @@
 import React from "react";
 import { Field } from "formik";
 import { CheckboxWithLabel } from "formik-mui";
-import HelperText from "./HelperText";
+import HelperText from "./HelperText.js";
 import PropTypes from "prop-types";
 
 export default function Input({ label, ...props }) {

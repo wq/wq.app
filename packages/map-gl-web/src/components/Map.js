@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { usePlugin, usePluginReducer } from "@wq/react";
 import PropTypes from "prop-types";
 import Root from "react-map-gl";
-import { findBasemapStyle } from "../util";
+import { findBasemapStyle } from "../util.js";
 
 export default function Map({
     mapId,

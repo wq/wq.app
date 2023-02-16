@@ -1,7 +1,6 @@
 import React from "react";
-import Paper from "@mui/material/Paper";
-import MuiBreadcrumbs from "@mui/material/Breadcrumbs";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { Paper, Breadcrumbs as MuiBreadcrumbs } from "@mui/material";
+import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
 
 import { useReverse, useComponents } from "@wq/react";
 

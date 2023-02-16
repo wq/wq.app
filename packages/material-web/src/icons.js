@@ -1,17 +1,19 @@
-import Add from "@mui/icons-material/Add";
-import Edit from "@mui/icons-material/Edit";
-import Delete from "@mui/icons-material/Delete";
-import Success from "@mui/icons-material/Done";
-import Error from "@mui/icons-material/Error";
-import Pending from "@mui/icons-material/Sync";
-import Close from "@mui/icons-material/Close";
-import Expand from "@mui/icons-material/ExpandMore";
-import Collapse from "@mui/icons-material/ExpandLess";
-import PanelOpen from "@mui/icons-material/ChevronRight";
-import PanelClose from "@mui/icons-material/ChevronLeft";
-import GpsStart from "@mui/icons-material/GpsFixed";
-import GpsStop from "@mui/icons-material/GpsOff";
-import Search from "@mui/icons-material/Search";
+import {
+    Add,
+    Edit,
+    Delete,
+    Done as Success,
+    Error,
+    Sync as Pending,
+    Close,
+    ExpandMore as Expand,
+    ExpandLess as Collapse,
+    ChevronRight as PanelOpen,
+    ChevronLeft as PanelClose,
+    GpsFixed as GpsStart,
+    GpsOff as GpsStop,
+    Search,
+} from "@mui/icons-material";
 
 export {
     Add,

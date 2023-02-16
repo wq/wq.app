@@ -1,6 +1,6 @@
 import react from "./react.js";
-import App from "./App.js";
-import { init, start, unmount } from "./init.js";
+import App from "./App.native.js";
+import { init, start, unmount } from "./init.native.js";
 
 react.setEngine({ init, start, unmount, App });
 

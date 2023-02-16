@@ -1,9 +1,11 @@
 import React, { useMemo, useCallback, useRef } from "react";
 import { useField } from "formik";
-import { DropzoneArea } from "mui-file-dropzone";
-import Fieldset from "./Fieldset";
-import HelperText from "../inputs/HelperText";
+import * as MuiFileDropzone from "mui-file-dropzone";
+import Fieldset from "./Fieldset.js";
+import HelperText from "../inputs/HelperText.js";
 import PropTypes from "prop-types";
+
+const { DropzoneArea } = MuiFileDropzone;
 
 export default function FileArray({ name, label, subform, hint, maxRows }) {
     const [, { initialValue = [] }, { setValue }] = useField(name),

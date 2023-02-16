@@ -24,12 +24,13 @@
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "plugins": ["react", "jest"],
+    "plugins": ["react", "jest", "import"],
     "rules": {
         "no-console": "off",
         "no-redeclare": "off",
         "no-prototype-builtins": "off",
         "require-atomic-updates": "off",
-        "react/prop-types": [2, { "skipUndeclared": true }]
+        "react/prop-types": [2, { "skipUndeclared": true }],
+        "import/extensions": [2, "ignorePackages"]
     }
 }

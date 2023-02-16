@@ -1,3 +1,3 @@
-import TablePagination from "@mui/material/TablePagination";
+import { TablePagination } from "@mui/material";
 
 export default TablePagination;

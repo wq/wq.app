@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import GeoJSONLayer from "./GeoJSONLayer";
+import GeoJSONLayer from "./GeoJSONLayer.js";
 
 export default function Highlight({ data }) {
     return (

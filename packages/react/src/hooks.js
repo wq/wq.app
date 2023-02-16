@@ -1,13 +1,12 @@
 import React, { useMemo, useCallback, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { createSelector } from "redux-orm/src/index.js";
-import {
-    pathToAction,
-    getOptions,
-    selectLocationState,
-} from "redux-first-router";
+import * as ReduxORM from "redux-orm";
+import * as ReduxFirstRouter from "redux-first-router";
 import { paramCase } from "param-case";
-import { useHtmlInput } from "./inputs/Input";
+import { useHtmlInput } from "./inputs/Input.js";
+
+const { createSelector } = ReduxORM;
+const { pathToAction, getOptions, selectLocationState } = ReduxFirstRouter;
 
 const isAction = (path) => path && path.type;
 

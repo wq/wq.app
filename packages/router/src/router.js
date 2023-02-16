@@ -1,7 +1,9 @@
-import { connectRoutes, push, NOT_FOUND, ADD_ROUTES } from "redux-first-router";
+import * as ReduxFirstRouter from "redux-first-router";
 import queryString from "query-string";
 import { capitalCase } from "capital-case";
 import { getStore } from "@wq/store";
+
+const { connectRoutes, push, NOT_FOUND, ADD_ROUTES } = ReduxFirstRouter;
 
 const HTML = "@@HTML",
     RENDER = "RENDER",

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AppRegistry } from "react-native";
-import { navRef, nav } from "./hooks";
+import { navRef, nav } from "./hooks.native.js";
 
 export function init() {
     const { router, store } = this.app;

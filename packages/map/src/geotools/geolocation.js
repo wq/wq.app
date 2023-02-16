@@ -1,5 +1,5 @@
 const geolocation = {
-    supported: "geolocation" in navigator,
+    supported: typeof navigator !== "undefined" && "geolocation" in navigator,
     watchPosition(onPosition, onError, options) {
         return navigator.geolocation.watchPosition(
             onPosition,

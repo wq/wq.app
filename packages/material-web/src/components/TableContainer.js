@@ -1,3 +1,3 @@
-import TableContainer from "@mui/material/TableContainer";
+import { TableContainer } from "@mui/material";
 
 export default TableContainer;

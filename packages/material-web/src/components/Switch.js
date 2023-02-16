@@ -1,3 +1,3 @@
-import Switch from "@mui/material/Switch";
+import { Switch } from "@mui/material";
 
 export default Switch;

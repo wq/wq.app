@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useComponents } from "@wq/react";
-import Collapse from "@mui/material/Collapse";
+import { Collapse } from "@mui/material";
 import PropTypes from "prop-types";
 
 export default function ExpandableListItem({

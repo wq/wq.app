@@ -1,5 +1,7 @@
 import React from "react";
-import { NavLink } from "redux-first-router-link";
+import * as ReduxFirstRouterLink from "redux-first-router-link";
+
+const { NavLink } = ReduxFirstRouterLink;
 
 export default function Link(props) {
     return <NavLink {...props} />;

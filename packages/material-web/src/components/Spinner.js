@@ -1,6 +1,5 @@
 import React from "react";
-import Modal from "@mui/material/Modal";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Modal, CircularProgress } from "@mui/material";
 import { useSpinner } from "@wq/react";
 
 export default function Spinner() {

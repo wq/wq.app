@@ -1,5 +1,5 @@
 import React from "react";
-import { useIcon } from "../hooks";
+import { useIcon } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function ListItem({ children, description, icon, ...rest }) {

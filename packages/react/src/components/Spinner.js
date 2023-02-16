@@ -1,5 +1,5 @@
 import React from "react";
-import { useSpinner } from "../hooks";
+import { useSpinner } from "../hooks.js";
 
 const style = {
     position: "absolute",
