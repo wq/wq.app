@@ -1,8 +1,10 @@
 import React from "react";
-import MuiAccordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+    Accordion as MuiAccordion,
+    AccordionSummary,
+    AccordionDetails,
+} from "@mui/material";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 export default function Accordion({

@@ -1,5 +1,5 @@
 import React from "react";
-import { useComponents, useInputComponents } from "../hooks";
+import { useComponents, useInputComponents } from "../hooks.js";
 import PropTypes from "prop-types";
 import { pascalCase } from "pascal-case";
 

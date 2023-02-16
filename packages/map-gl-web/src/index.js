@@ -7,11 +7,11 @@ import {
     MapAutoZoom,
     MapIdentify,
     MapLayers,
-} from "./components/index";
+} from "./components/index.js";
 
-import { useMapInstance } from "./hooks";
+import { useMapInstance } from "./hooks.js";
 
-import { VectorTile, Tile } from "./basemaps/index";
+import { VectorTile, Tile } from "./basemaps/index.js";
 
 import {
     Geojson,
@@ -20,15 +20,18 @@ import {
     Accuracy,
     VectorTile as VectorTileOverlay,
     Tile as TileOverlay,
-} from "./overlays/index";
+} from "./overlays/index.js";
 
-import { zoomToLocation } from "./util";
+import { zoomToLocation } from "./util.js";
 
 export default {
     name: "map-gl",
     dependencies: [map],
     setEngine(engine) {
         this.engine = engine;
+        if (engine.prewarm && typeof Worker !== "undefined") {
+            engine.prewarm();
+        }
     },
     components: {
         Map,

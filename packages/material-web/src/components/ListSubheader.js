@@ -1,3 +1,3 @@
-import ListSubheader from "@mui/material/ListSubheader";
+import { ListSubheader } from "@mui/material";
 
 export default ListSubheader;

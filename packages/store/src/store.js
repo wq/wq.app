@@ -7,8 +7,7 @@ import {
 } from "redux";
 import logger from "redux-logger";
 import { persistStore, persistReducer, createTransform } from "redux-persist";
-import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
-import { createStorage, serialize, deserialize } from "./storage";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2.js";
 
 const REMOVE = "@@KVP_REMOVE";
 const SET = "@@KVP_SET";
@@ -63,6 +62,10 @@ class Store {
         );
     }
 
+    setEngine({ createStorage, serialize, deserialize }) {
+        this.engine = { createStorage, serialize, deserialize };
+    }
+
     init(opts = {}) {
         var self = this;
         var optlist = [
@@ -101,12 +104,15 @@ class Store {
             applyMiddleware(...this._middleware)
         );
 
+        const { createStorage, serialize, deserialize } =
+            this.engine || ds.engine;
+
         this.lf = createStorage(this.name);
 
         const persistConfig = {
             key: "root",
             storage: this.lf,
-            stateReconciler: autoMergeLevel2,
+            stateReconciler: autoMergeLevel2.default || autoMergeLevel2,
             serialize,
             deserialize,
             transforms: this._transforms,

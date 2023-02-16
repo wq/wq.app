@@ -1,4 +1,4 @@
-import ds from "../store";
+import ds from "../index.js";
 
 beforeAll(async () => {
     ds.init({

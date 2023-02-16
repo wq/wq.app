@@ -1,5 +1,5 @@
 import React from "react";
-import Drawer from "@mui/material/Drawer";
+import { Drawer } from "@mui/material";
 import PropTypes from "prop-types";
 
 export default function Popup({

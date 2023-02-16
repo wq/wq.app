@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useComponents } from "@wq/react";
-import Drawer from "@mui/material/Drawer";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import { Drawer, useMediaQuery } from "@mui/material";
 import PropTypes from "prop-types";
 
 export default function SidePanel({ children, compactChildren, onChange }) {

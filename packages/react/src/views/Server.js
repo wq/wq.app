@@ -1,5 +1,5 @@
 import React from "react";
-import { useRenderContext } from "../hooks";
+import { useRenderContext } from "../hooks.js";
 
 const HTML = "@@HTML";
 

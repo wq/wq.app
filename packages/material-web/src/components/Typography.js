@@ -1,3 +1,3 @@
-import Typography from "@mui/material/Typography";
+import { Typography } from "@mui/material";
 
 export default Typography;

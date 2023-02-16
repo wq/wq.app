@@ -1,5 +1,5 @@
-import DefaultList from "./DefaultList";
-import DefaultDetail from "./DefaultDetail";
-import DefaultPopup from "./DefaultPopup";
+import DefaultList from "./DefaultList.js";
+import DefaultDetail from "./DefaultDetail.js";
+import DefaultPopup from "./DefaultPopup.js";
 
 export { DefaultList, DefaultDetail, DefaultPopup };

@@ -1,7 +1,7 @@
 import React from "react";
 import { useComponents, useInputComponents } from "@wq/react";
 import { useMinWidth } from "@wq/material";
-import { useGeoTools } from "../hooks";
+import { useGeoTools } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function GeoTools({ name, type, mapId }) {

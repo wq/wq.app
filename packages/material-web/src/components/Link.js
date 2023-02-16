@@ -1,6 +1,6 @@
 import React from "react";
 import { Link as RLink } from "@wq/react";
-import MuiLink from "@mui/material/Link";
+import { Link as MuiLink } from "@mui/material";
 
 export default function Link(props) {
     return <MuiLink component={RLink} {...props} />;

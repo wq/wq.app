@@ -1,3 +1,3 @@
-import TableHead from "@mui/material/TableHead";
+import { TableHead } from "@mui/material";
 
 export default TableHead;

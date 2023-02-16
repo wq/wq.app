@@ -1,5 +1,5 @@
 import React from "react";
-import Geojson from "./Geojson";
+import Geojson from "./Geojson.js";
 import circle from "@turf/circle";
 import PropTypes from "prop-types";
 

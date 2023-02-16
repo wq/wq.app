@@ -1,10 +1,8 @@
 import React from "react";
 import { Field } from "formik";
-import ToggleButton from "@mui/material/ToggleButton";
+import { ToggleButton, FormControl, FormLabel } from "@mui/material";
 import { ToggleButtonGroup } from "formik-mui";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import HelperText from "./HelperText";
+import HelperText from "./HelperText.js";
 import PropTypes from "prop-types";
 
 export default function Toggle({ choices, label, ...rest }) {

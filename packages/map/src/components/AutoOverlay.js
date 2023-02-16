@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useOverlayComponents, useDataProps } from "../hooks";
+import { useOverlayComponents, useDataProps } from "../hooks.js";
 
 export default function AutoOverlay({ type, data, context, ...conf }) {
     const overlays = useOverlayComponents(),

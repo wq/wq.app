@@ -2,9 +2,9 @@ import ds from "@wq/store";
 import orm from "@wq/model";
 import outbox from "@wq/outbox";
 import router from "@wq/router";
-import spinner from "./spinner";
-import auth from "./auth";
-import defaults from "./defaults";
+import spinner from "./spinner.js";
+import auth from "./auth.js";
+import defaults from "./defaults.js";
 import Mustache from "mustache";
 import deepcopy from "deepcopy";
 import { setIn } from "formik";
@@ -150,8 +150,6 @@ app.init = function (config) {
     }
 
     app.config = config;
-
-    app["native"] = !!window.cordova;
 
     // Initialize wq/router.js
     router.init(config.router);

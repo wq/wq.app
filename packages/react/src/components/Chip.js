@@ -1,5 +1,5 @@
 import React from "react";
-import { useComponents, useIcon } from "../hooks";
+import { useComponents, useIcon } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function Chip({ label, icon, onDelete, ...rest }) {

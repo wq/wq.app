@@ -1,5 +1,4 @@
-import formatISO9075 from "date-fns/formatISO9075";
-import parseISO from "date-fns/parseISO";
+import { parseISO, formatISO9075 } from "date-fns";
 
 export const format = {
     date: (value) => tryFormat(value, { representation: "date" }),

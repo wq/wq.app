@@ -1,5 +1,5 @@
 import React from "react";
-import { useApp, useComponents, useValidate } from "../hooks";
+import { useApp, useComponents, useValidate } from "../hooks.js";
 import { Formik } from "formik";
 import PropTypes from "prop-types";
 

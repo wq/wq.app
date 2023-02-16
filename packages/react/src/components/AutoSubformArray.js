@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
-import { useComponents } from "../hooks";
+import { useComponents } from "../hooks.js";
 import { FieldArray, getIn } from "formik";
 import PropTypes from "prop-types";
-import { initData } from "./AutoForm";
+import { initData } from "./AutoForm.js";
 import { pascalCase } from "pascal-case";
 
 export default function AutoSubformArray({ name, label, subform, ...rest }) {

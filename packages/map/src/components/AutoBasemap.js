@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useBasemapComponents } from "../hooks";
+import { useBasemapComponents } from "../hooks.js";
 
 export default function AutoBasemap({ type, ...conf }) {
     const basemaps = useBasemapComponents(),

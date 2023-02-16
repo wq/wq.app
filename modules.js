@@ -4,8 +4,7 @@ import ReactIs from "react-is";
 import PropTypes from "prop-types";
 import * as formik from "formik";
 import * as muiUtils from "@mui/utils";
-import ButtonBase from "@mui/material/ButtonBase";
-import Paper from "@mui/material/Paper";
+import { ButtonBase, Paper } from "@mui/material";
 import Map, * as reactMapGlExports from "react-map-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 

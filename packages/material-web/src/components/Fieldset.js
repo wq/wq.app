@@ -1,7 +1,5 @@
 import React from "react";
-import Card from "@mui/material/Card";
-import Typography from "@mui/material/Typography";
-import CardContent from "@mui/material/CardContent";
+import { Card, Typography, CardContent } from "@mui/material";
 import PropTypes from "prop-types";
 
 export default function Fieldset({ label, children }) {

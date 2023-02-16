@@ -4,7 +4,7 @@ import { Text } from "react-native";
 import { TouchableRipple, TextInput } from "react-native-paper";
 import { useField } from "formik";
 import PropTypes from "prop-types";
-import { format, parse } from "./date-utils";
+import { format, parse } from "./date-utils.js";
 
 const displayFormat = {
     date: (value) => parse.date(value).toLocaleDateString(),

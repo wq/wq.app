@@ -1,4 +1,4 @@
-import map from "./map";
+import map from "./map.js";
 import {
     useBasemapComponents,
     useOverlayComponents,
@@ -11,7 +11,7 @@ import {
     asGeometry,
     asFeatureCollection,
     computeBounds,
-} from "./hooks";
+} from "./hooks.js";
 import {
     AutoMap,
     AutoBasemap,
@@ -22,10 +22,10 @@ import {
     Legend,
     LegendIcon,
     GeoTools,
-} from "./components/index";
-import { Geo } from "./inputs/index";
-import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index";
-import { DefaultList, DefaultDetail } from "./views/index";
+} from "./components/index.js";
+import { Geo } from "./inputs/index.js";
+import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index.js";
+import { DefaultList, DefaultDetail } from "./views/index.js";
 
 export default map;
 

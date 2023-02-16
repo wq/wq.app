@@ -1,18 +1,18 @@
-import AutoMap from "./AutoMap";
-import AutoBasemap from "./AutoBasemap";
-import AutoOverlay from "./AutoOverlay";
-import HighlightPopup from "./HighlightPopup";
-import PropertyTable from "./PropertyTable";
-import MapProvider from "./MapProvider";
-import MapContainer from "./MapContainer";
-import MapToolbar from "./MapToolbar";
-import Map from "./Map";
-import MapLayers from "./MapLayers";
-import BasemapToggle from "./BasemapToggle";
-import OverlayToggle from "./OverlayToggle";
-import Legend from "./Legend";
-import LegendIcon from "./LegendIcon";
-import GeoTools from "./GeoTools";
+import AutoMap from "./AutoMap.js";
+import AutoBasemap from "./AutoBasemap.js";
+import AutoOverlay from "./AutoOverlay.js";
+import HighlightPopup from "./HighlightPopup.js";
+import PropertyTable from "./PropertyTable.js";
+import MapProvider from "./MapProvider.js";
+import MapContainer from "./MapContainer.js";
+import MapToolbar from "./MapToolbar.js";
+import Map from "./Map.js";
+import MapLayers from "./MapLayers.js";
+import BasemapToggle from "./BasemapToggle.js";
+import OverlayToggle from "./OverlayToggle.js";
+import Legend from "./Legend.js";
+import LegendIcon from "./LegendIcon.js";
+import GeoTools from "./GeoTools.js";
 
 export {
     AutoMap,

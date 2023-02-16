@@ -4,7 +4,7 @@ import {
     useInputComponents,
     useReverse,
     useRenderContext,
-} from "../hooks";
+} from "../hooks.js";
 
 export default function Login() {
     const reverse = useReverse(),

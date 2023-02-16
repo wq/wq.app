@@ -1,3 +1,3 @@
-import Divider from "@mui/material/Divider";
+import { Divider } from "@mui/material";
 
 export default Divider;

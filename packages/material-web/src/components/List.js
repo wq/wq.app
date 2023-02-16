@@ -1,5 +1,5 @@
 import React from "react";
-import MuiList from "@mui/material/List";
+import { List as MuiList } from "@mui/material";
 
 export default function List(props) {
     return <MuiList sx={{ bgcolor: "background.paper" }} {...props} />;

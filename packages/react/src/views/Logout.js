@@ -1,5 +1,5 @@
 import React from "react";
-import { useRenderContext, useComponents } from "../hooks";
+import { useRenderContext, useComponents } from "../hooks.js";
 
 export default function Logout() {
     const { is_authenticated } = useRenderContext(),

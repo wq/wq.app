@@ -1,5 +1,5 @@
 import React from "react";
-import { useModel, useUnsynced, useInputComponents } from "../hooks";
+import { useModel, useUnsynced, useInputComponents } from "../hooks.js";
 import { useFormikContext, getIn } from "formik";
 
 function useChoices(modelName, group_by) {

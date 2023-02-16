@@ -8,7 +8,7 @@ import {
     navRef,
     useNavigationProps,
     useCreateNavigator,
-} from "./hooks";
+} from "./hooks.native.js";
 import { NavigationContainer } from "@react-navigation/native";
 import PropTypes from "prop-types";
 

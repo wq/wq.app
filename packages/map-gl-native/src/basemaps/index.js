@@ -1,4 +1,4 @@
-import VectorTile from "./VectorTile";
-import Tile from "./Tile";
+import VectorTile from "./VectorTile.js";
+import Tile from "./Tile.js";
 
 export { VectorTile, Tile };

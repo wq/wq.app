@@ -6,7 +6,7 @@ import {
     useComponents,
     useViewComponents,
     usePluginContent,
-} from "./hooks";
+} from "./hooks.js";
 import PropTypes from "prop-types";
 
 const HTML = "@@HTML", // @wq/router

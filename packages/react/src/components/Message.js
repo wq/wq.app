@@ -1,5 +1,5 @@
 import React from "react";
-import { useMessages } from "../hooks";
+import { useMessages } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function Message({ id }) {

@@ -9,8 +9,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import PropTypes from "prop-types";
 import { usePlugin } from "@wq/react";
-import { format, parse } from "./date-utils";
-import Input from "./Input";
+import { format, parse } from "./date-utils.js";
+import Input from "./Input.js";
 
 function makeUtils(type) {
     class Utils extends DateFnsUtils {

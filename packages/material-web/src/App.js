@@ -3,8 +3,8 @@ import { App as DefaultApp, usePlugin } from "@wq/react";
 import {
     createTheme as createMuiTheme,
     ThemeProvider,
-} from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+    CssBaseline,
+} from "@mui/material";
 
 export default function App() {
     const { theme } = usePlugin("material").config,

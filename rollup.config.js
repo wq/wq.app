@@ -27,7 +27,7 @@ const banner = `/*!
 
 const deps = {
     "@wq/app": "./packages/app/src/app.js",
-    "@wq/store": "./packages/store/src/store.js",
+    "@wq/store": "./packages/store/src/index.js",
     "@wq/router": "./packages/router/src/router.js",
     "@wq/model": "./packages/model/src/index.js",
     "@wq/outbox": "./packages/outbox/src/outbox.js",

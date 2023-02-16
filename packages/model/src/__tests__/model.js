@@ -1,5 +1,5 @@
 import store from "@wq/store";
-import { model } from "../model";
+import { model } from "../model.js";
 
 global.structuredClone = (val) => val;
 

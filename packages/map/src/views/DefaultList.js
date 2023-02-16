@@ -1,5 +1,5 @@
 import React from "react";
-import { useMapState } from "../hooks";
+import { useMapState } from "../hooks.js";
 import { DefaultList, useComponents, useList } from "@wq/react";
 
 export default function DefaultListWithMap() {

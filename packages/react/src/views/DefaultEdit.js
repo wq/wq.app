@@ -4,7 +4,7 @@ import {
     useRouteInfo,
     useComponents,
     useReverse,
-} from "../hooks";
+} from "../hooks.js";
 
 export default function DefaultEdit() {
     const reverse = useReverse(),

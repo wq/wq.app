@@ -1,5 +1,5 @@
 import React from "react";
-import { useMapState } from "../hooks";
+import { useMapState } from "../hooks.js";
 import { DefaultDetail, useComponents, useRenderContext } from "@wq/react";
 
 export default function DefaultDetailWithMap() {

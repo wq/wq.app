@@ -1,5 +1,5 @@
 import React from "react";
-import MuiButton from "@mui/material/Button";
+import { Button as MuiButton } from "@mui/material";
 import { useIcon } from "@wq/react";
 import PropTypes from "prop-types";
 

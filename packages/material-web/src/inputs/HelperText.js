@@ -1,6 +1,6 @@
 import React from "react";
 import { useFormikContext, getIn } from "formik";
-import FormHelperText from "@mui/material/FormHelperText";
+import { FormHelperText } from "@mui/material";
 import PropTypes from "prop-types";
 
 export default function HelperText({ name, hint }) {
