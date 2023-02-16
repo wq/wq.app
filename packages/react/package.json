@@ -9,6 +9,7 @@
     "scripts": {
         "test": "cd ../../ && npm run jest packages/react",
         "build": "npm run babel && npm run prettier",
+        "rollup": "cd ../../ && npm run rollup -- -c packages/react/rollup.config.js",
         "babel": "cd ../../ && npm run babel -- packages/react/src --out-dir packages/react/",
         "prettier": "cd ../../ && npm run prettier -- --write packages/react/",
         "lint": "cd ../../ && npm run eslint packages/react/{,src/,src/*/,src/*/*/}*.js"
@@ -34,12 +35,12 @@
         "formik": "^2.2.9",
         "param-case": "^3.0.4",
         "pascal-case": "^3.1.2",
-        "react-redux": "^8.0.5",
-        "redux-first-router-link": "^2.1.1"
+        "react-redux": "^8.0.5"
     },
     "devDependencies": {
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-test-renderer": "^18.2.0"
+        "react-test-renderer": "^18.2.0",
+        "redux-first-router-link": "https://github.com/faceyspacey/redux-first-router-link/archive/e68b143.tar.gz"
     }
 }

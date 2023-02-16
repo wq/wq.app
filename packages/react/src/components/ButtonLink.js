@@ -1,11 +1,9 @@
 import React from "react";
-import * as ReduxFirstRouterLink from "redux-first-router-link";
-
-const { NavLink } = ReduxFirstRouterLink;
+import Link from "./Link.js";
 
 export default function ButtonLink(props) {
     return (
-        <NavLink
+        <Link
             style={{
                 textDecoration: "none",
                 border: "1px solid #eee",
