@@ -1,6 +1,6 @@
 {
     "name": "@wq/material",
-    "version": "1.3.0",
+    "version": "2.0.0-alpha.0",
     "description": "React + Material UI renderer for use with @wq/app",
     "type": "module",
     "main": "src/index.js",
@@ -28,6 +28,6 @@
     },
     "homepage": "https://wq.io/@wq/material",
     "devDependencies": {
-        "@wq/material-web": "file:../material-web"
+        "@wq/material-web": "^2.0.0-alpha.0"
     }
 }

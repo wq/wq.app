@@ -1,6 +1,6 @@
 {
     "name": "@wq/router",
-    "version": "1.3.0",
+    "version": "2.0.0-alpha.0",
     "description": "Respond to URL changes with locally generated pages and custom events",
     "type": "module",
     "main": "index.js",
@@ -26,7 +26,7 @@
     },
     "homepage": "https://wq.io/@wq/router",
     "dependencies": {
-        "@wq/store": "^1.3.0",
+        "@wq/store": "^2.0.0-alpha.0",
         "capital-case": "^1.0.4",
         "query-string": "^8.1.0",
         "redux-first-router": "^2.1.5"

@@ -55,7 +55,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://babel.dev/docs/en/next/babel-runtime">@babel/runtime</a> 7.20.7</b></summary>
+<details><summary><b><a href="https://babel.dev/docs/en/next/babel-runtime">@babel/runtime</a> 7.20.13</b></summary>
 
 > MIT License
 > 
@@ -409,7 +409,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/react</a> 11.10.5</b></summary>
+<details><summary><b><a href="null">@emotion/react</a> 11.10.6</b></summary>
 
 > MIT License
 > 
@@ -490,7 +490,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/styled</a> 11.10.5</b></summary>
+<details><summary><b><a href="null">@emotion/styled</a> 11.10.6</b></summary>
 
 > MIT License
 > 
@@ -1174,7 +1174,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/mapbox/mapbox-gl-draw">@mapbox/mapbox-gl-draw</a> 1.3.0</b> <i>(ISC)</i></summary>
+<details><summary><b><a href="https://github.com/mapbox/mapbox-gl-draw">@mapbox/mapbox-gl-draw</a> 1.4.1</b> <i>(ISC)</i></summary>
 
 > Copyright (c) Mapbox
 > 
@@ -1222,7 +1222,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/base/getting-started/overview/">@mui/base</a> 5.0.0-alpha.114</b></summary>
+<details><summary><b><a href="https://mui.com/base/getting-started/overview/">@mui/base</a> 5.0.0-alpha.118</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1249,7 +1249,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/material-ui/material-icons/">@mui/icons-material</a> 5.11.0</b></summary>
+<details><summary><b><a href="https://mui.com/material-ui/material-icons/">@mui/icons-material</a> 5.11.9</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1276,7 +1276,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/material-ui/getting-started/overview/">@mui/material</a> 5.11.5</b></summary>
+<details><summary><b><a href="https://mui.com/material-ui/getting-started/overview/">@mui/material</a> 5.11.9</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1303,7 +1303,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/">@mui/private-theming</a> 5.11.2</b></summary>
+<details><summary><b><a href="https://mui.com/">@mui/private-theming</a> 5.11.9</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1330,7 +1330,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/material-ui/guides/styled-engine/">@mui/styled-engine</a> 5.11.0</b></summary>
+<details><summary><b><a href="https://mui.com/material-ui/guides/styled-engine/">@mui/styled-engine</a> 5.11.9</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1357,7 +1357,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/system/getting-started/overview/">@mui/system</a> 5.11.5</b></summary>
+<details><summary><b><a href="https://mui.com/system/getting-started/overview/">@mui/system</a> 5.11.9</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1384,7 +1384,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/mui/material-ui/tree/master/packages/mui-utils">@mui/utils</a> 5.11.2</b></summary>
+<details><summary><b><a href="https://github.com/mui/material-ui/tree/master/packages/mui-utils">@mui/utils</a> 5.11.9</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1411,7 +1411,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/x/react-date-pickers/getting-started/">@mui/x-date-pickers</a> 5.0.14</b></summary>
+<details><summary><b><a href="https://mui.com/x/react-date-pickers/getting-started/">@mui/x-date-pickers</a> 5.0.19</b></summary>
 
 > MIT License
 > 
@@ -1923,7 +1923,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="http://redux.js.org">redux</a> 4.2.0</b></summary>
+<details><summary><b><a href="http://redux.js.org">redux</a> 4.2.1</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1955,33 +1955,6 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 > MIT License
 > 
 > Copyright (c) 2017 James Gillmore
-> 
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
-> 
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> SOFTWARE.
-> 
-
-</details>
-
-<details><summary><b><a href="https://github.com/faceyspacey/redux-first-router-link#readme">redux-first-router-link</a> 2.1.1</b></summary>
-
-> MIT License
-> 
-> Copyright (c) 2017-present James Gillmore
 > 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -2315,7 +2288,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://www.typescriptlang.org/">tslib</a> 2.4.1</b> <i>(0BSD)</i></summary>
+<details><summary><b><a href="https://www.typescriptlang.org/">tslib</a> 2.5.0</b> <i>(0BSD)</i></summary>
 
 > Copyright (c) Microsoft Corporation.
 > 
