@@ -98,11 +98,6 @@ router.start = function () {
     router._initialDispatch();
 };
 
-router.jqmInit = function () {
-    console.warn(new Error("jqmInit() renamed to start()"));
-    router.start();
-};
-
 function contextReducer(context = {}, action) {
     if (action.type != RENDER && action.type != NOT_FOUND) {
         return context;

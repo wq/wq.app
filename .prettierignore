@@ -4,6 +4,5 @@
 *.html
 *.yml
 packages/outbox/vendor/json-forms.js
-packages/jquery-mobile/vendor/jquery-mobile.js
 tests/
 js/

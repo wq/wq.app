@@ -893,7 +893,7 @@ async function _displayItem(ctx) {
         if (model.opts.server && app.config.loadMissingAsHtml) {
             // opts.server indicates that the local list does not represent
             // the entire dataset; if an item is not found, attempt to load
-            // HTML directly from the server (using built-in jQM loader)
+            // HTML directly from the server.
             return _loadFromServer(url);
         } else {
             // If opts.server is false, locally stored list is assumed to
