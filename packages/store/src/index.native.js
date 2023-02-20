@@ -1,7 +1,7 @@
 import ds, { Store, getStore } from "./store.js";
 import * as storage from "./storage.native.js";
 
-ds.setStorage(storage);
+ds.setEngine(storage);
 
 export default ds;
 export { Store, getStore };

@@ -89,7 +89,7 @@ class Store {
                     self["debug" + level] = true;
                 }
             }
-            self.addMiddleware(logger);
+            self.addMiddleware(logger.default || logger);
         }
 
         var storeReady;

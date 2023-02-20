@@ -46,6 +46,10 @@ jobs:
       run: cd packages/$PACKAGE && npm ci
     - name: Lint with ESLint
       run: npm run lint
+    - name: Check ESM Imports
+      run: |
+         echo 'export default "0.0.0";' > version.js
+         node index.js
     - name: Start test server
       run: python -m tests.server &
     - name: Test with Jest

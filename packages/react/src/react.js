@@ -124,7 +124,6 @@ export default {
     },
 };
 
-export * from "./hooks.js";
 export * from "./views/index.js";
 
 const {

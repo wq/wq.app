@@ -5,7 +5,6 @@
     "type": "module",
     "main": "index.js",
     "react-native": "src/index.native.js",
-    "expo": "src/index.expo.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/react",
         "build": "npm run babel && npm run prettier",
