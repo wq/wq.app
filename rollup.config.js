@@ -21,7 +21,7 @@ const version = child_process.execSync("python3 setup.py --version");
 const banner = `/*!
  * wq.js for wq.app ${version}
  * Mobile data collection & survey framework
- * (c) 2012-2020, S. Andrew Sheppard
+ * (c) 2012-2023, S. Andrew Sheppard
  * https://wq.io/license
  */`;
 
@@ -56,6 +56,11 @@ export default [
 
                     // For redux-orm/src/
                     "@babel/plugin-proposal-class-properties",
+
+                    [
+                        "babel-plugin-direct-import",
+                        { modules: ["@mui/material", "@mui/icons-material"] },
+                    ],
                 ],
                 extensions: [".js", ".ts", ".tsx"],
                 babelHelpers: "bundled",

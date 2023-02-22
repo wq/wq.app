@@ -3,13 +3,13 @@ import { useRouteInfo, useComponents } from "../hooks.js";
 import { pascalCase } from "pascal-case";
 
 export default function Default() {
-    const { name } = useRouteInfo(),
+    const { template } = useRouteInfo(),
         { View, Text, DebugContext } = useComponents();
 
     return (
         <View>
             <Text>
-                To customize this view, define views.{pascalCase(name)} in a
+                To customize this view, define views.{pascalCase(template)} in a
                 plugin.
             </Text>
             <DebugContext />
