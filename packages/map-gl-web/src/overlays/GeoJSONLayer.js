@@ -53,7 +53,7 @@ export default function GeoJSONLayer({ id, before, data, ...rest }) {
     ]);
 
     return (
-        <Source {...source}>
+        <Source key={id} {...source}>
             {layers.map((layer) => (
                 <Layer key={layer.id} {...layer} />
             ))}

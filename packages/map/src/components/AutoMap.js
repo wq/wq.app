@@ -40,20 +40,26 @@ export default function AutoMap({
 
     const identify = overlays.some((overlay) => !!overlay.popup);
 
+    if (toolbar === true) {
+        toolbar = (
+            <MapToolbar
+                name={name}
+                mapId={mapId}
+                basemaps={basemaps}
+                overlays={overlays}
+                showOverlay={showOverlay}
+                hideOverlay={hideOverlay}
+                setBasemap={setBasemap}
+                context={context}
+            />
+        );
+    } else if (!toolbar) {
+        toolbar = false;
+    }
+
     return (
         <MapContainer name={name} mapId={mapId}>
-            {toolbar && (
-                <MapToolbar
-                    name={name}
-                    mapId={mapId}
-                    basemaps={basemaps}
-                    overlays={overlays}
-                    showOverlay={showOverlay}
-                    hideOverlay={hideOverlay}
-                    setBasemap={setBasemap}
-                    context={context}
-                />
-            )}
+            {toolbar}
             <Map
                 name={name}
                 mapId={mapId}

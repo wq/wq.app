@@ -45,7 +45,7 @@ export default function AutoSubform({
     const prefix = name ? `${name}.` : "";
 
     return (
-        <Fieldset name={name} label={label}>
+        <Fieldset name={name} label={label} {...rest}>
             {subform.map(({ name: fieldName, children: subform, ...rest }) => (
                 <AutoInput
                     key={fieldName}

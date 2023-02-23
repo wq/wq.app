@@ -42,6 +42,7 @@ import {
     FormHelperText,
     FormLabel,
     Grid,
+    Icon,
     IconButton,
     InputLabel,
     LinearProgress,
@@ -82,74 +83,8 @@ import react, * as reactExports from "@wq/react";
 import map, * as mapExports from "@wq/map";
 import mapgl, * as mapglExports from "@wq/map-gl";
 
-const muiMaterial = {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Alert,
-    AlertTitle,
-    AppBar,
-    Autocomplete,
-    Badge,
-    Box,
-    Breadcrumbs,
-    Button,
-    ButtonBase,
-    Card,
-    CardContent,
-    Checkbox,
-    Chip,
-    CircularProgress,
-    Collapse,
-    CssBaseline,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    Drawer,
-    Fab,
-    FormControl,
-    FormControlLabel,
-    FormHelperText,
-    FormLabel,
-    Grid,
-    IconButton,
-    InputLabel,
-    LinearProgress,
-    Link,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemSecondaryAction,
-    ListItemText,
-    ListSubheader,
-    Menu,
-    MenuItem,
-    Modal,
-    Paper,
-    Radio,
-    Select,
-    SvgIcon,
-    Switch,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TextField,
-    ThemeProvider,
-    ToggleButton,
-    Toolbar,
-    Typography,
-    createTheme,
-    useMediaQuery,
-};
-
 // For use with @wq/rollup-plugin
-export default {
+const modules = {
     react: React,
     "react/jsx-runtime": jsxRuntime,
     "react-dom": ReactDOM,
@@ -164,19 +99,72 @@ export default {
         ...reactMapGlExports,
     },
     "@mapbox/mapbox-gl-draw": MapboxDraw,
-    "@mui/material": new Proxy(muiMaterial, {
-        get: function (target, prop) {
-            if (!(prop in target)) {
-                console.error(
-                    `${prop} is not included in wq.js's copy of @mui/material.` +
-                        ` Try importing @mui/material/${prop} directly,` +
-                        " or file an issue at https://github.com/wq/wq/issues"
-                );
-                return () => null;
-            }
-            return Reflect.get(...arguments);
-        },
-    }),
+    "@mui/material": {
+        Accordion,
+        AccordionDetails,
+        AccordionSummary,
+        Alert,
+        AlertTitle,
+        AppBar,
+        Autocomplete,
+        Badge,
+        Box,
+        Breadcrumbs,
+        Button,
+        ButtonBase,
+        Card,
+        CardContent,
+        Checkbox,
+        Chip,
+        CircularProgress,
+        Collapse,
+        CssBaseline,
+        Dialog,
+        DialogActions,
+        DialogContent,
+        DialogTitle,
+        Divider,
+        Drawer,
+        Fab,
+        FormControl,
+        FormControlLabel,
+        FormHelperText,
+        FormLabel,
+        Grid,
+        Icon,
+        IconButton,
+        InputLabel,
+        LinearProgress,
+        Link,
+        List,
+        ListItem,
+        ListItemIcon,
+        ListItemSecondaryAction,
+        ListItemText,
+        ListSubheader,
+        Menu,
+        MenuItem,
+        Modal,
+        Paper,
+        Radio,
+        Select,
+        SvgIcon,
+        Switch,
+        Table,
+        TableBody,
+        TableCell,
+        TableContainer,
+        TableHead,
+        TablePagination,
+        TableRow,
+        TextField,
+        ThemeProvider,
+        ToggleButton,
+        Toolbar,
+        Typography,
+        createTheme,
+        useMediaQuery,
+    },
     "@wq/app": app,
     "@wq/react": {
         default: react,
@@ -195,3 +183,29 @@ export default {
         ...mapglExports,
     },
 };
+
+function notFound(moduleName, prop) {
+    if (moduleName === "@mui/material") {
+        return (
+            `${prop} is not included in wq.js's copy of ${moduleName}.` +
+            ` Try importing ${moduleName}/${prop} directly,` +
+            " or file an issue at https://github.com/wq/wq/issues"
+        );
+    } else {
+        return `${prop} not found in wq.js's copy of ${moduleName}!`;
+    }
+}
+
+for (const [moduleName, value] of Object.entries(modules)) {
+    modules[moduleName] = new Proxy(value, {
+        get(target, prop) {
+            if (!(prop in target)) {
+                console.error(notFound(moduleName, prop));
+                return () => null;
+            }
+            return Reflect.get(...arguments);
+        },
+    });
+}
+
+export default modules;

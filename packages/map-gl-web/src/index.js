@@ -62,6 +62,8 @@ export {
     MapInteraction,
     MapAutoZoom,
     MapIdentify,
+    MapProvider,
+    useMapInstance,
     VectorTile,
     Tile,
     Geojson,

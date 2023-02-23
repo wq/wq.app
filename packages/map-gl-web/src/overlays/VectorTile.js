@@ -2,16 +2,15 @@ import React, { useMemo, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Source, Layer } from "react-map-gl";
 
-function AutoLayer({ id, active, before, layout, ...rest }) {
+function AutoLayer({ id, active, before, layout = {}, paint = {}, ...rest }) {
     const layer = useMemo(() => {
         return {
             id,
             layout:
-                active === false
-                    ? { ...(layout || {}), visibility: "none" }
-                    : layout,
+                active === false ? { ...layout, visibility: "none" } : layout,
+            paint,
         };
-    }, [id, active, layout]);
+    }, [id, active, layout, paint]);
 
     return <Layer beforeId={before} {...layer} {...rest} />;
 }

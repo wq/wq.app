@@ -6,12 +6,9 @@ import {
     Checkbox,
     ListItemText,
     ListSubheader,
-    InputLabel,
-    FormControl,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useFormikContext } from "formik";
-import HelperText from "./HelperText.js";
 
 function ContextCheckbox({ value, field }) {
     const { values } = useFormikContext();
@@ -111,33 +108,29 @@ export default function Select({
           };
 
     return (
-        <FormControl fullWidth margin="dense">
-            <InputLabel
-                htmlFor={fieldName}
-                required={required}
-                error={showError}
-                {...InputLabelProps}
-            >
-                {label}
-            </InputLabel>
-            <Field
-                component={FMuiSelect}
-                multiple={multiple}
-                required={required}
-                native={native}
-                renderValue={renderValue}
-                displayEmpty={!!placeholder}
-                {...rest}
-            >
-                {!multiple && (
-                    <Option value={""} disabled={!!required}>
-                        {required ? "Select one..." : "(No Selection)"}
-                    </Option>
-                )}
-                {renderGroups(choiceGroups)}
-            </Field>
-            <HelperText name={fieldName} hint={hint} />
-        </FormControl>
+        <Field
+            component={FMuiSelect}
+            formControl={{ fullWidth: true, margin: "dense" }}
+            inputLabel={{ required, error: showError, ...InputLabelProps }}
+            formHelperText={{ children: hint }}
+            multiple={multiple}
+            required={required}
+            native={native}
+            label={label}
+            renderValue={renderValue}
+            displayEmpty={!!placeholder}
+            {...(InputLabelProps && InputLabelProps.shrink
+                ? { notched: true }
+                : {})}
+            {...rest}
+        >
+            {!multiple && (
+                <Option value={""} disabled={!!required}>
+                    {required ? "Select one..." : "(No Selection)"}
+                </Option>
+            )}
+            {renderGroups(choiceGroups)}
+        </Field>
     );
 }
 

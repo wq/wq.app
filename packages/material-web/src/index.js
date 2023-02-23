@@ -30,7 +30,11 @@ export default {
             return;
         }
         if (config.theme) {
-            Object.assign(this.config.theme, config.theme);
+            if (config.theme.palette) {
+                this.config.theme = config.theme;
+            } else {
+                Object.assign(this.config.theme, config.theme);
+            }
         }
         if (config.inputFormat) {
             Object.assign(this.config.inputFormat, config.inputFormat);

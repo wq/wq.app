@@ -2,7 +2,14 @@ import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Source, Layer } from "react-map-gl";
 
-export default function Tile({ name, active, url, tileSize, layout, paint }) {
+export default function Tile({
+    name,
+    active,
+    url,
+    tileSize,
+    layout = {},
+    paint = {},
+}) {
     const source = useMemo(() => {
         return {
             id: name,
