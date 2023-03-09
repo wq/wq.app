@@ -360,8 +360,16 @@ class Model {
                     return idCol;
                 }
                 static get fields() {
-                    const fields = {};
-                    (config.form || []).forEach((field) => {
+                    const fields = {},
+                        form = (config.form || []).slice(),
+                        root = form.find(
+                            (field) =>
+                                field.name === "" && field.type === "group"
+                        );
+                    if (root) {
+                        form.push(...root.children);
+                    }
+                    form.forEach((field) => {
                         if (field["wq:ForeignKey"]) {
                             fields[field.name + "_id"] = fk({
                                 to: field["wq:ForeignKey"],
