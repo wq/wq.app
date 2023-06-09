@@ -138,3 +138,5 @@ export function initData(form, data) {
 }
 
 const NULL_FIELDS = ["date", "time", "dateTime", "int", "integer", "decimal"];
+
+AutoForm.initData = initData;

@@ -141,6 +141,8 @@ const {
     DebugContext,
 } = components;
 
+const autoFormData = AutoForm.initData;
+
 export {
     Message,
     Link,
@@ -154,6 +156,7 @@ export {
     ImagePreview,
     FileLink,
     DebugContext,
+    autoFormData,
 };
 
 const { ForeignKey } = inputs;
