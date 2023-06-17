@@ -36,7 +36,6 @@
         "@wq/react": "^2.0.0-alpha.0",
         "date-fns": "^2.29.3",
         "formik-mui": "^5.0.0-alpha.0",
-        "formik-mui-x-date-pickers": "^0.0.1",
         "mui-file-dropzone": "^4.0.2"
     },
     "devDependencies": {

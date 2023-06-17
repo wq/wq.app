@@ -1,12 +1,7 @@
 import React, { useMemo } from "react";
 import { Field, getIn } from "formik";
 import { Select as FMuiSelect } from "formik-mui";
-import {
-    MenuItem,
-    Checkbox,
-    ListItemText,
-    ListSubheader,
-} from "@mui/material";
+import { MenuItem, Checkbox, ListItemText, ListSubheader } from "@mui/material";
 import PropTypes from "prop-types";
 import { useFormikContext } from "formik";
 
