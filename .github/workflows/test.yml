@@ -64,6 +64,7 @@ jobs:
     - name: Publish to Github Packages
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
+         python -m pip install setuptools_scm
          ./set_dev_version.sh
          echo "registry=https://npm.pkg.github.com/wq" > .npmrc
          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
@@ -72,10 +73,10 @@ jobs:
          npm publish
   pip:
     name: Python Package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11"]
         node-version: [18]
     steps:
     - uses: actions/checkout@v2
@@ -92,10 +93,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install wheel
+        python -m pip install build
     - name: Build Python Wheel
       run: |
-        python setup.py bdist_wheel
+        python -m build
         python -m pip install `ls dist/*.whl`
     - uses: actions/upload-artifact@v3
       with:

@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "backend"
+backend-path = ["packages"]
+
+[project]
+name = "wq.app"
+dynamic = ["version"]
+authors = [
+    {name = "S. Andrew Sheppard", email = "andrew@wq.io"},
+]
+description = "Offline-capable web/native apps for mobile surveys and field data collection."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: JavaScript",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Framework :: Django :: 4.2",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Pre-processors",
+]
+dependencies = [
+    "wq.build",
+]
+
+[project.entry-points.wq]
+"wq.app" = "wq.app"
+
+[project.urls]
+Homepage = "https://wq.io/wq.app/"
+Documentation = "https://wq.io/"
+Source = "https://github.com/wq/wq.app"
+"Release Notes" = "https://github.com/wq/wq.app/releases"
+Issues = "https://github.com/wq/wq.app/issues"
+Tests = "https://github.com/wq/wq.app/actions/workflows/test.yml"
+
+[tool.setuptools]
+
+[tool.setuptools.packages.find]
+include = ["wq.app*"]
+
+[tool.setuptools.package-data]
+"wq.app.static" = [ "**/*" ]
+
+[tool.setuptools_scm]
+write_to = "version.js"
+write_to_template = 'export default "{version}";'

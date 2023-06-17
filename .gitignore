@@ -4,8 +4,6 @@
 *.tgz
 .eggs
 /dist/
-/static/
 /build/
-/wq/__init__.py
 node_modules
 version.js

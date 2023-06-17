@@ -1,5 +1,6 @@
 #!/bin/bash
-VERSION=`python3 setup.py --version | \
+set -e
+VERSION=`python3 -m setuptools_scm | \
         sed s/\.dev/-dev/ | \
         sed s/+/./ | \
         sed "s/\.d[0-9]\{8\}$//" | \

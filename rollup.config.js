@@ -16,7 +16,7 @@ import { readFileSync } from "fs";
  * instead, as it uses npm instead of overriding paths.
  */
 
-const version = child_process.execSync("python3 setup.py --version");
+const version = child_process.execSync("python3 -m setuptools_scm");
 
 const banner = `/*!
  * wq.js for wq.app ${version}
@@ -119,13 +119,13 @@ export default [
             json(),
         ],
         output: {
-            file: "static/app/js/wq.js",
+            file: "wq/app/static/app/js/wq.js",
             inlineDynamicImports: true,
             banner,
             format: "esm",
             sourcemap: true,
             sourcemapPathTransform(path) {
-                return path.replace("../../../", `wq/app/`);
+                return path.replace("../../../../../", `wq/app/`);
             },
         },
     },
