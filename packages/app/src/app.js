@@ -888,6 +888,9 @@ async function _displayItem(ctx) {
 
     if (item) {
         item.local = true;
+
+        _addFKLabels(item, model.config.form);
+
         return item;
     } else {
         if (model.opts.server && app.config.loadMissingAsHtml) {
@@ -899,6 +902,37 @@ async function _displayItem(ctx) {
             // If opts.server is false, locally stored list is assumed to
             // contain the entire dataset, so the item probably does not exist.
             return router.notFound();
+        }
+    }
+}
+
+function _addFKLabels(item, form) {
+    for (const field of form) {
+        const modelName = field["wq:ForeignKey"],
+            idName = `${field.name}_id`,
+            labelName = `${field.name}_label`;
+        if (
+            !modelName ||
+            !app.models[modelName] ||
+            !item[idName] ||
+            item[labelName]
+        ) {
+            continue;
+        }
+        const relItem = app.models[modelName].model.withId(item[idName]);
+        if (relItem && relItem.label) {
+            item[labelName] = relItem.label;
+        }
+    }
+    for (const field of form) {
+        let data = item[field.name];
+        if (field.children && data) {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            for (const row of data) {
+                _addFKLabels(row, field.children);
+            }
         }
     }
 }

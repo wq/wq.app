@@ -500,7 +500,7 @@ class Model {
         const data = deepcopy(instance.ref);
         const nested = this.orm.getNestedModels(instance.getClass().modelName);
         nested.forEach(({ relatedName }) => {
-            data[relatedName] = instance[relatedName].toRefArray();
+            data[relatedName] = deepcopy(instance[relatedName].toRefArray());
         });
         return data;
     }
