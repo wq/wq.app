@@ -27,10 +27,6 @@ export default function File({ name, accept, hint, label }) {
         setFile = useCallback(
             (files) => {
                 if (!loadedRef.current) {
-                    // Component mounted
-                    loadedRef.current = -1;
-                    return;
-                } else if (loadedRef.current === -1) {
                     // initialFiles loaded
                     loadedRef.current = files && files.length ? files[0] : true;
                     return;
