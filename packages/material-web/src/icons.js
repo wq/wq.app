@@ -13,6 +13,9 @@ import {
     GpsFixed as GpsStart,
     GpsOff as GpsStop,
     Search,
+    ListAlt as List,
+    Info as Detail,
+    Map,
 } from "@mui/icons-material";
 
 export {
@@ -30,4 +33,7 @@ export {
     GpsStart,
     GpsStop,
     Search,
+    List,
+    Detail,
+    Map,
 };

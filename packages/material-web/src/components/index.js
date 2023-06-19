@@ -16,6 +16,10 @@ import ButtonLink from "./ButtonLink.js";
 import HomeLink from "./HomeLink.js";
 import IconButton from "./IconButton.js";
 import Fab from "./Fab.js";
+import TabGroup from "./TabGroup.js";
+import TabItem from "./TabItem.js";
+import BottomNavigation from "./BottomNavigation.js";
+import BottomNavigationAction from "./BottomNavigationAction.js";
 import Chip from "./Chip.js";
 import Switch from "./Switch.js";
 import CheckboxButton from "./CheckboxButton.js";
@@ -76,6 +80,10 @@ export {
     HomeLink,
     IconButton,
     Fab,
+    TabGroup,
+    TabItem,
+    BottomNavigation,
+    BottomNavigationAction,
     Chip,
     Switch,
     CheckboxButton,

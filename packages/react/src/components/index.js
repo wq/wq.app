@@ -16,8 +16,13 @@ import Message from "./Message.js";
 import Link from "./Link.js";
 import Button from "./Button.js";
 import ButtonLink from "./ButtonLink.js";
+import HomeLink from "./HomeLink.js";
 import IconButton from "./IconButton.js";
 import Fab from "./Fab.js";
+import TabGroup from "./TabGroup.js";
+import TabItem from "./TabItem.js";
+import BottomNavigation from "./BottomNavigation.js";
+import BottomNavigationAction from "./BottomNavigationAction.js";
 import Chip from "./Chip.js";
 import Switch from "./Switch.js";
 import CheckboxButton from "./CheckboxButton.js";
@@ -27,7 +32,8 @@ import List from "./List.js";
 import ListItem from "./ListItem.js";
 import ListItemLink from "./ListItemLink.js";
 import ListSubheader from "./ListSubheader.js";
-import ExpansionPanel from "./ExpansionPanel.js";
+import Accordion from "./Accordion.js";
+import ExpandableListItem from "./ExpandableListItem.js";
 import Divider from "./Divider.js";
 
 import Table from "./Table.js";
@@ -84,8 +90,13 @@ export {
     Link,
     Button,
     ButtonLink,
+    HomeLink,
     IconButton,
     Fab,
+    TabGroup,
+    TabItem,
+    BottomNavigation,
+    BottomNavigationAction,
     Chip,
     Switch,
     CheckboxButton,
@@ -94,7 +105,16 @@ export {
 
 export { Message };
 
-export { List, ListItem, ListItemLink, ListSubheader, ExpansionPanel, Divider };
+export {
+    List,
+    ListItem,
+    ListItemLink,
+    ListSubheader,
+    Accordion,
+    Accordion as ExpansionPanel,
+    ExpandableListItem,
+    Divider,
+};
 
 export {
     Table,

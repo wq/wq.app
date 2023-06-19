@@ -33,3 +33,15 @@ export function GpsStop() {
 export function Search() {
     return "\u{1f50d}"; // Magnifying Glass
 }
+
+export function List() {
+    return "\u{1f9fe}"; // Reciept
+}
+
+export function Detail() {
+    return "\u2139"; // Info
+}
+
+export function Map() {
+    return "\u{1f5fa}"; // World Map
+}
