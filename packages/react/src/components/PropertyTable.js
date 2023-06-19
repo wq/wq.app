@@ -6,7 +6,23 @@ const Value = ({ values, field }) => {
     const { FormatJson, ImagePreview, FileLink } = useComponents(),
         value = values[field.name];
 
-    if (field["wq:ForeignKey"]) {
+    if (field.children && values[field.name]) {
+        if (field.type === "repeat") {
+            return (
+                <PropertyTableList
+                    form={field.children}
+                    values={values[field.name]}
+                />
+            );
+        } else {
+            return (
+                <PropertyTable
+                    form={field.children}
+                    values={values[field.name]}
+                />
+            );
+        }
+    } else if (field["wq:ForeignKey"]) {
         if (value && typeof value === "object" && value.label) {
             return value.label;
         } else {
@@ -61,6 +77,27 @@ export default function PropertyTable({ form, values }) {
 }
 
 PropertyTable.propTypes = {
+    form: PropTypes.arrayOf(PropTypes.object),
+    values: PropTypes.object,
+};
+
+function PropertyTableList({ form, values }) {
+    const { Divider } = useComponents();
+    if (!Array.isArray(values)) {
+        return null;
+    }
+    return (
+        <>
+            {values.map((vals, i) => (
+                <React.Fragment key={(vals && vals.id) || i}>
+                    {i > 0 && <Divider />}
+                    <PropertyTable form={form} values={vals} />
+                </React.Fragment>
+            ))}
+        </>
+    );
+}
+PropertyTableList.propTypes = {
     form: PropTypes.arrayOf(PropTypes.object),
     values: PropTypes.object,
 };
