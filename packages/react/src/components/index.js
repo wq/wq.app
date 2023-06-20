@@ -1,5 +1,6 @@
 import Container from "./Container.js";
 import Header from "./Header.js";
+import Logo from "./Logo.js";
 import NavMenuPopup from "./NavMenuPopup.js";
 import NavMenuFixed from "./NavMenuFixed.js";
 import Main from "./Main.js";
@@ -76,6 +77,7 @@ import DebugContext from "./DebugContext.js";
 export {
     Container,
     Header,
+    Logo,
     NavMenuPopup,
     NavMenuFixed,
     Main,

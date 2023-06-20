@@ -6,14 +6,16 @@ import { useMinWidth } from "../hooks.js";
 export default function Header() {
     const title = useSiteTitle(),
         links = useBreadcrumbs(),
-        { Breadcrumbs, IconButton, NavMenuPopup } = useComponents(),
+        { Logo, Breadcrumbs, IconButton, NavMenuPopup } = useComponents(),
         fixedMenu = useMinWidth(480),
         [open, setOpen] = useState(false);
     return (
         <>
             <AppBar position="static">
                 <Toolbar>
-                    {!fixedMenu && (
+                    {fixedMenu ? (
+                        <Logo edge="start" />
+                    ) : (
                         <IconButton
                             icon="menu"
                             sx={{ mr: 2 }}

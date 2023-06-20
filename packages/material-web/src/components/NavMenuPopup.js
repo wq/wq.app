@@ -1,10 +1,11 @@
 import React from "react";
 import { Drawer, AppBar, Toolbar, Typography } from "@mui/material";
-import { useViewComponents, useSiteTitle } from "@wq/react";
+import { useViewComponents, useComponents, useSiteTitle } from "@wq/react";
 
 export default function NavMenuPopup({ open, onClose }) {
     const title = useSiteTitle(),
-        { NavMenu } = useViewComponents();
+        { NavMenu } = useViewComponents(),
+        { Logo } = useComponents();
     return (
         <Drawer
             open={open}
@@ -19,6 +20,7 @@ export default function NavMenuPopup({ open, onClose }) {
                 style={{ borderBottom: "1px solid #999" }}
             >
                 <Toolbar variant="regular">
+                    <Logo edge="start" />
                     <Typography variant="h6">{title}</Typography>
                 </Toolbar>
             </AppBar>
