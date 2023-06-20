@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { useComponents } from "@wq/react";
 
@@ -29,11 +29,11 @@ export default function MapToolbar({
         return null;
     }
 
-    function resize() {
+    const resize = useCallback(() => {
         if (map && map.resize) {
             map.resize();
         }
-    }
+    }, [map]);
 
     return (
         <SidePanel onChange={resize}>

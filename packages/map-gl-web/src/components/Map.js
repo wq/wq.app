@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { usePlugin, usePluginReducer } from "@wq/react";
 import PropTypes from "prop-types";
 import Root from "react-map-gl";
@@ -12,7 +12,11 @@ export default function Map({
     containerStyle,
 }) {
     const { engine } = usePlugin("map-gl"),
-        [{ viewState }, { setViewState }] = usePluginReducer("map"),
+        [{ viewState: pluginViewState }, { setViewState: setPluginViewState }] =
+            usePluginReducer("map"),
+        [localViewState, setLocalViewState] = useState(null),
+        viewState = mapId ? pluginViewState : localViewState,
+        setViewState = mapId ? setPluginViewState : setLocalViewState,
         onMove = useCallback(
             (evt) => setViewState(evt.viewState),
             [setViewState]
