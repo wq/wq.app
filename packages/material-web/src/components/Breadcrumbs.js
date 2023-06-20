@@ -1,14 +1,14 @@
 import React from "react";
 import { Paper, Breadcrumbs as MuiBreadcrumbs } from "@mui/material";
-import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
 
-import { useReverse, useComponents } from "@wq/react";
+import { useReverse, useComponents, useIcon } from "@wq/react";
 
 import PropTypes from "prop-types";
 
 export default function Breadcrumbs({ links }) {
     const reverse = useReverse(),
-        { ButtonLink, HomeLink } = useComponents();
+        { ButtonLink, HomeLink } = useComponents(),
+        Separator = useIcon("breadcrumb-separator") || (() => ">");
 
     if (!links) {
         links = [{ url: reverse("index"), label: "Home", active: true }];
@@ -23,10 +23,11 @@ export default function Breadcrumbs({ links }) {
             square
             sx={{
                 py: 1,
+                borderBottomStyle: "solid",
                 borderBottomColor: "divider",
             }}
         >
-            <MuiBreadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+            <MuiBreadcrumbs separator={<Separator fontSize="small" />}>
                 <HomeLink
                     to={links[0].url}
                     label={links[0].label}

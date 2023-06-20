@@ -16,6 +16,13 @@ import {
     ListAlt as List,
     Info as Detail,
     Map,
+    Home,
+    NavigateNext as BreadcrumbSeparator,
+    Menu,
+    Login,
+    Logout,
+    Settings as Config,
+    OpenInNew as External,
 } from "@mui/icons-material";
 
 export {
@@ -36,4 +43,11 @@ export {
     List,
     Detail,
     Map,
+    Home,
+    BreadcrumbSeparator,
+    Menu,
+    Login,
+    Logout,
+    Config,
+    External,
 };

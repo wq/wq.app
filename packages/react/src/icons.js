@@ -45,3 +45,35 @@ export function Detail() {
 export function Map() {
     return "\u{1f5fa}"; // World Map
 }
+
+export function Home() {
+    return "\u{1f3e0}";
+}
+
+export function Expand() {
+    return "\u2b07";
+}
+
+export function BreadcrumbSeparator() {
+    return "\u27a1";
+}
+
+export function Menu() {
+    return "\u{1f4c2}"; // Open File Folder
+}
+
+export function Login() {
+    return "\u{1f511}"; // Key
+}
+
+export function Logout() {
+    return "\u274c"; // Cross Mark
+}
+
+export function Config() {
+    return "\u{1f6e0}"; // Hammer and Wrench
+}
+
+export function External() {
+    return "\u{1f517}"; // Link
+}

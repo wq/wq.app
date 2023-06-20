@@ -7,7 +7,7 @@ export default function DefaultListWithMap() {
     const mapState = useMapState(),
         { MapProvider, AutoMap, HighlightPopup, Divider, TabGroup, TabItem } =
             useComponents(),
-        splitScreen = useMinWidth(480),
+        splitScreen = useMinWidth(900),
         context = useList();
     if (mapState) {
         const { mapId } = mapState;
@@ -23,7 +23,7 @@ export default function DefaultListWithMap() {
         } else {
             return (
                 <MapProvider>
-                    <TabGroup>
+                    <TabGroup sx={{ minHeight: 72 }}>
                         <TabItem label="List" value="list" icon="list">
                             <DefaultList />
                         </TabItem>

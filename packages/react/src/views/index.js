@@ -16,6 +16,7 @@ export {
     DefaultDetail,
     DefaultEdit,
     Index,
+    Index as NavMenu,
     Login,
     Logout,
     OutboxList,

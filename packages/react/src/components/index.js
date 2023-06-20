@@ -1,5 +1,7 @@
 import Container from "./Container.js";
 import Header from "./Header.js";
+import NavMenuPopup from "./NavMenuPopup.js";
+import NavMenuFixed from "./NavMenuFixed.js";
 import Main from "./Main.js";
 import Footer from "./Footer.js";
 import FooterContent from "./FooterContent.js";
@@ -74,6 +76,8 @@ import DebugContext from "./DebugContext.js";
 export {
     Container,
     Header,
+    NavMenuPopup,
+    NavMenuFixed,
     Main,
     Footer,
     FooterContent,

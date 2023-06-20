@@ -213,15 +213,90 @@ export function useBreadcrumbs() {
 }
 
 export function useSitemap() {
-    const config = useConfig();
+    const config = useConfig(),
+        { user, config: authConfig } = usePluginState("auth"),
+        messages = useMessages();
     return useMemo(() => {
-        const pages = Object.values(config.pages).filter(
-                (page) => page.show_in_index !== false
-            ),
-            options = pages.filter((page) => !page.list),
-            models = pages.filter((page) => page.list);
-        return { options, models };
-    }, [config]);
+        const pages = Object.values(config.pages)
+                .filter((page) => showInIndex(page, user, authConfig))
+                .sort(orderSort),
+            sections = [],
+            sectionPages = {};
+        for (const page of pages) {
+            const section = getPageSection(page, messages),
+                route = getPageRoute(page);
+            if (!sectionPages[section]) {
+                sectionPages[section] = [];
+                sections.push({ name: section, pages: sectionPages[section] });
+            }
+            sectionPages[section].push({ ...page, route });
+        }
+
+        return sections;
+    }, [config, user, authConfig, messages]);
+}
+
+export function showInIndex(page, user, authConfig) {
+    if (page.show_in_index === false) {
+        return false;
+    } else if (page.show_in_index === true || !page.show_in_index) {
+        return true;
+    } else if (page.show_in_index === "is_authenticated") {
+        return Boolean(user);
+    } else if (page.show_in_index === "not_authenticated") {
+        return !user;
+    } else if (page.show_in_index.startsWith("is_")) {
+        return Boolean(user && user[page.show_in_index]);
+    } else if (page.show_in_index.startsWith("not_")) {
+        return Boolean(user && !user[page.show_in_index]);
+    } else if (page.show_in_index.startsWith("can_")) {
+        return Boolean(
+            user &&
+                authConfig.pages &&
+                authConfig.pages[page.name] &&
+                authConfig.pages[page.name][page.show_in_index]
+        );
+    } else {
+        return true;
+    }
+}
+
+export function orderSort(page1, page2) {
+    const order1 = page1.order || 0,
+        order2 = page2.order || 0;
+    if (order1 < order2) {
+        return -1;
+    } else if (order1 > order2) {
+        return 1;
+    } else if (page1.list && !page2.list) {
+        return -1;
+    } else if (!page2.list && page2.list) {
+        return 1;
+    } else if (page1.name < page2.name) {
+        return -1;
+    } else if (page1.name > page2.name) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+export function getPageSection(page, messages) {
+    if (page.section) {
+        return page.section;
+    } else if (page.list) {
+        return messages.MODEL_PAGES;
+    } else {
+        return messages.OTHER_PAGES;
+    }
+}
+
+export function getPageRoute(page) {
+    if (page.list) {
+        return `${page.name}_list`;
+    } else {
+        return page.name;
+    }
 }
 
 export function useSpinner() {

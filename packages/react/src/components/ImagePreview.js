@@ -14,7 +14,7 @@ export default function ImagePreview({ value }) {
             <Image
                 src={value}
                 alt={label}
-                style={{ maxHeight: 200, cursor: "pointer" }}
+                style={{ maxHeight: 200, maxWidth: "66vw", cursor: "pointer" }}
                 onClick={() => setOpen(true)}
             />
             <Popup open={open} onClose={() => setOpen(false)}>

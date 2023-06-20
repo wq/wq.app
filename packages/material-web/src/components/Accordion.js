@@ -4,7 +4,7 @@ import {
     AccordionSummary,
     AccordionDetails,
 } from "@mui/material";
-import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
+import { useIcon } from "@wq/react";
 import PropTypes from "prop-types";
 
 export default function Accordion({
@@ -14,6 +14,7 @@ export default function Accordion({
     onToggle,
     ...rest
 }) {
+    const ExpandMoreIcon = useIcon("expand") || (() => "V");
     let handleToggle;
     if (onToggle) {
         handleToggle = (evt, state) => onToggle(state);

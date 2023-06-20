@@ -6,7 +6,7 @@ import { useMinWidth } from "@wq/material";
 export default function DefaultDetailWithMap() {
     const mapState = useMapState(),
         { MapProvider, AutoMap, Divider, TabGroup, TabItem } = useComponents(),
-        splitScreen = useMinWidth(480),
+        splitScreen = useMinWidth(900),
         context = useRenderContext();
     if (mapState) {
         const { mapId } = mapState;
@@ -21,7 +21,7 @@ export default function DefaultDetailWithMap() {
         } else {
             return (
                 <MapProvider>
-                    <TabGroup>
+                    <TabGroup sx={{ minHeight: 72 }}>
                         <TabItem label="Detail" value="detail" icon="detail">
                             <DefaultDetail />
                         </TabItem>

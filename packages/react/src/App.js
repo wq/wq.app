@@ -31,7 +31,8 @@ function AppLayout({ showHeader }) {
         routeInfo = useRouteInfo(),
         views = useViewComponents(),
         PluginContent = usePluginContent(),
-        { Container, Header, Footer, Main, Spinner } = useComponents();
+        { Container, Header, NavMenuFixed, Footer, Main, Spinner } =
+            useComponents();
 
     let name;
     if (routeInfo.pending) {
@@ -83,6 +84,7 @@ function AppLayout({ showHeader }) {
             <Container>
                 {showHeader && <Header />}
                 <Main>
+                    <NavMenuFixed />
                     <View />
                     <PluginContent />
                 </Main>
