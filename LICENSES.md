@@ -55,7 +55,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://babel.dev/docs/en/next/babel-runtime">@babel/runtime</a> 7.20.13</b></summary>
+<details><summary><b><a href="https://babel.dev/docs/en/next/babel-runtime">@babel/runtime</a> 7.22.5</b></summary>
 
 > MIT License
 > 
@@ -125,7 +125,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">date-fns</a> 2.29.3</b></summary>
+<details><summary><b><a href="null">date-fns</a> 2.30.0</b></summary>
 
 > MIT License
 > 
@@ -248,7 +248,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/cache</a> 11.10.5</b></summary>
+<details><summary><b><a href="null">@emotion/cache</a> 11.11.0</b></summary>
 
 > MIT License
 > 
@@ -275,7 +275,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/hash</a> 0.9.0</b></summary>
+<details><summary><b><a href="null">@emotion/hash</a> 0.9.1</b></summary>
 
 > MIT License
 > 
@@ -302,7 +302,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/is-prop-valid</a> 1.2.0</b></summary>
+<details><summary><b><a href="null">@emotion/is-prop-valid</a> 1.2.1</b></summary>
 
 > MIT License
 > 
@@ -329,7 +329,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/memoize</a> 0.8.0</b></summary>
+<details><summary><b><a href="null">@emotion/memoize</a> 0.8.1</b></summary>
 
 > MIT License
 > 
@@ -356,7 +356,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/react</a> 11.10.6</b></summary>
+<details><summary><b><a href="null">@emotion/react</a> 11.11.1</b></summary>
 
 > MIT License
 > 
@@ -383,7 +383,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/serialize</a> 1.1.1</b></summary>
+<details><summary><b><a href="null">@emotion/serialize</a> 1.1.2</b></summary>
 
 > MIT License
 > 
@@ -410,7 +410,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/sheet</a> 1.2.1</b></summary>
+<details><summary><b><a href="null">@emotion/sheet</a> 1.2.2</b></summary>
 
 > MIT License
 > 
@@ -437,7 +437,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/styled</a> 11.10.6</b></summary>
+<details><summary><b><a href="null">@emotion/styled</a> 11.11.0</b></summary>
 
 > MIT License
 > 
@@ -464,7 +464,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/unitless</a> 0.8.0</b></summary>
+<details><summary><b><a href="null">@emotion/unitless</a> 0.8.1</b></summary>
 
 > MIT License
 > 
@@ -491,7 +491,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/use-insertion-effect-with-fallbacks</a> 1.0.0</b></summary>
+<details><summary><b><a href="null">@emotion/use-insertion-effect-with-fallbacks</a> 1.0.1</b></summary>
 
 > MIT License
 > 
@@ -518,7 +518,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/utils</a> 1.2.0</b></summary>
+<details><summary><b><a href="null">@emotion/utils</a> 1.2.1</b></summary>
 
 > MIT License
 > 
@@ -545,7 +545,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@emotion/weak-memoize</a> 0.3.0</b></summary>
+<details><summary><b><a href="null">@emotion/weak-memoize</a> 0.3.1</b></summary>
 
 > MIT License
 > 
@@ -616,7 +616,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-&nbsp; &nbsp; <b><a href="https://formik.org">formik</a> 2.2.9</b> <i>(Apache-2.0)</i>
+&nbsp; &nbsp; <b><a href="https://formik.org">formik</a> 2.4.2</b> <i>(Apache-2.0)</i>
 
 <details><summary><b><a href="null">formik-mui</a> 5.0.0-alpha.0</b></summary>
 
@@ -1143,7 +1143,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/base/getting-started/overview/">@mui/base</a> 5.0.0-alpha.118</b></summary>
+<details><summary><b><a href="https://mui.com/base/getting-started/overview/">@mui/base</a> 5.0.0-beta.4</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1170,7 +1170,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/material-ui/material-icons/">@mui/icons-material</a> 5.11.9</b></summary>
+<details><summary><b><a href="https://mui.com/material-ui/material-icons/">@mui/icons-material</a> 5.11.16</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1197,7 +1197,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/material-ui/getting-started/overview/">@mui/material</a> 5.11.9</b></summary>
+<details><summary><b><a href="https://mui.com/material-ui/getting-started/overview/">@mui/material</a> 5.13.5</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1224,7 +1224,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/">@mui/private-theming</a> 5.11.9</b></summary>
+<details><summary><b><a href="https://mui.com/">@mui/private-theming</a> 5.13.1</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1251,7 +1251,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/material-ui/guides/styled-engine/">@mui/styled-engine</a> 5.11.9</b></summary>
+<details><summary><b><a href="https://mui.com/material-ui/guides/styled-engine/">@mui/styled-engine</a> 5.13.2</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1278,7 +1278,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://mui.com/system/getting-started/overview/">@mui/system</a> 5.11.9</b></summary>
+<details><summary><b><a href="https://mui.com/system/getting-started/overview/">@mui/system</a> 5.13.5</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1305,7 +1305,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/mui/material-ui/tree/master/packages/mui-utils">@mui/utils</a> 5.11.9</b></summary>
+<details><summary><b><a href="https://github.com/mui/material-ui/tree/master/packages/mui-utils">@mui/utils</a> 5.13.1</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1457,7 +1457,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">@popperjs/core</a> 2.11.6</b></summary>
+<details><summary><b><a href="null">@popperjs/core</a> 2.11.8</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -1689,7 +1689,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="null">react-map-gl</a> 7.0.21</b></summary>
+<details><summary><b><a href="null">react-map-gl</a> 7.0.25</b></summary>
 
 > Copyright (c) 2020 Urban Computing Foundation
 > 
@@ -1754,7 +1754,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/reduxjs/react-redux">react-redux</a> 8.0.5</b></summary>
+<details><summary><b><a href="https://github.com/reduxjs/react-redux">react-redux</a> 8.1.0</b></summary>
 
 > The MIT License (MIT)
 > 
@@ -2102,7 +2102,7 @@ In addition, the following third party dependencies are compiled into [**wq.js**
 
 </details>
 
-<details><summary><b><a href="https://github.com/thysultan/stylis.js">stylis</a> 4.1.3</b></summary>
+<details><summary><b><a href="https://github.com/thysultan/stylis.js">stylis</a> 4.2.0</b></summary>
 
 > MIT License
 > 

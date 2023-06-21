@@ -48,6 +48,11 @@ def build(update_hash=False):
     copy_files("node_modules/maplibre-gl/dist/maplibre-gl.js*")
     copy_files("node_modules/maplibre-gl/dist/maplibre-gl.css")
     copy_files("node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css")
+
+    print("Patching mapbox-gl-draw.css to use maplibregl- prefix...")
+    mgd_css = static / "css" / "mapbox-gl-draw.css"
+    mgd_css.write_text(mgd_css.read_text().replace("mapboxgl-", "maplibregl-"))
+
     new_hash = compute_hash()
 
     if new_hash != old_hash:

@@ -59,7 +59,6 @@ export default function MapAutoZoom({
                 const elapsed = new Date() - startTime,
                     timeout = Math.max(wait * 1000 - elapsed, 0);
                 setTimeout(() => {
-                    map.resize();
                     map.fitBounds(bounds, { padding: 32, maxZoom, animate });
                 }, timeout);
             }

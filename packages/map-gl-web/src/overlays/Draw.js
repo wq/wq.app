@@ -14,12 +14,19 @@ export default function Draw({ type, required, data, setData }) {
         controls.trash = true;
     }
     const draw = useControl(
-        (props) =>
-            new MapboxDraw({
+        (props) => {
+            const { classes } = MapboxDraw.constants;
+            for (const [key, value] of Object.entries(classes)) {
+                if (value.startsWith("mapboxgl-")) {
+                    classes[key] = value.replace("mapboxgl-", "maplibregl-");
+                }
+            }
+            return new MapboxDraw({
                 ...props,
                 displayControlsDefault: false,
                 controls,
-            }),
+            });
+        },
         ({ map }) => {
             map.on("draw.create", handleChange);
             map.on("draw.delete", handleChange);

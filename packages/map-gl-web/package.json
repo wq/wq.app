@@ -31,12 +31,12 @@
     },
     "homepage": "https://wq.io/@wq/map-gl",
     "dependencies": {
-        "@mapbox/mapbox-gl-draw": "^1.3.0",
+        "@mapbox/mapbox-gl-draw": "^1.4.1",
         "@turf/circle": "^6.5.0",
         "@wq/map": "^2.0.0-alpha.0",
         "@wq/material": "^2.0.0-alpha.0",
         "mapbox-gl": "npm:empty-npm-package@^1.0.0",
-        "react-map-gl": "^7.0.21"
+        "react-map-gl": "^7.0.25"
     },
     "devDependencies": {
         "@wq/material-web": "^2.0.0-alpha.0",

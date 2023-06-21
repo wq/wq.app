@@ -1,9 +1,8 @@
-import React, { useCallback } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { useComponents } from "@wq/react";
 
 export default function MapToolbar({
-    mapId,
     overlays,
     basemaps,
     showOverlay,
@@ -17,9 +16,7 @@ export default function MapToolbar({
             ListSubheader,
             OverlayToggle,
             BasemapToggle,
-            useMapInstance,
         } = useComponents(),
-        map = useMapInstance(mapId),
         hasMultipleOverlays =
             overlays &&
             (overlays.length > 1 || overlays.some((conf) => conf.legend)),
@@ -29,14 +26,8 @@ export default function MapToolbar({
         return null;
     }
 
-    const resize = useCallback(() => {
-        if (map && map.resize) {
-            map.resize();
-        }
-    }, [map]);
-
     return (
-        <SidePanel onChange={resize}>
+        <SidePanel>
             {children}
             <List dense>
                 {hasMultipleOverlays && (

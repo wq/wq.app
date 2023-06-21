@@ -31,10 +31,10 @@
     "dependencies": {
         "@wq/model": "^2.0.0-alpha.0",
         "@wq/router": "^2.0.0-alpha.0",
-        "formik": "^2.2.9",
+        "formik": "^2.4.2",
         "param-case": "^3.0.4",
         "pascal-case": "^3.1.2",
-        "react-redux": "^8.0.5"
+        "react-redux": "^8.1.0"
     },
     "devDependencies": {
         "react": "^18.2.0",

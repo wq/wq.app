@@ -29,12 +29,12 @@
     },
     "homepage": "https://wq.io/@wq/material",
     "dependencies": {
-        "@emotion/react": "^11.10.5",
-        "@emotion/styled": "^11.10.5",
-        "@mui/icons-material": "^5.11.0",
-        "@mui/material": "^5.11.5",
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
+        "@mui/icons-material": "^5.11.16",
+        "@mui/material": "^5.13.5",
         "@wq/react": "^2.0.0-alpha.0",
-        "date-fns": "^2.29.3",
+        "date-fns": "^2.30.0",
         "formik-mui": "^5.0.0-alpha.0",
         "mui-file-dropzone": "^4.0.2"
     },
