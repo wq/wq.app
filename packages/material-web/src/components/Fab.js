@@ -15,7 +15,7 @@ export default function Fab({ icon, to, ...rest }) {
                 position: "absolute",
                 right: 16,
                 bottom: 16,
-                zIndex: 1,
+                zIndex: 5000,
             }}
             {...rest}
         >

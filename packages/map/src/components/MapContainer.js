@@ -5,7 +5,14 @@ import PropTypes from "prop-types";
 export default function MapContainer({ children }) {
     const { View } = useComponents();
     return (
-        <View style={{ flex: 1, display: "flex", flexDirection: "row" }}>
+        <View
+            style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "row",
+                position: "relative",
+            }}
+        >
             {children}
         </View>
     );

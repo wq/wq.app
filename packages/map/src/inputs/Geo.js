@@ -52,6 +52,7 @@ export default function Geo({
                 mapId={mapId}
                 containerStyle={{ minHeight: 400 }}
                 context={emptyContext}
+                toolbarAnchor="bottom-right"
             >
                 {children}
                 <Accuracy accuracy={accuracy} data={geojson} />

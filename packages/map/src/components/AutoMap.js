@@ -7,6 +7,7 @@ export default function AutoMap({
     name,
     mapId,
     toolbar = true,
+    toolbarAnchor = "top-right",
     containerStyle,
     context,
     state,
@@ -51,6 +52,7 @@ export default function AutoMap({
                 hideOverlay={hideOverlay}
                 setBasemap={setBasemap}
                 context={context}
+                anchor={toolbarAnchor}
             />
         );
     } else if (!toolbar) {
@@ -59,7 +61,7 @@ export default function AutoMap({
 
     return (
         <MapContainer name={name} mapId={mapId}>
-            {toolbar}
+            {toolbarAnchor.endsWith("left") && toolbar}
             <Map
                 name={name}
                 mapId={mapId}
@@ -94,6 +96,7 @@ export default function AutoMap({
                 {highlight && <Highlight data={highlight} />}
                 {children}
             </Map>
+            {toolbarAnchor.endsWith("right") && toolbar}
         </MapContainer>
     );
 }
@@ -102,6 +105,7 @@ AutoMap.propTypes = {
     name: PropTypes.string,
     mapId: PropTypes.string,
     toolbar: PropTypes.bool,
+    toolbarAnchor: PropTypes.string,
     containerStyle: PropTypes.object,
     context: PropTypes.object,
     state: PropTypes.object,

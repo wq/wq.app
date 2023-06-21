@@ -9,14 +9,10 @@ export default function MapToolbar({
     hideOverlay,
     setBasemap,
     children,
+    anchor,
 }) {
-    const {
-            SidePanel,
-            List,
-            ListSubheader,
-            OverlayToggle,
-            BasemapToggle,
-        } = useComponents(),
+    const { SidePanel, List, ListSubheader, OverlayToggle, BasemapToggle } =
+            useComponents(),
         hasMultipleOverlays =
             overlays &&
             (overlays.length > 1 || overlays.some((conf) => conf.legend)),
@@ -27,7 +23,7 @@ export default function MapToolbar({
     }
 
     return (
-        <SidePanel>
+        <SidePanel anchor={anchor}>
             {children}
             <List dense>
                 {hasMultipleOverlays && (
@@ -76,4 +72,5 @@ MapToolbar.propTypes = {
     hideOverlay: PropTypes.func,
     setBasemap: PropTypes.func,
     children: PropTypes.node,
+    anchor: PropTypes.string,
 };
