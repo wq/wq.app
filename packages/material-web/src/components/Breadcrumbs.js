@@ -19,10 +19,12 @@ export default function Breadcrumbs({ links }) {
 
     return (
         <Paper
-            elevation={0}
+            elevation={2}
             square
             sx={{
                 py: 1,
+                zIndex: 500,
+                borderBottomWidth: 1,
                 borderBottomStyle: "solid",
                 borderBottomColor: "divider",
             }}

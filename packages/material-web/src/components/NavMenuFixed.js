@@ -1,7 +1,7 @@
 import React from "react";
 import { useViewComponents, useRouteInfo } from "@wq/react";
 import { useMinWidth } from "../hooks.js";
-import { Box } from "@mui/material";
+import { Paper } from "@mui/material";
 
 export default function NavMenuFixed() {
     const { NavMenu, Index } = useViewComponents(),
@@ -14,19 +14,19 @@ export default function NavMenuFixed() {
         return null;
     }
     return (
-        <Box
+        <Paper
+            elevation={2}
+            square
             sx={{
                 minWidth: 180,
                 width: "25%",
                 maxWidth: 360,
                 display: "flex",
                 flexDirection: "column",
-                borderRightWidth: 1,
-                borderRightStyle: "solid",
-                borderRightColor: "divider",
+                zIndex: 600,
             }}
         >
             <NavMenu />
-        </Box>
+        </Paper>
     );
 }

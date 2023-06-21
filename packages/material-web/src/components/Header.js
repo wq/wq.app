@@ -11,7 +11,7 @@ export default function Header() {
         [open, setOpen] = useState(false);
     return (
         <>
-            <AppBar position="static">
+            <AppBar position="static" sx={{ zIndex: 500 }}>
                 <Toolbar>
                     {fixedMenu ? (
                         <Logo edge="start" />

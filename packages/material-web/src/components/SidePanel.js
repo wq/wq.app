@@ -52,6 +52,7 @@ export default function SidePanel({
                     borderBottom:
                         mobile && !open && "1px solid rgba(0, 0, 0, 0.12)",
                     position: "relative",
+                    zIndex: 300,
                 },
             }}
         >
