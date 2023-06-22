@@ -1,7 +1,7 @@
 # Licenses
 The [**wq.js**](https://wq.io/wq) bundle includes [**@wq/app**](https://wq.io/@wq/app), [**@wq/map**](https://wq.io/@wq/map), [**@wq/map-gl-web**](https://wq.io/@wq/map-gl), [**@wq/material-web**](https://wq.io/@wq/material), [**@wq/model**](https://wq.io/@wq/model), [**@wq/outbox**](https://wq.io/@wq/outbox), [**@wq/react**](https://wq.io/@wq/react), [**@wq/router**](https://wq.io/@wq/router),  and [**@wq/store**](https://wq.io/@wq/store), under the following MIT License:
 
-> Copyright (c) 2012-2021, S. Andrew Sheppard, https://wq.io/
+> Copyright (c) 2012-2023, S. Andrew Sheppard, https://wq.io/
 > 
 > Permission is hereby granted, free of charge, to any person obtaining a copy of
 > this software and associated documentation files (the "Software"), to deal in
