@@ -7,6 +7,7 @@ import * as formik from "formik";
 import emStyled from "@emotion/styled";
 import * as emReact from "@emotion/react";
 import * as muiUtils from "@mui/utils";
+import * as muiMaterialUtils from "@mui/material/utils";
 import Map, * as reactMapGlExports from "react-map-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
@@ -104,6 +105,7 @@ const modules = {
     "@emotion/styled": emStyled,
     "@emotion/react": emReact,
     "@mui/utils": muiUtils,
+    "@mui/material/utils": muiMaterialUtils,
     "react-map-gl": {
         default: Map,
         ...reactMapGlExports,
