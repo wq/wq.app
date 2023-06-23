@@ -37,6 +37,7 @@ const deps = {
     "@wq/map": "./packages/map/src/index.js",
     "@wq/map-gl": "./packages/map-gl/src/index.js",
     "@wq/map-gl-web": "./packages/map-gl-web/src/index.js",
+    "mui-file-dropzone": "./node_modules/mui-file-dropzone/src/index.ts",
 };
 function resolveId(id) {
     if (id == "maplibre-gl") {
@@ -59,7 +60,13 @@ export default [
 
                     [
                         "babel-plugin-direct-import",
-                        { modules: ["@mui/material", "@mui/icons-material"] },
+                        {
+                            modules: [
+                                "@mui/system",
+                                "@mui/material",
+                                "@mui/icons-material",
+                            ],
+                        },
                     ],
                 ],
                 extensions: [".js", ".ts", ".tsx"],
