@@ -7,7 +7,7 @@ import * as formik from "formik";
 import emStyled from "@emotion/styled";
 import * as emReact from "@emotion/react";
 import * as muiUtils from "@mui/utils";
-import * as muiMaterialUtils from "@mui/material/utils";
+import * as muiMaterialUtils from "@mui/material/utils/index.js";
 import Map, * as reactMapGlExports from "react-map-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 

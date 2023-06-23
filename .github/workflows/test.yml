@@ -49,7 +49,9 @@ jobs:
     - name: Check ESM Imports
       run: |
          echo 'export default "0.0.0";' > version.js
+         sed -i "s/@mui\/material\/utils\/index.js/@mui\/material\/node\/utils\/index.js/" modules.js
          node index.js
+         git checkout modules.js
     - name: Start test server
       run: python -m tests.server &
     - name: Test with Jest
