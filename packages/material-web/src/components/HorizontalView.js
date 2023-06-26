@@ -5,13 +5,14 @@ import PropTypes from "prop-types";
 export default function HorizontalView({ children, ...rest }) {
     return (
         <Box
+            {...rest}
             sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 p: 1,
+                ...rest.sx,
             }}
-            {...rest}
         >
             {children}
         </Box>
