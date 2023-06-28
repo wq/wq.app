@@ -13,12 +13,14 @@ export default {
         login: {
             url: "login",
             show_in_index: "not_authenticated",
+            order: 1000,
             icon: "login",
         },
 
         logout: {
             url: "logout",
             show_in_index: "is_authenticated",
+            order: 1000,
             icon: "logout",
             thunk(dispatch, getState) {
                 if (!getState().auth.user) {

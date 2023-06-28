@@ -52,7 +52,7 @@ export default function reducer(state = {}, action, config) {
                         initBounds: conf.bounds,
                         autoZoom: conf.autoZoom,
                         mapProps: conf.mapProps,
-                        highlight,
+                        highlight: isSameView ? highlight : null,
                         mapId,
                         stickyMaps,
                         activeBasemap,

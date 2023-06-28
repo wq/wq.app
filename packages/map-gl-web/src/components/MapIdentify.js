@@ -1,9 +1,10 @@
 import { useEffect } from "react";
+import { useMapInstance } from "../hooks.js";
 import { usePluginReducer } from "@wq/react";
 
 export default function MapIdentify() {
-    const [{ instance: map, overlays }, { setHighlight }] =
-        usePluginReducer("map");
+    const map = useMapInstance(),
+        [{ overlays }, { setHighlight }] = usePluginReducer("map");
 
     useEffect(() => {
         if (!map || map._alreadyConfiguredHandlers) {

@@ -58,16 +58,25 @@ export default function Select({
         return choiceGroups;
     }, [choices]);
 
-    const Option = native
-        ? ({ value, children }) => <option value={value}>{children}</option>
-        : ({ value, disabled, children, ...rest }) => (
-              <MenuItem value={value} disabled={disabled} {...rest}>
-                  {multiple && (
-                      <ContextCheckbox value={value} field={fieldName} />
-                  )}
-                  <ListItemText primary={children} />
-              </MenuItem>
-          );
+    const Option = useMemo(
+        () =>
+            native
+                ? ({ value, children }) => (
+                      <option value={value}>{children}</option>
+                  )
+                : ({ children, ...rest }) => (
+                      <MenuItem {...rest}>
+                          {multiple && (
+                              <ContextCheckbox
+                                  value={rest["data-value"]}
+                                  field={fieldName}
+                              />
+                          )}
+                          <ListItemText primary={children} />
+                      </MenuItem>
+                  ),
+        [native, multiple, fieldName]
+    );
 
     const renderChoices = (choices) =>
         choices.map(({ name, label }) => (
