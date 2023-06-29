@@ -9,5 +9,5 @@ export function useMapInstance(mapId) {
         mapId = mapState.mapId;
     }
 
-    return mapId ? maps[mapId] : maps.current || maps.default;
+    return (mapId && maps[mapId]) || maps.current || maps.default;
 }

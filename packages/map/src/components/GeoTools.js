@@ -12,7 +12,7 @@ export default function GeoTools({ name, type, mapId }) {
         ),
         { View } = useComponents(),
         { Toggle } = useInputComponents(),
-        singleRow = useMinWidth(480);
+        singleRow = useMinWidth(600);
 
     if (singleRow) {
         return (

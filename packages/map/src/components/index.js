@@ -1,7 +1,7 @@
 import AutoMap from "./AutoMap.js";
 import AutoBasemap from "./AutoBasemap.js";
 import AutoOverlay from "./AutoOverlay.js";
-import HighlightPopup from "./HighlightPopup.js";
+import HighlightPopup, { HighlightContent } from "./HighlightPopup.js";
 import PropertyTable from "./PropertyTable.js";
 import MapProvider from "./MapProvider.js";
 import MapContainer from "./MapContainer.js";
@@ -19,6 +19,7 @@ export {
     AutoBasemap,
     AutoOverlay,
     HighlightPopup,
+    HighlightContent,
     PropertyTable,
     MapProvider,
     MapContainer,

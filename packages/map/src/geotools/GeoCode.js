@@ -57,6 +57,7 @@ export default function GeoCode({ name, type, setLocation }) {
                 name={name + "_address"}
                 label="Address"
                 helperText={geocodeStatus || "Enter address or city name"}
+                style={{ flex: 1 }}
             />
             <IconButton onClick={geocode} icon="search" color="secondary" />
         </>

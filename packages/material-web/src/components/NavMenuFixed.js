@@ -6,7 +6,7 @@ import { Paper } from "@mui/material";
 export default function NavMenuFixed() {
     const { NavMenu, Index } = useViewComponents(),
         { name } = useRouteInfo(),
-        fixedMenu = useMinWidth(480);
+        fixedMenu = useMinWidth(600);
     if (!fixedMenu) {
         return null;
     }

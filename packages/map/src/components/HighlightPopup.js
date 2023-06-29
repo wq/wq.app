@@ -2,10 +2,13 @@ import React from "react";
 import { useComponents, useViewComponents, usePluginReducer } from "@wq/react";
 import PropTypes from "prop-types";
 
-export default function HighlightPopup() {
+export default function HighlightPopup({ inMap }) {
     const { Popup, View, ScrollView, IconButton } = useComponents(),
         [{ highlight }, { clearHighlight }] = usePluginReducer("map"),
         features = (highlight && highlight.features) || [];
+    if (inMap) {
+        return null;
+    }
     return (
         <View style={{ position: "absolute", bottom: 0 }}>
             <Popup
@@ -20,7 +23,7 @@ export default function HighlightPopup() {
                 />
                 <ScrollView style={{ maxHeight: "33vh" }}>
                     {features.map((feature) => (
-                        <PopupContent key={feature.id} feature={feature} />
+                        <HighlightContent key={feature.id} feature={feature} />
                     ))}
                 </ScrollView>
             </Popup>
@@ -28,7 +31,7 @@ export default function HighlightPopup() {
     );
 }
 
-function PopupContent({ feature }) {
+export function HighlightContent({ feature, inMap }) {
     const popupName = feature.popup
             ? `${feature.popup}-popup`
             : "default-popup",
@@ -43,9 +46,10 @@ function PopupContent({ feature }) {
         }
     }
 
-    return <View feature={feature} />;
+    return <View feature={feature} inMap={inMap} />;
 }
 
-PopupContent.propTypes = {
+HighlightContent.propTypes = {
     feature: PropTypes.object,
+    inMap: PropTypes.bool,
 };

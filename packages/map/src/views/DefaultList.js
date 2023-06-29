@@ -16,7 +16,9 @@ export default function DefaultListWithMap() {
                 <MapProvider>
                     <DefaultList />
                     <Divider orientation="vertical" />
-                    <AutoMap mapId={mapId} context={context} />
+                    <AutoMap mapId={mapId} context={context}>
+                        <HighlightPopup inMap />
+                    </AutoMap>
                     <HighlightPopup />
                 </MapProvider>
             );

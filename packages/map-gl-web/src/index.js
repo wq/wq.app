@@ -7,6 +7,7 @@ import {
     MapAutoZoom,
     MapIdentify,
     MapLayers,
+    HighlightPopup,
 } from "./components/index.js";
 
 import { useMapInstance } from "./hooks.js";
@@ -41,6 +42,7 @@ export default {
         MapAutoZoom,
         MapIdentify,
         MapLayers,
+        HighlightPopup,
     },
     basemaps: {
         VectorTile,
@@ -64,6 +66,7 @@ export {
     MapIdentify,
     MapProvider,
     useMapInstance,
+    HighlightPopup,
     VectorTile,
     Tile,
     Geojson,

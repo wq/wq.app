@@ -7,7 +7,7 @@ export default function Header() {
     const title = useSiteTitle(),
         links = useBreadcrumbs(),
         { Logo, Breadcrumbs, IconButton, NavMenuPopup } = useComponents(),
-        fixedMenu = useMinWidth(480),
+        fixedMenu = useMinWidth(600),
         [open, setOpen] = useState(false);
     return (
         <>
