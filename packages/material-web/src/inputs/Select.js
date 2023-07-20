@@ -72,7 +72,13 @@ export default function Select({
                                   field={fieldName}
                               />
                           )}
-                          <ListItemText primary={children} />
+                          <ListItemText
+                              primary={children}
+                              data-value={rest["data-value"]}
+                              primaryTypographyProps={{
+                                  "data-value": rest["data-value"],
+                              }}
+                          />
                       </MenuItem>
                   ),
         [native, multiple, fieldName]
