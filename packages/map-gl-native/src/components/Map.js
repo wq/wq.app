@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { usePlugin } from "@wq/react";
 import PropTypes from "prop-types";
-import MapboxGL from "@rnmapbox/maps";
+import MapLibreGL from "@maplibre/maplibre-react-native";
 import { findBasemapStyle } from "../util.js";
 
 export default function Map({
@@ -17,10 +17,7 @@ export default function Map({
         pitchWithRotate: pitchEnabled = mapProps && mapProps.dragRotate,
     } = mapProps || {};
     useEffect(() => {
-        if (!accessToken) {
-            MapboxGL.setWellKnownTileServer("MapLibre");
-        }
-        MapboxGL.setAccessToken(accessToken);
+        MapLibreGL.setAccessToken(accessToken);
     }, [accessToken]);
 
     const { ready } = usePlugin("map"),
@@ -57,7 +54,7 @@ export default function Map({
     };
 
     return (
-        <MapboxGL.MapView
+        <MapLibreGL.MapView
             styleURL={styleURL}
             styleJSON={styleJSON}
             ref={setMapRef}
@@ -67,13 +64,13 @@ export default function Map({
             logoEnabled={!!accessToken}
             style={containerStyle}
         >
-            <MapboxGL.Camera
+            <MapLibreGL.Camera
                 bounds={fitBounds}
                 ref={setCameraRef}
                 animationDuration={0}
             />
             {children}
-        </MapboxGL.MapView>
+        </MapLibreGL.MapView>
     );
 }
 

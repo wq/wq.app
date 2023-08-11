@@ -32,22 +32,12 @@
     "homepage": "https://wq.io/@wq/map-gl",
     "dependencies": {
         "@turf/circle": "^6.5.0",
-        "@wq/map": "^2.0.0-alpha.0"
+        "@wq/map": "^2.0.0-alpha.1"
     },
     "peerDependencies": {
-        "@rnmapbox/maps": "*",
-        "expo-location": "*"
+        "@maplibre/maplibre-react-native": "*"
     },
     "devDependencies": {
-        "@react-native-async-storage/async-storage": "^1.17.11",
-        "@react-navigation/native": "^6.1.2",
-        "@react-navigation/stack": "^6.3.11",
-        "@rnmapbox/maps": "^10.0.0-beta.64",
-        "@wq/model": "^2.0.0-alpha.0",
-        "@wq/react": "^2.0.0-alpha.0",
-        "@wq/store": "^2.0.0-alpha.0",
-        "expo-location": "^15.0.1",
-        "jest-expo": "^47.0.1",
-        "react-native": "^0.71.0"
+        "@maplibre/maplibre-react-native": "https://github.com/maplibre/maplibre-react-native/archive/a2b72b6.tar.gz"
     }
 }
