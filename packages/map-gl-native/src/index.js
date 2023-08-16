@@ -2,11 +2,14 @@ import map from "@wq/map";
 
 import {
     Map,
+    MapProvider,
     MapInteraction,
     MapAutoZoom,
     MapIdentify,
     MapLayers,
 } from "./components/index.js";
+
+import { useMapInstance } from "./hooks.js";
 
 import { VectorTile, Tile } from "./basemaps/index.js";
 
@@ -26,6 +29,8 @@ export default {
     dependencies: [map],
     components: {
         Map,
+        MapProvider,
+        useMapInstance,
         MapInteraction,
         MapAutoZoom,
         MapIdentify,
@@ -51,6 +56,8 @@ export {
     MapInteraction,
     MapAutoZoom,
     MapIdentify,
+    MapProvider,
+    useMapInstance,
     VectorTile,
     Tile,
     Geojson,

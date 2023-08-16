@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo } from "react";
-import { usePlugin } from "@wq/react";
+import React, { useEffect, useMemo, useContext } from "react";
 import PropTypes from "prop-types";
 import MapLibreGL from "@maplibre/maplibre-react-native";
 import { findBasemapStyle } from "../util.js";
+import { MapContext } from "./MapProvider.js";
 
 export default function Map({
     name,
@@ -20,7 +20,7 @@ export default function Map({
         MapLibreGL.setAccessToken(accessToken);
     }, [accessToken]);
 
-    const { ready } = usePlugin("map"),
+    const { setInstance } = useContext(MapContext),
         fitBounds = useMemo(() => {
             const [[xmin, ymin], [xmax, ymax]] = initBounds;
             return { sw: [xmin, ymin], ne: [xmax, ymax] };
@@ -36,7 +36,7 @@ export default function Map({
                 ref.camera = cameraRef.current;
             }
             if (ref) {
-                ready(ref, name);
+                setInstance(ref, name);
             }
         }, []),
         cameraRef = React.useRef(),

@@ -3,8 +3,7 @@
     "version": "2.0.0-alpha.0",
     "description": "React Native & Expo bindings for @wq/map-gl",
     "type": "module",
-    "main": "index.js",
-    "react-native": "src/index.js",
+    "main": "src/index.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/map-gl-native -- --config packages/map-gl-native/jest.config.js --moduleDirectories node_modules packages/map-gl-native/node_modules",
         "build": "npm run prettier",
