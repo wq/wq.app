@@ -13,6 +13,7 @@ import OverlayToggle from "./OverlayToggle.js";
 import Legend from "./Legend.js";
 import LegendIcon from "./LegendIcon.js";
 import GeoTools from "./GeoTools.js";
+import GeoHelpIcon from "./GeoHelpIcon.js";
 
 export {
     AutoMap,
@@ -31,4 +32,5 @@ export {
     Legend,
     LegendIcon,
     GeoTools,
+    GeoHelpIcon,
 };

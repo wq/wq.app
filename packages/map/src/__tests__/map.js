@@ -22,14 +22,14 @@ const store = createStore(
         },
         routeInfo(state = {}, action) {
             if (action.type === "RENDER") {
-                return action.payload.router_info;
+                return { "@@CURRENT": action.payload.router_info };
             } else {
                 return state;
             }
         },
         context(state = {}, action) {
             if (action.type === "RENDER") {
-                return action.payload;
+                return { "@@CURRENT": action.payload };
             } else {
                 return state;
             }
@@ -50,6 +50,11 @@ const mockApp = {
         _store: store,
         ajax: () => {
             return Promise.resolve(geojson);
+        },
+    },
+    router: {
+        getRouteInfo(context, routeInfo) {
+            return context.router_info || routeInfo;
         },
     },
     plugins: { map, defaultRegistry },
@@ -78,6 +83,7 @@ function routeWithPath(routeInfo) {
         path = `${path}/${item_id}/${mode}`;
     }
     return {
+        name: page,
         page,
         mode,
         item_id,
@@ -484,55 +490,60 @@ test("toggle layers", async () => {
     setRouteInfo({
         page: "multilayer",
     });
-    expect(store.getState().map).toEqual({
-        basemaps: [
-            {
-                name: "Basemap 1",
-                type: "tile",
-                url: "http://example.org/street/{z}/{x}/{y}.png",
-                active: true,
+    const { routes, ...currentMapState } = store.getState().map,
+        expectedMapState = {
+            routeName: "multilayer",
+            basemaps: [
+                {
+                    name: "Basemap 1",
+                    type: "tile",
+                    url: "http://example.org/street/{z}/{x}/{y}.png",
+                    active: true,
+                },
+                {
+                    name: "Basemap 2",
+                    url: "http://example.org/aerial/{z}/{x}/{y}.png",
+                    type: "tile",
+                    active: false,
+                },
+            ],
+            overlays: [
+                {
+                    name: "Layer 1",
+                    type: "geojson",
+                    url: "layer1.geojson",
+                    active: true,
+                },
+                {
+                    name: "Layer 2",
+                    type: "geojson",
+                    url: "layer2.geojson",
+                    active: true,
+                },
+                {
+                    name: "Layer 3",
+                    type: "geojson",
+                    url: "layer3.geojson",
+                    active: false,
+                },
+            ],
+            viewState: null,
+            initBounds: [
+                [-4, -4],
+                [4, 4],
+            ],
+            autoZoom: {
+                wait: 0.5,
+                maxZoom: 13,
+                animate: true,
             },
-            {
-                name: "Basemap 2",
-                url: "http://example.org/aerial/{z}/{x}/{y}.png",
-                type: "tile",
-                active: false,
-            },
-        ],
-        overlays: [
-            {
-                name: "Layer 1",
-                type: "geojson",
-                url: "layer1.geojson",
-                active: true,
-            },
-            {
-                name: "Layer 2",
-                type: "geojson",
-                url: "layer2.geojson",
-                active: true,
-            },
-            {
-                name: "Layer 3",
-                type: "geojson",
-                url: "layer3.geojson",
-                active: false,
-            },
-        ],
-        viewState: null,
-        initBounds: [
-            [-4, -4],
-            [4, 4],
-        ],
-        autoZoom: {
-            wait: 0.5,
-            maxZoom: 13,
-            animate: true,
-        },
-        mapProps: undefined,
-        mapId: undefined,
-        highlight: null,
-    });
+            mapProps: undefined,
+            mapId: undefined,
+            highlight: null,
+        };
+
+    expect(currentMapState).toEqual(expectedMapState);
+    expect(routes.multilayer).toEqual(expectedMapState);
 
     map.setBasemap("Basemap 2");
     expect(store.getState().map.basemaps).toEqual([

@@ -11,6 +11,7 @@ import {
     asGeometry,
     asFeatureCollection,
     computeBounds,
+    useGeolocation,
 } from "./hooks.js";
 import {
     AutoMap,
@@ -42,6 +43,7 @@ export {
     asGeometry,
     asFeatureCollection,
     computeBounds,
+    useGeolocation,
     AutoMap,
     AutoBasemap,
     AutoOverlay,

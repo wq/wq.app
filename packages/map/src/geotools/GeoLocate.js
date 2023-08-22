@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useComponents } from "@wq/react";
-import geolocation from "./geolocation.js";
 import PropTypes from "prop-types";
 
 export default function GeoLocate({ type, setLocation }) {
-    const { Button, Typography } = useComponents(),
+    const { Button, Typography, useGeolocation } = useComponents(),
+        geolocation = useGeolocation(),
         [gpsStatus, setGpsStatus] = useState(""),
         gpsWatch = useRef();
 

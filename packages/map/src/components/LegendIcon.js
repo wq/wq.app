@@ -1,14 +1,10 @@
 import React from "react";
+import { useComponents } from "@wq/react";
 import PropTypes from "prop-types";
 
 export default function LegendIcon({ name, label }) {
-    return (
-        <img
-            src={name}
-            alt={label}
-            style={{ display: "block", margin: "auto" }}
-        />
-    );
+    const { Img } = useComponents();
+    return <Img src={name} alt={label} />;
 }
 
 LegendIcon.propTypes = {

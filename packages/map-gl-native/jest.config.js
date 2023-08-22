@@ -1,5 +1,5 @@
 export default {
-    preset: "react-native",
+    preset: "jest-expo",
     setupFiles: [
         "./node_modules/@maplibre/maplibre-react-native/setup-jest.js",
         "./setup-jest.js",

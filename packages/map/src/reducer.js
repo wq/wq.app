@@ -29,14 +29,21 @@ export default function reducer(state = {}, action, config) {
                     );
                 _lastRouteInfo = routeInfo;
                 let nextState = {};
-                const { stickyMaps, activeBasemap, activeOverlays } = state;
+                const { routes, stickyMaps, activeBasemap, activeOverlays } =
+                    state;
                 if (!conf) {
-                    nextState = { stickyMaps, activeBasemap, activeOverlays };
+                    nextState = {
+                        routes,
+                        stickyMaps,
+                        activeBasemap,
+                        activeOverlays,
+                    };
                 } else {
                     const { mapId } = conf,
                         { highlight = null, viewState = null } =
                             (mapId && stickyMaps && stickyMaps[mapId]) || {};
                     nextState = {
+                        routeName: routeInfo.name,
                         basemaps: reduceBasemaps(
                             state.basemaps,
                             conf.basemaps,
@@ -54,6 +61,7 @@ export default function reducer(state = {}, action, config) {
                         mapProps: conf.mapProps,
                         highlight: isSameView ? highlight : null,
                         mapId,
+                        routes,
                         stickyMaps,
                         activeBasemap,
                         activeOverlays,
@@ -66,13 +74,13 @@ export default function reducer(state = {}, action, config) {
                         }
                     }
                 );
-                return nextState;
+                return reduceMapState(nextState);
             }
         }
         case MAP_SET_VIEW_STATE:
             return reduceMapState({ ...state, viewState: action.payload });
         case MAP_SHOW_OVERLAY:
-            return {
+            return reduceMapState({
                 ...state,
                 activeOverlays: {
                     ...state.activeOverlays,
@@ -87,9 +95,9 @@ export default function reducer(state = {}, action, config) {
                             return overlay;
                         }
                     }),
-            };
+            });
         case MAP_HIDE_OVERLAY:
-            return {
+            return reduceMapState({
                 ...state,
                 activeOverlays: {
                     ...state.activeOverlays,
@@ -104,9 +112,9 @@ export default function reducer(state = {}, action, config) {
                             return overlay;
                         }
                     }),
-            };
+            });
         case MAP_SET_BASEMAP:
-            return {
+            return reduceMapState({
                 ...state,
                 activeBasemap: action.payload,
                 basemaps:
@@ -120,7 +128,7 @@ export default function reducer(state = {}, action, config) {
                             return basemap;
                         }
                     }),
-            };
+            });
         case MAP_SET_HIGHLIGHT:
             return reduceMapState({
                 ...state,
@@ -290,17 +298,45 @@ function checkEmpty(geojson) {
 }
 
 function reduceMapState(state) {
-    const { mapId, highlight, viewState } = state;
+    const {
+        routeName,
+        basemaps,
+        overlays,
+        viewState,
+        initBounds,
+        autoZoom,
+        mapProps,
+        highlight,
+        mapId,
+    } = state;
+
+    state = {
+        ...state,
+        routes: {
+            ...state.routes,
+            [routeName]: {
+                routeName,
+                basemaps,
+                overlays,
+                viewState,
+                initBounds,
+                autoZoom,
+                mapProps,
+                highlight,
+                mapId,
+            },
+        },
+    };
+
     if (mapId) {
-        const stickyMaps = state.stickyMaps || {};
-        return {
+        state = {
             ...state,
             stickyMaps: {
-                ...stickyMaps,
+                ...state.stickyMaps,
                 [mapId]: { highlight, viewState },
             },
         };
-    } else {
-        return state;
     }
+
+    return state;
 }

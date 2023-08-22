@@ -11,8 +11,16 @@ export default function OverlayToggle({ name, legend, active, setActive }) {
             disableGutters
             style={{ alignItems: "start" }}
             onClick={() => setActive(!active)}
-            icon={() => <Switch color="primary" checked={active} />}
-            description={active && legend ? <Legend legend={legend} /> : null}
+            icon={() => (
+                <Switch
+                    color="primary"
+                    checked={active}
+                    onValueChange={setActive}
+                />
+            )}
+            description={
+                active && legend ? () => <Legend legend={legend} /> : null
+            }
         >
             {name}
         </ListItem>

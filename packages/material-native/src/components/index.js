@@ -1,5 +1,7 @@
 import Container from "./Container.js";
 import Header from "./Header.js";
+import NavMenuPopup from "./NavMenuPopup.js";
+import NavMenuFixed from "./NavMenuFixed.js";
 import Main from "./Main.js";
 import Footer from "./Footer.js";
 import FooterContent from "./FooterContent.js";
@@ -7,6 +9,7 @@ import View from "./View.js";
 import ScrollView from "./ScrollView.js";
 import HorizontalView from "./HorizontalView.js";
 import Text from "./Text.js";
+import Img from "./Img.js";
 import Typography from "./Typography.js";
 import FormatJson from "./FormatJson.js";
 
@@ -16,6 +19,10 @@ import ButtonLink from "./ButtonLink.js";
 import HomeLink from "./HomeLink.js";
 import IconButton from "./IconButton.js";
 import Fab from "./Fab.js";
+import TabGroup from "./TabGroup.js";
+import TabItem from "./TabItem.js";
+import BottomNavigation from "./BottomNavigation.js";
+import BottomNavigationAction from "./BottomNavigationAction.js";
 import Chip from "./Chip.js";
 import Switch from "./Switch.js";
 import CheckboxButton from "./CheckboxButton.js";
@@ -25,7 +32,7 @@ import List from "./List.js";
 import ListItem from "./ListItem.js";
 import ListItemLink from "./ListItemLink.js";
 import ListSubheader from "./ListSubheader.js";
-import ExpansionPanel from "./ExpansionPanel.js";
+import Accordion from "./Accordion.js";
 import ExpandableListItem from "./ExpandableListItem.js";
 import Divider from "./Divider.js";
 
@@ -58,6 +65,8 @@ import Pagination from "./Pagination.js";
 export {
     Container,
     Header,
+    NavMenuPopup,
+    NavMenuFixed,
     Main,
     Footer,
     FooterContent,
@@ -65,6 +74,7 @@ export {
     ScrollView,
     HorizontalView,
     Text,
+    Img,
     Typography,
     FormatJson,
 };
@@ -76,6 +86,10 @@ export {
     HomeLink,
     IconButton,
     Fab,
+    TabGroup,
+    TabItem,
+    BottomNavigation,
+    BottomNavigationAction,
     Chip,
     Switch,
     CheckboxButton,
@@ -87,7 +101,8 @@ export {
     ListItem,
     ListItemLink,
     ListSubheader,
-    ExpansionPanel,
+    Accordion,
+    Accordion as ExpansionPanel,
     ExpandableListItem,
     Divider,
 };

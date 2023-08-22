@@ -3,7 +3,7 @@ import { useConfig, useComponents } from "../hooks.js";
 
 export default function Logo({ edge }) {
     const { logo, site_title } = useConfig(),
-        { Image } = useComponents();
+        { Img } = useComponents();
 
     if (!logo) {
         return null;
@@ -16,5 +16,5 @@ export default function Logo({ edge }) {
         style.marginLeft = 16;
         style.marginRight = -12;
     }
-    return <Image src={logo} style={style} alt={site_title} />;
+    return <Img src={logo} style={style} alt={site_title} />;
 }

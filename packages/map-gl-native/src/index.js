@@ -7,9 +7,10 @@ import {
     MapAutoZoom,
     MapIdentify,
     MapLayers,
+    GeoHelpIcon,
 } from "./components/index.js";
 
-import { useMapInstance } from "./hooks.js";
+import { useMapInstance, useGeolocation } from "./hooks.js";
 
 import { VectorTile, Tile } from "./basemaps/index.js";
 
@@ -35,6 +36,8 @@ export default {
         MapAutoZoom,
         MapIdentify,
         MapLayers,
+        GeoHelpIcon,
+        useGeolocation,
     },
     basemaps: {
         VectorTile,
@@ -57,7 +60,9 @@ export {
     MapAutoZoom,
     MapIdentify,
     MapProvider,
+    GeoHelpIcon,
     useMapInstance,
+    useGeolocation,
     VectorTile,
     Tile,
     Geojson,

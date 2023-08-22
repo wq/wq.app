@@ -1,9 +1,5 @@
 export default {
-    preset: "react-native",
-    setupFiles: [
-        "./node_modules/react-native-gesture-handler/jestSetup.js",
-        "./setup-jest.js",
-    ],
+    preset: "jest-expo",
     testMatch: ["**/__tests__/**/*.js?(x)"],
     transformIgnorePatterns: [],
 };

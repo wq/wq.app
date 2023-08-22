@@ -7,6 +7,7 @@ import {
     MapAutoZoom,
     MapIdentify,
     MapLayers,
+    GeoHelpIcon,
     HighlightPopup,
 } from "./components/index.js";
 
@@ -42,6 +43,7 @@ export default {
         MapAutoZoom,
         MapIdentify,
         MapLayers,
+        GeoHelpIcon,
         HighlightPopup,
     },
     basemaps: {
@@ -66,6 +68,7 @@ export {
     MapIdentify,
     MapProvider,
     useMapInstance,
+    GeoHelpIcon,
     HighlightPopup,
     VectorTile,
     Tile,

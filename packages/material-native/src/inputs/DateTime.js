@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { TouchableRipple, TextInput } from "react-native-paper";
 import { useField } from "formik";
-import PropTypes from "prop-types";
 import { format, parse } from "./date-utils.js";
+import HelperText from "./HelperText.js";
+import PropTypes from "prop-types";
 
 const displayFormat = {
     date: (value) => parse.date(value).toLocaleDateString(),
@@ -12,7 +13,7 @@ const displayFormat = {
     datetime: (value) => parse.datetime(value).toLocaleString(),
 };
 
-export default function DateTime({ name, type, label }) {
+export default function DateTime({ name, type, label, hint }) {
     type = type.toLowerCase();
 
     const [, meta, helpers] = useField(name),
@@ -33,7 +34,7 @@ export default function DateTime({ name, type, label }) {
     }
 
     return (
-        <>
+        <View>
             <TextInput
                 label={label}
                 value={value ? displayFormat[type](value) : ""}
@@ -43,6 +44,7 @@ export default function DateTime({ name, type, label }) {
                     </TouchableRipple>
                 )}
             />
+            <HelperText name={name} hint={hint} />
             <DateTimePickerModal
                 isVisible={show}
                 mode={type}
@@ -50,7 +52,7 @@ export default function DateTime({ name, type, label }) {
                 onConfirm={onConfirm}
                 onCancel={hidePicker}
             />
-        </>
+        </View>
     );
 }
 
@@ -58,4 +60,5 @@ DateTime.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     label: PropTypes.string,
+    hint: PropTypes.string,
 };

@@ -11,7 +11,6 @@ export default function Fab({ icon, to, ...rest }) {
         <FAB
             onPress={onPress}
             icon={Icon}
-            color="white"
             style={{
                 position: "absolute",
                 margin: 16,

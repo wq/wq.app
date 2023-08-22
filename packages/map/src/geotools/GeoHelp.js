@@ -1,12 +1,11 @@
 import React from "react";
 import { useComponents, useMessages } from "@wq/react";
 import { TYPE_MAP } from "../hooks.js";
-import GeoHelpIcon from "./GeoHelpIcon.js";
 import PropTypes from "prop-types";
 
 export default function GeoHelp({ value, type }) {
     const drawType = TYPE_MAP[type] || type,
-        { Typography } = useComponents(),
+        { Typography, GeoHelpIcon } = useComponents(),
         messageId = `GEO_${drawType.toUpperCase()}_${value ? "EDIT" : "NEW"}`,
         { [messageId]: messageTemplate } = useMessages(),
         message = [];

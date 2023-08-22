@@ -10,7 +10,7 @@ import View from "./View.js";
 import ScrollView from "./ScrollView.js";
 import HorizontalView from "./HorizontalView.js";
 import Text from "./Text.js";
-import Image from "./Image.js";
+import Img from "./Img.js";
 import Typography from "./Typography.js";
 import FormatJson from "./FormatJson.js";
 
@@ -87,7 +87,7 @@ export {
     ScrollView,
     HorizontalView,
     Text,
-    Image,
+    Img,
     Typography,
     FormatJson,
 };

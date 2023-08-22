@@ -22,6 +22,7 @@ export default function Geo({
     const {
             Fieldset: DefaultFieldset,
             FlatFieldset,
+            MapProvider,
             AutoMap,
             GeoTools,
         } = useComponents(),
@@ -45,27 +46,29 @@ export default function Geo({
     }
 
     return (
-        <Fieldset label={label}>
-            <GeoTools name={name} type={type} mapId={mapId} />
-            <AutoMap
-                name={name}
-                mapId={mapId}
-                containerStyle={{ minHeight: 400 }}
-                context={emptyContext}
-                toolbarAnchor="bottom-right"
-            >
-                {children}
-                <Accuracy accuracy={accuracy} data={geojson} />
-                <Draw
+        <MapProvider>
+            <Fieldset label={label}>
+                <GeoTools name={name} type={type} mapId={mapId} />
+                <AutoMap
                     name={name}
-                    type={drawType}
-                    required={required}
-                    data={geojson}
-                    setData={handleChange}
-                />
-            </AutoMap>
-            <HelperText name={name} hint={hint} />
-        </Fieldset>
+                    mapId={mapId}
+                    containerStyle={{ minHeight: 400 }}
+                    context={emptyContext}
+                    toolbarAnchor="bottom-right"
+                >
+                    {children}
+                    <Accuracy accuracy={accuracy} data={geojson} />
+                    <Draw
+                        name={name}
+                        type={drawType}
+                        required={required}
+                        data={geojson}
+                        setData={handleChange}
+                    />
+                </AutoMap>
+                <HelperText name={name} hint={hint} />
+            </Fieldset>
+        </MapProvider>
     );
 }
 

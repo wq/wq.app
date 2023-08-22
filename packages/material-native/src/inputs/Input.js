@@ -1,7 +1,9 @@
 import React from "react";
+import { View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { useField } from "formik";
 import { useHtmlInput } from "@wq/react";
+import HelperText from "./HelperText.js";
 import PropTypes from "prop-types";
 
 const keyboards = {
@@ -12,7 +14,7 @@ const keyboards = {
 };
 
 export default function Input(props) {
-    const { name, type, label, style, min, max } = props,
+    const { name, type, label, hint, style, min, max } = props,
         { maxLength } = useHtmlInput(props),
         [, meta, helpers] = useField(name),
         { value } = meta,
@@ -49,16 +51,19 @@ export default function Input(props) {
     }
 
     return (
-        <TextInput
-            label={label}
-            multiline={type === "text"}
-            keyboardType={keyboards[type] || "default"}
-            maxLength={maxLength}
-            onChangeText={handleChange}
-            onBlur={() => setTouched(true)}
-            value={formatValue}
-            style={style}
-        />
+        <View style={{ flex: (style || {}).flex }}>
+            <TextInput
+                label={label}
+                multiline={type === "text"}
+                keyboardType={keyboards[type] || "default"}
+                maxLength={maxLength}
+                onChangeText={handleChange}
+                onBlur={() => setTouched(true)}
+                value={formatValue}
+                style={style}
+            />
+            <HelperText name={name} hint={hint} />
+        </View>
     );
 }
 
@@ -66,6 +71,7 @@ Input.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     label: PropTypes.string,
+    hint: PropTypes.string,
     style: PropTypes.object,
     min: PropTypes.number,
     max: PropTypes.number,

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useMapInstance } from "@wq/map";
+import { useMapInstance } from "../hooks.js";
 import Geojson from "./Geojson.js";
 import PropTypes from "prop-types";
 

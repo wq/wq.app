@@ -50,6 +50,15 @@ const Value = ({ values, field }) => {
     }
 };
 
+const isInteractive = (values, field) => {
+    const result = Value({ values, field });
+    if (typeof result !== "string") {
+        return true;
+    } else {
+        return false;
+    }
+};
+
 export default function PropertyTable({ form, values }) {
     const { Table, TableBody, TableRow, TableCell } = useComponents(),
         rootFieldset = form.find(
@@ -66,7 +75,7 @@ export default function PropertyTable({ form, values }) {
                 {fields.map((field) => (
                     <TableRow key={field.name}>
                         <TableCell>{field.label || field.name}</TableCell>
-                        <TableCell>
+                        <TableCell interactive={isInteractive(values, field)}>
                             <Value values={values} field={field} />
                         </TableCell>
                     </TableRow>

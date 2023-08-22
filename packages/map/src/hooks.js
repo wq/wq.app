@@ -115,9 +115,11 @@ export function useMapConfig() {
 }
 
 export function useMapState() {
-    const state = usePluginState("map");
-    if (state && state.basemaps && state.overlays) {
-        return state;
+    const state = usePluginState("map"),
+        routeName = useRouteInfo().name,
+        routeState = state && state.routes && state.routes[routeName];
+    if (routeState) {
+        return routeState;
     } else {
         return null;
     }
@@ -203,6 +205,9 @@ export function routeMapConf(config, routeInfo, context = {}) {
     }
     if (!mapconf.url) {
         mapconf.url = conf.url;
+    }
+    if (!mapconf.layers) {
+        mapconf.layers = [];
     }
 
     // Compute default layer configuration for wq REST API
@@ -553,4 +558,21 @@ export function computeBounds(features) {
     } else {
         return null;
     }
+}
+
+export function useGeolocation() {
+    return {
+        supported:
+            typeof navigator !== "undefined" && "geolocation" in navigator,
+        watchPosition(onPosition, onError, options) {
+            return navigator.geolocation.watchPosition(
+                onPosition,
+                onError,
+                options
+            );
+        },
+        clearWatch(watchId) {
+            return navigator.geolocation.clearWatch(watchId);
+        },
+    };
 }

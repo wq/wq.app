@@ -15,6 +15,7 @@ export default function BasemapToggle({ name, active, setActive }) {
                     style={{ marginLeft: 9 }}
                     color="primary"
                     checked={active}
+                    onPress={setActive}
                 />
             )}
         >

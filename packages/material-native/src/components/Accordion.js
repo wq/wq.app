@@ -2,7 +2,7 @@ import React from "react";
 import { List } from "react-native-paper";
 import PropTypes from "prop-types";
 
-export default function ExpansionPanel({ summary, children, open, onToggle }) {
+export default function Accordion({ summary, children, open, onToggle }) {
     let handleToggle;
     if (onToggle) {
         handleToggle = () => onToggle(!open);
@@ -14,7 +14,7 @@ export default function ExpansionPanel({ summary, children, open, onToggle }) {
     );
 }
 
-ExpansionPanel.propTypes = {
+Accordion.propTypes = {
     summary: PropTypes.node,
     children: PropTypes.node,
     open: PropTypes.bool,

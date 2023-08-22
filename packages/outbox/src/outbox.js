@@ -454,6 +454,9 @@ class Outbox {
                     blob = slice.call(blob, 0, blob.size, val.type);
                 }
                 formData.append(key, blob, val.name);
+            } else if (val && val.name && val.type && val.uri) {
+                // React native
+                formData.append(key, val);
             } else {
                 // Add regular form fields
                 formData.append(key, val);

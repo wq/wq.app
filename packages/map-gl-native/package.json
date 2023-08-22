@@ -34,9 +34,14 @@
         "@wq/map": "^2.0.0-alpha.1"
     },
     "peerDependencies": {
-        "@maplibre/maplibre-react-native": "*"
+        "@maplibre/maplibre-react-native": "*",
+        "expo-location": "*",
+        "react-native-paper": "*"
     },
     "devDependencies": {
-        "@maplibre/maplibre-react-native": "https://github.com/maplibre/maplibre-react-native/archive/a2b72b6.tar.gz"
+        "@maplibre/maplibre-react-native": "github:maplibre/maplibre-react-native#a2b72b6",
+        "expo-location": "^16.1.0",
+        "jest-expo": "^49.0.0",
+        "react-native-paper": "^5.10.3"
     }
 }

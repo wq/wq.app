@@ -12,7 +12,3 @@ for (const name of ["MGLLogging", "MGLOfflineModule", "MGLLocationModule"]) {
         module.removeListeners = jest.fn();
     }
 }
-
-if (!NativeModules.PlatformLocalStorage) {
-    NativeModules.PlatformLocalStorage = {};
-}

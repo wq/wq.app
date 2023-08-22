@@ -138,7 +138,7 @@ function checkForFiles(values) {
     if (!values || typeof values !== "object") {
         return false;
     }
-    if (values.name && values.type && values.body) {
+    if (values.name && values.type && (values.body || values.uri)) {
         return true;
     }
     if (Array.isArray(values)) {

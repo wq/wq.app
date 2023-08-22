@@ -14,7 +14,9 @@ import {
     Legend,
     LegendIcon,
     GeoTools,
+    GeoHelpIcon,
 } from "./components/index.js";
+import { useGeolocation } from "./hooks.js";
 import { Geo } from "./inputs/index.js";
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index.js";
 import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index.js";
@@ -122,6 +124,8 @@ const map = {
         Legend,
         LegendIcon,
         GeoTools,
+        GeoHelpIcon,
+        useGeolocation,
     },
     inputs: {
         Geo,

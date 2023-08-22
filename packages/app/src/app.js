@@ -1025,7 +1025,7 @@ app.submitForm = async function ({
         options.storage = storage;
     } else if (!backgroundSync) {
         options.storage = "temporary";
-    } else if (has_files) {
+    } else if (has_files && navigator.product !== "ReactNative") {
         options.storage = "store";
     }
 
@@ -1137,7 +1137,7 @@ function _flattenJson(value, prefix = "") {
 }
 
 function _isFile(val) {
-    return val && val.type && val.name && val.body;
+    return val && val.type && val.name && (val.body || val.uri);
 }
 
 function _isGeometry(val) {

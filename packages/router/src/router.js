@@ -362,9 +362,11 @@ router.getRouteInfo = function (context, routeInfo) {
             return ctxRouteInfo;
         }
     } else {
-        return { pending: true };
+        return NO_ROUTE_INFO;
     }
 };
+
+const NO_ROUTE_INFO = { pending: true };
 
 router.getContextTitle = function (context, routeInfo) {
     var title;
