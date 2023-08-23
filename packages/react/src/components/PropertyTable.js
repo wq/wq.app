@@ -52,7 +52,7 @@ const Value = ({ values, field }) => {
 
 const isInteractive = (values, field) => {
     const result = Value({ values, field });
-    if (typeof result !== "string") {
+    if (result && typeof result !== "string") {
         return true;
     } else {
         return false;

@@ -19,11 +19,16 @@ export default function Img({ src, onPress, onClick, style, ...props }) {
 
     let resizeMode;
     if (
+        style &&
         typeof style.maxHeight === "number" &&
-        typeof style.maxWidth === "string"
+        typeof style.maxWidth === "string" &&
+        style.maxWidth.endsWith("vw")
     ) {
         resizeMode = "contain";
-        const ratio = source ? source.width / source.height : 1,
+        const ratio =
+                source && source.width && source.height
+                    ? source.width / source.height
+                    : 1,
             maxWidth =
                 (+style.maxWidth.replace(/vw/g, "") / 100) *
                 Dimensions.get("window").width;
@@ -35,6 +40,7 @@ export default function Img({ src, onPress, onClick, style, ...props }) {
             width: Math.min(ratio * style.maxHeight, maxWidth),
         };
     } else if (
+        style &&
         typeof style.maxHeight === "string" &&
         typeof style.maxWidth === "string"
     ) {
@@ -49,12 +55,11 @@ export default function Img({ src, onPress, onClick, style, ...props }) {
     }
 
     const hasSize =
-        (source && source.width && source.height) ||
+        (source && (source === src || (source.width && source.height))) ||
         props.width ||
         props.height ||
-        style.width ||
-        style.height;
-
+        (style && style.width) ||
+        (style && style.height);
     if (src && !hasSize) {
         return null;
     } else if (onPress || onClick) {
@@ -88,7 +93,7 @@ export default function Img({ src, onPress, onClick, style, ...props }) {
 }
 
 Img.propTypes = {
-    src: PropTypes.string,
+    src: PropTypes.oneOfType(PropTypes.string, PropTypes.number),
     width: PropTypes.number,
     height: PropTypes.number,
     onPress: PropTypes.func,
