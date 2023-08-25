@@ -1,6 +1,6 @@
 {
     "name": "@wq/material-web",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0-alpha.2",
     "description": "Web bindings for @wq/material",
     "type": "module",
     "main": "index.js",
@@ -33,7 +33,7 @@
         "@emotion/styled": "^11.11.0",
         "@mui/icons-material": "^5.11.16",
         "@mui/material": "^5.13.5",
-        "@wq/react": "^2.0.0-alpha.1",
+        "@wq/react": "^2.0.0-alpha.2",
         "date-fns": "^2.30.0",
         "formik-mui": "^5.0.0-alpha.0",
         "mui-file-dropzone": "^4.0.2"

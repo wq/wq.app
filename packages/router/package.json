@@ -1,6 +1,6 @@
 {
     "name": "@wq/router",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0-alpha.2",
     "description": "Respond to URL changes with locally generated pages and custom events",
     "type": "module",
     "main": "index.js",

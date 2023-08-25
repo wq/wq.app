@@ -1,6 +1,6 @@
 {
     "name": "@wq/map",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0-alpha.2",
     "description": "GIS integration for @wq/app pages",
     "type": "module",
     "main": "index.js",
@@ -30,11 +30,11 @@
     "homepage": "https://wq.io/@wq/map",
     "dependencies": {
         "@wq/material": "^2.0.0-alpha.1",
-        "@wq/react": "^2.0.0-alpha.1",
+        "@wq/react": "^2.0.0-alpha.2",
         "mustache": "^4.2.0"
     },
     "devDependencies": {
-        "@wq/material-web": "^2.0.0-alpha.1",
+        "@wq/material-web": "^2.0.0-alpha.2",
         "@wq/model": "^2.0.0-alpha.1",
         "@wq/store": "^2.0.0-alpha.1"
     }

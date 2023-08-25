@@ -28,6 +28,6 @@
     },
     "homepage": "https://wq.io/@wq/material",
     "devDependencies": {
-        "@wq/material-web": "^2.0.0-alpha.1"
+        "@wq/material-web": "^2.0.0-alpha.2"
     }
 }

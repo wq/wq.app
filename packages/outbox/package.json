@@ -1,6 +1,6 @@
 {
     "name": "@wq/outbox",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0-alpha.3",
     "description": "A simple model API for working with stored lists",
     "type": "module",
     "main": "index.js",
@@ -33,6 +33,6 @@
         "redux-persist": "^6.0.0"
     },
     "devDependencies": {
-        "@wq/router": "^2.0.0-alpha.1"
+        "@wq/router": "^2.0.0-alpha.2"
     }
 }

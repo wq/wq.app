@@ -31,10 +31,10 @@
     },
     "homepage": "https://wq.io/@wq/map-gl",
     "devDependencies": {
-        "@wq/map-gl-web": "^2.0.0-alpha.1",
-        "@wq/material-web": "^2.0.0-alpha.1",
+        "@wq/map-gl-web": "^2.0.0-alpha.2",
+        "@wq/material-web": "^2.0.0-alpha.2",
         "@wq/model": "^2.0.0-alpha.1",
-        "@wq/react": "^2.0.0-alpha.1",
+        "@wq/react": "^2.0.0-alpha.2",
         "@wq/store": "^2.0.0-alpha.1"
     }
 }

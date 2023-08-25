@@ -1029,15 +1029,7 @@ class Outbox {
             });
         }
         item.data = convert(values);
-        for (key in item.data) {
-            if (Array.isArray(item.data[key])) {
-                item.data[key].forEach((row, i) => {
-                    if (typeof row === "object") {
-                        row["@index"] = i;
-                    }
-                });
-            }
-        }
+
         return item;
     }
 

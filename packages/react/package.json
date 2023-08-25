@@ -1,6 +1,6 @@
 {
     "name": "@wq/react",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0-alpha.2",
     "description": "React renderer for use with @wq/app",
     "type": "module",
     "main": "index.js",
@@ -30,7 +30,7 @@
     "homepage": "https://wq.io/@wq/react",
     "dependencies": {
         "@wq/model": "^2.0.0-alpha.1",
-        "@wq/router": "^2.0.0-alpha.1",
+        "@wq/router": "^2.0.0-alpha.2",
         "formik": "^2.4.2",
         "param-case": "^3.0.4",
         "pascal-case": "^3.1.2",
