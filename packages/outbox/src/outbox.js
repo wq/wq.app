@@ -176,8 +176,6 @@ class Outbox {
             data,
             options,
         });
-        data = item.data;
-        options = item.options;
 
         var currentId;
         if (data && data.id) {
@@ -192,6 +190,9 @@ class Outbox {
                 }
             }
         }
+
+        options = item.options;
+        data = item.data;
 
         var type, payload, commitType, rollbackType;
         const model = this._getModel(options.modelConf);

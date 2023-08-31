@@ -118,13 +118,13 @@ export function useRouteTitle(routeName) {
 }
 
 export function useReverse() {
-    const location = useSelector(selectLocationState);
+    const routesMap = useRoutesMap();
     return useCallback(
         (name, payload, query) => {
             const action = {
                 type: name.toUpperCase(),
             };
-            if (!location.routesMap[action.type]) {
+            if (!routesMap[action.type]) {
                 throw new Error(`Unknown route: ${action.type}`);
             }
             if (payload) {
@@ -139,7 +139,7 @@ export function useReverse() {
             }
             return action;
         },
-        [location]
+        [routesMap]
     );
 }
 
