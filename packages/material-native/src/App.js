@@ -1,10 +1,19 @@
 import React, { useMemo } from "react";
 import { App as DefaultApp, usePlugin } from "@wq/react";
 import {
-    DefaultTheme,
-    DarkTheme,
+    MD2LightTheme,
+    MD3LightTheme,
+    MD2DarkTheme,
+    MD3DarkTheme,
     Provider as PaperProvider,
 } from "react-native-paper";
+
+const THEMES = {
+    "light-2": MD2LightTheme,
+    "light-3": MD3LightTheme,
+    "dark-2": MD2DarkTheme,
+    "dark-3": MD3DarkTheme,
+};
 
 export default function App() {
     const { theme: configTheme } = usePlugin("material").config,
@@ -26,9 +35,18 @@ export default function App() {
     );
 }
 
-function createTheme({ type, primary, secondary, background }) {
+function createTheme({
+    type = "light",
+    version = 3,
+    primary,
+    secondary,
+    background,
+}) {
     const colors = {},
-        base = type === "dark" ? DarkTheme : DefaultTheme;
+        base = THEMES[`${type}-${version}`];
+    if (!base) {
+        console.warn(`Unknown base theme type=${type} version=${version}`);
+    }
     if (primary) {
         colors.primary = primary;
     }
@@ -41,7 +59,7 @@ function createTheme({ type, primary, secondary, background }) {
     return {
         ...base,
         colors: {
-            ...base.colors,
+            ...(base || {}).colors,
             ...colors,
         },
     };
