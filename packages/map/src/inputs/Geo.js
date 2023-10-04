@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 export default function Geo({
     name,
     type,
-    mapId = null,
+    mapId = undefined,
     required,
     label,
     hint,

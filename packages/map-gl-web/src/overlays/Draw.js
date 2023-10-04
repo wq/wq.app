@@ -14,7 +14,7 @@ export default function Draw({ type, required, data, setData }) {
         controls.trash = true;
     }
     const draw = useControl(
-        (props) => {
+        () => {
             const { classes } = MapboxDraw.constants;
             for (const [key, value] of Object.entries(classes)) {
                 if (value.startsWith("mapboxgl-")) {
@@ -22,7 +22,6 @@ export default function Draw({ type, required, data, setData }) {
                 }
             }
             return new MapboxDraw({
-                ...props,
                 displayControlsDefault: false,
                 controls,
             });

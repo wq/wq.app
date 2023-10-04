@@ -98,17 +98,20 @@ export function useRouteTitle(routeName) {
         { getRouteTitle } = app.router,
         config = useConfig();
 
-    function routeTitle(routeName) {
-        const [name, mode, variant] = app.splitRoute(routeName);
-        const page_config = config.pages[name] || {
-            name,
-        };
-        return getRouteTitle({
-            page_config,
-            mode,
-            variant,
-        });
-    }
+    const routeTitle = useCallback(
+        (routeName) => {
+            const [name, mode, variant] = app.splitRoute(routeName);
+            const page_config = config.pages[name] || {
+                name,
+            };
+            return getRouteTitle({
+                page_config,
+                mode,
+                variant,
+            });
+        },
+        [app, routeName, config]
+    );
 
     if (routeName) {
         return routeTitle(routeName);

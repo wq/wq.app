@@ -30,7 +30,7 @@ const defaultQuerySerializer = {
 var router = {
     config: {
         store: "main",
-        tmpl404: 404,
+        tmpl404: "404",
         debug: false,
         getTemplateName: (name) => name,
         querySerializer: defaultQuerySerializer,
