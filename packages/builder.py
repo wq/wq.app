@@ -28,7 +28,7 @@ def compute_hash():
             continue
         sha = hashlib.sha256()
         data = path.read_bytes()
-        if path.name == "wq.js":
+        if path.name in ("wq.js", "wq.dev.js"):
             data = data.replace(get_version().encode(), b"__WQ_VERSION__")
             rel_path += "'"
         sha.update(data)
@@ -39,7 +39,7 @@ def compute_hash():
 
 def build(update_hash=False):
     old_hash = get_stored_hash()
-    print("Building wq.js...")
+    print("Building wq.js and wq.dev.js...")
     subprocess.check_call(["npm", "install"])
     subprocess.check_call(["npm", "run", "rollup", "--", "-c"])
 

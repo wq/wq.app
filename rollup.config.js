@@ -46,8 +46,7 @@ function resolveId(id) {
     return deps[id];
 }
 
-export default [
-    {
+const config = {
         input: "index.js",
         plugins: [
             babel({
@@ -72,13 +71,36 @@ export default [
                 extensions: [".js", ".ts", ".tsx"],
                 babelHelpers: "bundled",
             }),
-            terser({ keep_fnames: /^([A-Z]|use[A-Z])/ }), // Preserve component & hook names
             { resolveId },
             resolve({
                 preferBuiltins: false,
                 extensions: [".js", ".ts", ".tsx"],
             }),
             analyze({ limit: 10 }),
+        ],
+        output: {
+            inlineDynamicImports: true,
+            banner,
+            format: "esm",
+            sourcemap: true,
+            sourcemapPathTransform(path) {
+                return path.replace("../../../../../", `wq/app/`);
+            },
+        },
+    },
+    replaceConfig = {
+        "import maplibre from": "import",
+        "mapgl.setEngine(maplibre)": "mapgl.setEngine(window.maplibregl)",
+        delimiters: ["", ""],
+        preventAssignment: true,
+    };
+
+export default [
+    {
+        ...config,
+        output: { ...config.output, file: "wq/app/static/app/js/wq.js" },
+        plugins: [
+            ...config.plugins,
             license({
                 thirdParty: {
                     output: {
@@ -88,19 +110,6 @@ export default [
                     allow: {
                         failOnViolation: true,
                         test(dependency) {
-                            if (dependency.name === "mapbox-gl") {
-                                if (
-                                    dependency.licenseText.match(
-                                        "Mapbox Terms of Service"
-                                    )
-                                ) {
-                                    // 2.0 and later
-                                    return false;
-                                } else {
-                                    // 1.13 and earlier (3-Clause BSD)
-                                    return true;
-                                }
-                            }
                             return [
                                 "MIT",
                                 "ISC",
@@ -114,27 +123,27 @@ export default [
                     },
                 },
             }),
+            terser({ keep_fnames: /^([A-Z]|use[A-Z])/ }), // Preserve component & hook names
             replace({
+                ...replaceConfig,
                 "process.env.NODE_ENV": '"production"',
-                "import maplibre from": "import",
-                "mapgl.setEngine(maplibre)":
-                    "mapgl.setEngine(window.maplibregl)",
-                delimiters: ["", ""],
-                preventAssignment: true,
             }),
             commonjs(),
             json(),
         ],
-        output: {
-            file: "wq/app/static/app/js/wq.js",
-            inlineDynamicImports: true,
-            banner,
-            format: "esm",
-            sourcemap: true,
-            sourcemapPathTransform(path) {
-                return path.replace("../../../../../", `wq/app/`);
-            },
-        },
+    },
+    {
+        ...config,
+        output: { ...config.output, file: "wq/app/static/app/js/wq.dev.js" },
+        plugins: [
+            ...config.plugins,
+            replace({
+                ...replaceConfig,
+                "process.env.NODE_ENV": '"development"',
+            }),
+            commonjs(),
+            json(),
+        ],
     },
 ];
 
@@ -174,12 +183,7 @@ function thirdPartyMarkdown(dependencies) {
         "## Third Party\nIn addition, the following third party dependencies are compiled into [**wq.js**](https://wq.io/wq).   Except where noted, most use the MIT License.\n\n";
     otherDeps.forEach((dep) => {
         let license = dep.license;
-        if (dep.name === "mapbox-gl") {
-            if (dep.licenseText.match("Mapbox Terms of Service")) {
-                throw new Error("Not compatible with Mapbox GL JS 2+");
-            }
-            license = "BSD-3-Clause";
-        } else if (dep.name === "jsonlint-lines") {
+        if (dep.name === "jsonlint-lines") {
             license = "MIT";
         }
 
