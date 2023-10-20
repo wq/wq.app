@@ -48,10 +48,6 @@ export default function FileArray({ name, label, subform, hint, maxRows }) {
         setFiles = useCallback(
             (files) => {
                 if (!loadedRef.current) {
-                    // Component mounted
-                    loadedRef.current = -1;
-                    return;
-                } else if (loadedRef.current === -1) {
                     // initialFiles loaded
                     let fileIndex = 0;
                     loadedRef.current = initialValue.map((row) => {
