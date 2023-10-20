@@ -19,7 +19,12 @@ export default function HighlightPopup({ inMap }) {
                 <IconButton
                     icon="close"
                     onClick={clearHighlight}
-                    style={{ position: "absolute", right: 0, top: 0 }}
+                    style={{
+                        position: "absolute",
+                        right: 0,
+                        top: 0,
+                        zIndex: 1,
+                    }}
                 />
                 <ScrollView style={{ maxHeight: "33vh" }}>
                     {features.map((feature) => (
