@@ -1,6 +1,6 @@
 {
     "name": "@wq/store",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0",
     "description": "Locally-persistent, optionally server-populated JSON datastore(s)",
     "type": "module",
     "main": "src/index.js",

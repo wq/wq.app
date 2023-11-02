@@ -93,7 +93,7 @@ export default function Img({ src, onPress, onClick, style, ...props }) {
 }
 
 Img.propTypes = {
-    src: PropTypes.oneOfType(PropTypes.string, PropTypes.number),
+    src: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     width: PropTypes.number,
     height: PropTypes.number,
     onPress: PropTypes.func,

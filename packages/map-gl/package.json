@@ -1,6 +1,6 @@
 {
     "name": "@wq/map-gl",
-    "version": "2.0.0-alpha.1",
+    "version": "2.0.0",
     "description": "MapLibre GL integration for @wq/map",
     "type": "module",
     "main": "src/index.js",
@@ -31,10 +31,10 @@
     },
     "homepage": "https://wq.io/@wq/map-gl",
     "devDependencies": {
-        "@wq/map-gl-web": "^2.0.0-alpha.2",
-        "@wq/material-web": "^2.0.0-alpha.2",
-        "@wq/model": "^2.0.0-alpha.1",
-        "@wq/react": "^2.0.0-alpha.2",
-        "@wq/store": "^2.0.0-alpha.1"
+        "@wq/map-gl-web": "^2.0.0",
+        "@wq/material-web": "^2.0.0",
+        "@wq/model": "^2.0.0",
+        "@wq/react": "^2.0.0",
+        "@wq/store": "^2.0.0"
     }
 }
