@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { useComponents } from "../hooks.js";
+import { useComponents, useInputComponents } from "../hooks.js";
 import { FieldArray, getIn } from "formik";
 import PropTypes from "prop-types";
 import { initData } from "./AutoForm.js";
@@ -7,23 +7,36 @@ import { pascalCase } from "pascal-case";
 
 export default function AutoSubformArray({ name, label, subform, ...rest }) {
     const components = useComponents(),
+        inputs = useInputComponents(),
         { AutoSubform } = components,
         componentName = rest.control && rest.control.appearance;
 
     let FieldsetArray;
     if (componentName) {
         // Defined in XLSForm config
-        FieldsetArray = components[componentName];
+        FieldsetArray = inputs[componentName];
         if (!FieldsetArray) {
             // eslint-disable-next-line
             FieldsetArray = ({ children, ...rest }) => {
-                const { Text, FieldsetArray } = components;
+                const { Text } = components,
+                    { FieldsetArray } = inputs,
+                    name = pascalCase(componentName);
                 return (
                     <FieldsetArray {...rest}>
                         <Text>
                             Unknown fieldset array type &quot;{componentName}
-                            &quot;. Perhaps you need to define components.
-                            {pascalCase(componentName)} in a plugin?
+                            &quot;.{" "}
+                            {components[componentName] ? (
+                                <>
+                                    Move or copy components.{name} to inputs.
+                                    {name}?
+                                </>
+                            ) : (
+                                <>
+                                    Perhaps you need to define inputs.{name} in
+                                    a plugin?
+                                </>
+                            )}
                         </Text>
                         {children}
                     </FieldsetArray>

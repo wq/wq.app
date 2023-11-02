@@ -19,14 +19,12 @@ export default function Geo({
     inset = true,
     children,
 }) {
-    const {
+    const { MapProvider, AutoMap, GeoTools } = useComponents(),
+        {
             Fieldset: DefaultFieldset,
             FlatFieldset,
-            MapProvider,
-            AutoMap,
-            GeoTools,
-        } = useComponents(),
-        { HelperText } = useInputComponents(),
+            HelperText,
+        } = useInputComponents(),
         { Draw, Accuracy } = useOverlayComponents(),
         [, { value }, { setValue }] = useField(name),
         [, { value: accuracy }, { setValue: setAccuracy }] = useField(

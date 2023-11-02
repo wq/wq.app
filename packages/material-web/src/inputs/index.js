@@ -8,6 +8,10 @@ import Radio from "./Radio.js";
 import Toggle from "./Toggle.js";
 import Hidden from "./Hidden.js";
 import HelperText from "./HelperText.js";
+import Fieldset from "./Fieldset.js";
+import FlatFieldset from "./FlatFieldset.js";
+import FieldsetArray from "./FieldsetArray.js";
+import FileArray from "./FileArray.js";
 
 const Date = DateTime;
 const Time = DateTime;
@@ -27,4 +31,8 @@ export {
     Toggle,
     Hidden,
     HelperText,
+    Fieldset,
+    FlatFieldset,
+    FieldsetArray,
+    FileArray,
 };

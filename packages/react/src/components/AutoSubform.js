@@ -1,5 +1,5 @@
 import React from "react";
-import { useComponents } from "../hooks.js";
+import { useComponents, useInputComponents } from "../hooks.js";
 import PropTypes from "prop-types";
 import { pascalCase } from "pascal-case";
 
@@ -11,6 +11,7 @@ export default function AutoSubform({
     ...rest
 }) {
     const components = useComponents(),
+        inputs = useInputComponents(),
         { AutoInput } = components,
         componentName = rest.control && rest.control.appearance;
 
@@ -20,17 +21,28 @@ export default function AutoSubform({
         Fieldset = component;
     } else if (componentName) {
         // Defined in XLSForm config
-        Fieldset = components[componentName];
+        Fieldset = inputs[componentName];
         if (!Fieldset) {
             // eslint-disable-next-line
             Fieldset = ({ children, ...rest }) => {
-                const { Text, Fieldset } = components;
+                const { Text } = components,
+                    { Fieldset } = inputs,
+                    name = pascalCase(componentName);
                 return (
                     <Fieldset {...rest}>
                         <Text>
-                            Unknown fieldset type &quot;{componentName}&quot;.
-                            Perhaps you need to define components.
-                            {pascalCase(componentName)} in a plugin?
+                            Unknown fieldset type &quot;{componentName}&quot;.{" "}
+                            {components[componentName] ? (
+                                <>
+                                    Move or copy components.{name} to inputs.
+                                    {name}?
+                                </>
+                            ) : (
+                                <>
+                                    Perhaps you need to define inputs.{name} in
+                                    a plugin?
+                                </>
+                            )}
                         </Text>
                         {children}
                     </Fieldset>
@@ -39,7 +51,7 @@ export default function AutoSubform({
         }
     } else {
         // Default (or global default override)
-        Fieldset = components.Fieldset;
+        Fieldset = inputs.Fieldset;
     }
 
     const prefix = name ? `${name}.` : "";

@@ -18,7 +18,7 @@ export default function IconButton({ icon, onClick, onPress, color, ...rest }) {
         <PaperIconButton
             icon={Icon}
             onPress={onPress}
-            color={color}
+            iconColor={color}
             {...rest}
         />
     );
