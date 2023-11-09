@@ -13,7 +13,8 @@ export default function Index({ onNavigate }) {
         routeTitle = useRouteTitle(),
         { name: currentRoute } = useRouteInfo(),
         sections = useSitemap(),
-        { ScrollView, List, ListSubheader, ListItemLink } = useComponents();
+        { ScrollView, List, ListSubheader, ListItemLink, ExpandableListItem } =
+            useComponents();
 
     function PageLink({
         route,
@@ -23,9 +24,10 @@ export default function Index({ onNavigate }) {
             description = null,
             url = "/",
         } = {},
+        style,
     }) {
         const title = routeTitle(route),
-            props = {};
+            props = { style };
         if (external) {
             props.component = "a";
             props.href = url;
@@ -46,22 +48,40 @@ export default function Index({ onNavigate }) {
     PageLink.propTypes = {
         route: PropTypes.string,
         config: PropTypes.object,
+        style: PropTypes.object,
     };
 
     return (
         <ScrollView>
             <List>
                 {sections.map(({ name, pages }) => (
-                    <>
+                    <React.Fragment key={name}>
                         {name && <ListSubheader>{name}</ListSubheader>}
-                        {pages.map((page) => (
-                            <PageLink
-                                key={page.name}
-                                route={page.route}
-                                config={page}
-                            />
-                        ))}
-                    </>
+                        {pages.map((page) =>
+                            page.isSubsection ? (
+                                <ExpandableListItem
+                                    key={page.label}
+                                    icon={page.icon}
+                                >
+                                    <>{page.label}</>
+                                    {page.pages.map((page) => (
+                                        <PageLink
+                                            key={page.name}
+                                            route={page.route}
+                                            config={page}
+                                            style={{ paddingLeft: 32 }}
+                                        />
+                                    ))}
+                                </ExpandableListItem>
+                            ) : (
+                                <PageLink
+                                    key={page.name}
+                                    route={page.route}
+                                    config={page}
+                                />
+                            )
+                        )}
+                    </React.Fragment>
                 ))}
             </List>
         </ScrollView>

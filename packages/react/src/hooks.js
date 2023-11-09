@@ -217,7 +217,7 @@ export function useBreadcrumbs() {
 
 export function useSitemap() {
     const config = useConfig(),
-        { user, config: authConfig } = usePluginState("auth"),
+        { user, config: authConfig } = usePluginState("auth") || {},
         messages = useMessages();
     return useMemo(() => {
         const pages = Object.values(config.pages)
@@ -232,7 +232,30 @@ export function useSitemap() {
                 sectionPages[section] = [];
                 sections.push({ name: section, pages: sectionPages[section] });
             }
-            sectionPages[section].push({ ...page, route });
+            let group = sectionPages[section];
+            const lastPage = group[group.length - 1];
+            if (page.subsection) {
+                if (
+                    lastPage &&
+                    lastPage.isSubsection &&
+                    lastPage.label === page.subsection
+                ) {
+                    group = lastPage.pages;
+                } else {
+                    const subsection = {
+                        label: page.subsection,
+                        icon: page.icon,
+                        isSubsection: true,
+                        pages: [],
+                    };
+                    group.push(subsection);
+                    group = subsection.pages;
+                }
+            }
+            group.push({
+                ...page,
+                route,
+            });
         }
 
         return sections;
@@ -255,6 +278,7 @@ export function showInIndex(page, user, authConfig) {
     } else if (page.show_in_index.startsWith("can_")) {
         return Boolean(
             user &&
+                authConfig &&
                 authConfig.pages &&
                 authConfig.pages[page.name] &&
                 authConfig.pages[page.name][page.show_in_index]

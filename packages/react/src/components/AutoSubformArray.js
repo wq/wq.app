@@ -48,10 +48,10 @@ export default function AutoSubformArray({ name, label, subform, ...rest }) {
         (subform[0].type === "file" || subform[0].type === "image")
     ) {
         // Special case for subforms containing only a single file field
-        FieldsetArray = components.FileArray;
+        FieldsetArray = inputs.FileArray;
     } else {
         // Default (or global default override)
-        FieldsetArray = components.FieldsetArray;
+        FieldsetArray = inputs.FieldsetArray;
     }
 
     const SubformArray = useCallback(
