@@ -1,5 +1,5 @@
 import ds from "@wq/store";
-import orm from "@wq/model";
+import orm, { getRootFields } from "@wq/model";
 import outbox from "@wq/outbox";
 import router from "@wq/router";
 import spinner from "./spinner.js";
@@ -504,8 +504,7 @@ const syncUpdateUrl = {
 
 // Return a list of all foreign key fields
 app.getParents = function (page) {
-    var conf = _getConf(page);
-    return conf.form
+    return getRootFields(_getConf(page))
         .filter(function (field) {
             return field["wq:ForeignKey"];
         })
@@ -718,9 +717,19 @@ async function _displayList(ctx, parentInfo) {
             }
         }
         if (parentInfo) {
-            conf.form.forEach(function (field) {
+            getRootFields(conf).forEach(function (field) {
                 if (field["wq:ForeignKey"] == parentInfo.parent_page) {
-                    filter[field.name + "_id"] = parentInfo.parent_id;
+                    const naturalKey = field.name.match(
+                        /^([^\]]+)\[([^\]]+)\]$/
+                    );
+                    if (naturalKey) {
+                        filter[naturalKey.slice(1).join("__")] =
+                            parentInfo.parent_id;
+                    } else if (field.type === "select") {
+                        filter[field.name + "_id"] = [parentInfo.parent_id];
+                    } else {
+                        filter[field.name + "_id"] = parentInfo.parent_id;
+                    }
                 }
             });
         }

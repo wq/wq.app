@@ -19,10 +19,27 @@ function validateRequired(values, form, labels = null) {
     const errors = {};
 
     form.forEach((field) => {
-        const name = field["wq:ForeignKey"] ? `${field.name}_id` : field.name,
+        let name, value, error;
+        if (field["wq:ForeignKey"]) {
+            const naturalKey = field.name.match(/^([^\]]+)\[([^\]]+)\]$/);
+            if (naturalKey) {
+                name = naturalKey[1];
+                value =
+                    values[naturalKey[1]] &&
+                    values[naturalKey[1]][naturalKey[2]];
+                error = { [naturalKey[2]]: "This field is required." };
+            } else {
+                name = field.name + "_id";
+                value = values[name];
+                error = "This field is required.";
+            }
+        } else {
+            name = field.name;
             value = values[name];
+            error = "This field is required.";
+        }
         if (isMissing(value, field)) {
-            errors[name] = "This field is required.";
+            errors[name] = error;
             if (labels) {
                 labels.push(field.label);
             }

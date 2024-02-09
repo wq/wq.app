@@ -16,7 +16,12 @@ export default function AutoInput({ name, choices, type, bind = {}, ...rest }) {
     let inputType,
         required = bind.required;
     if (rest["wq:ForeignKey"]) {
-        name = `${name}_id`;
+        const naturalKey = name.match(/^([^\]]+)\[([^\]]+)\]$/);
+        if (naturalKey) {
+            name = naturalKey.slice(1).join(".");
+        } else {
+            name = `${name}_id`;
+        }
         inputType = "foreign-key";
     } else if (type === "select1" || type === "select one") {
         if (!choices) {

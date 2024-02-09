@@ -1,4 +1,4 @@
-import { Model, model as createModel } from "./model.js";
+import { Model, model as createModel, getRootFields } from "./model.js";
 
 const orm = {
     // Plugin attributes
@@ -50,4 +50,4 @@ const orm = {
 
 export default orm;
 
-export { Model, createModel, createModel as model };
+export { Model, createModel, createModel as model, getRootFields };

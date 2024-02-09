@@ -96,9 +96,19 @@ export function initData(form, data) {
     }
 
     form.forEach((field) => {
-        const fieldName = field["wq:ForeignKey"]
-            ? `${field.name}_id`
-            : field.name;
+        let fieldName = field.name;
+        if (field["wq:ForeignKey"]) {
+            const naturalKey = field.name.match(/^([^\]]+)\[([^\]]+)\]$/);
+            if (
+                naturalKey &&
+                data[naturalKey[1]] &&
+                data[naturalKey[1]][naturalKey[2]]
+            ) {
+                fieldName = naturalKey[1];
+            } else {
+                fieldName = `${field.name}_id`;
+            }
+        }
 
         let value;
         if (field.type === "repeat") {

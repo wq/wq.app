@@ -594,9 +594,20 @@ class Model {
     filterFields() {
         let fields = [this.idCol];
         fields = fields.concat(
-            (this.config.form || []).map((field) =>
-                field["wq:ForeignKey"] ? `${field.name}_id` : field.name
-            )
+            getRootFields(this.config).map((field) => {
+                if (field["wq:ForeignKey"]) {
+                    const naturalKey = field.name.match(
+                        /^([^\]]+)\[([^\]]+)\]$/
+                    );
+                    if (naturalKey) {
+                        return naturalKey.slice(1).join("__");
+                    } else {
+                        return `${field.name}_id`;
+                    }
+                } else {
+                    return field.name;
+                }
+            })
         );
         fields = fields.concat(Object.keys(this.functions));
         fields = fields.concat(this.config.filter_fields || []);
@@ -793,6 +804,7 @@ class Model {
             this.functions[attr] ||
             isPotentialBoolean(comp) ||
             isPotentialNumber(comp) ||
+            isPotentialNaturalKey(attr) ||
             Array.isArray(comp)
         );
     }
@@ -802,6 +814,13 @@ class Model {
 
         if (this.functions[attr]) {
             value = this.compute(attr, item);
+        } else if (attr.includes("__")) {
+            const parts = attr.split("__");
+            if (parts.length === 2 && item[parts[0]]) {
+                value = item[parts[0]][parts[1]];
+            } else {
+                value = item[attr];
+            }
         } else {
             value = item[attr];
         }
@@ -848,6 +867,17 @@ function isPotentialBoolean(value) {
 
 function isPotentialNumber(value) {
     return typeof value !== "number" && !Number.isNaN(+value);
+}
+
+function isPotentialNaturalKey(attr) {
+    return typeof attr == "string" && attr.includes("__");
+}
+
+export function getRootFields(conf) {
+    const root = (conf.form || []).find(
+        (field) => field.name === "" && field.type === "group"
+    );
+    return (conf.form || []).concat((root && root.children) || []);
 }
 
 export { model, Model };

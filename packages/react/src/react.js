@@ -138,6 +138,9 @@ const {
     PropertyTable,
     ImagePreview,
     FileLink,
+    ForeignKeyLink,
+    ManyToManyLink,
+    RelatedLinks,
     DebugContext,
 } = components;
 
@@ -155,6 +158,9 @@ export {
     PropertyTable,
     ImagePreview,
     FileLink,
+    ForeignKeyLink,
+    ManyToManyLink,
+    RelatedLinks,
     DebugContext,
     autoFormData,
 };

@@ -133,7 +133,7 @@ export default {
             wqPageConf =
                 (config && config.pages && config.pages[pageConf.name]) || {};
         return {
-            user,
+            user: ctx.user_id ? ctx.user : user,
             is_authenticated: !!user,
             app_config: this.app.config,
             user_config: config,

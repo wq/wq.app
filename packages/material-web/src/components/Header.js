@@ -6,7 +6,8 @@ import { useMinWidth } from "../hooks.js";
 export default function Header() {
     const title = useSiteTitle(),
         links = useBreadcrumbs(),
-        { Logo, Breadcrumbs, IconButton, NavMenuPopup } = useComponents(),
+        { Logo, SiteTitle, Breadcrumbs, IconButton, NavMenuPopup } =
+            useComponents(),
         fixedMenu = useMinWidth(600),
         [open, setOpen] = useState(false);
     return (
@@ -24,7 +25,9 @@ export default function Header() {
                             edge="start"
                         />
                     )}
-                    <Typography variant="h6">{title}</Typography>
+                    <Typography variant="h6">
+                        <SiteTitle title={title} />
+                    </Typography>
                 </Toolbar>
             </AppBar>
             <Breadcrumbs links={links} />
