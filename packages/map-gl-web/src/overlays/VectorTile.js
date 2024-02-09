@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useStyleProp } from "@wq/map";
 import { Source, Layer } from "react-map-gl";
 
 function AutoLayer({ id, active, before, layout = {}, paint = {}, ...rest }) {
@@ -15,19 +16,17 @@ function AutoLayer({ id, active, before, layout = {}, paint = {}, ...rest }) {
     return <Layer beforeId={before} {...layer} {...rest} />;
 }
 
-export default function VectorTile({ name, active, before, url, style }) {
-    if (url) {
-        return (
-            <UrlVectorTile
-                name={name}
-                active={active}
-                url={url}
-                before={before}
-            />
-        );
+export default function VectorTile(props) {
+    if (props.url) {
+        return <UrlVectorTile {...props} />;
+    } else {
+        return <StyleVectorTile {...props} />;
     }
+}
 
-    const { sources, layers } = style;
+function StyleVectorTile(props) {
+    const { sources, layers } = useStyleProp(props);
+
     if (!sources || !layers) {
         return null;
     }
@@ -40,8 +39,8 @@ export default function VectorTile({ name, active, before, url, style }) {
             {layers.map((layer) => (
                 <AutoLayer
                     key={layer.id}
-                    active={active}
-                    before={before}
+                    active={props.active}
+                    before={props.before}
                     {...layer}
                 />
             ))}
@@ -62,7 +61,7 @@ function UrlVectorTile({ name, active, before, url }) {
 
     if (style) {
         return (
-            <VectorTile
+            <StyleVectorTile
                 name={name}
                 active={active}
                 before={before}

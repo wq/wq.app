@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useComponents, usePlugin } from "@wq/react";
 import { useMapState, useOverlayComponents } from "../hooks.js";
 import PropTypes from "prop-types";
@@ -36,8 +36,35 @@ export default function AutoMap({
         return null;
     }
 
-    const { basemaps, overlays, initBounds, mapProps, autoZoom, highlight } =
-        state;
+    const {
+        basemaps,
+        overlays,
+        initBounds,
+        tiles,
+        mapProps,
+        autoZoom,
+        highlight,
+    } = state;
+
+    const defaultTileSource = useMemo(() => {
+        if (!tiles) {
+            return null;
+        }
+        const origin = tiles.startsWith("/") ? window.location.origin : "";
+        return {
+            name: "Default Tile Source",
+            type: "vector-tile",
+            style: {
+                sources: {
+                    _default: {
+                        type: "vector",
+                        tiles: [origin + tiles],
+                    },
+                },
+                layers: [],
+            },
+        };
+    }, [tiles]);
 
     const identify = overlays.some((overlay) => !!overlay.popup);
 
@@ -82,6 +109,9 @@ export default function AutoMap({
                     <MapIdentify name={name} mapId={mapId} context={context} />
                 )}
                 <MapLayers>
+                    {defaultTileSource && (
+                        <AutoOverlay active {...defaultTileSource} />
+                    )}
                     {basemaps.map((conf) => (
                         <AutoBasemap key={conf.name} {...conf} />
                     ))}

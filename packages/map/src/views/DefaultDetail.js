@@ -5,7 +5,8 @@ import { useMinWidth } from "@wq/material";
 
 export default function DefaultDetailWithMap() {
     const mapState = useMapState(),
-        { MapProvider, AutoMap, Divider, TabGroup, TabItem } = useComponents(),
+        { MapProvider, AutoMap, HighlightPopup, Divider, TabGroup, TabItem } =
+            useComponents(),
         splitScreen = useMinWidth(900),
         context = useRenderContext();
     if (mapState) {
@@ -15,7 +16,10 @@ export default function DefaultDetailWithMap() {
                 <MapProvider>
                     <DefaultDetail />
                     <Divider orientation="vertical" />
-                    <AutoMap mapId={mapId} context={context} />
+                    <AutoMap mapId={mapId} context={context}>
+                        <HighlightPopup inMap />
+                    </AutoMap>
+                    <HighlightPopup />
                 </MapProvider>
             );
         } else {
@@ -27,6 +31,7 @@ export default function DefaultDetailWithMap() {
                         </TabItem>
                         <TabItem label="Map" value="map" icon="map">
                             <AutoMap mapId={mapId} context={context} />
+                            <HighlightPopup />
                         </TabItem>
                     </TabGroup>
                 </MapProvider>

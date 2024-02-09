@@ -12,6 +12,9 @@ import {
     asFeatureCollection,
     computeBounds,
     useGeolocation,
+    useStyleProp,
+    useFeatureValues,
+    useFeatureUrl,
 } from "./hooks.js";
 import {
     AutoMap,
@@ -27,7 +30,7 @@ import {
 } from "./components/index.js";
 import { Geo } from "./inputs/index.js";
 import { GeoHelp, GeoLocate, GeoCode, GeoCoords } from "./geotools/index.js";
-import { DefaultList, DefaultDetail } from "./views/index.js";
+import { DefaultList, DefaultDetail, DefaultPopup } from "./views/index.js";
 
 export default map;
 
@@ -44,6 +47,9 @@ export {
     asFeatureCollection,
     computeBounds,
     useGeolocation,
+    useStyleProp,
+    useFeatureValues,
+    useFeatureUrl,
     AutoMap,
     AutoBasemap,
     AutoOverlay,
@@ -61,4 +67,5 @@ export {
     GeoCoords,
     DefaultList,
     DefaultDetail,
+    DefaultPopup,
 };

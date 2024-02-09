@@ -18,9 +18,7 @@ export default function OverlayToggle({ name, legend, active, setActive }) {
                     onValueChange={setActive}
                 />
             )}
-            description={
-                active && legend ? () => <Legend legend={legend} /> : null
-            }
+            description={active && legend ? <Legend legend={legend} /> : null}
         >
             {name}
         </ListItem>

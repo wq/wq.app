@@ -8,6 +8,8 @@ import {
     useApp,
     useComponents,
     usePluginComponentMap,
+    useModel,
+    useReverse,
 } from "@wq/react";
 import Mustache from "mustache";
 
@@ -168,6 +170,7 @@ export function routeMapConf(config, routeInfo, context = {}) {
         ...((conf[mode] || { maps: {} }).maps[mapname] || {}),
         basemaps: config.basemaps.map(checkGroupLayers),
         bounds: config.bounds,
+        tiles: config.tiles,
     };
 
     if (config.mapProps) {
@@ -575,4 +578,175 @@ export function useGeolocation() {
             return navigator.geolocation.clearWatch(watchId);
         },
     };
+}
+
+export function useStyleProp({ name, style, layer, color, icon }) {
+    return useMemo(() => {
+        if (!style && !layer) {
+            console.warn(`Specify style or layer for "${name}"`);
+            return { sources: {}, layers: [] };
+        }
+        if (typeof layer === "string") {
+            layer = { id: layer, "source-layer": layer };
+        }
+        if (style) {
+            return style;
+        } else if (icon) {
+            return {
+                sources: {},
+                layers: makeSymbolLayers(layer, icon),
+            };
+        } else if (color) {
+            return {
+                sources: {},
+                layers: makeColorLayers(layer, color),
+            };
+        } else {
+            return {
+                sources: {},
+                layers: makeColorLayers(layer, "#3388ff", "#3086cc"),
+            };
+        }
+    }, [name, style, layer, color, icon]);
+}
+
+function makeSymbolLayers(layer, icon) {
+    const { id, ["source-layer"]: sourceLayer, ...rest } = layer;
+    return [
+        {
+            id: id,
+            source: "_default",
+            "source-layer": sourceLayer || id,
+            type: "symbol",
+            layout: {
+                "icon-image": icon,
+                "icon-allow-overlap": true,
+            },
+            ...rest,
+        },
+    ];
+}
+
+function makeColorLayers(layer, color, pointColor = color) {
+    const { id, ["source-layer"]: sourceLayer, ...rest } = layer;
+    return [
+        {
+            id: `${id}-fill`,
+            source: "_default",
+            "source-layer": sourceLayer || id,
+            type: "fill",
+            paint: {
+                "fill-color": color,
+                "fill-opacity": [
+                    "match",
+                    ["geometry-type"],
+                    ["Polygon", "MultiPolygon"],
+                    0.2,
+                    0,
+                ],
+            },
+            ...rest,
+        },
+        {
+            id: `${id}-line`,
+            source: "_default",
+            "source-layer": sourceLayer || id,
+            type: "line",
+            paint: {
+                "line-width": 3,
+                "line-color": color,
+                "line-opacity": 1,
+            },
+            ...rest,
+        },
+        {
+            id: `${id}-circle`,
+            source: "_default",
+            "source-layer": sourceLayer || id,
+            type: "circle",
+            paint: {
+                "circle-color": "white",
+                "circle-radius": [
+                    "match",
+                    ["geometry-type"],
+                    ["Point", "MultiPoint"],
+                    3,
+                    0,
+                ],
+                "circle-stroke-color": pointColor,
+                "circle-stroke-width": [
+                    "match",
+                    ["geometry-type"],
+                    ["Point", "MultiPoint"],
+                    3,
+                    0,
+                ],
+                "circle-opacity": [
+                    "match",
+                    ["geometry-type"],
+                    ["Point", "MultiPoint"],
+                    1,
+                    0,
+                ],
+            },
+            ...rest,
+        },
+    ];
+}
+
+export function useFeatureValues(feature, modelConf) {
+    const slug = feature.properties[modelConf.lookup] || feature.id,
+        form = modelConf.form || [{ name: "label" }],
+        emptyForm = makeEmptyForm(form),
+        app = useApp(),
+        modelData = useModel(modelConf.name, slug),
+        [fetchData, setFetchData] = useState({});
+
+    useEffect(() => {
+        loadData();
+        async function loadData() {
+            const data = await app.models[modelConf.name].find(slug);
+            if (data) {
+                setFetchData(data);
+            }
+        }
+    }, [app, modelConf, slug]);
+
+    return {
+        ...emptyForm,
+        ...feature.properties,
+        ...fetchData,
+        ...modelData,
+    };
+}
+
+function makeEmptyForm(form) {
+    const values = {};
+    for (const field of form) {
+        if (field.name === "" && field.type === "group") {
+            Object.assign(values, makeEmptyForm(field.children));
+        } else if (field.type === "group") {
+            values[field.name] = makeEmptyForm(field.children);
+        } else {
+            values[field.name] = "-";
+        }
+    }
+    return values;
+}
+
+export function useFeatureUrl(feature, modelConf, mode = "edit") {
+    const slug = feature.properties[modelConf.lookup] || feature.id,
+        reverse = useReverse(),
+        authState = usePluginState("auth"),
+        perms =
+            authState &&
+            authState.config &&
+            authState.config.pages &&
+            authState.config.pages[modelConf.name];
+
+    if ((perms && perms.can_change) || mode !== "edit") {
+        return reverse(`${modelConf.name}_${mode}`, slug);
+    } else {
+        return null;
+    }
 }

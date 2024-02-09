@@ -25,6 +25,9 @@ MapLayers.propTypes = {
 };
 
 export function MapLayer({ element }) {
+    if (!element || !element.type) {
+        return null;
+    }
     const type = element.type.isAutoBasemap ? "Basemap" : "Overlay",
         { name, active } = element.props;
     return (
