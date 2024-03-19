@@ -308,6 +308,25 @@ map.init = function (config) {
     });
 };
 
+// Load deferred geometries before edit
+map.context = async function (ctx, routeInfo) {
+    if (
+        routeInfo.mode === "edit" &&
+        ctx.id &&
+        routeInfo.page_config.defer_geometry &&
+        routeInfo.page_config.geometry_fields
+    ) {
+        const field = routeInfo.page_config.geometry_fields.slice(-1)[0];
+        if (field && !ctx[field.name]) {
+            const response = await fetch(
+                    `${this.app.service}/${routeInfo.page_config.url}/${ctx.id}.geojson`
+                ),
+                data = await response.json();
+            return { [field.name]: data.geometry };
+        }
+    }
+};
+
 // Default base map configuration - override to customize
 function _defaultBasemaps() {
     var cdn =

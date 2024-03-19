@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useMapInstance } from "../hooks.js";
 import { usePluginReducer } from "@wq/react";
+import union from "@turf/union";
 
 export default function MapIdentify() {
     const map = useMapInstance(),
@@ -30,6 +31,21 @@ export default function MapIdentify() {
         function updateHighlight(evt, overlay) {
             const features = evt.features.map((feature) => {
                 feature.popup = overlay.popup;
+                if (
+                    feature.source &&
+                    feature.sourceLayer &&
+                    ["Polygon", "MultiPolygon"].includes(feature.geometry.type)
+                ) {
+                    const sourceFeature = map
+                        .querySourceFeatures(feature.source, {
+                            sourceLayer: feature.sourceLayer,
+                            filter: ["==", ["id"], feature.id],
+                        })
+                        .reduce(union);
+                    if (sourceFeature && sourceFeature.geometry) {
+                        feature.geometry = sourceFeature.geometry;
+                    }
+                }
                 return feature;
             });
             setHighlight({ type: "FeatureCollection", features });

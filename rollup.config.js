@@ -118,6 +118,7 @@ export default [
                                 "0BSD",
                                 "Apache-2.0",
                                 "MIT/X11",
+                                "Unlicense",
                             ].includes(dependency.license);
                         },
                     },

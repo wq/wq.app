@@ -33,6 +33,7 @@
     "dependencies": {
         "@mapbox/mapbox-gl-draw": "^1.4.1",
         "@turf/circle": "^6.5.0",
+        "@turf/union": "^6.5.0",
         "@wq/map": "^2.0.0",
         "@wq/material": "^2.0.0",
         "mapbox-gl": "npm:empty-npm-package@^1.0.0",
