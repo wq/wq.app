@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useComponents } from "@wq/react";
+import { useComponents, Message } from "@wq/react";
 import PropTypes from "prop-types";
 
-export default function GeoLocate({ type, setLocation }) {
+export default function GeoLocate({ type, setLocation, value, accuracy }) {
     const { Button, Typography, useGeolocation } = useComponents(),
         geolocation = useGeolocation(),
         [gpsStatus, setGpsStatus] = useState(""),
@@ -37,15 +37,7 @@ export default function GeoLocate({ type, setLocation }) {
             save: type === "geopoint",
         });
 
-        const latFmt = lat > 0 ? lat + "°N" : -lat + "°S",
-            lngFmt = lng > 0 ? lng + "°E" : -lng + "°W",
-            accFmt =
-                acc > 1000
-                    ? "~" + Math.round(acc / 1000) + "km"
-                    : acc > 1
-                    ? "~" + Math.round(acc) + "m"
-                    : acc + "m";
-        setGpsStatus(`${latFmt} ${lngFmt} (${accFmt})`);
+        setGpsStatus(formatLoc(lat, lng, acc));
     }
 
     function onError(error) {
@@ -69,7 +61,12 @@ export default function GeoLocate({ type, setLocation }) {
         return () => stopGps();
     }, []);
 
-    const gpsActive = !!gpsWatch.current;
+    const gpsActive = !!gpsWatch.current,
+        valueStatus =
+            value &&
+            value.type === "Point" &&
+            value.coordinates &&
+            formatLoc(value.coordinates[1], value.coordinates[0], accuracy);
 
     return (
         <>
@@ -81,7 +78,7 @@ export default function GeoLocate({ type, setLocation }) {
                 }}
                 color="textSecondary"
             >
-                {gpsStatus}
+                {gpsStatus || valueStatus || ""}
             </Typography>
             <Button
                 icon={gpsActive ? "gps-stop" : "gps-start"}
@@ -90,7 +87,7 @@ export default function GeoLocate({ type, setLocation }) {
                 color="secondary"
                 onClick={gpsActive ? resetGps : startGps}
             >
-                {gpsActive ? "Stop GPS" : "Start GPS"}
+                <Message id={gpsActive ? "GEO_STOP_GPS" : "GEO_START_GPS"} />
             </Button>
         </>
     );
@@ -102,3 +99,17 @@ GeoLocate.propTypes = {
     type: PropTypes.string,
     setLocation: PropTypes.func,
 };
+
+function formatLoc(lat, lng, acc) {
+    const latFmt = lat > 0 ? lat + "°N" : -lat + "°S",
+        lngFmt = lng > 0 ? lng + "°E" : -lng + "°W",
+        accFmt =
+            acc > 1000
+                ? " (~" + Math.round(acc / 1000) + "km)"
+                : acc > 1
+                ? " (~" + Math.round(acc) + "m)"
+                : acc
+                ? " (" + acc + "m)"
+                : "";
+    return `${latFmt} ${lngFmt}${accFmt}`;
+}

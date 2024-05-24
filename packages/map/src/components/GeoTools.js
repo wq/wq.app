@@ -5,11 +5,8 @@ import { useGeoTools } from "../hooks.js";
 import PropTypes from "prop-types";
 
 export default function GeoTools({ name, type, mapId }) {
-    const { toggleProps, setLocation, ActiveTool, value } = useGeoTools(
-            name,
-            type,
-            mapId
-        ),
+    const { toggleProps, setLocation, ActiveTool, value, accuracy } =
+            useGeoTools(name, type, mapId),
         { View } = useComponents(),
         { Toggle } = useInputComponents(),
         singleRow = useMinWidth(600);
@@ -29,6 +26,7 @@ export default function GeoTools({ name, type, mapId }) {
                 <ActiveTool
                     name={name}
                     value={value}
+                    accuracy={accuracy}
                     type={type}
                     setLocation={setLocation}
                 />
@@ -52,6 +50,7 @@ export default function GeoTools({ name, type, mapId }) {
                     <ActiveTool
                         name={name}
                         value={value}
+                        accuracy={accuracy}
                         type={type}
                         setLocation={setLocation}
                     />

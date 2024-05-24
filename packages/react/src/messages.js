@@ -43,4 +43,6 @@ export default {
         "Select the existing line to move it or its vertices.",
     GEO_POLYGON_NEW: "Click the {LINE_ICON} tool to draw a new polygon.",
     GEO_POLYGON_EDIT: "Select the existing polygon to move it or its vertices.",
+    GEO_START_GPS: "Start GPS",
+    GEO_STOP_GPS: "Stop GPS",
 };

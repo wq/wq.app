@@ -35,7 +35,9 @@ export function useGeoTools(name, type, mapId) {
         { useMapInstance } = useComponents(),
         instance = useMapInstance(mapId),
         [, { value }, { setValue }] = useField(name),
-        [, , { setValue: setAccuracy }] = useField(`${name}_accuracy`),
+        [, { value: accuracy }, { setValue: setAccuracy }] = useField(
+            `${name}_accuracy`
+        ),
         [, { value: activeTool }, { setValue: setActiveTool }] =
             useField(toggleName);
 
@@ -102,8 +104,9 @@ export function useGeoTools(name, type, mapId) {
             setLocation,
             ActiveTool,
             value,
+            accuracy,
         }),
-        [toggleName, tools, setLocation, ActiveTool, value]
+        [toggleName, tools, setLocation, ActiveTool, value, accuracy]
     );
 }
 
