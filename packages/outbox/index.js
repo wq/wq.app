@@ -1,3 +1,3 @@
-import outbox, { Outbox, getOutbox } from "./src/outbox.js";
+import outbox, { Outbox, getOutbox, mergeErrors } from "./src/outbox.js";
 export default outbox;
-export { Outbox, getOutbox };
+export { Outbox, getOutbox, mergeErrors };

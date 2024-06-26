@@ -915,7 +915,7 @@ async function _displayItem(ctx) {
     }
 }
 
-function _addFKLabels(item, form) {
+function _addFKLabels(item, form = []) {
     for (const field of form) {
         const modelName = field["wq:ForeignKey"],
             idName = `${field.name}_id`,

@@ -336,13 +336,17 @@ class Outbox {
 
     // Validate a record before adding it to the outbox
     validate(data, modelConf) {
-        const errors = {};
+        let errors = {};
         this.app
             .callPlugins("validate", [data, modelConf])
             .forEach((pluginErrors) => {
-                mergeErrors(errors, pluginErrors);
+                errors = this.mergeErrors(errors, pluginErrors);
             });
         return errors;
+    }
+
+    mergeErrors(errors, nextErrors) {
+        return mergeErrors(errors, nextErrors);
     }
 
     // Send a single item from the outbox to the server
@@ -1128,7 +1132,7 @@ class Outbox {
     }
 }
 
-function mergeErrors(errors, newErrors) {
+export function mergeErrors(errors, newErrors) {
     if (
         !newErrors ||
         typeof newErrors !== "object" ||
@@ -1136,6 +1140,7 @@ function mergeErrors(errors, newErrors) {
     ) {
         return errors;
     }
+    errors = { ...errors };
     Object.entries(newErrors).forEach(([key, newError]) => {
         const error = errors[key];
         if (
@@ -1148,7 +1153,7 @@ function mergeErrors(errors, newErrors) {
             errors[key] = error + " • " + newError;
         } else if (Array.isArray(error)) {
             errors[key] = error
-                .map((err, i) => mergeErrors(err, newError[i]))
+                .map((err, i) => mergeErrors(err || {}, newError[i]))
                 .concat(newError.slice(error.length));
         } else if (typeof error === "object") {
             errors[key] = mergeErrors(error, newError);
