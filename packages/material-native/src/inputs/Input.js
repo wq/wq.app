@@ -25,8 +25,7 @@ export default function Input(props) {
                     : ""
                 : value
         ),
-        { setValue, setTouched } = helpers,
-        [decimal, setDecimal] = useState();
+        { setValue, setTouched } = helpers;
 
     function handleChange(nextValue) {
         let value = nextValue;
@@ -87,4 +86,5 @@ Input.propTypes = {
     style: PropTypes.object,
     min: PropTypes.number,
     max: PropTypes.number,
+    step: PropTypes.number,
 };

@@ -98,6 +98,8 @@ GeoLocate.toolLabel = "Current";
 GeoLocate.propTypes = {
     type: PropTypes.string,
     setLocation: PropTypes.func,
+    value: PropTypes.object,
+    accuracy: PropTypes.number,
 };
 
 function formatLoc(lat, lng, acc) {
