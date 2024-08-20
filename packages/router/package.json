@@ -1,9 +1,10 @@
 {
     "name": "@wq/router",
-    "version": "2.0.0",
+    "version": "2.2.0",
     "description": "Respond to URL changes with locally generated pages and custom events",
     "type": "module",
     "main": "index.js",
+    "react-native": "index.native.js",
     "scripts": {
         "test": "cd ../../ && npm run jest packages/router",
         "prettier": "cd ../../ && npm run prettier -- --write packages/router/",

@@ -1,5 +1,5 @@
 import react from "@wq/react";
-import App from "./App.js";
+import Root from "./Root.js";
 import * as components from "./components/index.js";
 import * as inputs from "./inputs/index.js";
 import * as icons from "./icons.js";
@@ -21,7 +21,7 @@ export default {
         },
     },
 
-    components: { App, ...components },
+    components: { Root, ...components },
     inputs: { ...inputs },
     icons: { ...icons },
 
@@ -42,7 +42,7 @@ export default {
     },
 };
 
-export { App };
+export { Root };
 export * from "./components/index.js";
 export * from "./inputs/index.js";
 export * from "./hooks.js";

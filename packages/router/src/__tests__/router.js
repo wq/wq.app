@@ -1,4 +1,4 @@
-import router from "../router.js";
+import router from "../../index.js";
 
 var handleRender;
 

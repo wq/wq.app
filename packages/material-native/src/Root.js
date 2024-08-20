@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { App as DefaultApp, usePlugin } from "@wq/react";
+import { Root as DefaultRoot } from "@wq/react";
 import {
     MD2LightTheme,
     MD3LightTheme,
@@ -15,22 +15,13 @@ const THEMES = {
     "dark-3": MD3DarkTheme,
 };
 
-export default function App() {
-    const { theme: configTheme } = usePlugin("material").config,
-        theme = useMemo(() => createTheme(configTheme), [configTheme]),
-        options = useMemo(
-            () => ({
-                navigator: { theme },
-                screen: {
-                    cardStyle: { backgroundColor: theme.colors.background },
-                },
-            }),
-            [theme]
-        );
+export default function Root({ app, children }) {
+    const { theme: configTheme } = app.plugins.material.config,
+        theme = useMemo(() => createTheme(configTheme), [configTheme]);
 
     return (
         <PaperProvider theme={theme}>
-            <DefaultApp options={options} />
+            <DefaultRoot app={app}>{children}</DefaultRoot>
         </PaperProvider>
     );
 }

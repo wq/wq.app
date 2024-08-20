@@ -1,18 +1,18 @@
 import React, { useMemo } from "react";
-import { App as DefaultApp, usePlugin } from "@wq/react";
+import { Root as DefaultRoot, usePlugin } from "@wq/react";
 import {
     createTheme as createMuiTheme,
     ThemeProvider,
     CssBaseline,
 } from "@mui/material";
 
-export default function App() {
+export default function Root({ app, children }) {
     const { theme } = usePlugin("material").config,
         muiTheme = useMemo(() => createTheme(theme), [theme]);
     return (
         <ThemeProvider theme={muiTheme}>
             <CssBaseline />
-            <DefaultApp />
+            <Root app={app}>{children}</Root>
         </ThemeProvider>
     );
 }

@@ -1,9 +1,9 @@
 import React from "react";
 import orm from "@wq/model";
-import { Provider as StoreProvider } from "react-redux";
-import { AppContext } from "./hooks.js";
 
 import messages from "./messages.js";
+import App from "./App.js";
+import Root from "./Root.js";
 import * as components from "./components/index.js";
 import * as inputs from "./inputs/index.js";
 import * as icons from "./icons.js";
@@ -20,15 +20,14 @@ export default {
     },
 
     registry: {
-        components: { ...components },
+        components: { App, Root, ...components },
         inputs: { ...inputs },
         icons: { ...icons },
         views: { ...views },
     },
 
-    setEngine({ init, start, unmount, App }) {
+    setEngine({ init, start, unmount }) {
         this.engine = { init, start, unmount };
-        this.registry.components.App = App;
     },
 
     init(config) {
@@ -59,16 +58,12 @@ export default {
     },
 
     getRootComponent() {
-        const { app, registry } = this,
-            { components } = registry,
-            { App } = components;
-        const AppRoot = () => (
-            <StoreProvider store={this.app.store._store}>
-                <AppContext.Provider value={{ app }}>
+        const { App, Root } = this.app.registry.components,
+            AppRoot = () => (
+                <Root app={this.app}>
                     <App />
-                </AppContext.Provider>
-            </StoreProvider>
-        );
+                </Root>
+            );
         AppRoot.displayName = "AppRoot";
         return AppRoot;
     },

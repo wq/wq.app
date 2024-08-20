@@ -1,14 +1,27 @@
 import React, { useMemo, useCallback, useContext } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import * as ReduxORM from "redux-orm";
-import * as ReduxFirstRouter from "redux-first-router";
 import { paramCase } from "param-case";
 import { useHtmlInput } from "./inputs/Input.js";
+import {
+    useRenderContext,
+    useRouteInfo,
+    useContextTitle,
+    useNav,
+    useReverse,
+    RouteContext,
+} from "@wq/router";
+
+export {
+    useRenderContext,
+    useRouteInfo,
+    useContextTitle,
+    useNav,
+    useReverse,
+    RouteContext,
+};
 
 const { createSelector } = ReduxORM;
-const { pathToAction, getOptions, selectLocationState } = ReduxFirstRouter;
-
-const isAction = (path) => path && path.type;
 
 const selectors = {};
 
@@ -19,78 +32,10 @@ function getSelector(name) {
     return selectors[name];
 }
 
-function selectRoutesMap(state) {
-    return selectLocationState(state).routesMap;
-}
-
-export function useRoutesMap() {
-    return useSelector(selectRoutesMap);
-}
-
-export function toNavAction(path, routesMap) {
-    const { querySerializer } = getOptions(),
-        baseUrl = routesMap.INDEX ? routesMap.INDEX.path : "/";
-    return isAction(path)
-        ? path
-        : pathToAction(
-              path.indexOf("/") === 0 ? path : baseUrl + path,
-              routesMap,
-              querySerializer
-          );
-}
-
-export function useNavAction() {
-    const routesMap = useRoutesMap();
-    return useCallback((path) => toNavAction(path, routesMap), [routesMap]);
-}
-
-export function useNav(to) {
-    const dispatch = useDispatch(),
-        navAction = useNavAction();
-    return useMemo(() => {
-        function nav(path) {
-            dispatch(navAction(path));
-        }
-        return to ? nav.bind(null, to) : nav;
-    }, [dispatch, navAction, to]);
-}
-
-export const RouteContext = React.createContext({
-    name: "@@CURRENT",
-});
-
-export function useCurrentRoute() {
-    return useContext(RouteContext).name;
-}
-
-export function useRenderContext(routeName) {
-    const context = useSelector(getSelector("context")),
-        currentRoute = useCurrentRoute();
-    return (context && context[routeName || currentRoute]) || {};
-}
-
-export function useRouteInfo(routeName) {
-    const currentRoute = useCurrentRoute(),
-        routeInfos = useSelector(getSelector("routeInfo")),
-        routeInfo = routeInfos && routeInfos[routeName || currentRoute],
-        context = useRenderContext(routeName),
-        { getRouteInfo } = useApp().router;
-
-    return getRouteInfo(context, routeInfo);
-}
-
 export function useSiteTitle() {
     const siteTitle = useConfig().site_title,
         contextTitle = useContextTitle();
     return siteTitle || contextTitle;
-}
-
-export function useContextTitle() {
-    const context = useRenderContext(),
-        routeInfo = useRouteInfo(),
-        { getContextTitle } = useApp().router;
-
-    return getContextTitle(context, routeInfo);
 }
 
 export function useRouteTitle(routeName) {
@@ -118,32 +63,6 @@ export function useRouteTitle(routeName) {
     } else {
         return routeTitle;
     }
-}
-
-export function useReverse() {
-    const routesMap = useRoutesMap();
-    return useCallback(
-        (name, payload, query) => {
-            const action = {
-                type: name.toUpperCase(),
-            };
-            if (!routesMap[action.type]) {
-                throw new Error(`Unknown route: ${action.type}`);
-            }
-            if (payload) {
-                if (typeof payload === "object") {
-                    action.payload = payload;
-                } else {
-                    action.payload = { slug: payload };
-                }
-            }
-            if (query) {
-                action.meta = { query };
-            }
-            return action;
-        },
-        [routesMap]
-    );
 }
 
 export function useIndexRoute() {

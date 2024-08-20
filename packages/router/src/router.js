@@ -1,11 +1,10 @@
-import * as ReduxFirstRouter from "redux-first-router";
-import queryString from "query-string";
 import { capitalCase } from "capital-case";
 import { getStore } from "@wq/store";
+import { createContext, useContext } from "react";
+import { useSelector } from "react-redux";
 
-const { connectRoutes, push, NOT_FOUND, ADD_ROUTES } = ReduxFirstRouter;
-
-const HTML = "@@HTML",
+export const HTML = "@@HTML",
+    SET_ROUTE_INFO = "SET_ROUTE_INFO",
     RENDER = "RENDER",
     FIRST = "@@FIRST",
     DEFAULT = "@@DEFAULT",
@@ -17,15 +16,6 @@ const HTML = "@@HTML",
         [LAST]: true,
     };
 
-const defaultQuerySerializer = {
-    parse(str) {
-        return queryString.parse(str, { arrayFormat: "comma" });
-    },
-    stringify(obj) {
-        return queryString.stringify(obj, { arrayFormat: "comma" });
-    },
-};
-
 // Exported module object
 var router = {
     config: {
@@ -33,11 +23,23 @@ var router = {
         tmpl404: "404",
         debug: false,
         getTemplateName: (name) => name,
-        querySerializer: defaultQuerySerializer,
+        parseRouteInfo: () => {
+            throw new Error("No parser defined");
+        },
     },
-    routesMap: {},
+    routes: {},
     routeInfoFn: [],
     contextProcessors: [],
+    async setRouteInfo(location) {
+        const current = router.computeRouteInfo(location);
+        this.store.dispatch({
+            type: SET_ROUTE_INFO,
+            payload: current,
+        });
+        const context = await router.generateContext(current);
+        router.render(context);
+        return context;
+    },
 };
 
 // Configuration
@@ -57,89 +59,48 @@ router.init = function (config) {
     // Set `debug` to true to log template & context information
     // Set getTemplateName to change how route names are resolved.
 
-    const {
-        reducer: routeReducer,
-        middleware,
-        enhancer,
-        initialDispatch,
-    } = connectRoutes(
-        {},
-        {
-            querySerializer: router.config.querySerializer,
-            initialDispatch: false,
-        }
-    );
     router.store = getStore(router.config.store);
-    router.store.addReducer("location", routeReducer);
-    router.store.addReducer("context", contextReducer);
-    router.store.addReducer("routeInfo", routeInfoReducer);
-    router.store.addEnhancer(enhancer);
-    router.store.addMiddleware(middleware);
-    router.store.setThunkHandler(router.addThunk);
-    router._initialDispatch = initialDispatch;
+    router.store.addReducer(
+        "context",
+        (state, action) => router.contextReducer(state, action) || {}
+    );
+    router.store.addReducer(
+        "routeInfo",
+        (state, action) => router.routeInfoReducer(state, action) || {}
+    );
 };
 
 router.start = function () {
-    if (!router.config) {
-        throw new Error("Initialize router first!");
-    }
-    var orderedRoutes = {};
-    [FIRST, DEFAULT, LAST].forEach(function (order) {
-        Object.entries(router.routesMap).forEach(([name, path]) => {
-            if (path.order === order) {
-                orderedRoutes[name] = path;
-            }
-        });
-    });
-    router.store.dispatch({
-        type: ADD_ROUTES,
-        payload: { routes: orderedRoutes },
-    });
-    router._initialDispatch();
+    // pass
 };
 
-function contextReducer(context = {}, action) {
-    if (action.type != RENDER && action.type != NOT_FOUND) {
+router.contextReducer = function (context = {}, action) {
+    if (action.type != RENDER) {
         return context;
     }
-    let current;
-    if (action.type === RENDER) {
-        current = action.payload;
-    } else if (action.type === NOT_FOUND) {
-        const routeInfo = _routeInfo(action.meta.location);
-        current = {
-            router_info: {
-                ...routeInfo,
-                template: router.config.tmpl404,
-            },
-            rt: router.base_url,
-            url: routeInfo.full_path,
-        };
-    }
+    const current = action.payload;
     return {
         ...context,
         [current.router_info.name]: current,
         [CURRENT]: current,
     };
-}
+};
 
-function routeInfoReducer(routeInfo = {}, action) {
-    if (action.meta && action.meta.location) {
-        const current = _routeInfo(action.meta.location);
-        return {
-            ...routeInfo,
-            [current.name]: current,
-            [CURRENT]: current,
-        };
-    } else {
+router.routeInfoReducer = function (routeInfo, action) {
+    if (action.type != SET_ROUTE_INFO) {
         return routeInfo;
     }
-}
+    const current = action.payload;
+    return {
+        ...routeInfo,
+        [current.name]: current,
+        [CURRENT]: current,
+    };
+};
 
-async function _generateContext(dispatch, getState, refresh = false) {
-    const location = getState().location;
+router.generateContext = async function (routeInfo) {
     var context = {
-        router_info: _routeInfo(location),
+        router_info: routeInfo,
         rt: router.base_url,
     };
     for (var i = 0; i < router.contextProcessors.length; i++) {
@@ -149,12 +110,8 @@ async function _generateContext(dispatch, getState, refresh = false) {
             ...((await fn(context)) || {}),
         };
     }
-    if (context[NOT_FOUND]) {
-        context.router_info.template = router.config.tmpl404;
-        context.url = context.router_info.full_path;
-    }
-    return router.render(context, refresh);
-}
+    return context;
+};
 
 router.register = function (
     path,
@@ -205,16 +162,9 @@ router.register = function (
         );
     }
 
-    function thunkFn(dispatch, getState, bag) {
-        _generateContext(dispatch, getState);
-        if (thunk) {
-            thunk(dispatch, getState, bag);
-        }
-    }
-
-    router.routesMap[name.toUpperCase()] = {
+    router.routes[name] = {
         path: _normalizePath(path),
-        thunk: thunkFn,
+        thunk,
         order,
     };
 
@@ -233,8 +183,9 @@ router.registerLast = function (path, name, context) {
     router.register(path, name, context, LAST);
 };
 
+// TODO: Deprecate, then remove in 3.0
 router.addThunk = function (name, thunk) {
-    router.routesMap[name] = {
+    router.routes[name] = {
         thunk,
         order: FIRST,
     };
@@ -275,10 +226,6 @@ router.addRoute = function () {
     );
 };
 
-router.push = function (path) {
-    push(path);
-};
-
 router.render = function (context, refresh) {
     if (refresh) {
         if (refresh === true) {
@@ -315,21 +262,11 @@ router.refresh = function () {
 };
 
 // Regenerate context, then re-render page
-router.reload = function () {
-    const context = router.getContext(),
-        refresh = (context._refreshCount || 0) + 1;
-    return _generateContext(
-        (action) => router.store.dispatch(action),
-        () => router.store.getState(),
-        refresh
-    );
-};
-
-// Simple 404 page helper
-router.notFound = function () {
-    return {
-        [NOT_FOUND]: true,
-    };
+router.reload = async function () {
+    const { _refreshCount, router_info: routeInfo } = router.getContext(),
+        refresh = (_refreshCount || 0) + 1,
+        context = await router.generateContext(routeInfo);
+    router.render(context, refresh);
 };
 
 // Use when loading HTML from server
@@ -427,10 +364,10 @@ function _normalizePath(path) {
 
 function _getRouteName(pathOrName) {
     var name;
-    if (router.routesMap[pathOrName.toUpperCase()]) {
+    if (router.routes[pathOrName.toLowerCase()]) {
         name = pathOrName;
     } else {
-        Object.entries(router.routesMap).forEach(([rname, rpath]) => {
+        Object.entries(router.routes).forEach(([rname, rpath]) => {
             if (_normalizePath(pathOrName) === rpath.path) {
                 name = rname;
             }
@@ -442,41 +379,57 @@ function _getRouteName(pathOrName) {
     return name.toLowerCase();
 }
 
-function _removeBase(pathname) {
-    return pathname.replace(router.base_url + "/", "");
-}
-
 var _lastRouteInfo = null;
-function _routeInfo(location) {
+router.computeRouteInfo = function (location) {
     const info = _computeRouteInfo(location);
     if (JSON.stringify(info) !== JSON.stringify(_lastRouteInfo)) {
         _lastRouteInfo = info;
     }
     return _lastRouteInfo;
-}
+};
 
 function _computeRouteInfo(location) {
-    if (location.current && location.prev) {
-        location = {
-            ...location.current,
-            prev: location.prev,
-        };
-    }
-    var info = {};
-    info.name = location.type.toLowerCase();
-    info.template = router.config.getTemplateName(info.name);
-    info.prev_path = _removeBase(location.prev.pathname);
-    info.path = _removeBase(location.pathname);
-    info.path_enc = escape(info.path);
-    info.full_path =
-        location.pathname + (location.search ? "?" + location.search : "");
-    info.full_path_enc = escape(info.full_path);
-    info.params = location.query;
-    info.slugs = location.payload;
+    let info = router.config.parseRouteInfo(location);
     info.base_url = router.base_url;
-
     router.routeInfoFn.forEach((fn) => (info = fn(info)));
     return info;
 }
 
 export default router;
+
+export const RouteContext = createContext({
+    name: "@@CURRENT",
+});
+
+export function useCurrentRoute() {
+    return useContext(RouteContext).name;
+}
+
+function selectContext(state) {
+    return state["context"];
+}
+
+export function useRenderContext(routeName) {
+    const context = useSelector(selectContext),
+        currentRoute = useCurrentRoute();
+    return (context && context[routeName || currentRoute]) || {};
+}
+function selectRouteInfo(state) {
+    return state["routeInfo"];
+}
+
+export function useRouteInfo(routeName) {
+    const currentRoute = useCurrentRoute(),
+        routeInfos = useSelector(selectRouteInfo),
+        routeInfo = routeInfos && routeInfos[routeName || currentRoute],
+        context = useRenderContext(routeName);
+
+    return router.getRouteInfo(context, routeInfo);
+}
+
+export function useContextTitle() {
+    const context = useRenderContext(),
+        routeInfo = useRouteInfo();
+
+    return router.getContextTitle(context, routeInfo);
+}

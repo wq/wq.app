@@ -1,10 +1,10 @@
 import react from "./react.js";
-import App from "./App.native.js";
-import { init, start, unmount } from "./init.native.js";
+import App from "./App.js";
+import Root from "./Root.js";
 
-react.setEngine({ init, start, unmount, App });
+react.setEngine({ init() {}, start() {}, unmount() {} });
 
 export default react;
 export * from "./react.js";
-export * from "./hooks.native.js";
-export { App };
+export * from "./hooks.js";
+export { App, Root };

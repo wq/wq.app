@@ -1,4 +1,5 @@
-import router from "./src/redux-first-router.js";
+import router from "./src/expo-router.js";
+
 export {
     useRenderContext,
     useRouteInfo,
@@ -6,5 +7,6 @@ export {
     useNav,
     useReverse,
     RouteContext,
-} from "./src/redux-first-router.js";
+} from "./src/expo-router.js";
+
 export default router;
