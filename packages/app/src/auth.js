@@ -165,9 +165,7 @@ export default {
             );
         }
         // FIXME: Better way to do this?
-        app.spin.start();
         await app.prefetchAll();
-        app.spin.stop();
         await app.router.reload();
     },
 

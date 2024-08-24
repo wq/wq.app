@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Root as DefaultRoot } from "@wq/react";
+import { usePathname, useSegments, useGlobalSearchParams } from "expo-router";
 import {
     MD2LightTheme,
     MD3LightTheme,
@@ -16,8 +17,15 @@ const THEMES = {
 };
 
 export default function Root({ app, children }) {
-    const { theme: configTheme } = app.plugins.material.config,
+    const pathname = usePathname(),
+        segments = useSegments(),
+        params = useGlobalSearchParams(),
+        { theme: configTheme } = app.plugins.material.config,
         theme = useMemo(() => createTheme(configTheme), [configTheme]);
+
+    useEffect(() => {
+        app.router.setRouteInfo({ pathname, segments, params });
+    }, [pathname, segments, params]);
 
     return (
         <PaperProvider theme={theme}>

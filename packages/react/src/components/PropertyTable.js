@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 const Value = ({ values, field }) => {
     const {
+            Text,
             FormatJson,
             ImagePreview,
             FileLink,
@@ -58,7 +59,7 @@ const Value = ({ values, field }) => {
     } else if (typeof value === "object") {
         return <FormatJson json={value} field={field} />;
     } else {
-        return value + "";
+        return <Text>{value + ""}</Text>;
     }
 };
 

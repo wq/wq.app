@@ -1,3 +1,4 @@
+import React from "react";
 import { Provider as StoreProvider } from "react-redux";
 import { AppContext } from "./hooks.js";
 

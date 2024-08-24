@@ -5,14 +5,16 @@ const SPIN_STOP = "SPIN_STOP";
 export default {
     name: "spinner",
     actions: {
-        start: (message, duration, type) => ({
-            type: SPIN_START,
-            payload: {
-                message,
-                duration,
-                type,
-            },
-        }),
+        startSpinner: (message, duration, type) => {
+            return {
+                type: SPIN_START,
+                payload: {
+                    message,
+                    duration,
+                    type,
+                },
+            };
+        },
         alert: (message) => ({
             type: SPIN_DURATION,
             payload: {
@@ -21,7 +23,7 @@ export default {
                 type: "alert",
             },
         }),
-        stop: (message) => ({ type: SPIN_STOP, payload: { message } }),
+        stopSpinner: (message) => ({ type: SPIN_STOP, payload: { message } }),
     },
     thunks: {
         SPIN_DURATION: async (dispatch, getState, bag) => {

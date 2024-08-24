@@ -35,3 +35,13 @@ test("render page", () => {
         router.push("/test/1234?p=1");
     });
 });
+
+test("match path", () => {
+    expect(router.matchPath("/", "/")).toBe(true);
+    expect(router.matchPath("/test", "/test/")).toBe(true);
+    expect(router.matchPath("/test", "/")).toBe(false);
+    expect(router.matchPath("/test/:slug", "/test/1234")).toBe(true);
+    expect(router.matchPath("/test/", "/test/1234")).toBe(false);
+    expect(router.matchPath("/test/1234", "/test/:slug")).toBe(true);
+    expect(router.matchPath("/test/1234", "/test/5678")).toBe(false);
+});

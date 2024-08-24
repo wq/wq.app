@@ -12,7 +12,7 @@ export default function Root({ app, children }) {
     return (
         <ThemeProvider theme={muiTheme}>
             <CssBaseline />
-            <Root app={app}>{children}</Root>
+            <DefaultRoot app={app}>{children}</DefaultRoot>
         </ThemeProvider>
     );
 }

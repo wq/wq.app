@@ -48,7 +48,6 @@ app.init = function (config) {
         app.use(auth);
     }
     router.addRouteInfo(_extendRouteInfo);
-    router.addContext(() => spinner.start() && {});
     router.addContext(_getSyncInfo);
 
     // Router (wq/router.js) configuration
@@ -116,9 +115,10 @@ app.init = function (config) {
     });
 
     app.spin = {
-        start: (msg, duration, opts) => spinner.start(msg, duration, opts),
-        forSeconds: (duration) => spinner.start(null, duration),
-        stop: (msg) => spinner.stop(msg),
+        start: (msg, duration, opts) =>
+            spinner.startSpinner(msg, duration, opts),
+        forSeconds: (duration) => spinner.startSpinner(null, duration),
+        stop: (msg) => spinner.stopSpinner(msg),
     };
 
     // Outbox (wq/outbox.js) configuration
@@ -243,8 +243,6 @@ app.init = function (config) {
             });
         }
     });
-
-    router.addContext(() => spinner.stop() && {});
 
     // Initialize wq/store.js and wq/outbox.js
     ds.init(config.store);

@@ -205,7 +205,7 @@ router.addContext = function (fn) {
 };
 
 router.addContextForRoute = function (pathOrName, fn) {
-    const name = _getRouteName(pathOrName);
+    const name = router.getRouteName(pathOrName);
     function contextForRoute(context) {
         if (context.router_info.name == name) {
             return fn(context);
@@ -359,25 +359,50 @@ router.getRouteTitle = function (routeInfo) {
 
 function _normalizePath(path) {
     path = path.replace("<slug>", ":slug");
-    return router.base_url + "/" + path;
+    return (
+        router.base_url + "/" + (path.startsWith("/") ? path.slice(1) : path)
+    );
 }
 
-function _getRouteName(pathOrName) {
+router.getRouteName = function (pathOrName) {
     var name;
-    if (router.routes[pathOrName.toLowerCase()]) {
+    if (
+        router.routes[pathOrName.toLowerCase()] ||
+        router.routes[pathOrName.toUpperCase()]
+    ) {
         name = pathOrName;
     } else {
-        Object.entries(router.routes).forEach(([rname, rpath]) => {
-            if (_normalizePath(pathOrName) === rpath.path) {
+        pathOrName = _normalizePath(pathOrName);
+        for (const [rname, rpath] of Object.entries(router.routes)) {
+            if (rpath.path && router.matchPath(pathOrName, rpath.path)) {
                 name = rname;
+                break;
             }
-        });
+        }
     }
     if (!name) {
         throw new Error("Unrecognized route: " + pathOrName);
     }
     return name.toLowerCase();
-}
+};
+
+router.matchPath = function (path1, path2) {
+    const parts1 = path1.split("/"),
+        parts2 = path2.split("/"),
+        maxLen = Math.max(parts1.length, parts2.length);
+    for (let i = 0; i < maxLen; i++) {
+        if (
+            (!parts1[i] && !parts2[i]) ||
+            (parts1[i] || "").startsWith(":") ||
+            (parts2[i] || "").startsWith(":")
+        ) {
+            continue;
+        } else if (parts1[i] != parts2[i]) {
+            return false;
+        }
+    }
+    return true;
+};
 
 var _lastRouteInfo = null;
 router.computeRouteInfo = function (location) {
