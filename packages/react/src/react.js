@@ -58,7 +58,7 @@ export default {
     },
 
     getRootComponent() {
-        const { App, Root } = this.app.registry.components,
+        const { App, Root } = this.registry.components,
             AppRoot = () => (
                 <Root app={this.app}>
                     <App />

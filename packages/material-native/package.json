@@ -38,6 +38,7 @@
         "expo-application": "*",
         "expo-document-picker": "*",
         "expo-image-picker": "*",
+        "expo-router": "*",
         "react-native-modal-datetime-picker": "*",
         "react-native-paper": "*",
         "react-native-picker-select": "*"
@@ -49,6 +50,7 @@
         "expo-application": "^5.9.1",
         "expo-document-picker": "^12.0.2",
         "expo-image-picker": "^15.0.7",
+        "expo-router": "^3.5.23",
         "jest-expo": "^51.0.3",
         "react-native-modal-datetime-picker": "^17.1.0",
         "react-native-paper": "^5.12.5",
